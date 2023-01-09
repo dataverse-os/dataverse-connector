@@ -1,0 +1,22 @@
+{
+  "name": "runtime-connector",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dataverse-os/runtime-connector.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dataverse-os/runtime-connector/issues"
+  },
+  "homepage": "https://github.com/dataverse-os/runtime-connector#readme",
+  "dependencies": {
+    "uuid": "^9.0.0"
+  }
+}
