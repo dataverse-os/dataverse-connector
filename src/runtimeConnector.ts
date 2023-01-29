@@ -1,17 +1,21 @@
-interface RequestInputs {
-  method: string;
-  params?: unknown[] | object;
+import { init } from "@dataverse/dataverse-kernel";
+import { Methods, RequestType, ReturnType } from "@dataverse/dataverse-kernel/dist/cjs/event";
+
+
+export interface RequestInputs {
+  method: Methods;
+  parameters?: RequestType[Methods];
 }
 
-interface RequestArguments {
+export interface RequestArguments {
   sequenceId: number;
   type: "request";
 }
 
-interface ResponseArguments {
+export interface ResponseArguments {
   sequenceId: number;
   type: "response";
-  result: Array<any>;
+  result: object;
 }
 
 export class RuntimeConnector {
@@ -35,7 +39,7 @@ export class RuntimeConnector {
         sequenceId: this.sequenceId,
         type: "request",
         method: args.method,
-        params: args.params,
+        params: args.parameters,
       },
       this.allowOrigins
     );
@@ -71,19 +75,23 @@ export class RuntimeConnector {
     callbackFunc.apply(null, args.result);
   }
 
-  private _handleRequest(args: RequestInputs & RequestArguments): void {
+  private async _handleRequest(args: RequestInputs & RequestArguments): Promise<void> {
     if (this.destroyed) return;
+    if (!init.eventListener[args.method]) return;
 
-    // method <--> function的对应关系
-    switch (args.method) {
-      default:
-        console.log("method not found.");
-        break;
-    }
+    this.sendResponse({
+      sequenceId: args.sequenceId,
+      type: "response",
+      result: await init.eventListener[args.method](
+        args.parameters as any
+      ) as ReturnType[Methods]
+    });
+
   }
 
   destroy() {
     this.destroyed = true;
     this.sourceOrigin.removeEventListener("message", this._onmessage);
   }
+
 }
