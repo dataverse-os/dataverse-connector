@@ -1,10 +1,15 @@
 {
   "name": "@dataverse/runtime-connector",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
-  "main": "index.js",
+  "type": "module",
+  "main": "dist/cjs/init/index.js",
+  "module": "dist/esm/init/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "pnpm build:esm && pnpm build:cjs",
+    "build:esm": "npx tsc -p tsconfig.json",
+    "build:cjs": "npx tsc -p tsconfig-cjs.json"
   },
   "repository": {
     "type": "git",
@@ -18,6 +23,7 @@
   "homepage": "https://github.com/dataverse-os/runtime-connector#readme",
   "dependencies": {
     "@dataverse/dataverse-kernel": "1.0.11",
+    "typescript": "^4.9.4",
     "uuid": "^9.0.0"
   }
 }

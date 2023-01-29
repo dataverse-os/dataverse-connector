@@ -1,22 +1,22 @@
-import { Browser, ENV, Extension, Node } from "../../constants";
-import { Methods } from "../../event/constants";
-import { init } from "../../init";
+import { init } from "@dataverse/dataverse-kernel";
+import { Browser, ENV, Extension, Node } from "@dataverse/dataverse-kernel/dist/cjs/constants";
+import { Methods, RequestType } from "@dataverse/dataverse-kernel/dist/cjs/event";
 import { ethers } from "ethers";
-import { ReturnType, RequestType } from "../../event/types";
-import { MessagePoster } from "./messagePoster";
+import { RuntimeConnector } from "../runtimeConnector";
+
 
 export class Communicator {
-  private messagePoster: MessagePoster;
+  private runtimeConnector: RuntimeConnector;
   constructor() {
     switch (process.env.ENV) {
       case Browser: {
-        this.messagePoster = new MessagePoster(window, window.top);
+        this.runtimeConnector = new RuntimeConnector(window, window.top);
         break;
       }
       case Extension: {
-        this.messagePoster = new MessagePoster(window, window);
+        this.runtimeConnector = new RuntimeConnector(window, window);
       }
-    } 
+    }
   }
 
   async call({
@@ -26,12 +26,6 @@ export class Communicator {
     method: Methods;
     parameters: RequestType[Methods];
   }) {
-    if (process.env.ENV === Node) {
-      return init.eventListener[method](
-        parameters as any
-      ) as ReturnType[Methods];
-    } else {
-      this.messagePoster.sendRequest({ method, parameters });
-    }
+    this.runtimeConnector.sendRequest({ method, parameters });
   }
 }
