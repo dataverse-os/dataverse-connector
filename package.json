@@ -1,13 +1,14 @@
 {
   "name": "@dataverse/runtime-connector",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "type": "module",
   "main": "dist/cjs/init/index.js",
   "module": "dist/esm/init/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "pnpm build:esm && pnpm build:cjs",
+    "build": "pnpm build:clean && pnpm build:esm && pnpm build:cjs",
+    "build:clean": "rimraf dist",
     "build:esm": "npx tsc -p tsconfig.json",
     "build:cjs": "npx tsc -p tsconfig-cjs.json"
   },
