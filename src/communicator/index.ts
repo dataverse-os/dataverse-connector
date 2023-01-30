@@ -15,12 +15,13 @@ export interface ResponseArguments {
 }
 
 export class Communicator {
-  private targetOrigin: Window;
-  private sourceOrigin: Window;
-  private allowOrigins = "*";
+  protected targetOrigin: Window;
+  protected sourceOrigin: Window;
+  protected allowOrigins = "*";
+  protected destroyed: boolean = false;
+  
   private sequenceId: number = 0;
   private callbackFunctions: Record<number, Function> = {};
-  private destroyed: boolean = false;
   private handleReqMessage: Function = () => { };
   private handleResMessage: Function = () => { };
 
