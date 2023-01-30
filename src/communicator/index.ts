@@ -1,10 +1,6 @@
-import { init } from "@dataverse/dataverse-kernel";
-import { Methods, RequestType, ReturnType } from "@dataverse/dataverse-kernel/dist/cjs/event";
-
-
 export interface RequestInputs {
-  method: Methods;
-  params?: RequestType[Methods];
+  method: string;
+  params?: any;
 }
 
 export interface RequestArguments {
@@ -18,13 +14,15 @@ export interface ResponseArguments {
   result: object;
 }
 
-export class RuntimeConnector {
+export class Communicator {
   private targetOrigin: Window;
   private sourceOrigin: Window;
   private allowOrigins = "*";
   private sequenceId: number = 0;
   private callbackFunctions: Record<number, Function> = {};
   private destroyed: boolean = false;
+  private handleReqMessage: Function = () => { };
+  private handleResMessage: Function = () => { };
 
   constructor(source: Window, target: Window) {
     this.targetOrigin = target;
@@ -59,33 +57,36 @@ export class RuntimeConnector {
   }
 
   private _onmessage(event: MessageEvent) {
-    console.log("on message: ", event.data);
+    // console.log("on message: ", event.data);
+    if (this.destroyed) return;
+
     if (event.data.type === "response") {
-      this._handleResponse(event.data);
+      this.handleReqMessage(event);
     } else if (event.data.type === "request") {
-      this._handleRequest(event.data);
+      this.handleResMessage(event);
     }
+  }
+
+  onReqMessage(fn: (event: MessageEvent) => void) {
+    this.handleResMessage = fn
+  }
+
+  onResMessage(fn: (event: MessageEvent) => void) {
+    this.handleReqMessage = fn
   }
 
   private _handleResponse(args: ResponseArguments): void {
     if (this.destroyed) return;
-
     if (args.result === undefined || args.sequenceId === undefined) return;
+
     const callbackFunc = this.callbackFunctions[args.sequenceId];
     callbackFunc.apply(null, args.result);
+
+    this.handleReqMessage()
   }
 
   private async _handleRequest(args: RequestInputs & RequestArguments): Promise<void> {
     if (this.destroyed) return;
-    if (!init.eventListener[args.method]) return;
-
-    this.sendResponse({
-      sequenceId: args.sequenceId,
-      type: "response",
-      result: await init.eventListener[args.method](
-        args.params as any
-      ) as ReturnType[Methods]
-    });
 
   }
 
