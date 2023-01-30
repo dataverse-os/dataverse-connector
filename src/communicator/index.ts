@@ -1,14 +1,14 @@
-export interface RequestInputs {
+interface RequestInputs {
   method: string;
   params?: any;
 }
 
-export interface RequestArguments {
+interface RequestArguments {
   sequenceId: number;
   type: "request";
 }
 
-export interface ResponseArguments {
+interface ResponseArguments {
   sequenceId: number;
   type: "response";
   result: object;
@@ -19,9 +19,9 @@ export class Communicator {
   protected sourceOrigin: Window;
   protected allowOrigins = "*";
   protected destroyed: boolean = false;
-  
-  private sequenceId: number = 0;
-  private callbackFunctions: Record<number, Function> = {};
+  protected sequenceId: number = 0;
+  protected callbackFunctions: Record<number, Function> = {};
+
   private handleReqMessage: Function = () => { };
   private handleResMessage: Function = () => { };
 
