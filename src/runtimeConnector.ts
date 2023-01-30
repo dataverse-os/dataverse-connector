@@ -4,7 +4,7 @@ import { Methods, RequestType, ReturnType } from "@dataverse/dataverse-kernel/di
 
 export interface RequestInputs {
   method: Methods;
-  parameters?: RequestType[Methods];
+  params?: RequestType[Methods];
 }
 
 export interface RequestArguments {
@@ -29,7 +29,7 @@ export class RuntimeConnector {
   constructor(source: Window, target: Window) {
     this.targetOrigin = target;
     this.sourceOrigin = source;
-    this.sourceOrigin.addEventListener("message", this._onmessage);
+    this.sourceOrigin.addEventListener("message", this._onmessage.bind(this));
   }
 
   sendRequest(args: RequestInputs) {
@@ -39,7 +39,7 @@ export class RuntimeConnector {
         sequenceId: this.sequenceId,
         type: "request",
         method: args.method,
-        params: args.parameters,
+        params: args.params,
       },
       this.allowOrigins
     );
@@ -83,7 +83,7 @@ export class RuntimeConnector {
       sequenceId: args.sequenceId,
       type: "response",
       result: await init.eventListener[args.method](
-        args.parameters as any
+        args.params as any
       ) as ReturnType[Methods]
     });
 
