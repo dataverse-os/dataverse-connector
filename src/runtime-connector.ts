@@ -14,128 +14,56 @@ export class RuntimeConnector {
     this.communicator = new Communicator(window, window.top);
   }
 
-  async connectIdentity({
-    wallet,
-    appName,
-    modelNames,
-  }: RequestType[Methods.connectIdentity]): ReturnType[Methods.connectIdentity] {
+  async connectIdentity(
+    params: RequestType[Methods.connectIdentity]
+  ): ReturnType[Methods.connectIdentity] {
     const identity = await (this.communicator.sendRequest({
       method: Methods.connectIdentity,
-      params: { wallet, appName, modelNames },
+      params,
     }) as ReturnType[Methods.connectIdentity]);
 
     return identity;
   }
 
-  async readFolders({
-    did,
-    appName,
-  }: {
-    did: string;
-    appName: string;
-  }): ReturnType[Methods.readFolders] {
+  async readFolders(
+    params: RequestType[Methods.readFolders]
+  ): ReturnType[Methods.readFolders] {
     const res = await (this.communicator.sendRequest({
       method: Methods.readFolders,
-      params: { did, appName },
+      params,
     }) as ReturnType[Methods.readFolders]);
 
     return res;
   }
 
-  async createFolder({
-    did,
-    appName,
-    folderType,
-    folderName,
-    folderDescription,
-    mirrors,
-    curationId,
-    previews,
-  }: {
-    did: string;
-    appName: string;
-    folderType: FolderType;
-    folderName: string;
-    folderDescription?: string;
-    mirrors?: Mirrors;
-    curationId?: string;
-    previews?: Mirrors;
-  }): ReturnType[Methods.createFolder] {
+  async createFolder(
+    params: RequestType[Methods.createFolder]
+  ): ReturnType[Methods.createFolder] {
     const res = await (this.communicator.sendRequest({
       method: Methods.createFolder,
-      params: {
-        did,
-        appName,
-        folderType,
-        folderName,
-        folderDescription,
-        mirrors,
-        curationId,
-        previews,
-      },
+      params,
     }) as ReturnType[Methods.createFolder]);
 
     return res;
   }
 
-  async changeFolderBaseInfo({
-    did,
-    appName,
-    folderId,
-    newFolderName,
-    newFolderDescription,
-    syncImmediately,
-  }: {
-    did: string;
-    appName: string;
-    folderId: string;
-    newFolderName: string;
-    newFolderDescription?: string;
-    syncImmediately?: boolean;
-  }): ReturnType[Methods.changeFolderBaseInfo] {
+  async changeFolderBaseInfo(
+    params: RequestType[Methods.changeFolderBaseInfo]
+  ): ReturnType[Methods.changeFolderBaseInfo] {
     const res = (await this.communicator.sendRequest({
       method: Methods.changeFolderBaseInfo,
-      params: {
-        did,
-        appName,
-        folderId,
-        newFolderName,
-        newFolderDescription,
-        syncImmediately,
-      },
+      params,
     })) as ReturnType[Methods.changeFolderBaseInfo];
 
     return res;
   }
 
-  async changeFolderType({
-    did,
-    appName,
-    folderId,
-    targetFolderType,
-    folderDescription,
-    openMirrorIds,
-    syncImmediately,
-  }: {
-    did: string;
-    appName: string;
-    folderId: string;
-    targetFolderType: FolderType;
-    folderDescription?: string;
-    openMirrorIds?: string[];
-    syncImmediately?: boolean;
-  }): ReturnType[Methods.changeFolderType] {
+  async changeFolderType(
+    params: RequestType[Methods.changeFolderType]
+  ): ReturnType[Methods.changeFolderType] {
     const res = (await this.communicator.sendRequest({
       method: Methods.changeFolderType,
-      params: {
-        did,
-        appName,
-        folderId,
-        targetFolderType,
-        folderDescription,
-        openMirrorIds,
-        syncImmediately,
-      },
+      params,
     })) as ReturnType[Methods.changeFolderType];
 
     return res;
