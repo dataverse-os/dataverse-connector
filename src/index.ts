@@ -1,1 +1,1 @@
-export { Communicator } from "./communicator";
+export { RuntimeConnector } from "./runtime-connector";
