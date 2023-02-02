@@ -1,72 +1,138 @@
-import { Communicator } from "@dataverse/communicator";
-import {
-  Methods,
-  RequestType,
-  ReturnType,
-  FolderType,
-  Mirrors,
-} from "@dataverse/dataverse-kernel";
+import { Communicator, PostMessageTo } from "@dataverse/communicator";
+import { Methods, RequestType, ReturnType } from "@dataverse/dataverse-kernel";
 
 export class RuntimeConnector {
   communicator: Communicator;
 
-  constructor() {
-    this.communicator = new Communicator(window, window.top);
+  constructor(postMessageTo: PostMessageTo) {
+    this.communicator = new Communicator({
+      source: window,
+      target: window.top,
+      postMessageTo,
+    });
   }
 
-  async connectIdentity(
+  setPostMessageTo(postMessageTo: PostMessageTo) {
+    this.communicator.setPostMessageTo(postMessageTo);
+  }
+
+  async connectWallet(
+    params: RequestType[Methods.connectWallet]
+  ): ReturnType[Methods.connectWallet] {
+    const res = (await this.communicator.sendRequest({
+      method: Methods.connectWallet,
+      params,
+    })) as ReturnType[Methods.connectWallet];
+    return res;
+  }
+
+  connectIdentity(
     params: RequestType[Methods.connectIdentity]
   ): ReturnType[Methods.connectIdentity] {
-    const identity = await (this.communicator.sendRequest({
+    return this.communicator.sendRequest({
       method: Methods.connectIdentity,
       params,
-    }) as ReturnType[Methods.connectIdentity]);
-
-    return identity;
+    }) as ReturnType[Methods.connectIdentity];
   }
 
-  async readFolders(
+  createNewDID(params: RequestType[Methods.createNewDID]) {
+    return this.communicator.sendRequest({
+      method: Methods.createNewDID,
+      params,
+    }) as ReturnType[Methods.createNewDID];
+  }
+
+  switchDID(params: RequestType[Methods.switchDID]) {
+    return this.communicator.sendRequest({
+      method: Methods.switchDID,
+      params,
+    }) as ReturnType[Methods.switchDID];
+  }
+
+  loadStream(params: RequestType[Methods.loadStream]) {
+    return this.communicator.sendRequest({
+      method: Methods.loadStream,
+      params,
+    }) as ReturnType[Methods.loadStream];
+  }
+
+  loadStreamsByModel(params: RequestType[Methods.loadStreamsByModel]) {
+    return this.communicator.sendRequest({
+      method: Methods.loadStreamsByModel,
+      params,
+    }) as ReturnType[Methods.loadStreamsByModel];
+  }
+
+  createStream(
+    params: RequestType[Methods.createStream]
+  ): ReturnType[Methods.createStream] {
+    return this.communicator.sendRequest({
+      method: Methods.createStream,
+      params,
+    }) as ReturnType[Methods.createStream];
+  }
+
+  updateStreams(
+    params: RequestType[Methods.updateStreams]
+  ): ReturnType[Methods.updateStreams] {
+    return this.communicator.sendRequest({
+      method: Methods.updateStreams,
+      params,
+    }) as ReturnType[Methods.updateStreams];
+  }
+
+  newLitKey(
+    params: RequestType[Methods.newLitKey]
+  ): ReturnType[Methods.newLitKey] {
+    return this.communicator.sendRequest({
+      method: Methods.newLitKey,
+      params,
+    }) as ReturnType[Methods.newLitKey];
+  }
+
+  getLitKey(
+    params: RequestType[Methods.getLitKey]
+  ): ReturnType[Methods.getLitKey] {
+    return this.communicator.sendRequest({
+      method: Methods.getLitKey,
+      params,
+    }) as ReturnType[Methods.getLitKey];
+  }
+
+  readFolders(
     params: RequestType[Methods.readFolders]
   ): ReturnType[Methods.readFolders] {
-    const res = await (this.communicator.sendRequest({
+    return this.communicator.sendRequest({
       method: Methods.readFolders,
       params,
-    }) as ReturnType[Methods.readFolders]);
-
-    return res;
+    }) as ReturnType[Methods.readFolders];
   }
 
-  async createFolder(
+  createFolder(
     params: RequestType[Methods.createFolder]
   ): ReturnType[Methods.createFolder] {
-    const res = await (this.communicator.sendRequest({
+    return this.communicator.sendRequest({
       method: Methods.createFolder,
       params,
-    }) as ReturnType[Methods.createFolder]);
-
-    return res;
+    }) as ReturnType[Methods.createFolder];
   }
 
-  async changeFolderBaseInfo(
+  changeFolderBaseInfo(
     params: RequestType[Methods.changeFolderBaseInfo]
   ): ReturnType[Methods.changeFolderBaseInfo] {
-    const res = (await this.communicator.sendRequest({
+    return this.communicator.sendRequest({
       method: Methods.changeFolderBaseInfo,
       params,
-    })) as ReturnType[Methods.changeFolderBaseInfo];
-
-    return res;
+    }) as ReturnType[Methods.changeFolderBaseInfo];
   }
 
-  async changeFolderType(
+  changeFolderType(
     params: RequestType[Methods.changeFolderType]
   ): ReturnType[Methods.changeFolderType] {
-    const res = (await this.communicator.sendRequest({
+    return this.communicator.sendRequest({
       method: Methods.changeFolderType,
       params,
-    })) as ReturnType[Methods.changeFolderType];
-
-    return res;
+    }) as ReturnType[Methods.changeFolderType];
   }
 
   changeFolderContent() {}
