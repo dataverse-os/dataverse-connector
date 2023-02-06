@@ -13,7 +13,6 @@ import {
   StreamObject,
 } from "@dataverse/runtime-connector";
 import React, { useEffect, useRef, useState } from "react";
-import {} from "@dataverse/dataverse-kernel/";
 
 const runtimeConnector = new RuntimeConnector(Browser);
 init;
@@ -185,7 +184,7 @@ function App() {
       did,
       appName: Apps.Dataverse,
     });
-    console.log(folders)
+    console.log(folders);
     setFolderId(Object.keys(folders)[0]);
     console.log(folders);
   };
