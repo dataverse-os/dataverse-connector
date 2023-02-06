@@ -3,12 +3,12 @@ import "./App.css";
 import {
   RuntimeConnector,
   init,
-  userProfile,
   Extension,
   Browser,
   METAMASK,
   CRYPTO_WALLET_TYPE,
-  Dataverse,
+  Apps,
+  ModelNames,
   FolderType,
   StreamObject,
 } from "@dataverse/runtime-connector";
@@ -22,7 +22,9 @@ function App() {
   const [address, setAddress] = useState("");
   const [did, setDid] = useState("");
   const [newDid, setNewDid] = useState("");
-  const [streamObject, setStreamObject] = useState<StreamObject>();
+  const [profileStreamObject, setProfileStreamObject] =
+    useState<StreamObject>();
+  const [postStreamObject, setPostStreamObject] = useState<StreamObject>();
   const [folderId, setFolderId] = useState("");
 
   const connectWallet = async () => {
@@ -37,8 +39,8 @@ function App() {
   const connectIdentity = async () => {
     const did = await runtimeConnector.connectIdentity({
       wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
-      appName: Dataverse,
-      // modelNames: init.dappVerifier.getModelNamesByAppName(Dataverse),
+      appName: Apps.dTwitter,
+      // modelNames: init.dappVerifier.getModelNamesByAppName(Apps.Dataverse),
     });
     setDid(did);
     console.log(did);
@@ -66,33 +68,35 @@ function App() {
     console.log(streams);
   };
 
-  const loadOthersStreamsByModel = async () => {
+  /*** profle ***/
+  const loadOthersProfileStreamsByModel = async () => {
     const streams = await runtimeConnector.loadStreamsByModel({
       did: "did:pkh:eip155:137:0x8A9800738483e9D42CA377D8F95cc5960e6912d1",
-      appName: Dataverse,
-      modelName: userProfile,
+      appName: Apps.Dataverse,
+      modelName: ModelNames.userProfile,
     });
     console.log(streams);
     const [streamId, streamContent] = Object.entries(streams)[0];
-    setStreamObject({ streamId, streamContent });
+    setProfileStreamObject({ streamId, streamContent });
   };
-
-  const loadMyStreamsByModel = async () => {
+  const loadMyProfileStreamsByModel = async () => {
     const streams = await runtimeConnector.loadStreamsByModel({
       did,
-      appName: Dataverse,
-      modelName: userProfile,
+      appName: Apps.Dataverse,
+      modelName: ModelNames.userProfile,
     });
     console.log(streams);
-    const [streamId, streamContent] = Object.entries(streams)[0];
-    setStreamObject({ streamId, streamContent });
+    if (Object.entries(streams)[0]) {
+      const [streamId, streamContent] = Object.entries(streams)[0];
+      setProfileStreamObject({ streamId, streamContent });
+    }
   };
 
-  const createStream = async () => {
+  const createProfileStream = async () => {
     const streamObject = await runtimeConnector.createStream({
       did,
-      appName: Dataverse,
-      modelName: userProfile,
+      appName: Apps.Dataverse,
+      modelName: ModelNames.userProfile,
       streamContent: {
         name: "test_name",
         description: "test_description",
@@ -108,25 +112,70 @@ function App() {
         },
       },
     });
-    setStreamObject(streamObject);
+    setProfileStreamObject(streamObject);
     console.log(streamObject);
   };
 
-  const updateStreams = async () => {
-    if (!streamObject) return;
-    console.log(streamObject);
-    streamObject.streamContent.name = "my_name";
+  const updateProfileStreams = async () => {
+    if (!profileStreamObject) return;
+    console.log(profileStreamObject);
+    profileStreamObject.streamContent.name = "my_name";
     const streams = await runtimeConnector.updateStreams({
-      streamsRecord: { [streamObject.streamId]: streamObject.streamContent },
+      streamsRecord: {
+        [profileStreamObject.streamId]: profileStreamObject.streamContent,
+      },
       syncImmediately: true,
     });
     console.log(streams);
   };
+  /*** profle ***/
 
+  /*** post ***/
+  const loadMyPostStreamsByModel = async () => {
+    const streams = await runtimeConnector.loadStreamsByModel({
+      did,
+      appName: Apps.dTwitter,
+      modelName: ModelNames.post,
+    });
+    console.log(streams);
+    if (Object.entries(streams)[0]) {
+      const [streamId, streamContent] = Object.entries(streams)[0];
+      setProfileStreamObject({ streamId, streamContent });
+    }
+  };
+
+  const createPostStream = async () => {
+    const streamObject = await runtimeConnector.createStream({
+      did,
+      appName: Apps.dTwitter,
+      modelName: ModelNames.post,
+      streamContent: {
+        content: "a post",
+      },
+    });
+    setPostStreamObject(streamObject);
+    console.log(streamObject);
+  };
+
+  const updatePostStreams = async () => {
+    if (!postStreamObject) return;
+    console.log(profileStreamObject);
+    postStreamObject.streamContent.content = "update my post";
+    const streams = await runtimeConnector.updateStreams({
+      streamsRecord: {
+        [postStreamObject.streamId]: postStreamObject.streamContent,
+      },
+      syncImmediately: true,
+    });
+    console.log(streams);
+  };
+  /*** post ***/
+
+  /*** folders ***/
   const readOthersFolders = async () => {
     const othersFolders = await runtimeConnector.readFolders({
       did: "did:pkh:eip155:137:0x5915e293823FCa840c93ED2E1E5B4df32d699999",
-      appName: Dataverse,
+      appName: Apps.Dataverse,
     });
     console.log(othersFolders);
   };
@@ -134,8 +183,9 @@ function App() {
   const readMyFolders = async () => {
     const folders = await runtimeConnector.readFolders({
       did,
-      appName: Dataverse,
+      appName: Apps.Dataverse,
     });
+    console.log(folders)
     setFolderId(Object.keys(folders)[0]);
     console.log(folders);
   };
@@ -143,7 +193,7 @@ function App() {
   const createFolder = async () => {
     const createFolderRes = await runtimeConnector.createFolder({
       did,
-      appName: Dataverse,
+      appName: Apps.Dataverse,
       folderType: FolderType.Private,
       folderName: "Private",
     });
@@ -155,7 +205,7 @@ function App() {
     const changeFolderBaseInfoRes = await runtimeConnector.changeFolderBaseInfo(
       {
         did,
-        appName: Dataverse,
+        appName: Apps.Dataverse,
         folderId,
         newFolderName: new Date().toISOString(),
         // syncImmediately: true,
@@ -167,13 +217,14 @@ function App() {
   const changeFolderType = async () => {
     const changeFolderTypeRes = await runtimeConnector.changeFolderType({
       did,
-      appName: Dataverse,
+      appName: Apps.Dataverse,
       folderId,
       targetFolderType: FolderType.Public,
       // syncImmediately: true,
     });
     console.log(changeFolderTypeRes.currentFolder.folderType);
   };
+  /*** folders ***/
 
   return (
     <div className="App">
@@ -182,12 +233,21 @@ function App() {
       <button onClick={createNewDID}>createNewDID</button>
       <button onClick={switchDID}>switchDID</button>
       <button onClick={loadStream}>loadStream</button>
-      <button onClick={loadOthersStreamsByModel}>
-        loadOthersStreamsByModel
+      {/* <button onClick={loadOthersProfileStreamsByModel}>
+        loadOthersProfileStreamsByModel
       </button>
-      <button onClick={loadMyStreamsByModel}>loadMyStreamsByModel</button>
-      <button onClick={createStream}>createStream</button>
-      <button onClick={updateStreams}>updateStreams</button>
+      <button onClick={loadMyProfileStreamsByModel}>
+        loadMyProfileStreamsByModel
+      </button>
+      <button onClick={createProfileStream}>createProfileStream</button>
+      <button onClick={updateProfileStreams}>updateProfileStreams</button> */}
+
+      <button onClick={loadMyPostStreamsByModel}>
+        loadMyPostStreamsByModel
+      </button>
+      <button onClick={createPostStream}>createPostStream</button>
+      <button onClick={updatePostStreams}>updatePostStreams</button>
+
       <button onClick={readOthersFolders}>readOthersFolders</button>
       <button onClick={readMyFolders}>readMyFolders</button>
       <button onClick={createFolder}>createFolder</button>
