@@ -12,7 +12,7 @@ import {
   FolderType,
   StreamObject,
 } from "@dataverse/runtime-connector";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {} from "@dataverse/dataverse-kernel/";
 
 const runtimeConnector = new RuntimeConnector(Browser);
