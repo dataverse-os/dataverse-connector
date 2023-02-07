@@ -2,7 +2,6 @@ import "./App.css";
 import "./App.css";
 import {
   RuntimeConnector,
-  init,
   Extension,
   Browser,
   METAMASK,
@@ -12,10 +11,11 @@ import {
   FolderType,
   StreamObject,
 } from "@dataverse/runtime-connector";
+import { DataverseKernel } from "@dataverse/dataverse-kernel";
 import React, { useEffect, useRef, useState } from "react";
 
 const runtimeConnector = new RuntimeConnector(Browser);
-init;
+DataverseKernel.init();
 
 function App() {
   const [address, setAddress] = useState("");
@@ -39,7 +39,7 @@ function App() {
     const did = await runtimeConnector.connectIdentity({
       wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
       appName: Apps.dTwitter,
-      // modelNames: init.dappVerifier.getModelNamesByAppName(Apps.Dataverse),
+      modelNames: [ModelNames.post],
     });
     setDid(did);
     console.log(did);
@@ -149,6 +149,7 @@ function App() {
       appName: Apps.dTwitter,
       modelName: ModelNames.post,
       streamContent: {
+        appVersion: "0.0.1",
         content: "a post",
       },
     });
@@ -184,7 +185,6 @@ function App() {
       did,
       appName: Apps.Dataverse,
     });
-    console.log(folders);
     setFolderId(Object.keys(folders)[0]);
     console.log(folders);
   };

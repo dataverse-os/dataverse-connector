@@ -7,7 +7,7 @@ export default defineConfig({
     dedupe: ["react", "react-dom"],
     alias: {
       web3: "web3/dist/web3.min.js",
-      buffer: "rollup-plugin-node-polyfills/polyfills/buffer-es6", // add buffer
+      // buffer: "rollup-plugin-node-polyfills/polyfills/buffer-es6", // add buffer
     },
   },
   build: {
