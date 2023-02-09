@@ -81,6 +81,24 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.updateStreams];
   }
 
+  getModelIdByAppNameAndModelName(
+    params: RequestType[Methods.getModelIdByAppNameAndModelName]
+  ): ReturnType[Methods.getModelIdByAppNameAndModelName] {
+    return this.communicator.sendRequest({
+      method: Methods.getModelIdByAppNameAndModelName,
+      params,
+    }) as ReturnType[Methods.getModelIdByAppNameAndModelName];
+  }
+
+  getChainFromLitAuthSig(
+    params: RequestType[Methods.getChainFromLitAuthSig]
+  ): ReturnType[Methods.getChainFromLitAuthSig] {
+    return this.communicator.sendRequest({
+      method: Methods.getChainFromLitAuthSig,
+      params,
+    }) as ReturnType[Methods.getChainFromLitAuthSig];
+  }
+
   newLitKey(
     params: RequestType[Methods.newLitKey]
   ): ReturnType[Methods.newLitKey] {
@@ -90,13 +108,31 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.newLitKey];
   }
 
-  getLitKey(
-    params: RequestType[Methods.getLitKey]
-  ): ReturnType[Methods.getLitKey] {
+  // getLitKey(
+  //   params: RequestType[Methods.getLitKey]
+  // ): ReturnType[Methods.getLitKey] {
+  //   return this.communicator.sendRequest({
+  //     method: Methods.getLitKey,
+  //     params,
+  //   }) as ReturnType[Methods.getLitKey];
+  // }
+
+  encryptWithLit(
+    params: RequestType[Methods.encryptWithLit]
+  ): ReturnType[Methods.encryptWithLit] {
     return this.communicator.sendRequest({
-      method: Methods.getLitKey,
+      method: Methods.encryptWithLit,
       params,
-    }) as ReturnType[Methods.getLitKey];
+    }) as ReturnType[Methods.encryptWithLit];
+  }
+
+  decryptWithLit(
+    params: RequestType[Methods.decryptWithLit]
+  ): ReturnType[Methods.decryptWithLit] {
+    return this.communicator.sendRequest({
+      method: Methods.decryptWithLit,
+      params,
+    }) as ReturnType[Methods.decryptWithLit];
   }
 
   readFolders(

@@ -10,17 +10,27 @@ import {
   ModelNames,
   FolderType,
   StreamObject,
+  DecryptionConditionsTypes,
+  Mirrors,
 } from "@dataverse/runtime-connector";
-import { DataverseKernel } from "@dataverse/dataverse-kernel";
+import {
+  DataverseKernel,
+  IndexFileContentType,
+} from "@dataverse/dataverse-kernel";
 import React, { useEffect, useRef, useState } from "react";
 
 const runtimeConnector = new RuntimeConnector(Browser);
 DataverseKernel.init();
+const appName = Apps.dTwitter;
+const modelName = ModelNames.post;
+const modelNames = [ModelNames.post];
 
 function App() {
   const [address, setAddress] = useState("");
   const [did, setDid] = useState("");
   const [newDid, setNewDid] = useState("");
+  // const [encryptedSymmetricKey, setEncryptedSymmetricKey] = useState("");
+
   const [profileStreamObject, setProfileStreamObject] =
     useState<StreamObject>();
   const [postStreamObject, setPostStreamObject] = useState<StreamObject>();
@@ -38,8 +48,8 @@ function App() {
   const connectIdentity = async () => {
     const did = await runtimeConnector.connectIdentity({
       wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
-      appName: Apps.dTwitter,
-      modelNames: [ModelNames.post],
+      appName,
+      modelNames,
     });
     setDid(did);
     console.log(did);
@@ -67,11 +77,113 @@ function App() {
     console.log(streams);
   };
 
-  /*** profle ***/
+  /*** Lit ***/
+  const generateAccessControlConditions = async () => {
+    const modelId = await runtimeConnector.getModelIdByAppNameAndModelName({
+      appName,
+      modelName: ModelNames.post,
+    });
+    const chain = await runtimeConnector.getChainFromLitAuthSig({
+      did,
+      appName,
+      modelNames,
+    });
+    const conditions: any[] = [
+      {
+        contractAddress: "",
+        standardContractType: "",
+        chain,
+        method: "",
+        parameters: [":userAddress"],
+        returnValueTest: {
+          comparator: "=",
+          value: `${address}`,
+        },
+      },
+      { operator: "and" },
+      {
+        contractAddress: "",
+        standardContractType: "SIWE",
+        chain,
+        method: "",
+        parameters: [":resources"],
+        returnValueTest: {
+          comparator: "contains",
+          value: `ceramic://*?model=${modelId}`,
+        },
+      },
+    ];
+
+    return conditions;
+  };
+
+  const newLitKey = async () => {
+    const { encryptedSymmetricKey } = await runtimeConnector.newLitKey({
+      did,
+      appName,
+      modelNames,
+      decryptionConditions: await generateAccessControlConditions(),
+      decryptionConditionsType:
+        DecryptionConditionsTypes.AccessControlCondition,
+    });
+    console.log(encryptedSymmetricKey);
+    return encryptedSymmetricKey;
+  };
+
+  const encryptWithLit = async ({
+    content,
+    encryptedSymmetricKey,
+  }: {
+    content: string;
+    encryptedSymmetricKey: string;
+  }) => {
+    const { encryptedContent } = await runtimeConnector.encryptWithLit({
+      did,
+      appName,
+      modelNames,
+      content,
+      encryptedSymmetricKey,
+      decryptionConditions: await generateAccessControlConditions(),
+      decryptionConditionsType:
+        DecryptionConditionsTypes.AccessControlCondition,
+    });
+    console.log(encryptedContent);
+    return encryptedContent;
+  };
+
+  const decryptWithLit = async ({
+    encryptedContent,
+    encryptedSymmetricKey,
+    symmetricKeyInBase16Format,
+  }: {
+    encryptedContent: string;
+    encryptedSymmetricKey?: string;
+    symmetricKeyInBase16Format?: string;
+  }) => {
+    const { content } = await runtimeConnector.decryptWithLit({
+      did,
+      appName,
+      modelNames,
+      encryptedContent,
+      ...(symmetricKeyInBase16Format
+        ? { symmetricKeyInBase16Format }
+        : {
+            encryptedSymmetricKey,
+            decryptionConditions: await generateAccessControlConditions(),
+            decryptionConditionsType:
+              DecryptionConditionsTypes.AccessControlCondition,
+          }),
+    });
+    console.log(content);
+    return content;
+  };
+  /*** Lit ***/
+
+  /*** Profle ***/
   const loadOthersProfileStreamsByModel = async () => {
     const streams = await runtimeConnector.loadStreamsByModel({
       did: "did:pkh:eip155:137:0x8A9800738483e9D42CA377D8F95cc5960e6912d1",
-      appName: Apps.Dataverse,
+      appName,
       modelName: ModelNames.userProfile,
     });
     console.log(streams);
@@ -81,7 +193,7 @@ function App() {
   const loadMyProfileStreamsByModel = async () => {
     const streams = await runtimeConnector.loadStreamsByModel({
       did,
-      appName: Apps.Dataverse,
+      appName,
       modelName: ModelNames.userProfile,
     });
     console.log(streams);
@@ -94,7 +206,7 @@ function App() {
   const createProfileStream = async () => {
     const streamObject = await runtimeConnector.createStream({
       did,
-      appName: Apps.Dataverse,
+      appName,
       modelName: ModelNames.userProfile,
       streamContent: {
         name: "test_name",
@@ -127,9 +239,9 @@ function App() {
     });
     console.log(streams);
   };
-  /*** profle ***/
+  /*** Profle ***/
 
-  /*** post ***/
+  /*** Post ***/
   const loadMyPostStreamsByModel = async () => {
     const streams = await runtimeConnector.loadStreamsByModel({
       did,
@@ -143,7 +255,7 @@ function App() {
     }
   };
 
-  const createPostStream = async () => {
+  const createPublicPostStream = async () => {
     const streamObject = await runtimeConnector.createStream({
       did,
       appName: Apps.dTwitter,
@@ -157,25 +269,72 @@ function App() {
     console.log(streamObject);
   };
 
-  const updatePostStreams = async () => {
+  const createPrivatePostStream = async () => {
+    const encryptedSymmetricKey = await newLitKey();
+
+    const encryptedContent = await encryptWithLit({
+      content: "a post",
+      encryptedSymmetricKey,
+    });
+
+    const streamObject = await runtimeConnector.createStream({
+      did,
+      appName,
+      modelName,
+      streamContent: {
+        appVersion: "0.0.1",
+        content: encryptedContent,
+      },
+      encryptedSymmetricKey,
+      decryptionConditions: await generateAccessControlConditions(),
+      decryptionConditionsType:
+        DecryptionConditionsTypes.AccessControlCondition,
+    });
+    setPostStreamObject(streamObject);
+    console.log(streamObject);
+  };
+
+  const updatePostStreamsToPublicContent = async () => {
+    console.log(postStreamObject);
     if (!postStreamObject) return;
-    console.log(profileStreamObject);
-    postStreamObject.streamContent.content = "update my post";
+    postStreamObject.streamContent.content = "update my post -- public"; //public
     const streams = await runtimeConnector.updateStreams({
       streamsRecord: {
-        [postStreamObject.streamId]: postStreamObject.streamContent,
+        [postStreamObject.streamId]: {
+          streamContent: postStreamObject.streamContent,
+        },
       },
       syncImmediately: true,
     });
     console.log(streams);
   };
-  /*** post ***/
 
-  /*** folders ***/
+  // const updatePostStreamsToPrivateContent = async () => {
+  //   if (!postStreamObject) return;
+  //   console.log(postStreamObject);
+  //   postStreamObject.streamContent.content = await encryptWithLit({
+  //     content: "update my post -- private",
+  //     encryptedSymmetricKey,
+  //   }); //private
+  //   const streams = await runtimeConnector.updateStreams({
+  //     streamsRecord: {
+  //       [postStreamObject.streamId]: postStreamObject.streamContent,
+  //     },
+  //     encryptedSymmetricKey,
+  //     decryptionConditions: await generateAccessControlConditions(),
+  //     decryptionConditionsType:
+  //       DecryptionConditionsTypes.AccessControlCondition,
+  //     syncImmediately: true,
+  //   });
+  //   console.log(streams);
+  // };
+  /*** Post ***/
+
+  /*** Folders ***/
   const readOthersFolders = async () => {
     const othersFolders = await runtimeConnector.readFolders({
       did: "did:pkh:eip155:137:0x5915e293823FCa840c93ED2E1E5B4df32d699999",
-      appName: Apps.Dataverse,
+      appName,
     });
     console.log(othersFolders);
   };
@@ -183,16 +342,56 @@ function App() {
   const readMyFolders = async () => {
     const folders = await runtimeConnector.readFolders({
       did,
-      appName: Apps.Dataverse,
+      appName,
     });
-    setFolderId(Object.keys(folders)[0]);
+
+    await Promise.all(
+      Object.values(folders).map((folder) => {
+        return Promise.all(
+          Object.values(folder.mirrors as Mirrors).map(async (mirror) => {
+            if (
+              mirror.mirror.contentType === IndexFileContentType.STREAM &&
+              (mirror.mirror.fileKey ||
+                (mirror.mirror.encryptedSymmetricKey &&
+                  mirror.mirror.decryptionConditions &&
+                  mirror.mirror.decryptionConditionsType))
+            ) {
+              try {
+                const content = await decryptWithLit({
+                  encryptedContent: mirror.mirror.content.content,
+                  ...(mirror.mirror.fileKey
+                    ? { symmetricKeyInBase16Format: mirror.mirror.fileKey }
+                    : {
+                        encryptedSymmetricKey:
+                          mirror.mirror.encryptedSymmetricKey,
+                      }),
+                });
+                mirror.mirror.content.content = content;
+                return mirror;
+              } catch (error) {
+                console.log(error);
+              }
+            }
+          })
+        );
+      })
+    );
+    const folderId = Object.keys(folders)[0];
+    setFolderId(folderId);
+
+    const mirrorFile = Object.values(folders[folderId].mirrors as Mirrors)?.[0]
+      ?.mirror;
+    setPostStreamObject({
+      streamId: mirrorFile?.contentId!,
+      streamContent: mirrorFile?.content,
+    });
     console.log(folders);
   };
 
   const createFolder = async () => {
     const createFolderRes = await runtimeConnector.createFolder({
       did,
-      appName: Apps.Dataverse,
+      appName,
       folderType: FolderType.Private,
       folderName: "Private",
     });
@@ -204,7 +403,7 @@ function App() {
     const changeFolderBaseInfoRes = await runtimeConnector.changeFolderBaseInfo(
       {
         did,
-        appName: Apps.Dataverse,
+        appName,
         folderId,
         newFolderName: new Date().toISOString(),
         // syncImmediately: true,
@@ -216,14 +415,14 @@ function App() {
   const changeFolderType = async () => {
     const changeFolderTypeRes = await runtimeConnector.changeFolderType({
       did,
-      appName: Apps.Dataverse,
+      appName,
       folderId,
       targetFolderType: FolderType.Public,
       // syncImmediately: true,
     });
     console.log(changeFolderTypeRes.currentFolder.folderType);
   };
-  /*** folders ***/
+  /*** Folders ***/
 
   return (
     <div className="App">
@@ -240,12 +439,14 @@ function App() {
       </button>
       <button onClick={createProfileStream}>createProfileStream</button>
       <button onClick={updateProfileStreams}>updateProfileStreams</button> */}
-
       <button onClick={loadMyPostStreamsByModel}>
         loadMyPostStreamsByModel
       </button>
-      <button onClick={createPostStream}>createPostStream</button>
-      <button onClick={updatePostStreams}>updatePostStreams</button>
+      <button onClick={createPublicPostStream}>createPublicPostStream</button>
+      <button onClick={createPrivatePostStream}>createPrivatePostStream</button>
+      <button onClick={updatePostStreamsToPublicContent}>
+        updatePostStreamsToPublicContent
+      </button>
 
       <button onClick={readOthersFolders}>readOthersFolders</button>
       <button onClick={readMyFolders}>readMyFolders</button>

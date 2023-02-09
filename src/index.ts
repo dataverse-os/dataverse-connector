@@ -9,4 +9,6 @@ export {
   ModelNames,
   FolderType,
   type StreamObject,
+  DecryptionConditionsTypes,
+  type Mirrors,
 } from "@dataverse/dataverse-kernel";
