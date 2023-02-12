@@ -171,14 +171,49 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.changeFolderType];
   }
 
-  changeFolderContent() {}
-  deleteFolder() {}
+  deleteFolder(
+    params: RequestType[Methods.deleteFolder]
+  ): ReturnType[Methods.deleteFolder] {
+    return this.communicator.sendRequest({
+      method: Methods.deleteFolder,
+      params,
+    }) as ReturnType[Methods.deleteFolder];
+  }
+
   syncFolder() {}
+
   readFile() {}
-  addMirrors() {}
-  updateMirror() {}
-  moveMirrors() {}
-  removeMirrors() {}
+
+  addMirrors(
+    params: RequestType[Methods.addMirrors]
+  ): ReturnType[Methods.addMirrors] {
+    return this.communicator.sendRequest({
+      method: Methods.addMirrors,
+      params,
+    }) as ReturnType[Methods.addMirrors];
+  }
+
+  updateMirror(
+    params: RequestType[Methods.updateMirror]
+  ): ReturnType[Methods.updateMirror] {
+    return this.communicator.sendRequest({
+      method: Methods.updateMirror,
+      params,
+    }) as ReturnType[Methods.updateMirror];
+  }
+
+  moveMirrors(params: RequestType[Methods.moveMirrors]) {
+    return this.communicator.sendRequest({
+      method: Methods.moveMirrors,
+      params,
+    }) as ReturnType[Methods.moveMirrors];
+  }
+
+  removeMirrors(params: RequestType[Methods.removeMirrors]) {
+    return this.communicator.sendRequest({
+      method: Methods.removeMirrors,
+      params,
+    }) as ReturnType[Methods.removeMirrors];
+  }
   //profiles
-  loadStreams() {}
 }
