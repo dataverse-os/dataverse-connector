@@ -11,12 +11,13 @@ import {
   FolderType,
   StreamObject,
   DecryptionConditionsTypes,
-  Mirrors,
-} from "@dataverse/runtime-connector";
-import {
-  DataverseKernel,
+  FileType,
   IndexFileContentType,
-} from "@dataverse/dataverse-kernel";
+  Mirrors,
+  MirrorFile,
+  StructuredFolders,
+} from "@dataverse/runtime-connector";
+import { DataverseKernel } from "@dataverse/dataverse-kernel";
 import React, { useEffect, useRef, useState } from "react";
 
 const runtimeConnector = new RuntimeConnector(Browser);
@@ -29,12 +30,12 @@ function App() {
   const [address, setAddress] = useState("");
   const [did, setDid] = useState("");
   const [newDid, setNewDid] = useState("");
-  // const [encryptedSymmetricKey, setEncryptedSymmetricKey] = useState("");
 
   const [profileStreamObject, setProfileStreamObject] =
     useState<StreamObject>();
-  const [postStreamObject, setPostStreamObject] = useState<StreamObject>();
+  const [mirrorFile, setMirrorFile] = useState<MirrorFile>();
   const [folderId, setFolderId] = useState("");
+  const [folders, setFolders] = useState<StructuredFolders>({});
 
   const connectWallet = async () => {
     const address = await runtimeConnector.connectWallet({
@@ -118,24 +119,36 @@ function App() {
   };
 
   const newLitKey = async () => {
+    const decryptionConditions = await generateAccessControlConditions();
+    const decryptionConditionsType =
+      DecryptionConditionsTypes.AccessControlCondition;
+
     const { encryptedSymmetricKey } = await runtimeConnector.newLitKey({
       did,
       appName,
       modelNames,
-      decryptionConditions: await generateAccessControlConditions(),
-      decryptionConditionsType:
-        DecryptionConditionsTypes.AccessControlCondition,
+      decryptionConditions,
+      decryptionConditionsType,
     });
     console.log(encryptedSymmetricKey);
-    return encryptedSymmetricKey;
+
+    return {
+      encryptedSymmetricKey,
+      decryptionConditions,
+      decryptionConditionsType,
+    };
   };
 
   const encryptWithLit = async ({
     content,
     encryptedSymmetricKey,
+    decryptionConditions,
+    decryptionConditionsType,
   }: {
     content: string;
     encryptedSymmetricKey: string;
+    decryptionConditions: any[];
+    decryptionConditionsType: DecryptionConditionsTypes;
   }) => {
     const { encryptedContent } = await runtimeConnector.encryptWithLit({
       did,
@@ -143,11 +156,11 @@ function App() {
       modelNames,
       content,
       encryptedSymmetricKey,
-      decryptionConditions: await generateAccessControlConditions(),
-      decryptionConditionsType:
-        DecryptionConditionsTypes.AccessControlCondition,
+      decryptionConditions,
+      decryptionConditionsType,
     });
     console.log(encryptedContent);
+
     return encryptedContent;
   };
 
@@ -222,6 +235,7 @@ function App() {
           },
         },
       },
+      fileType: FileType.Public,
     });
     setProfileStreamObject(streamObject);
     console.log(streamObject);
@@ -264,17 +278,17 @@ function App() {
         appVersion: "0.0.1",
         content: "a post",
       },
+      fileType: FileType.Public,
     });
-    setPostStreamObject(streamObject);
     console.log(streamObject);
   };
 
   const createPrivatePostStream = async () => {
-    const encryptedSymmetricKey = await newLitKey();
+    const litKit = await newLitKey();
 
     const encryptedContent = await encryptWithLit({
       content: "a post",
-      encryptedSymmetricKey,
+      ...litKit,
     });
 
     const streamObject = await runtimeConnector.createStream({
@@ -285,23 +299,26 @@ function App() {
         appVersion: "0.0.1",
         content: encryptedContent,
       },
-      encryptedSymmetricKey,
-      decryptionConditions: await generateAccessControlConditions(),
-      decryptionConditionsType:
-        DecryptionConditionsTypes.AccessControlCondition,
+      fileType: FileType.Private,
+      ...litKit,
     });
-    setPostStreamObject(streamObject);
     console.log(streamObject);
   };
 
   const updatePostStreamsToPublicContent = async () => {
-    console.log(postStreamObject);
-    if (!postStreamObject) return;
-    postStreamObject.streamContent.content = "update my post -- public"; //public
+    if (!mirrorFile) return;
+    console.log(mirrorFile);
+    const { contentId: streamId, content: streamContent } = mirrorFile;
+    if (!streamId || !streamContent) return;
+
+    streamContent.content =
+      "update my post -- public" + new Date().toISOString(); //public
+
     const streams = await runtimeConnector.updateStreams({
       streamsRecord: {
-        [postStreamObject.streamId]: {
-          streamContent: postStreamObject.streamContent,
+        [streamId]: {
+          streamContent,
+          fileType: FileType.Public,
         },
       },
       syncImmediately: true,
@@ -309,25 +326,51 @@ function App() {
     console.log(streams);
   };
 
-  // const updatePostStreamsToPrivateContent = async () => {
-  //   if (!postStreamObject) return;
-  //   console.log(postStreamObject);
-  //   postStreamObject.streamContent.content = await encryptWithLit({
-  //     content: "update my post -- private",
-  //     encryptedSymmetricKey,
-  //   }); //private
-  //   const streams = await runtimeConnector.updateStreams({
-  //     streamsRecord: {
-  //       [postStreamObject.streamId]: postStreamObject.streamContent,
-  //     },
-  //     encryptedSymmetricKey,
-  //     decryptionConditions: await generateAccessControlConditions(),
-  //     decryptionConditionsType:
-  //       DecryptionConditionsTypes.AccessControlCondition,
-  //     syncImmediately: true,
-  //   });
-  //   console.log(streams);
-  // };
+  const updatePostStreamsToPrivateContent = async () => {
+    if (!mirrorFile) return;
+    console.log(mirrorFile);
+    const { contentId: streamId, content: streamContent } = mirrorFile;
+    if (!streamId || !streamContent) return;
+
+    let litKit;
+
+    const {
+      encryptedSymmetricKey,
+      decryptionConditions,
+      decryptionConditionsType,
+    } = mirrorFile;
+
+    if (
+      encryptedSymmetricKey &&
+      decryptionConditions &&
+      decryptionConditionsType
+    ) {
+      litKit = {
+        encryptedSymmetricKey,
+        decryptionConditions,
+        decryptionConditionsType,
+      };
+    } else {
+      litKit = await newLitKey();
+    }
+
+    streamContent.content = await encryptWithLit({
+      content: "update my post -- private" + new Date().toISOString(), //private
+      ...litKit,
+    }); //private
+
+    const streams = await runtimeConnector.updateStreams({
+      streamsRecord: {
+        [streamId]: {
+          streamContent: streamContent,
+          fileType: FileType.Private,
+          ...litKit,
+        },
+      },
+      syncImmediately: true,
+    });
+    console.log(streams);
+  };
   /*** Post ***/
 
   /*** Folders ***/
@@ -344,29 +387,28 @@ function App() {
       did,
       appName,
     });
-
     await Promise.all(
       Object.values(folders).map((folder) => {
         return Promise.all(
           Object.values(folder.mirrors as Mirrors).map(async (mirror) => {
             if (
-              mirror.mirror.contentType === IndexFileContentType.STREAM &&
-              (mirror.mirror.fileKey ||
-                (mirror.mirror.encryptedSymmetricKey &&
-                  mirror.mirror.decryptionConditions &&
-                  mirror.mirror.decryptionConditionsType))
+              mirror.mirrorFile.contentType === IndexFileContentType.STREAM &&
+              (mirror.mirrorFile.fileKey ||
+                (mirror.mirrorFile.encryptedSymmetricKey &&
+                  mirror.mirrorFile.decryptionConditions &&
+                  mirror.mirrorFile.decryptionConditionsType))
             ) {
               try {
                 const content = await decryptWithLit({
-                  encryptedContent: mirror.mirror.content.content,
-                  ...(mirror.mirror.fileKey
-                    ? { symmetricKeyInBase16Format: mirror.mirror.fileKey }
+                  encryptedContent: mirror.mirrorFile.content.content,
+                  ...(mirror.mirrorFile.fileKey
+                    ? { symmetricKeyInBase16Format: mirror.mirrorFile.fileKey }
                     : {
                         encryptedSymmetricKey:
-                          mirror.mirror.encryptedSymmetricKey,
+                          mirror.mirrorFile.encryptedSymmetricKey,
                       }),
                 });
-                mirror.mirror.content.content = content;
+                mirror.mirrorFile.content.content = content;
                 return mirror;
               } catch (error) {
                 console.log(error);
@@ -376,15 +418,24 @@ function App() {
         );
       })
     );
-    const folderId = Object.keys(folders)[0];
+    setFolders(folders);
+    const sortedFolders = Object.values(folders).sort(
+      (folderA, folderB) =>
+        Date.parse(folderB.updatedAt) - Date.parse(folderA.updatedAt)
+    );
+    const folderId = sortedFolders[0].folderId;
     setFolderId(folderId);
 
-    const mirrorFile = Object.values(folders[folderId].mirrors as Mirrors)?.[0]
-      ?.mirror;
-    setPostStreamObject({
-      streamId: mirrorFile?.contentId!,
-      streamContent: mirrorFile?.content,
-    });
+    const sortedMirrors = Object.values(
+      folders[folderId].mirrors as Mirrors
+    ).sort(
+      (mirrorA, mirrorB) =>
+        Date.parse(mirrorB.mirrorFile.updatedAt!) -
+        Date.parse(mirrorA.mirrorFile.updatedAt!)
+    );
+    const mirrorFile = sortedMirrors[0]?.mirrorFile;
+    setMirrorFile(mirrorFile);
+    
     console.log(folders);
   };
 
@@ -446,6 +497,9 @@ function App() {
       <button onClick={createPrivatePostStream}>createPrivatePostStream</button>
       <button onClick={updatePostStreamsToPublicContent}>
         updatePostStreamsToPublicContent
+      </button>
+      <button onClick={updatePostStreamsToPrivateContent}>
+        updatePostStreamsToPrivateContent
       </button>
 
       <button onClick={readOthersFolders}>readOthersFolders</button>

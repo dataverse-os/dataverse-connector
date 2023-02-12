@@ -8,7 +8,11 @@ export {
   Apps,
   ModelNames,
   FolderType,
-  type StreamObject,
+  FileType,
+  IndexFileContentType,
   DecryptionConditionsTypes,
+  type StreamObject,
   type Mirrors,
+  type MirrorFile,
+  type StructuredFolders,
 } from "@dataverse/dataverse-kernel";
