@@ -423,20 +423,21 @@ function App() {
       (folderA, folderB) =>
         Date.parse(folderB.updatedAt) - Date.parse(folderA.updatedAt)
     );
-    const folderId = sortedFolders[0].folderId;
+    const folderId = sortedFolders[0]?.folderId;
     setFolderId(folderId);
-
-    const sortedMirrors = Object.values(
-      folders[folderId].mirrors as Mirrors
-    ).sort(
-      (mirrorA, mirrorB) =>
-        Date.parse(mirrorB.mirrorFile.updatedAt!) -
-        Date.parse(mirrorA.mirrorFile.updatedAt!)
-    );
-    const mirrorFile = sortedMirrors[0]?.mirrorFile;
-    setMirrorFile(mirrorFile);
-    
     console.log(folders);
+
+    if (folderId) {
+      const sortedMirrors = Object.values(
+        folders[folderId].mirrors as Mirrors
+      ).sort(
+        (mirrorA, mirrorB) =>
+          Date.parse(mirrorB.mirrorFile.updatedAt!) -
+          Date.parse(mirrorA.mirrorFile.updatedAt!)
+      );
+      const mirrorFile = sortedMirrors[0]?.mirrorFile;
+      setMirrorFile(mirrorFile);
+    }
   };
 
   const createFolder = async () => {
