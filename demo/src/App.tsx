@@ -12,7 +12,9 @@ import {
   StreamObject,
   DecryptionConditionsTypes,
   FileType,
+  OriginType,
   IndexFileContentType,
+  Mirror,
   Mirrors,
   MirrorFile,
   StructuredFolders,
@@ -418,62 +420,91 @@ function App() {
         );
       })
     );
-    setFolders(folders);
-    const sortedFolders = Object.values(folders).sort(
-      (folderA, folderB) =>
-        Date.parse(folderB.updatedAt) - Date.parse(folderA.updatedAt)
-    );
-    const folderId = sortedFolders[0]?.folderId;
-    setFolderId(folderId);
-    console.log(folders);
 
-    if (folderId) {
-      const sortedMirrors = Object.values(
-        folders[folderId].mirrors as Mirrors
-      ).sort(
+    let sortedFoldersMirrors = {} as Record<string, Mirror[]>;
+
+    Object.values(folders).forEach((folder) => {
+      const sortedMirrors = Object.values(folder.mirrors as Mirrors).sort(
         (mirrorA, mirrorB) =>
           Date.parse(mirrorB.mirrorFile.updatedAt!) -
           Date.parse(mirrorA.mirrorFile.updatedAt!)
       );
-      const mirrorFile = sortedMirrors[0]?.mirrorFile;
-      setMirrorFile(mirrorFile);
-    }
+      sortedFoldersMirrors[folder.folderId] = sortedMirrors;
+    });
+
+    const sortedFolders = Object.values(folders).sort(
+      (folderA, folderB) =>
+        Date.parse(folderB.updatedAt) - Date.parse(folderA.updatedAt)
+    );
+
+    const folderId = sortedFolders[0]?.folderId;
+
+    setFolders(folders);
+
+    setFolderId(folderId);
+
+    setMirrorFile(sortedFoldersMirrors[folderId][0].mirrorFile);
+
+    console.log(sortedFoldersMirrors[folderId][0].mirrorFile);
+
+    console.log(folders);
   };
 
   const createFolder = async () => {
-    const createFolderRes = await runtimeConnector.createFolder({
+    const res = await runtimeConnector.createFolder({
       did,
       appName,
       folderType: FolderType.Private,
       folderName: "Private",
     });
-    setFolderId(createFolderRes.newFolder.folderId);
-    console.log(createFolderRes.newFolder.folderId);
+    setFolderId(res.newFolder.folderId);
+    console.log(res.newFolder.folderId);
   };
 
   const changeFolderBaseInfo = async () => {
-    const changeFolderBaseInfoRes = await runtimeConnector.changeFolderBaseInfo(
-      {
-        did,
-        appName,
-        folderId,
-        newFolderName: new Date().toISOString(),
-        // syncImmediately: true,
-      }
-    );
-    console.log(changeFolderBaseInfoRes.currentFolder.options.folderName);
+    const res = await runtimeConnector.changeFolderBaseInfo({
+      did,
+      appName,
+      folderId,
+      newFolderName: new Date().toISOString(),
+      // syncImmediately: true,
+    });
+    console.log(res);
   };
 
   const changeFolderType = async () => {
-    const changeFolderTypeRes = await runtimeConnector.changeFolderType({
+    const res = await runtimeConnector.changeFolderType({
       did,
       appName,
       folderId,
       targetFolderType: FolderType.Public,
       // syncImmediately: true,
     });
-    console.log(changeFolderTypeRes.currentFolder.folderType);
+    console.log(res);
   };
+
+  const addMirrors = async () => {
+    const res = await runtimeConnector.addMirrors({
+      did,
+      appName,
+      folderId,
+      filesInfo: [
+        {
+          contentId:
+            "bafybeibsels6lnv7pcoyh4v3diezwm5v7lmp2yezkzczk3hl22hvmhgmwq",
+          contentType: IndexFileContentType.CID,
+          fileType: FileType.Private,
+          mirrorName: "BSC_logo.png",
+          originDate: new Date().toISOString(),
+          originType: OriginType.upload,
+          originURL: "https://dataverse-os.com",
+        },
+      ],
+      syncImmediately: true,
+    });
+    console.log(res);
+  };
+
   /*** Folders ***/
 
   return (
@@ -508,6 +539,7 @@ function App() {
       <button onClick={createFolder}>createFolder</button>
       <button onClick={changeFolderBaseInfo}>changeFolderBaseInfo</button>
       <button onClick={changeFolderType}>changeFolderType</button>
+      <button onClick={addMirrors}>addMirrors</button>
     </div>
   );
 }
