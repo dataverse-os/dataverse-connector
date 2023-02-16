@@ -10,6 +10,7 @@ export {
   FolderType,
   FileType,
   OriginType,
+  DataverseKernel,
   IndexFileContentType,
   DecryptionConditionsTypes,
   type StreamObject,
@@ -19,3 +20,8 @@ export {
   type StructuredFolder,
   type StructuredFolders,
 } from "@dataverse/dataverse-kernel";
+
+export const getDidFromAddress = (address: string) =>
+  `did:pkh:eip155:${process.env.IS_MAINNET === 'false' ? '80001' : '137'}:` + address;
+
+export const getAddressFromDid = (did: string) => did.slice(did.lastIndexOf(':') + 1);
