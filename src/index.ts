@@ -16,5 +16,6 @@ export {
   type Mirror,
   type Mirrors,
   type MirrorFile,
+  type StructuredFolder,
   type StructuredFolders,
 } from "@dataverse/dataverse-kernel";

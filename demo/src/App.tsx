@@ -394,7 +394,7 @@ function App() {
         return Promise.all(
           Object.values(folder.mirrors as Mirrors).map(async (mirror) => {
             if (
-              mirror.mirrorFile.contentType === IndexFileContentType.STREAM &&
+              !(mirror.mirrorFile.contentType! in IndexFileContentType) &&
               (mirror.mirrorFile.fileKey ||
                 (mirror.mirrorFile.encryptedSymmetricKey &&
                   mirror.mirrorFile.decryptionConditions &&
@@ -443,11 +443,11 @@ function App() {
 
     setFolderId(folderId);
 
-    setMirrorFile(sortedFoldersMirrors[folderId][0].mirrorFile);
-
-    console.log(sortedFoldersMirrors[folderId][0].mirrorFile);
+    setMirrorFile(sortedFoldersMirrors[folderId][0]?.mirrorFile);
 
     console.log(folders);
+
+    console.log(sortedFoldersMirrors[folderId][0]?.mirrorFile);
   };
 
   const createFolder = async () => {
@@ -487,7 +487,8 @@ function App() {
     const res = await runtimeConnector.addMirrors({
       did,
       appName,
-      folderId,
+      folderId:
+        "kjzl6kcym7w8y8w11fog3o2yjg4rzfek4f8wn9df9evdrak5ghr865r2n3e77du",
       filesInfo: [
         {
           contentId:
@@ -499,6 +500,20 @@ function App() {
           originType: OriginType.upload,
           originURL: "https://dataverse-os.com",
         },
+      ],
+      syncImmediately: true,
+    });
+    console.log(res);
+  };
+
+  const moveMirrors = async () => {
+    const res = await runtimeConnector.moveMirrors({
+      did,
+      appName,
+      targetFolderId:
+        "kjzl6kcym7w8y8w11fog3o2yjg4rzfek4f8wn9df9evdrak5ghr865r2n3e77du",
+      sourceMirrorIds: [
+        "kjzl6kcym7w8y7pysqbirlyxu3jaa54pwnfgqq2j8fnp089favh1cseytpyrfrb",
       ],
       syncImmediately: true,
     });
@@ -540,6 +555,7 @@ function App() {
       <button onClick={changeFolderBaseInfo}>changeFolderBaseInfo</button>
       <button onClick={changeFolderType}>changeFolderType</button>
       <button onClick={addMirrors}>addMirrors</button>
+      <button onClick={moveMirrors}>moveMirrors</button>
     </div>
   );
 }

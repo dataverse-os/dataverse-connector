@@ -90,6 +90,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getModelIdByAppNameAndModelName];
   }
 
+  getAppNameAndModelNameByModelId(
+    params: RequestType[Methods.getAppNameAndModelNameByModelId]
+  ): ReturnType[Methods.getAppNameAndModelNameByModelId] {
+    return this.communicator.sendRequest({
+      method: Methods.getAppNameAndModelNameByModelId,
+      params,
+    }) as ReturnType[Methods.getAppNameAndModelNameByModelId];
+  }
+
   getChainFromLitAuthSig(
     params: RequestType[Methods.getChainFromLitAuthSig]
   ): ReturnType[Methods.getChainFromLitAuthSig] {
@@ -180,9 +189,14 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.deleteFolder];
   }
 
-  syncFolder() {}
-
-  readFile() {}
+  readDefaultFolder(
+    params: RequestType[Methods.readDefaultFolder]
+  ): ReturnType[Methods.readDefaultFolder] {
+    return this.communicator.sendRequest({
+      method: Methods.readDefaultFolder,
+      params,
+    }) as ReturnType[Methods.readDefaultFolder];
+  }
 
   addMirrors(
     params: RequestType[Methods.addMirrors]
