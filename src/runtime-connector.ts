@@ -1,5 +1,5 @@
 import { Communicator, PostMessageTo } from "@dataverse/communicator";
-import { Methods, RequestType, ReturnType } from "@dataverse/dataverse-kernel";
+import { RequestType, Methods, ReturnType } from "./types/event";
 
 export class RuntimeConnector {
   communicator: Communicator;
@@ -81,6 +81,33 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.updateStreams];
   }
 
+  getModelIdByAppNameAndModelName(
+    params: RequestType[Methods.getModelIdByAppNameAndModelName]
+  ): ReturnType[Methods.getModelIdByAppNameAndModelName] {
+    return this.communicator.sendRequest({
+      method: Methods.getModelIdByAppNameAndModelName,
+      params,
+    }) as ReturnType[Methods.getModelIdByAppNameAndModelName];
+  }
+
+  getAppNameAndModelNameByModelId(
+    params: RequestType[Methods.getAppNameAndModelNameByModelId]
+  ): ReturnType[Methods.getAppNameAndModelNameByModelId] {
+    return this.communicator.sendRequest({
+      method: Methods.getAppNameAndModelNameByModelId,
+      params,
+    }) as ReturnType[Methods.getAppNameAndModelNameByModelId];
+  }
+
+  getChainFromLitAuthSig(
+    params: RequestType[Methods.getChainFromLitAuthSig]
+  ): ReturnType[Methods.getChainFromLitAuthSig] {
+    return this.communicator.sendRequest({
+      method: Methods.getChainFromLitAuthSig,
+      params,
+    }) as ReturnType[Methods.getChainFromLitAuthSig];
+  }
+
   newLitKey(
     params: RequestType[Methods.newLitKey]
   ): ReturnType[Methods.newLitKey] {
@@ -90,13 +117,31 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.newLitKey];
   }
 
-  getLitKey(
-    params: RequestType[Methods.getLitKey]
-  ): ReturnType[Methods.getLitKey] {
+  // getLitKey(
+  //   params: RequestType[Methods.getLitKey]
+  // ): ReturnType[Methods.getLitKey] {
+  //   return this.communicator.sendRequest({
+  //     method: Methods.getLitKey,
+  //     params,
+  //   }) as ReturnType[Methods.getLitKey];
+  // }
+
+  encryptWithLit(
+    params: RequestType[Methods.encryptWithLit]
+  ): ReturnType[Methods.encryptWithLit] {
     return this.communicator.sendRequest({
-      method: Methods.getLitKey,
+      method: Methods.encryptWithLit,
       params,
-    }) as ReturnType[Methods.getLitKey];
+    }) as ReturnType[Methods.encryptWithLit];
+  }
+
+  decryptWithLit(
+    params: RequestType[Methods.decryptWithLit]
+  ): ReturnType[Methods.decryptWithLit] {
+    return this.communicator.sendRequest({
+      method: Methods.decryptWithLit,
+      params,
+    }) as ReturnType[Methods.decryptWithLit];
   }
 
   readFolders(
@@ -135,14 +180,54 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.changeFolderType];
   }
 
-  changeFolderContent() {}
-  deleteFolder() {}
-  syncFolder() {}
-  readFile() {}
-  addMirrors() {}
-  updateMirror() {}
-  moveMirrors() {}
-  removeMirrors() {}
+  deleteFolder(
+    params: RequestType[Methods.deleteFolder]
+  ): ReturnType[Methods.deleteFolder] {
+    return this.communicator.sendRequest({
+      method: Methods.deleteFolder,
+      params,
+    }) as ReturnType[Methods.deleteFolder];
+  }
+
+  readDefaultFolder(
+    params: RequestType[Methods.readDefaultFolder]
+  ): ReturnType[Methods.readDefaultFolder] {
+    return this.communicator.sendRequest({
+      method: Methods.readDefaultFolder,
+      params,
+    }) as ReturnType[Methods.readDefaultFolder];
+  }
+
+  addMirrors(
+    params: RequestType[Methods.addMirrors]
+  ): ReturnType[Methods.addMirrors] {
+    return this.communicator.sendRequest({
+      method: Methods.addMirrors,
+      params,
+    }) as ReturnType[Methods.addMirrors];
+  }
+
+  updateMirror(
+    params: RequestType[Methods.updateMirror]
+  ): ReturnType[Methods.updateMirror] {
+    return this.communicator.sendRequest({
+      method: Methods.updateMirror,
+      params,
+    }) as ReturnType[Methods.updateMirror];
+  }
+
+  moveMirrors(params: RequestType[Methods.moveMirrors]) {
+    return this.communicator.sendRequest({
+      method: Methods.moveMirrors,
+      params,
+    }) as ReturnType[Methods.moveMirrors];
+  }
+
+  removeMirrors(params: RequestType[Methods.removeMirrors]) {
+    return this.communicator.sendRequest({
+      method: Methods.removeMirrors,
+      params,
+    }) as ReturnType[Methods.removeMirrors];
+  }
   //profiles
-  loadStreams() {}
 }

@@ -1,27 +1,22 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
-import { NodeModulesPolyfillPlugin } from "@esbuild-plugins/node-modules-polyfill";
+import reactRefresh from "@vitejs/plugin-react-refresh";
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  optimizeDeps: {
-    esbuildOptions: {
-      target: "es2020",
-      define: {
-        global: "globalThis",
-      },
-      plugins: [
-        NodeGlobalsPolyfillPlugin({
-          process: true,
-          buffer: true,
-        }),
-        NodeModulesPolyfillPlugin(),
-      ],
+  plugins: [reactRefresh()],
+  resolve: {
+    dedupe: ["react", "react-dom"],
+    alias: {
+      web3: "web3/dist/web3.min.js",
+      // buffer: "rollup-plugin-node-polyfills/polyfills/buffer-es6", // add buffer
     },
   },
-  build: { target: "es2020" },
+  build: {
+    target: "es2020",
+    sourcemap: true,
+    rollupOptions: {
+      external: ["@lit-protocol/sdk-nodejs"],
+    },
+  },
   server: {
     port: 5173,
     host: "0.0.0.0",
