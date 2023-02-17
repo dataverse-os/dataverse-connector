@@ -1,5 +1,5 @@
 import { Communicator, PostMessageTo } from "@dataverse/communicator";
-import { Methods, RequestType, ReturnType } from "@dataverse/dataverse-kernel";
+import { RequestType, Methods, ReturnType } from "./types/event";
 
 export class RuntimeConnector {
   communicator: Communicator;

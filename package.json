@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/runtime-connector",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "type": "module",
   "main": "dist/cjs/index.js",
@@ -26,8 +26,8 @@
   },
   "homepage": "https://github.com/dataverse-os/runtime-connector#readme",
   "dependencies": {
-    "@dataverse/dataverse-kernel": "latest",
     "@dataverse/communicator": "latest",
+    "ethers": "5.6.9",
     "typescript": "^4.9.4",
     "uuid": "^9.0.0"
   },

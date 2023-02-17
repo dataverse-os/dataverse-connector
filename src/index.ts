@@ -1,28 +1,19 @@
-export { RuntimeConnector } from "./runtime-connector";
-export { type PostMessageTo } from "@dataverse/communicator";
+export { Extension, Browser } from "./types/constants";
+export { METAMASK, CRYPTO_WALLET_TYPE } from "./types/crypto-wallet";
+export { Apps, ModelNames } from "./types/dapp-verifier";
+export { DecryptionConditionsTypes } from "./types/data-monetize";
+export type { StreamObject } from "./types/data-models";
 export {
-  Browser,
-  Extension,
-  METAMASK,
-  CRYPTO_WALLET_TYPE,
-  Apps,
-  ModelNames,
   FolderType,
   FileType,
   OriginType,
-  DataverseKernel,
   IndexFileContentType,
-  DecryptionConditionsTypes,
-  type StreamObject,
   type Mirror,
   type Mirrors,
   type MirrorFile,
   type FileInfo,
   type StructuredFolder,
   type StructuredFolders,
-} from "@dataverse/dataverse-kernel";
-
-export const getDidFromAddress = (address: string) =>
-  `did:pkh:eip155:${process.env.IS_MAINNET === 'false' ? '80001' : '137'}:` + address;
-
-export const getAddressFromDid = (did: string) => did.slice(did.lastIndexOf(':') + 1);
+} from "./types/fs";
+export { RuntimeConnector } from "./runtime-connector";
+export { type PostMessageTo } from "@dataverse/communicator";
