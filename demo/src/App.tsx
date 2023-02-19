@@ -3,7 +3,6 @@ import "./App.css";
 import {
   RuntimeConnector,
   Extension,
-  Browser,
   METAMASK,
   CRYPTO_WALLET_TYPE,
   Apps,
@@ -19,11 +18,9 @@ import {
   MirrorFile,
   StructuredFolders,
 } from "@dataverse/runtime-connector";
-import { DataverseKernel } from "@dataverse/dataverse-kernel";
 import React, { useEffect, useRef, useState } from "react";
 
-const runtimeConnector = new RuntimeConnector(Browser);
-DataverseKernel.init();
+const runtimeConnector = new RuntimeConnector(Extension);
 const appName = Apps.dTwitter;
 const modelName = ModelNames.post;
 const modelNames = [ModelNames.post];

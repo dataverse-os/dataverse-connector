@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/runtime-connector",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "type": "module",
   "main": "dist/cjs/index.js",
