@@ -21,7 +21,7 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 
 const runtimeConnector = new RuntimeConnector(Extension);
-const appName = Apps.dTwitter;
+const appName = Apps.Dataverse;
 const modelName = ModelNames.post;
 const modelNames = [ModelNames.post];
 
@@ -36,6 +36,7 @@ function App() {
   const [folderId, setFolderId] = useState("");
   const [folders, setFolders] = useState<StructuredFolders>({});
 
+  /*** Identity ***/
   const connectWallet = async () => {
     const address = await runtimeConnector.connectWallet({
       name: METAMASK,
@@ -70,24 +71,42 @@ function App() {
     );
   };
 
-  const loadStream = async () => {
-    const streams = await runtimeConnector.loadStream(
-      "kjzl6kcym7w8y54hkcylumliloa2ut95ec5ae74w5vh95rt6co6b5u3lprjr0gj"
-    );
-    console.log(streams);
+  const getChainFromDID = async () => {
+    const chain = await runtimeConnector.getChainFromDID(did);
+    console.log(chain);
   };
+  /*** Identity ***/
+
+  /*** APP Registry ***/
+  const getAllAppsInfoByDID = async () => {
+    const appsInfo = await runtimeConnector.getAllAppsInfoByDID(did);
+    console.log(appsInfo);
+  };
+
+  const getModelIdByAppNameAndModelName = async () => {
+    const modelId = await runtimeConnector.getModelIdByAppNameAndModelName({
+      appName,
+      modelName,
+    });
+    console.log(modelId);
+  };
+
+  const getAppNameAndModelNameByModelId = async () => {
+    const { appName, modelName } =
+      await runtimeConnector.getAppNameAndModelNameByModelId(
+        "kjzl6hvfrbw6ca5b90vik6aerp2cfqlphn52yznmie4pvclbgycekr0d7py09sl"
+      );
+    console.log({ appName, modelName });
+  };
+  /*** APP Registry ***/
 
   /*** Lit ***/
   const generateAccessControlConditions = async () => {
     const modelId = await runtimeConnector.getModelIdByAppNameAndModelName({
       appName,
-      modelName: ModelNames.post,
+      modelName,
     });
-    const chain = await runtimeConnector.getChainFromLitAuthSig({
-      did,
-      appName,
-      modelNames,
-    });
+    const chain = await runtimeConnector.getChainFromDID(did);
     const conditions: any[] = [
       {
         contractAddress: "",
@@ -129,6 +148,7 @@ function App() {
       decryptionConditions,
       decryptionConditionsType,
     });
+
     console.log(encryptedSymmetricKey);
 
     return {
@@ -136,6 +156,50 @@ function App() {
       decryptionConditions,
       decryptionConditionsType,
     };
+  };
+
+  const encrypt = async () => {
+    const decryptionConditions = await generateAccessControlConditions();
+    const decryptionConditionsType =
+      DecryptionConditionsTypes.AccessControlCondition;
+
+    const { encryptedContent } = await runtimeConnector.encryptWithLit({
+      did,
+      appName,
+      modelNames,
+      content: "hello world",
+      encryptedSymmetricKey:
+        "02c67ba96980c11042f9e52262d48486b846af2acb7efb21ce01dafeef5697dc0f61213b6f0330883aa2b456b142550ffdd55e79b66ad399176f9f0e25ce694f3601ad1d35736db41917a12cb044b80c02199d104b8be9df0468a60514a5aca285ac6b99d478b158c59227a6e5cc223d3d1cc099a7540c14cc9c669068425bea0000000000000020603a50b4737163a66dd0172f012faedfb9a8cbb35d8da8155ff12a3c1d8ad611ad6adc5b953d118dc1fb76678422a898",
+      decryptionConditions,
+      decryptionConditionsType,
+    });
+    console.log(encryptedContent);
+  };
+
+  const decrypt = async () => {
+    const decryptionConditions = await generateAccessControlConditions();
+    const decryptionConditionsType =
+      DecryptionConditionsTypes.AccessControlCondition;
+
+    const encryptedContent = "erS5KV4HfggZ8-2iC2bj1uMZwiOA38z73DxVhXGeAGw=";
+    const symmetricKeyInBase16Format = "";
+    const encryptedSymmetricKey =
+      "02c67ba96980c11042f9e52262d48486b846af2acb7efb21ce01dafeef5697dc0f61213b6f0330883aa2b456b142550ffdd55e79b66ad399176f9f0e25ce694f3601ad1d35736db41917a12cb044b80c02199d104b8be9df0468a60514a5aca285ac6b99d478b158c59227a6e5cc223d3d1cc099a7540c14cc9c669068425bea0000000000000020603a50b4737163a66dd0172f012faedfb9a8cbb35d8da8155ff12a3c1d8ad611ad6adc5b953d118dc1fb76678422a898";
+
+    const { content } = await runtimeConnector.decryptWithLit({
+      did,
+      appName,
+      modelNames,
+      encryptedContent,
+      ...(symmetricKeyInBase16Format
+        ? { symmetricKeyInBase16Format }
+        : {
+            encryptedSymmetricKey,
+            decryptionConditions,
+            decryptionConditionsType,
+          }),
+    });
+    console.log(content);
   };
 
   const encryptWithLit = async ({
@@ -255,11 +319,18 @@ function App() {
   /*** Profle ***/
 
   /*** Post ***/
+  const loadStream = async () => {
+    const stream = await runtimeConnector.loadStream(
+      "kjzl6kcym7w8ya4nqi2fqewbxkvs0sbowpqt42x05gpfguj5ioy3i6ajh4i6hed"
+    );
+    console.log(stream);
+  };
+
   const loadMyPostStreamsByModel = async () => {
     const streams = await runtimeConnector.loadStreamsByModel({
-      did,
-      appName: Apps.dTwitter,
-      modelName: ModelNames.post,
+      did: "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555",
+      appName,
+      modelName,
     });
     console.log(streams);
     if (Object.entries(streams)[0]) {
@@ -271,8 +342,8 @@ function App() {
   const createPublicPostStream = async () => {
     const streamObject = await runtimeConnector.createStream({
       did,
-      appName: Apps.dTwitter,
-      modelName: ModelNames.post,
+      appName,
+      modelName,
       streamContent: {
         appVersion: "0.0.1",
         content: "a post",
@@ -287,6 +358,17 @@ function App() {
 
     const encryptedContent = await encryptWithLit({
       content: "a post",
+      ...litKit,
+    });
+    console.log({
+      did,
+      appName,
+      modelName,
+      streamContent: {
+        appVersion: "0.0.1",
+        content: encryptedContent,
+      },
+      fileType: FileType.Private,
       ...litKit,
     });
 
@@ -454,6 +536,7 @@ function App() {
       folderType: FolderType.Private,
       folderName: "Private",
     });
+    console.log(res);
     setFolderId(res.newFolder.folderId);
     console.log(res.newFolder.folderId);
   };
@@ -462,9 +545,10 @@ function App() {
     const res = await runtimeConnector.changeFolderBaseInfo({
       did,
       appName,
-      folderId,
-      newFolderName: new Date().toISOString(),
-      // syncImmediately: true,
+      folderId:
+        "kjzl6kcym7w8y9pgztpm5dmhiiz6pg87s0w8ul5tu6idwhff9z2raxbgzqdugq8",
+      newFolderDescription: new Date().toISOString(),
+      syncImmediately: true,
     });
     console.log(res);
   };
@@ -523,8 +607,20 @@ function App() {
     <div className="App">
       <button onClick={connectWallet}>connectWallet</button>
       <button onClick={connectIdentity}>connectIdentity</button>
+      <button onClick={getChainFromDID}>getChainFromDID</button>
       <button onClick={createNewDID}>createNewDID</button>
       <button onClick={switchDID}>switchDID</button>
+      <br />
+      <br />
+      <button onClick={getAllAppsInfoByDID}>getAllAppsInfoByDID</button>
+      <button onClick={getModelIdByAppNameAndModelName}>
+        getModelIdByAppNameAndModelName
+      </button>
+      <button onClick={getAppNameAndModelNameByModelId}>
+        getAppNameAndModelNameByModelId
+      </button>
+      <br />
+      <br />
       <button onClick={loadStream}>loadStream</button>
       {/* <button onClick={loadOthersProfileStreamsByModel}>
         loadOthersProfileStreamsByModel
@@ -545,7 +641,13 @@ function App() {
       <button onClick={updatePostStreamsToPrivateContent}>
         updatePostStreamsToPrivateContent
       </button>
-
+      <br />
+      <br />
+      <button onClick={newLitKey}>newLitKey</button>
+      <button onClick={encrypt}>encrypt</button>
+      <button onClick={decrypt}>decrypt</button>
+      <br />
+      <br />
       <button onClick={readOthersFolders}>readOthersFolders</button>
       <button onClick={readMyFolders}>readMyFolders</button>
       <button onClick={createFolder}>createFolder</button>

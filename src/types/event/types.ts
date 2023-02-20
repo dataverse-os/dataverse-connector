@@ -1,4 +1,5 @@
 import { CRYPTO_WALLET } from "../crypto-wallet";
+import { AppsInfo } from "../dapp-verifier/types";
 import { StreamObject, StreamsRecord } from "../data-models";
 import {
   DecryptionConditions,
@@ -23,6 +24,7 @@ export interface RequestType {
     appName: string;
     modelNames?: string[];
   };
+  getChainFromDID: string;
   createNewDID: CRYPTO_WALLET;
   switchDID: string;
 
@@ -56,14 +58,10 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
 
+  getAllAppsInfoByDID: string;
   getModelIdByAppNameAndModelName: { appName: string; modelName: string };
   getAppNameAndModelNameByModelId: string;
 
-  getChainFromLitAuthSig: {
-    did: string;
-    appName: string;
-    modelNames: string[];
-  };
   newLitKey: {
     did: string;
     appName: string;
@@ -89,9 +87,9 @@ export interface RequestType {
     decryptionConditionsType: DecryptionConditionsTypes;
   };
   decryptWithLit: {
-    did: string;
-    appName: string;
-    modelNames: string[];
+    did?: string;
+    appName?: string;
+    modelNames?: string[];
     encryptedContent: string;
     symmetricKeyInBase16Format?: string;
     encryptedSymmetricKey?: string;
@@ -116,7 +114,7 @@ export interface RequestType {
     did: string;
     appName: string;
     folderId: string;
-    newFolderName: string;
+    newFolderName?: string;
     newFolderDescription?: string;
     syncImmediately?: boolean;
   };
@@ -176,6 +174,7 @@ export interface RequestType {
 export interface ReturnType {
   connectWallet: Promise<string>;
   connectIdentity: Promise<string>;
+  getChainFromDID: Promise<string>;
   createNewDID: Promise<{
     currentDid: string;
     createdDidList: string[];
@@ -200,13 +199,13 @@ export interface ReturnType {
     | undefined
   >;
 
+  getAllAppsInfoByDID: Promise<AppsInfo>;
   getModelIdByAppNameAndModelName: Promise<string>;
   getAppNameAndModelNameByModelId: Promise<{
     appName: string;
     modelName: string;
   }>;
 
-  getChainFromLitAuthSig: Promise<string>;
   newLitKey: Promise<{
     // symmetricKeyInBase16Format: string;
     encryptedSymmetricKey: string;

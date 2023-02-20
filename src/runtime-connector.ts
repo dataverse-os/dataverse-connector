@@ -35,6 +35,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.connectIdentity];
   }
 
+  getChainFromDID(
+    params: RequestType[Methods.getChainFromDID]
+  ): ReturnType[Methods.getChainFromDID] {
+    return this.communicator.sendRequest({
+      method: Methods.getChainFromDID,
+      params,
+    }) as ReturnType[Methods.getChainFromDID];
+  }
+
   createNewDID(params: RequestType[Methods.createNewDID]) {
     return this.communicator.sendRequest({
       method: Methods.createNewDID,
@@ -81,6 +90,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.updateStreams];
   }
 
+  getAllAppsInfoByDID(
+    params: RequestType[Methods.getAllAppsInfoByDID]
+  ): ReturnType[Methods.getAllAppsInfoByDID] {
+    return this.communicator.sendRequest({
+      method: Methods.getAllAppsInfoByDID,
+      params,
+    }) as ReturnType[Methods.getAllAppsInfoByDID];
+  }
+
   getModelIdByAppNameAndModelName(
     params: RequestType[Methods.getModelIdByAppNameAndModelName]
   ): ReturnType[Methods.getModelIdByAppNameAndModelName] {
@@ -99,15 +117,6 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getAppNameAndModelNameByModelId];
   }
 
-  getChainFromLitAuthSig(
-    params: RequestType[Methods.getChainFromLitAuthSig]
-  ): ReturnType[Methods.getChainFromLitAuthSig] {
-    return this.communicator.sendRequest({
-      method: Methods.getChainFromLitAuthSig,
-      params,
-    }) as ReturnType[Methods.getChainFromLitAuthSig];
-  }
-
   newLitKey(
     params: RequestType[Methods.newLitKey]
   ): ReturnType[Methods.newLitKey] {
@@ -116,15 +125,6 @@ export class RuntimeConnector {
       params,
     }) as ReturnType[Methods.newLitKey];
   }
-
-  // getLitKey(
-  //   params: RequestType[Methods.getLitKey]
-  // ): ReturnType[Methods.getLitKey] {
-  //   return this.communicator.sendRequest({
-  //     method: Methods.getLitKey,
-  //     params,
-  //   }) as ReturnType[Methods.getLitKey];
-  // }
 
   encryptWithLit(
     params: RequestType[Methods.encryptWithLit]

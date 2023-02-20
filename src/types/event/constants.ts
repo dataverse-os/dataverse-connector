@@ -1,6 +1,7 @@
 export enum Methods {
   connectWallet = "connectWallet",
   connectIdentity = "connectIdentity",
+  getChainFromDID = "getChainFromDID",
   createNewDID = "createNewDID",
   switchDID = "switchDID",
 
@@ -9,10 +10,10 @@ export enum Methods {
   createStream = "createStream",
   updateStreams = "updateStreams",
 
+  getAllAppsInfoByDID = "getAllAppsInfoByDID",
   getModelIdByAppNameAndModelName = "getModelIdByAppNameAndModelName",
   getAppNameAndModelNameByModelId = "getAppNameAndModelNameByModelId",
 
-  getChainFromLitAuthSig = "getChainFromLitAuthSig",
   newLitKey = "newLitKey",
   getLitKey = "getLitKey",
   encryptWithLit = "encryptWithLit",
