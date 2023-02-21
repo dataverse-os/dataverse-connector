@@ -78,12 +78,7 @@ export interface FileInfo {
   originDate?: string;
   embedURL?: string;
   contentURL?: string;
-  dataTokenId?: string;
   fileType?: FileType;
-  fileKey?: string;
-  encryptedSymmetricKey?: string;
-  decryptionConditions?: any[];
-  decryptionConditionsType?: DecryptionConditionsTypes;
 }
 
 export interface Comment {

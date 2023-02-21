@@ -1,7 +1,6 @@
 export enum FolderType {
   Public,
   Private,
-  Curation,
 }
 
 export const TEMP = "temp";

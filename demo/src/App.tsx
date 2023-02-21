@@ -50,7 +50,6 @@ function App() {
     const did = await runtimeConnector.connectIdentity({
       wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
       appName,
-      modelNames,
     });
     setDid(did);
     console.log(did);
@@ -72,7 +71,7 @@ function App() {
   };
 
   const getChainFromDID = async () => {
-    const chain = await runtimeConnector.getChainFromDID(did);
+    const chain = await runtimeConnector.getChainFromDID("did:pkh:eip155:100:0x3c6216caE32FF6691C55cb691766220Fd3f55555");
     console.log(chain);
   };
   /*** Identity ***/

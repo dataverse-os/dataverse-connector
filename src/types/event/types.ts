@@ -25,6 +25,7 @@ export interface RequestType {
     modelNames?: string[];
   };
   getChainFromDID: string;
+  getDIDList: void;
   createNewDID: CRYPTO_WALLET;
   switchDID: string;
 
@@ -106,9 +107,6 @@ export interface RequestType {
     folderType: FolderType;
     folderName: string;
     folderDescription?: string;
-    mirrors?: Mirrors;
-    curationId?: string;
-    previews?: Mirrors;
   };
   changeFolderBaseInfo: {
     did: string;
@@ -123,8 +121,6 @@ export interface RequestType {
     appName: string;
     folderId: string;
     targetFolderType: FolderType;
-    folderDescription?: string;
-    openMirrorIds?: string[];
     syncImmediately?: boolean;
   };
   deleteFolder: {
@@ -145,7 +141,9 @@ export interface RequestType {
     appName: string;
     modelNames?: string[];
     folderId: string;
-    filesInfo?: (Omit<FileInfo, "fileType"> & { fileType: FileType })[];
+    filesInfo?: (Omit<FileInfo, "fileType"> & {
+      fileType: FileType;
+    })[];
     syncImmediately?: boolean;
   };
   updateMirror: {
@@ -175,6 +173,7 @@ export interface ReturnType {
   connectWallet: Promise<string>;
   connectIdentity: Promise<string>;
   getChainFromDID: Promise<string>;
+  getDIDList: Promise<string[]>;
   createNewDID: Promise<{
     currentDid: string;
     createdDidList: string[];
