@@ -44,6 +44,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getChainFromDID];
   }
 
+  getDIDList(
+    params: RequestType[Methods.getDIDList]
+  ): ReturnType[Methods.getDIDList] {
+    return this.communicator.sendRequest({
+      method: Methods.getDIDList,
+      params,
+    }) as ReturnType[Methods.getDIDList];
+  }
+
   createNewDID(params: RequestType[Methods.createNewDID]) {
     return this.communicator.sendRequest({
       method: Methods.createNewDID,

@@ -522,11 +522,11 @@ function App() {
 
     setFolderId(folderId);
 
-    setMirrorFile(sortedFoldersMirrors[folderId][0]?.mirrorFile);
+    setMirrorFile(sortedFoldersMirrors[folderId]?.[0]?.mirrorFile);
 
     console.log(folders);
 
-    console.log(sortedFoldersMirrors[folderId][0]?.mirrorFile);
+    console.log(sortedFoldersMirrors[folderId]?.[0]?.mirrorFile);
   };
 
   const createFolder = async () => {
@@ -564,12 +564,22 @@ function App() {
     console.log(res);
   };
 
+  const deleteFolder = async () => {
+    const res = await runtimeConnector.deleteFolder({
+      did,
+      appName,
+      folderId,
+      syncImmediately: true,
+    });
+    console.log(res);
+  };
+
   const addMirrors = async () => {
     const res = await runtimeConnector.addMirrors({
       did,
       appName,
       folderId:
-        "kjzl6kcym7w8y8w11fog3o2yjg4rzfek4f8wn9df9evdrak5ghr865r2n3e77du",
+        "kjzl6kcym7w8y8q37mwzse82foti3bt76lic9xg5yp5uj5ugw81d2tbuot3ak5p",
       filesInfo: [
         {
           contentId:
@@ -587,14 +597,40 @@ function App() {
     console.log(res);
   };
 
+  const updateMirror = async () => {
+    const res = await runtimeConnector.updateMirror({
+      did,
+      appName,
+      mirrorId:
+        "kjzl6kcym7w8y6obo38hb8k543zk04vsm55mqq2wgcg0wkhqz895b585tw3vuo9",
+      fileInfo: {
+        fileType: FileType.Public,
+      },
+      syncImmediately: true,
+    });
+    console.log(res);
+  };
+
   const moveMirrors = async () => {
     const res = await runtimeConnector.moveMirrors({
       did,
       appName,
       targetFolderId:
-        "kjzl6kcym7w8y8w11fog3o2yjg4rzfek4f8wn9df9evdrak5ghr865r2n3e77du",
+        "kjzl6kcym7w8y94clt1zso1lov99lhu14q0fr2vl8i1nn55slrz47dvqix0it6o",
       sourceMirrorIds: [
-        "kjzl6kcym7w8y7pysqbirlyxu3jaa54pwnfgqq2j8fnp089favh1cseytpyrfrb",
+        "kjzl6kcym7w8y6obo38hb8k543zk04vsm55mqq2wgcg0wkhqz895b585tw3vuo9",
+      ],
+      syncImmediately: true,
+    });
+    console.log(res);
+  };
+
+  const removeMirrors = async () => {
+    const res = await runtimeConnector.removeMirrors({
+      did,
+      appName,
+      mirrorIds: [
+        "kjzl6kcym7w8y6obo38hb8k543zk04vsm55mqq2wgcg0wkhqz895b585tw3vuo9",
       ],
       syncImmediately: true,
     });
@@ -653,8 +689,11 @@ function App() {
       <button onClick={createFolder}>createFolder</button>
       <button onClick={changeFolderBaseInfo}>changeFolderBaseInfo</button>
       <button onClick={changeFolderType}>changeFolderType</button>
+      <button onClick={deleteFolder}>deleteFolder</button>
       <button onClick={addMirrors}>addMirrors</button>
+      <button onClick={updateMirror}>updateMirror</button>
       <button onClick={moveMirrors}>moveMirrors</button>
+      <button onClick={removeMirrors}>removeMirrors</button>
     </div>
   );
 }
