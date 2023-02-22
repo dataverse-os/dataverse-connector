@@ -15,7 +15,7 @@ export interface IndexFile {
   /* includes embedURL, contentURL */
   additional?: string;
   /* The on-chain postId*/
-  dataTokenId?: string;
+  datatokenId?: string;
   /* The type of the file, includes public and private */
   fileType: FileType;
   /* The encrypted symmetric key of the file */
@@ -48,7 +48,7 @@ export interface StructuredFile {
   /* includes embedURL, contentURL */
   additional?: Additional;
   /* The on-chain postId*/
-  dataTokenId?: string;
+  datatokenId?: string;
   /* The type of the file, includes public and private */
   fileType: FileType;
   /* The encrypted symmetric key of the file */

@@ -16,7 +16,7 @@ export interface MirrorFile {
   comment?: Comment;
   relation?: Relation;
   additional?: Additional;
-  dataTokenId?: string; //链上数据Id
+  datatokenId?: string; //链上数据Id
   fileType?: FileType;
   fileKey?: string; //解密indexFile对应内容的对称密钥
   encryptedSymmetricKey?: string;

@@ -145,7 +145,6 @@ export interface RequestType {
   addMirrors: {
     did: string;
     appName: string;
-    modelNames?: string[];
     folderId: string;
     filesInfo?: (Omit<FileInfo, "fileType"> & {
       fileType: FileType;
@@ -155,7 +154,6 @@ export interface RequestType {
   updateMirror: {
     did: string;
     appName: string;
-    modelNames?: string[];
     mirrorId: string;
     fileInfo: FileInfo;
     syncImmediately?: boolean;

@@ -12,7 +12,7 @@ export interface DatatokenVars {
 export interface CreateDatatokenOutPut {
   creator: string;
   hub: string;
-  datatoken: string;
+  datatokenId: string;
   txHash: string;
 }
 

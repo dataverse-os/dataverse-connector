@@ -18,7 +18,6 @@ import {
   Mirrors,
   MirrorFile,
   StructuredFolders,
-  Browser,
   Currency,
 } from "@dataverse/runtime-connector";
 
