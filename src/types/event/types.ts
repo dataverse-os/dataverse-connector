@@ -5,6 +5,7 @@ import {
   DecryptionConditions,
   DecryptionConditionsTypes,
 } from "../data-monetize";
+import { CollectOutput, DataTokenVars } from "../data-monetize/types";
 import { FileType, FolderType } from "../fs";
 import {
   FileInfo,
@@ -26,6 +27,7 @@ export interface RequestType {
   };
   getChainFromDID: string;
   getDIDList: void;
+  getCurrentDID: void;
   createNewDID: CRYPTO_WALLET;
   switchDID: string;
 
@@ -167,6 +169,10 @@ export interface RequestType {
     mirrorIds: string[];
     syncImmediately?: boolean;
   };
+
+  createDatatoken: DataTokenVars;
+  collect: string;
+  isCollected: { datatokenId: string; address: string };
 }
 
 export interface ReturnType {
@@ -174,9 +180,10 @@ export interface ReturnType {
   connectIdentity: Promise<string>;
   getChainFromDID: Promise<string>;
   getDIDList: Promise<string[]>;
+  getCurrentDID: Promise<string>;
   createNewDID: Promise<{
-    currentDid: string;
-    createdDidList: string[];
+    currentDID: string;
+    createdDIDList: string[];
   }>;
   switchDID: Promise<void>;
 
@@ -255,6 +262,10 @@ export interface ReturnType {
     sourceFolders: StructuredFolders;
     allFolders: StructuredFolders;
   }>;
+
+  createDatatoken: Promise<string>;
+  collect: Promise<CollectOutput>;
+  isCollected: Promise<boolean>;
 }
 export interface RequestInputs {
   method: Methods;

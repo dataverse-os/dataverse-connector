@@ -2,6 +2,7 @@ export enum Methods {
   connectWallet = "connectWallet",
   connectIdentity = "connectIdentity",
   getChainFromDID = "getChainFromDID",
+  getCurrentDID = "getCurrentDID",
   getDIDList = "getDIDList",
   createNewDID = "createNewDID",
   switchDID = "switchDID",
@@ -34,4 +35,8 @@ export enum Methods {
   updateMirror = "updateMirror",
   moveMirrors = "moveMirrors",
   removeMirrors = "removeMirrors",
+
+  createDatatoken = "createDatatoken",
+  collect = "collect",
+  isCollected = "isCollected",
 }

@@ -1,5 +1,6 @@
 import "./App.css";
 import "./App.css";
+import React, { useEffect, useRef, useState } from "react";
 import {
   RuntimeConnector,
   Extension,
@@ -17,10 +18,14 @@ import {
   Mirrors,
   MirrorFile,
   StructuredFolders,
+  Browser,
+  Currency,
 } from "@dataverse/runtime-connector";
-import React, { useEffect, useRef, useState } from "react";
 
-const runtimeConnector = new RuntimeConnector(Extension);
+import { DataverseKernel } from "@dataverse/dataverse-kernel";
+DataverseKernel.init();
+
+const runtimeConnector = new RuntimeConnector(Browser);
 const appName = Apps.Dataverse;
 const modelName = ModelNames.post;
 const modelNames = [ModelNames.post];
@@ -55,13 +60,30 @@ function App() {
     console.log(did);
   };
 
+  const getCurrentDID = async () => {
+    const res = await runtimeConnector.getCurrentDID();
+    console.log(res);
+  };
+
+  const getChainFromDID = async () => {
+    const chain = await runtimeConnector.getChainFromDID(
+      "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555"
+    );
+    console.log(chain);
+  };
+
+  const getDIDList = async () => {
+    const res = await runtimeConnector.getDIDList();
+    console.log(res);
+  };
+
   const createNewDID = async () => {
-    const { currentDid, createdDidList } = await runtimeConnector.createNewDID({
+    const { currentDID, createdDIDList } = await runtimeConnector.createNewDID({
       name: METAMASK,
       type: CRYPTO_WALLET_TYPE,
     });
-    setNewDid(currentDid);
-    console.log({ currentDid, createdDidList });
+    setNewDid(currentDID);
+    console.log({ currentDID, createdDIDList });
   };
 
   const switchDID = async () => {
@@ -70,15 +92,13 @@ function App() {
     );
   };
 
-  const getChainFromDID = async () => {
-    const chain = await runtimeConnector.getChainFromDID("did:pkh:eip155:100:0x3c6216caE32FF6691C55cb691766220Fd3f55555");
-    console.log(chain);
-  };
   /*** Identity ***/
 
   /*** APP Registry ***/
   const getAllAppsInfoByDID = async () => {
-    const appsInfo = await runtimeConnector.getAllAppsInfoByDID(did);
+    const appsInfo = await runtimeConnector.getAllAppsInfoByDID(
+      "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555"
+    );
     console.log(appsInfo);
   };
 
@@ -320,7 +340,7 @@ function App() {
   /*** Post ***/
   const loadStream = async () => {
     const stream = await runtimeConnector.loadStream(
-      "kjzl6kcym7w8ya4nqi2fqewbxkvs0sbowpqt42x05gpfguj5ioy3i6ajh4i6hed"
+      "kjzl6kcym7w8yac29293oqcec2rz7ellksdiuc6ea9xpnwymdctrstbmc1xhrgw"
     );
     console.log(stream);
   };
@@ -456,7 +476,7 @@ function App() {
   /*** Folders ***/
   const readOthersFolders = async () => {
     const othersFolders = await runtimeConnector.readFolders({
-      did: "did:pkh:eip155:137:0x5915e293823FCa840c93ED2E1E5B4df32d699999",
+      did: "did:pkh:eip155:137:0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd",
       appName,
     });
     console.log(othersFolders);
@@ -467,6 +487,7 @@ function App() {
       did,
       appName,
     });
+    console.log({ folders });
     await Promise.all(
       Object.values(folders).map((folder) => {
         return Promise.all(
@@ -525,6 +546,8 @@ function App() {
 
     console.log(folders);
 
+    console.log(folderId);
+
     console.log(sortedFoldersMirrors[folderId]?.[0]?.mirrorFile);
   };
 
@@ -577,8 +600,7 @@ function App() {
     const res = await runtimeConnector.addMirrors({
       did,
       appName,
-      folderId:
-        "kjzl6kcym7w8y8q37mwzse82foti3bt76lic9xg5yp5uj5ugw81d2tbuot3ak5p",
+      folderId: folderId,
       filesInfo: [
         {
           contentId:
@@ -638,11 +660,43 @@ function App() {
 
   /*** Folders ***/
 
+  /*** Data Monetize ***/
+
+  const createDatatoken = async () => {
+    const res = await runtimeConnector.createDatatoken({
+      streamId: "kjzl6kcym7w8y6ds8izvyh2shsxkihazva6chw8m2aa158gx0w4i71y263uc4v7",
+      collectLimit: 100,
+      amount: 0.0001,
+      currency: Currency.WMATIC,
+    });
+    console.log(res);
+  };
+
+  const collect = async () => {
+    const datatokenId = "0x56E6129a25C59334aB30C962DD84Db7670E964c1";
+    const res = await runtimeConnector.collect(datatokenId);
+    console.log(res);
+  };
+
+  const isCollected = async () => {
+    const datatokenId = "0x56E6129a25C59334aB30C962DD84Db7670E964c1";
+    const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
+    const res = await runtimeConnector.isCollected({
+      datatokenId,
+      address,
+    });
+    console.log(res);
+  };
+  
+  /*** Data Monetize ***/
+
   return (
     <div className="App">
       <button onClick={connectWallet}>connectWallet</button>
       <button onClick={connectIdentity}>connectIdentity</button>
       <button onClick={getChainFromDID}>getChainFromDID</button>
+      <button onClick={getDIDList}>getDidList</button>
+      <button onClick={getCurrentDID}>getCurrentDID</button>
       <button onClick={createNewDID}>createNewDID</button>
       <button onClick={switchDID}>switchDID</button>
       <br />
@@ -693,6 +747,11 @@ function App() {
       <button onClick={updateMirror}>updateMirror</button>
       <button onClick={moveMirrors}>moveMirrors</button>
       <button onClick={removeMirrors}>removeMirrors</button>
+      <br />
+      <br />
+      <button onClick={createDatatoken}>createDatatoken</button>
+      <button onClick={collect}>collect</button>
+      <button onClick={isCollected}>isCollected</button>
     </div>
   );
 }

@@ -53,6 +53,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getDIDList];
   }
 
+  getCurrentDID(
+    params: RequestType[Methods.getCurrentDID]
+  ): ReturnType[Methods.getCurrentDID] {
+    return this.communicator.sendRequest({
+      method: Methods.getCurrentDID,
+      params,
+    }) as ReturnType[Methods.getCurrentDID];
+  }
+
   createNewDID(params: RequestType[Methods.createNewDID]) {
     return this.communicator.sendRequest({
       method: Methods.createNewDID,
@@ -238,5 +247,27 @@ export class RuntimeConnector {
       params,
     }) as ReturnType[Methods.removeMirrors];
   }
+
+  createDatatoken(params: RequestType[Methods.createDatatoken]) {
+    return this.communicator.sendRequest({
+      method: Methods.createDatatoken,
+      params,
+    }) as ReturnType[Methods.createDatatoken];
+  }
+
+  collect(params: RequestType[Methods.collect]) {
+    return this.communicator.sendRequest({
+      method: Methods.collect,
+      params,
+    }) as ReturnType[Methods.collect];
+  }
+  
+  isCollected(params: RequestType[Methods.isCollected]) {
+    return this.communicator.sendRequest({
+      method: Methods.isCollected,
+      params,
+    }) as ReturnType[Methods.isCollected];
+  }
+
   //profiles
 }

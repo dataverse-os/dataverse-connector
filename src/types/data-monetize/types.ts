@@ -1,3 +1,29 @@
+import { BigNumber, BigNumberish } from "ethers";
+import { Currency } from "./constants";
+
+export interface DataTokenVars {
+  streamId: string;
+  profileId?: BigNumber;
+  collectLimit: number;
+  amount: number;
+  currency: Currency;
+}
+
+export interface CreateDataTokenOutPut {
+  creator: string;
+  hub: string;
+  dataToken: string;
+  txHash: string;
+}
+
+export interface CollectOutput {
+  datatoken: string;
+  collector: string;
+  collectNFT: string;
+  tokenId: BigNumberish;
+  txHash: string;
+}
+
 export interface AccessControlCondition {
   contractAddress: string;
   chain: string;
