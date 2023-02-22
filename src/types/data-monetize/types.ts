@@ -17,7 +17,7 @@ export interface CreateDatatokenOutPut {
 }
 
 export interface CollectOutput {
-  datatoken: string;
+  datatokenId: string;
   collector: string;
   collectNFT: string;
   tokenId: BigNumberish;

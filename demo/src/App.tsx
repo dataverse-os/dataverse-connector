@@ -660,7 +660,8 @@ function App() {
 
   const createDatatoken = async () => {
     const res = await runtimeConnector.createDatatoken({
-      streamId: "kjzl6kcym7w8y6ds8izvyh2shsxkihazva6chw8m2aa158gx0w4i71y263uc4v7",
+      streamId:
+        "kjzl6kcym7w8y6ds8izvyh2shsxkihazva6chw8m2aa158gx0w4i71y263uc4v7",
       collectLimit: 100,
       amount: 0.0001,
       currency: Currency.WMATIC,
@@ -675,7 +676,7 @@ function App() {
   };
 
   const isCollected = async () => {
-    const datatokenId = "0x56E6129a25C59334aB30C962DD84Db7670E964c1";
+    const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
     const res = await runtimeConnector.isCollected({
       datatokenId,
@@ -683,7 +684,7 @@ function App() {
     });
     console.log(res);
   };
-  
+
   /*** Data Monetize ***/
 
   return (
