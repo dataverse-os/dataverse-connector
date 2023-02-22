@@ -22,10 +22,7 @@ import {
   Currency,
 } from "@dataverse/runtime-connector";
 
-import { DataverseKernel } from "@dataverse/dataverse-kernel";
-DataverseKernel.init();
-
-const runtimeConnector = new RuntimeConnector(Browser);
+const runtimeConnector = new RuntimeConnector(Extension);
 const appName = Apps.Dataverse;
 const modelName = ModelNames.post;
 const modelNames = [ModelNames.post];

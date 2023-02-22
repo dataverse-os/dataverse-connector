@@ -1,7 +1,7 @@
 import { BigNumber, BigNumberish } from "ethers";
 import { Currency } from "./constants";
 
-export interface DataTokenVars {
+export interface DatatokenVars {
   streamId: string;
   profileId?: BigNumber;
   collectLimit: number;
@@ -9,10 +9,10 @@ export interface DataTokenVars {
   currency: Currency;
 }
 
-export interface CreateDataTokenOutPut {
+export interface CreateDatatokenOutPut {
   creator: string;
   hub: string;
-  dataToken: string;
+  datatoken: string;
   txHash: string;
 }
 

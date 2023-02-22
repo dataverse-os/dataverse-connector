@@ -1,8 +1,12 @@
 export { Extension, Browser } from "./types/constants";
 export { METAMASK, CRYPTO_WALLET_TYPE } from "./types/crypto-wallet";
 export { Apps, ModelNames } from "./types/dapp-verifier";
-export { Currency, DecryptionConditionsTypes } from "./types/data-monetize";
 export type { StreamObject } from "./types/data-models";
+export {
+  Currency,
+  DecryptionConditionsTypes,
+  type DatatokenVars,
+} from "./types/data-monetize";
 export {
   FolderType,
   FileType,

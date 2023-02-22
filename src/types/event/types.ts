@@ -5,7 +5,11 @@ import {
   DecryptionConditions,
   DecryptionConditionsTypes,
 } from "../data-monetize";
-import { CollectOutput, DataTokenVars } from "../data-monetize/types";
+import {
+  CollectOutput,
+  CreateDatatokenOutPut,
+  DatatokenVars,
+} from "../data-monetize/types";
 import { FileType, FolderType } from "../fs";
 import {
   FileInfo,
@@ -170,7 +174,7 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
 
-  createDatatoken: DataTokenVars;
+  createDatatoken: DatatokenVars;
   collect: string;
   isCollected: { datatokenId: string; address: string };
 }
@@ -263,7 +267,7 @@ export interface ReturnType {
     allFolders: StructuredFolders;
   }>;
 
-  createDatatoken: Promise<string>;
+  createDatatoken: Promise<CreateDatatokenOutPut>;
   collect: Promise<CollectOutput>;
   isCollected: Promise<boolean>;
 }
