@@ -58,6 +58,8 @@ export interface RequestType {
       {
         streamContent?: any;
         fileType?: FileType;
+        datatokenId?: string;
+        contentId?: string;
         encryptedSymmetricKey?: string;
         decryptionConditions?: any[];
         decryptionConditionsType?: DecryptionConditionsTypes;

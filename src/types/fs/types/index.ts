@@ -8,7 +8,7 @@ export type {
   StructuredFolders,
   PrivateFolderOptions,
   PublicFolderOptions,
-  CurationFolderOptions,
+  DatatokenFolderOptions,
 } from "./folder";
 
 export type {
