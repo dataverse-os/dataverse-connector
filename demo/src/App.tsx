@@ -47,6 +47,11 @@ function App() {
     console.log(address);
   };
 
+  const switchNetwork = async () => {
+    const res = await runtimeConnector.switchNetwork(137);
+    console.log(res);
+  };
+
   const connectIdentity = async () => {
     const did = await runtimeConnector.connectIdentity({
       wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
@@ -93,7 +98,7 @@ function App() {
   /*** APP Registry ***/
   const getAllAppsInfoByDID = async () => {
     const appsInfo = await runtimeConnector.getAllAppsInfoByDID(
-      "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555"
+      "did:pkh:eip155:137:0x29761660d6Cb26a08e9A9c7de12E0038eE9cb623"
     );
     console.log(appsInfo);
   };
@@ -690,6 +695,7 @@ function App() {
   return (
     <div className="App">
       <button onClick={connectWallet}>connectWallet</button>
+      <button onClick={switchNetwork}>switchNetwork</button>
       <button onClick={connectIdentity}>connectIdentity</button>
       <button onClick={getChainFromDID}>getChainFromDID</button>
       <button onClick={getDIDList}>getDidList</button>

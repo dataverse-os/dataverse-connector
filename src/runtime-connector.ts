@@ -16,14 +16,22 @@ export class RuntimeConnector {
     this.communicator.setPostMessageTo(postMessageTo);
   }
 
-  async connectWallet(
+  connectWallet(
     params: RequestType[Methods.connectWallet]
   ): ReturnType[Methods.connectWallet] {
-    const res = (await this.communicator.sendRequest({
+    return this.communicator.sendRequest({
       method: Methods.connectWallet,
       params,
-    })) as ReturnType[Methods.connectWallet];
-    return res;
+    }) as ReturnType[Methods.connectWallet];
+  }
+
+  switchNetwork(
+    params: RequestType[Methods.switchNetwork]
+  ): ReturnType[Methods.switchNetwork] {
+    return this.communicator.sendRequest({
+      method: Methods.switchNetwork,
+      params,
+    }) as ReturnType[Methods.switchNetwork];
   }
 
   connectIdentity(
@@ -261,7 +269,7 @@ export class RuntimeConnector {
       params,
     }) as ReturnType[Methods.collect];
   }
-  
+
   isCollected(params: RequestType[Methods.isCollected]) {
     return this.communicator.sendRequest({
       method: Methods.isCollected,

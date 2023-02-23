@@ -24,6 +24,7 @@ import { Methods } from "./constants";
 
 export interface RequestType {
   connectWallet: CRYPTO_WALLET;
+  switchNetwork: number;
   connectIdentity: {
     wallet: CRYPTO_WALLET;
     appName: string;
@@ -179,6 +180,7 @@ export interface RequestType {
 
 export interface ReturnType {
   connectWallet: Promise<string>;
+  switchNetwork: Promise<boolean>;
   connectIdentity: Promise<string>;
   getChainFromDID: Promise<string>;
   getDIDList: Promise<string[]>;
@@ -187,7 +189,7 @@ export interface ReturnType {
     currentDID: string;
     createdDIDList: string[];
   }>;
-  switchDID: Promise<void>;
+  switchDID: Promise<boolean>;
 
   loadStream: Promise<{
     did: string;

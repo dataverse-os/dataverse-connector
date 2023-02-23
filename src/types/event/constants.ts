@@ -1,5 +1,6 @@
 export enum Methods {
   connectWallet = "connectWallet",
+  switchNetwork = "switchNetwork",
   connectIdentity = "connectIdentity",
   getChainFromDID = "getChainFromDID",
   getCurrentDID = "getCurrentDID",
