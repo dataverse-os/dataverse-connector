@@ -16,14 +16,22 @@ export class RuntimeConnector {
     this.communicator.setPostMessageTo(postMessageTo);
   }
 
-  async connectWallet(
+  connectWallet(
     params: RequestType[Methods.connectWallet]
   ): ReturnType[Methods.connectWallet] {
-    const res = (await this.communicator.sendRequest({
+    return this.communicator.sendRequest({
       method: Methods.connectWallet,
       params,
-    })) as ReturnType[Methods.connectWallet];
-    return res;
+    }) as ReturnType[Methods.connectWallet];
+  }
+
+  switchNetwork(
+    params: RequestType[Methods.switchNetwork]
+  ): ReturnType[Methods.switchNetwork] {
+    return this.communicator.sendRequest({
+      method: Methods.switchNetwork,
+      params,
+    }) as ReturnType[Methods.switchNetwork];
   }
 
   connectIdentity(
@@ -33,6 +41,33 @@ export class RuntimeConnector {
       method: Methods.connectIdentity,
       params,
     }) as ReturnType[Methods.connectIdentity];
+  }
+
+  getChainFromDID(
+    params: RequestType[Methods.getChainFromDID]
+  ): ReturnType[Methods.getChainFromDID] {
+    return this.communicator.sendRequest({
+      method: Methods.getChainFromDID,
+      params,
+    }) as ReturnType[Methods.getChainFromDID];
+  }
+
+  getDIDList(
+    params: RequestType[Methods.getDIDList]
+  ): ReturnType[Methods.getDIDList] {
+    return this.communicator.sendRequest({
+      method: Methods.getDIDList,
+      params,
+    }) as ReturnType[Methods.getDIDList];
+  }
+
+  getCurrentDID(
+    params: RequestType[Methods.getCurrentDID]
+  ): ReturnType[Methods.getCurrentDID] {
+    return this.communicator.sendRequest({
+      method: Methods.getCurrentDID,
+      params,
+    }) as ReturnType[Methods.getCurrentDID];
   }
 
   createNewDID(params: RequestType[Methods.createNewDID]) {
@@ -81,6 +116,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.updateStreams];
   }
 
+  getAllAppsInfoByDID(
+    params: RequestType[Methods.getAllAppsInfoByDID]
+  ): ReturnType[Methods.getAllAppsInfoByDID] {
+    return this.communicator.sendRequest({
+      method: Methods.getAllAppsInfoByDID,
+      params,
+    }) as ReturnType[Methods.getAllAppsInfoByDID];
+  }
+
   getModelIdByAppNameAndModelName(
     params: RequestType[Methods.getModelIdByAppNameAndModelName]
   ): ReturnType[Methods.getModelIdByAppNameAndModelName] {
@@ -99,15 +143,6 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getAppNameAndModelNameByModelId];
   }
 
-  getChainFromLitAuthSig(
-    params: RequestType[Methods.getChainFromLitAuthSig]
-  ): ReturnType[Methods.getChainFromLitAuthSig] {
-    return this.communicator.sendRequest({
-      method: Methods.getChainFromLitAuthSig,
-      params,
-    }) as ReturnType[Methods.getChainFromLitAuthSig];
-  }
-
   newLitKey(
     params: RequestType[Methods.newLitKey]
   ): ReturnType[Methods.newLitKey] {
@@ -116,15 +151,6 @@ export class RuntimeConnector {
       params,
     }) as ReturnType[Methods.newLitKey];
   }
-
-  // getLitKey(
-  //   params: RequestType[Methods.getLitKey]
-  // ): ReturnType[Methods.getLitKey] {
-  //   return this.communicator.sendRequest({
-  //     method: Methods.getLitKey,
-  //     params,
-  //   }) as ReturnType[Methods.getLitKey];
-  // }
 
   encryptWithLit(
     params: RequestType[Methods.encryptWithLit]
@@ -229,5 +255,27 @@ export class RuntimeConnector {
       params,
     }) as ReturnType[Methods.removeMirrors];
   }
+
+  createDatatoken(params: RequestType[Methods.createDatatoken]) {
+    return this.communicator.sendRequest({
+      method: Methods.createDatatoken,
+      params,
+    }) as ReturnType[Methods.createDatatoken];
+  }
+
+  collect(params: RequestType[Methods.collect]) {
+    return this.communicator.sendRequest({
+      method: Methods.collect,
+      params,
+    }) as ReturnType[Methods.collect];
+  }
+
+  isCollected(params: RequestType[Methods.isCollected]) {
+    return this.communicator.sendRequest({
+      method: Methods.isCollected,
+      params,
+    }) as ReturnType[Methods.isCollected];
+  }
+
   //profiles
 }

@@ -41,7 +41,7 @@ export interface PrivateFolderOptions extends CommonFolderOptions {
   encrypted: string;
 }
 
-export interface CurationFolderOptions extends CommonFolderOptions {
+export interface DatatokenFolderOptions extends CommonFolderOptions {
   curationId: string;
 
   encryptedSymmetricKey: string;
@@ -55,7 +55,7 @@ export interface CurationFolderOptions extends CommonFolderOptions {
 export type FolderOptions =
   | PublicFolderOptions
   | PrivateFolderOptions
-  | CurationFolderOptions;
+  | DatatokenFolderOptions;
 
 export interface StructuredFolder {
   /** the ceramic indexFolder & contentFolder models of the folder */

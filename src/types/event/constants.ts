@@ -1,6 +1,10 @@
 export enum Methods {
   connectWallet = "connectWallet",
+  switchNetwork = "switchNetwork",
   connectIdentity = "connectIdentity",
+  getChainFromDID = "getChainFromDID",
+  getCurrentDID = "getCurrentDID",
+  getDIDList = "getDIDList",
   createNewDID = "createNewDID",
   switchDID = "switchDID",
 
@@ -9,10 +13,10 @@ export enum Methods {
   createStream = "createStream",
   updateStreams = "updateStreams",
 
+  getAllAppsInfoByDID = "getAllAppsInfoByDID",
   getModelIdByAppNameAndModelName = "getModelIdByAppNameAndModelName",
   getAppNameAndModelNameByModelId = "getAppNameAndModelNameByModelId",
 
-  getChainFromLitAuthSig = "getChainFromLitAuthSig",
   newLitKey = "newLitKey",
   getLitKey = "getLitKey",
   encryptWithLit = "encryptWithLit",
@@ -32,4 +36,8 @@ export enum Methods {
   updateMirror = "updateMirror",
   moveMirrors = "moveMirrors",
   removeMirrors = "removeMirrors",
+
+  createDatatoken = "createDatatoken",
+  collect = "collect",
+  isCollected = "isCollected",
 }

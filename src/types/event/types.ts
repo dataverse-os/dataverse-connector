@@ -1,9 +1,15 @@
 import { CRYPTO_WALLET } from "../crypto-wallet";
+import { AppsInfo } from "../dapp-verifier/types";
 import { StreamObject, StreamsRecord } from "../data-models";
 import {
   DecryptionConditions,
   DecryptionConditionsTypes,
 } from "../data-monetize";
+import {
+  CollectOutput,
+  CreateDatatokenOutPut,
+  DatatokenVars,
+} from "../data-monetize/types";
 import { FileType, FolderType } from "../fs";
 import {
   FileInfo,
@@ -18,11 +24,15 @@ import { Methods } from "./constants";
 
 export interface RequestType {
   connectWallet: CRYPTO_WALLET;
+  switchNetwork: number;
   connectIdentity: {
     wallet: CRYPTO_WALLET;
     appName: string;
     modelNames?: string[];
   };
+  getChainFromDID: string;
+  getDIDList: void;
+  getCurrentDID: void;
   createNewDID: CRYPTO_WALLET;
   switchDID: string;
 
@@ -48,6 +58,8 @@ export interface RequestType {
       {
         streamContent?: any;
         fileType?: FileType;
+        datatokenId?: string;
+        contentId?: string;
         encryptedSymmetricKey?: string;
         decryptionConditions?: any[];
         decryptionConditionsType?: DecryptionConditionsTypes;
@@ -56,14 +68,10 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
 
+  getAllAppsInfoByDID: string;
   getModelIdByAppNameAndModelName: { appName: string; modelName: string };
   getAppNameAndModelNameByModelId: string;
 
-  getChainFromLitAuthSig: {
-    did: string;
-    appName: string;
-    modelNames: string[];
-  };
   newLitKey: {
     did: string;
     appName: string;
@@ -89,9 +97,9 @@ export interface RequestType {
     decryptionConditionsType: DecryptionConditionsTypes;
   };
   decryptWithLit: {
-    did: string;
-    appName: string;
-    modelNames: string[];
+    did?: string;
+    appName?: string;
+    modelNames?: string[];
     encryptedContent: string;
     symmetricKeyInBase16Format?: string;
     encryptedSymmetricKey?: string;
@@ -108,15 +116,12 @@ export interface RequestType {
     folderType: FolderType;
     folderName: string;
     folderDescription?: string;
-    mirrors?: Mirrors;
-    curationId?: string;
-    previews?: Mirrors;
   };
   changeFolderBaseInfo: {
     did: string;
     appName: string;
     folderId: string;
-    newFolderName: string;
+    newFolderName?: string;
     newFolderDescription?: string;
     syncImmediately?: boolean;
   };
@@ -125,8 +130,6 @@ export interface RequestType {
     appName: string;
     folderId: string;
     targetFolderType: FolderType;
-    folderDescription?: string;
-    openMirrorIds?: string[];
     syncImmediately?: boolean;
   };
   deleteFolder: {
@@ -145,15 +148,15 @@ export interface RequestType {
   addMirrors: {
     did: string;
     appName: string;
-    modelNames?: string[];
     folderId: string;
-    filesInfo?: (Omit<FileInfo, "fileType"> & { fileType: FileType })[];
+    filesInfo?: (Omit<FileInfo, "fileType"> & {
+      fileType: FileType;
+    })[];
     syncImmediately?: boolean;
   };
   updateMirror: {
     did: string;
     appName: string;
-    modelNames?: string[];
     mirrorId: string;
     fileInfo: FileInfo;
     syncImmediately?: boolean;
@@ -171,16 +174,24 @@ export interface RequestType {
     mirrorIds: string[];
     syncImmediately?: boolean;
   };
+
+  createDatatoken: DatatokenVars;
+  collect: string;
+  isCollected: { datatokenId: string; address: string };
 }
 
 export interface ReturnType {
   connectWallet: Promise<string>;
+  switchNetwork: Promise<boolean>;
   connectIdentity: Promise<string>;
+  getChainFromDID: Promise<string>;
+  getDIDList: Promise<string[]>;
+  getCurrentDID: Promise<string>;
   createNewDID: Promise<{
-    currentDid: string;
-    createdDidList: string[];
+    currentDID: string;
+    createdDIDList: string[];
   }>;
-  switchDID: Promise<void>;
+  switchDID: Promise<boolean>;
 
   loadStream: Promise<{
     did: string;
@@ -200,13 +211,13 @@ export interface ReturnType {
     | undefined
   >;
 
+  getAllAppsInfoByDID: Promise<AppsInfo>;
   getModelIdByAppNameAndModelName: Promise<string>;
   getAppNameAndModelNameByModelId: Promise<{
     appName: string;
     modelName: string;
   }>;
 
-  getChainFromLitAuthSig: Promise<string>;
   newLitKey: Promise<{
     // symmetricKeyInBase16Format: string;
     encryptedSymmetricKey: string;
@@ -257,6 +268,10 @@ export interface ReturnType {
     sourceFolders: StructuredFolders;
     allFolders: StructuredFolders;
   }>;
+
+  createDatatoken: Promise<CreateDatatokenOutPut>;
+  collect: Promise<CollectOutput>;
+  isCollected: Promise<boolean>;
 }
 export interface RequestInputs {
   method: Methods;
