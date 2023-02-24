@@ -19,9 +19,12 @@ import {
   MirrorFile,
   StructuredFolders,
   Currency,
+  Browser,
 } from "@dataverse/runtime-connector";
 
-const runtimeConnector = new RuntimeConnector(Extension);
+import { DataverseKernel } from "@dataverse/dataverse-kernel";
+DataverseKernel.init();
+const runtimeConnector = new RuntimeConnector(Browser);
 const appName = Apps.Dataverse;
 const modelName = ModelNames.post;
 const modelNames = [ModelNames.post];
@@ -59,6 +62,7 @@ function App() {
     });
     setDid(did);
     console.log(did);
+    return did;
   };
 
   const getCurrentDID = async () => {
@@ -96,6 +100,14 @@ function App() {
   /*** Identity ***/
 
   /*** APP Registry ***/
+
+  const getAllAppsNames = async () => {
+    const appsInfo = await runtimeConnector.getAllAppsNames(
+      "did:pkh:eip155:137:0x29761660d6Cb26a08e9A9c7de12E0038eE9cb623"
+    );
+    console.log(appsInfo);
+  };
+
   const getAllAppsInfoByDID = async () => {
     const appsInfo = await runtimeConnector.getAllAppsInfoByDID(
       "did:pkh:eip155:137:0x29761660d6Cb26a08e9A9c7de12E0038eE9cb623"
@@ -484,72 +496,73 @@ function App() {
   };
 
   const readMyFolders = async () => {
+    const did = await connectIdentity();
     const folders = await runtimeConnector.readFolders({
       did,
       appName,
     });
     console.log({ folders });
-    await Promise.all(
-      Object.values(folders).map((folder) => {
-        return Promise.all(
-          Object.values(folder.mirrors as Mirrors).map(async (mirror) => {
-            if (
-              !(mirror.mirrorFile.contentType! in IndexFileContentType) &&
-              (mirror.mirrorFile.fileKey ||
-                (mirror.mirrorFile.encryptedSymmetricKey &&
-                  mirror.mirrorFile.decryptionConditions &&
-                  mirror.mirrorFile.decryptionConditionsType))
-            ) {
-              try {
-                const content = await decryptWithLit({
-                  encryptedContent: mirror.mirrorFile.content.content,
-                  ...(mirror.mirrorFile.fileKey
-                    ? { symmetricKeyInBase16Format: mirror.mirrorFile.fileKey }
-                    : {
-                        encryptedSymmetricKey:
-                          mirror.mirrorFile.encryptedSymmetricKey,
-                      }),
-                });
-                mirror.mirrorFile.content.content = content;
-                return mirror;
-              } catch (error) {
-                console.log(error);
-              }
-            }
-          })
-        );
-      })
-    );
+    // await Promise.all(
+    //   Object.values(folders).map((folder) => {
+    //     return Promise.all(
+    //       Object.values(folder.mirrors as Mirrors).map(async (mirror) => {
+    //         if (
+    //           !(mirror.mirrorFile.contentType! in IndexFileContentType) &&
+    //           (mirror.mirrorFile.fileKey ||
+    //             (mirror.mirrorFile.encryptedSymmetricKey &&
+    //               mirror.mirrorFile.decryptionConditions &&
+    //               mirror.mirrorFile.decryptionConditionsType))
+    //         ) {
+    //           try {
+    //             const content = await decryptWithLit({
+    //               encryptedContent: mirror.mirrorFile.content.content,
+    //               ...(mirror.mirrorFile.fileKey
+    //                 ? { symmetricKeyInBase16Format: mirror.mirrorFile.fileKey }
+    //                 : {
+    //                     encryptedSymmetricKey:
+    //                       mirror.mirrorFile.encryptedSymmetricKey,
+    //                   }),
+    //             });
+    //             mirror.mirrorFile.content.content = content;
+    //             return mirror;
+    //           } catch (error) {
+    //             console.log(error);
+    //           }
+    //         }
+    //       })
+    //     );
+    //   })
+    // );
 
-    let sortedFoldersMirrors = {} as Record<string, Mirror[]>;
+    // let sortedFoldersMirrors = {} as Record<string, Mirror[]>;
 
-    Object.values(folders).forEach((folder) => {
-      const sortedMirrors = Object.values(folder.mirrors as Mirrors).sort(
-        (mirrorA, mirrorB) =>
-          Date.parse(mirrorB.mirrorFile.updatedAt!) -
-          Date.parse(mirrorA.mirrorFile.updatedAt!)
-      );
-      sortedFoldersMirrors[folder.folderId] = sortedMirrors;
-    });
+    // Object.values(folders).forEach((folder) => {
+    //   const sortedMirrors = Object.values(folder.mirrors as Mirrors).sort(
+    //     (mirrorA, mirrorB) =>
+    //       Date.parse(mirrorB.mirrorFile.updatedAt!) -
+    //       Date.parse(mirrorA.mirrorFile.updatedAt!)
+    //   );
+    //   sortedFoldersMirrors[folder.folderId] = sortedMirrors;
+    // });
 
-    const sortedFolders = Object.values(folders).sort(
-      (folderA, folderB) =>
-        Date.parse(folderB.updatedAt) - Date.parse(folderA.updatedAt)
-    );
+    // const sortedFolders = Object.values(folders).sort(
+    //   (folderA, folderB) =>
+    //     Date.parse(folderB.updatedAt) - Date.parse(folderA.updatedAt)
+    // );
 
-    const folderId = sortedFolders[0]?.folderId;
+    // const folderId = sortedFolders[0]?.folderId;
 
-    setFolders(folders);
+    // setFolders(folders);
 
-    setFolderId(folderId);
+    // setFolderId(folderId);
 
-    setMirrorFile(sortedFoldersMirrors[folderId]?.[0]?.mirrorFile);
+    // setMirrorFile(sortedFoldersMirrors[folderId]?.[0]?.mirrorFile);
 
-    console.log(folders);
+    // console.log(folders);
 
-    console.log(folderId);
+    // console.log(folderId);
 
-    console.log(sortedFoldersMirrors[folderId]?.[0]?.mirrorFile);
+    // console.log(sortedFoldersMirrors[folderId]?.[0]?.mirrorFile);
   };
 
   const createFolder = async () => {
@@ -704,6 +717,7 @@ function App() {
       <button onClick={switchDID}>switchDID</button>
       <br />
       <br />
+      <button onClick={getAllAppsNames}>getAllAppsNames</button>
       <button onClick={getAllAppsInfoByDID}>getAllAppsInfoByDID</button>
       <button onClick={getModelIdByAppNameAndModelName}>
         getModelIdByAppNameAndModelName

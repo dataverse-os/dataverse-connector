@@ -13,6 +13,7 @@ export enum Methods {
   createStream = "createStream",
   updateStreams = "updateStreams",
 
+  getAllAppsNames = "getAllAppsNames",
   getAllAppsInfoByDID = "getAllAppsInfoByDID",
   getModelIdByAppNameAndModelName = "getModelIdByAppNameAndModelName",
   getAppNameAndModelNameByModelId = "getAppNameAndModelNameByModelId",

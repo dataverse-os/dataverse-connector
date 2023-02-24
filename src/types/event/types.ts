@@ -68,6 +68,7 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
 
+  getAllAppsNames: void;
   getAllAppsInfoByDID: string;
   getModelIdByAppNameAndModelName: { appName: string; modelName: string };
   getAppNameAndModelNameByModelId: string;
@@ -211,6 +212,7 @@ export interface ReturnType {
     | undefined
   >;
 
+  getAllAppsNames: Promise<string[]>;
   getAllAppsInfoByDID: Promise<AppsInfo>;
   getModelIdByAppNameAndModelName: Promise<string>;
   getAppNameAndModelNameByModelId: Promise<{
