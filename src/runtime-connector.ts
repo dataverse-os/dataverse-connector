@@ -43,6 +43,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.connectIdentity];
   }
 
+  checkIsCurrentDIDValid(
+    params: RequestType[Methods.checkIsCurrentDIDValid]
+  ): ReturnType[Methods.checkIsCurrentDIDValid] {
+    return this.communicator.sendRequest({
+      method: Methods.checkIsCurrentDIDValid,
+      params,
+    }) as ReturnType[Methods.checkIsCurrentDIDValid];
+  }
+
   getChainFromDID(
     params: RequestType[Methods.getChainFromDID]
   ): ReturnType[Methods.getChainFromDID] {

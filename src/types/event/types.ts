@@ -30,6 +30,10 @@ export interface RequestType {
     appName: string;
     modelNames?: string[];
   };
+  checkIsCurrentDIDValid: {
+    appName: string;
+    modelNames?: string[];
+  };
   getChainFromDID: string;
   getDIDList: void;
   getCurrentDID: void;
@@ -186,6 +190,7 @@ export interface ReturnType {
   connectWallet: Promise<string>;
   switchNetwork: Promise<boolean>;
   connectIdentity: Promise<string>;
+  checkIsCurrentDIDValid: Promise<boolean>;
   getChainFromDID: Promise<string>;
   getDIDList: Promise<string[]>;
   getCurrentDID: Promise<string>;
@@ -270,6 +275,7 @@ export interface ReturnType {
   }>;
   removeMirrors: Promise<{
     sourceFolders: StructuredFolders;
+    removedMirrors: Mirrors;
     allFolders: StructuredFolders;
   }>;
 

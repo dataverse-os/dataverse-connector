@@ -58,6 +58,7 @@ export type FolderOptions =
   | DatatokenFolderOptions;
 
 export interface StructuredFolder {
+  appName: string;
   /** the ceramic indexFolder & contentFolder models of the folder */
   model: [string, string];
   /** the ceramic indexFolder streamID of the folder */
