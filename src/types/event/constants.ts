@@ -14,6 +14,7 @@ export enum Methods {
   updateStreams = "updateStreams",
 
   getAllAppsNames = "getAllAppsNames",
+  getAllAppsBaseInfo = "getAllAppsBaseInfo",
   getAllAppsInfoByDID = "getAllAppsInfoByDID",
   getModelIdByAppNameAndModelName = "getModelIdByAppNameAndModelName",
   getAppNameAndModelNameByModelId = "getAppNameAndModelNameByModelId",

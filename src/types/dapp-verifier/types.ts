@@ -10,3 +10,12 @@ export type AppsInfo = Record<
     isIdentityValid: boolean;
   }
 >;
+
+export type ApplicationRegistry = Record<
+  Apps,
+  {
+    website: string;
+    logo: string;
+    defaultFolderName: string;
+  }
+>;

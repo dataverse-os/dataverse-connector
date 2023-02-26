@@ -22,9 +22,9 @@ import {
   Browser,
 } from "@dataverse/runtime-connector";
 
-import { DataverseKernel } from "@dataverse/dataverse-kernel";
-DataverseKernel.init();
-const runtimeConnector = new RuntimeConnector(Browser);
+// import { DataverseKernel } from "@dataverse/dataverse-kernel";
+// DataverseKernel.init();
+const runtimeConnector = new RuntimeConnector(Extension);
 const appName = Apps.Dataverse;
 const modelName = ModelNames.post;
 const modelNames = [ModelNames.post];
@@ -102,9 +102,7 @@ function App() {
   /*** APP Registry ***/
 
   const getAllAppsNames = async () => {
-    const appsInfo = await runtimeConnector.getAllAppsNames(
-      "did:pkh:eip155:137:0x29761660d6Cb26a08e9A9c7de12E0038eE9cb623"
-    );
+    const appsInfo = await runtimeConnector.getAllAppsNames();
     console.log(appsInfo);
   };
 

@@ -125,6 +125,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getAllAppsNames];
   }
 
+  getAllAppsBaseInfo(
+    params: RequestType[Methods.getAllAppsBaseInfo]
+  ): ReturnType[Methods.getAllAppsBaseInfo] {
+    return this.communicator.sendRequest({
+      method: Methods.getAllAppsBaseInfo,
+      params,
+    }) as ReturnType[Methods.getAllAppsBaseInfo];
+  }
+
   getAllAppsInfoByDID(
     params: RequestType[Methods.getAllAppsInfoByDID]
   ): ReturnType[Methods.getAllAppsInfoByDID] {

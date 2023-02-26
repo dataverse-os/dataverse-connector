@@ -1,5 +1,5 @@
 import { CRYPTO_WALLET } from "../crypto-wallet";
-import { AppsInfo } from "../dapp-verifier/types";
+import { ApplicationRegistry, AppsInfo } from "../dapp-verifier/types";
 import { StreamObject, StreamsRecord } from "../data-models";
 import {
   DecryptionConditions,
@@ -69,6 +69,7 @@ export interface RequestType {
   };
 
   getAllAppsNames: void;
+  getAllAppsBaseInfo: void;
   getAllAppsInfoByDID: string;
   getModelIdByAppNameAndModelName: { appName: string; modelName: string };
   getAppNameAndModelNameByModelId: string;
@@ -213,6 +214,7 @@ export interface ReturnType {
   >;
 
   getAllAppsNames: Promise<string[]>;
+  getAllAppsBaseInfo: Promise<ApplicationRegistry>;
   getAllAppsInfoByDID: Promise<AppsInfo>;
   getModelIdByAppNameAndModelName: Promise<string>;
   getAppNameAndModelNameByModelId: Promise<{
