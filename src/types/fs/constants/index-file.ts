@@ -16,4 +16,5 @@ export enum OriginType {
 export enum FileType {
   Public,
   Private,
+  Datatoken
 }

@@ -1,7 +1,7 @@
 export enum Apps {
   Dataverse = "Dataverse",
-  WordBlock = "WordBlock",
-  dTwitter = "dTwitter",
+  Playground = "Playground",
+  MigrateOldFolders = "MigrateOldFolders"
 }
 
 export enum ModelNames {
@@ -10,10 +10,4 @@ export enum ModelNames {
   indexFiles = "indexFiles",
   userProfile = "userProfile",
   post = "post",
-}
-
-export enum Business {
-  Folders = "Folders",
-  Files = "Files",
-  Profile = "Profile",
 }

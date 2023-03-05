@@ -1,18 +1,27 @@
 export enum Methods {
   connectWallet = "connectWallet",
+  switchNetwork = "switchNetwork",
   connectIdentity = "connectIdentity",
+  checkIsCurrentDIDValid = "checkIsCurrentDIDValid",
+  getChainFromDID = "getChainFromDID",
+  getCurrentDID = "getCurrentDID",
+  getDIDList = "getDIDList",
   createNewDID = "createNewDID",
   switchDID = "switchDID",
 
   loadStream = "loadStream",
   loadStreamsByModel = "loadStreamsByModel",
+  loadStreamsByModelAndDID = "loadStreamsByModelAndDID",
+  getModelBaseInfo = "getModelBaseInfo",
   createStream = "createStream",
   updateStreams = "updateStreams",
 
+  getAllAppsNames = "getAllAppsNames",
+  getAllAppsBaseInfo = "getAllAppsBaseInfo",
+  getAllAppsInfoByDID = "getAllAppsInfoByDID",
   getModelIdByAppNameAndModelName = "getModelIdByAppNameAndModelName",
   getAppNameAndModelNameByModelId = "getAppNameAndModelNameByModelId",
 
-  getChainFromLitAuthSig = "getChainFromLitAuthSig",
   newLitKey = "newLitKey",
   getLitKey = "getLitKey",
   encryptWithLit = "encryptWithLit",
@@ -25,6 +34,7 @@ export enum Methods {
   changeFolderBaseInfo = "changeFolderBaseInfo",
   changeFolderType = "changeFolderType",
   deleteFolder = "deleteFolder",
+  monetizeFolder = "monetizeFolder",
 
   updateFile = "updateFile",
 
@@ -32,4 +42,16 @@ export enum Methods {
   updateMirror = "updateMirror",
   moveMirrors = "moveMirrors",
   removeMirrors = "removeMirrors",
+  monetizeMirror = "monetizeMirror",
+
+  getChainOfDatatoken = "getChainOfDatatoken",
+  createLensProfile = "createLensProfile",
+  getLensProfiles = "getLensProfiles",
+  createDatatoken = "createDatatoken",
+  collect = "collect",
+  isCollected = "isCollected",
+  getDatatokenMetadata = "getDatatokenMetadata",
+  unlock = "unlock",
+
+  migrateOldFolders = "migrateOldFolders",
 }

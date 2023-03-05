@@ -1,5 +1,5 @@
 import "./App.css";
-import "./App.css";
+import React, { useEffect, useRef, useState } from "react";
 import {
   RuntimeConnector,
   Extension,
@@ -17,18 +17,29 @@ import {
   Mirrors,
   MirrorFile,
   StructuredFolders,
+  Currency,
+  Browser,
+  DatatokenVars,
 } from "@dataverse/runtime-connector";
-import React, { useEffect, useRef, useState } from "react";
+import { decode } from "./utils/encodeAndDecode";
+import { DecryptionConditions } from "@dataverse/runtime-connector";
 
+// import { DataverseKernel } from "@dataverse/dataverse-kernel";
+// DataverseKernel.init();
 const runtimeConnector = new RuntimeConnector(Extension);
-const appName = Apps.dTwitter;
+const appName = Apps.Playground;
 const modelName = ModelNames.post;
 const modelNames = [ModelNames.post];
 
 function App() {
   const [address, setAddress] = useState("");
   const [did, setDid] = useState("");
+  const [chain, setChain] = useState<string>("");
   const [newDid, setNewDid] = useState("");
+  const [didList, setDidList] = useState<Array<string>>([]);
+  const [currentDid, setCurrentDid] = useState("");
+  const [isCurrentDIDValid, setIsCurrentDIDValid] = useState<boolean>();
+  const [appNameList, setAppNameList] = useState<string[]>([]);
 
   const [profileStreamObject, setProfileStreamObject] =
     useState<StreamObject>();
@@ -36,32 +47,72 @@ function App() {
   const [folderId, setFolderId] = useState("");
   const [folders, setFolders] = useState<StructuredFolders>({});
 
+  /*** Identity ***/
   const connectWallet = async () => {
-    const address = await runtimeConnector.connectWallet({
-      name: METAMASK,
-      type: CRYPTO_WALLET_TYPE,
-    });
-    setAddress(address);
-    console.log(address);
+    try {
+      const address = await runtimeConnector.connectWallet({
+        name: METAMASK,
+        type: CRYPTO_WALLET_TYPE,
+      });
+      setAddress(address);
+      console.log({ address });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const switchNetwork = async () => {
+    const res = await runtimeConnector.switchNetwork(137);
+    console.log({ res });
   };
 
   const connectIdentity = async () => {
+    await connectWallet();
+    await switchNetwork();
     const did = await runtimeConnector.connectIdentity({
       wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
       appName,
-      modelNames,
     });
     setDid(did);
-    console.log(did);
+    console.log({ did });
+    return did;
+  };
+
+  const getCurrentDID = async () => {
+    const res = await runtimeConnector.getCurrentDID();
+    console.log(res);
+    setCurrentDid(res);
+  };
+
+  const checkIsCurrentDIDValid = async () => {
+    const isCurrentDIDValid = await runtimeConnector.checkIsCurrentDIDValid({
+      appName,
+    });
+    console.log(isCurrentDIDValid);
+    setIsCurrentDIDValid(isCurrentDIDValid);
+  };
+
+  const getChainFromDID = async () => {
+    const chain = await runtimeConnector.getChainFromDID(
+      "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555"
+    );
+    console.log({ chain });
+    setChain(chain);
+  };
+
+  const getDIDList = async () => {
+    const didList = await runtimeConnector.getDIDList();
+    console.log({ didList });
+    setDidList(didList);
   };
 
   const createNewDID = async () => {
-    const { currentDid, createdDidList } = await runtimeConnector.createNewDID({
+    const { currentDID, createdDIDList } = await runtimeConnector.createNewDID({
       name: METAMASK,
       type: CRYPTO_WALLET_TYPE,
     });
-    setNewDid(currentDid);
-    console.log({ currentDid, createdDidList });
+    setNewDid(currentDID);
+    console.log({ currentDID, createdDIDList });
   };
 
   const switchDID = async () => {
@@ -70,24 +121,52 @@ function App() {
     );
   };
 
-  const loadStream = async () => {
-    const streams = await runtimeConnector.loadStream(
-      "kjzl6kcym7w8y54hkcylumliloa2ut95ec5ae74w5vh95rt6co6b5u3lprjr0gj"
-    );
-    console.log(streams);
+  /*** Identity ***/
+
+  /*** APP Registry ***/
+
+  const getAllAppsNames = async () => {
+    const appsInfo = await runtimeConnector.getAllAppsNames();
+    console.log({ appsInfo });
+    setAppNameList(appsInfo);
   };
+
+  const getAllAppsBaseInfo = async () => {
+    const appsInfo = await runtimeConnector.getAllAppsBaseInfo();
+    console.log(appsInfo);
+  };
+
+  const getAllAppsInfoByDID = async () => {
+    const appsInfo = await runtimeConnector.getAllAppsInfoByDID(
+      "did:pkh:eip155:137:0x29761660d6Cb26a08e9A9c7de12E0038eE9cb623"
+    );
+    console.log(appsInfo);
+  };
+
+  const getModelIdByAppNameAndModelName = async () => {
+    const modelId = await runtimeConnector.getModelIdByAppNameAndModelName({
+      appName,
+      modelName,
+    });
+    console.log(modelId);
+  };
+
+  const getAppNameAndModelNameByModelId = async () => {
+    const { appName, modelName } =
+      await runtimeConnector.getAppNameAndModelNameByModelId(
+        "kjzl6hvfrbw6ca5b90vik6aerp2cfqlphn52yznmie4pvclbgycekr0d7py09sl"
+      );
+    console.log({ appName, modelName });
+  };
+  /*** APP Registry ***/
 
   /*** Lit ***/
   const generateAccessControlConditions = async () => {
     const modelId = await runtimeConnector.getModelIdByAppNameAndModelName({
       appName,
-      modelName: ModelNames.post,
+      modelName,
     });
-    const chain = await runtimeConnector.getChainFromLitAuthSig({
-      did,
-      appName,
-      modelNames,
-    });
+    const chain = await runtimeConnector.getChainFromDID(did);
     const conditions: any[] = [
       {
         contractAddress: "",
@@ -117,8 +196,84 @@ function App() {
     return conditions;
   };
 
+  const generateUnifiedAccessControlConditions = async () => {
+    const datatokenId = "0xFd2aC484525AaA02D112eC4c87EbA6B17c7DCDC1";
+    const modelId = await runtimeConnector.getModelIdByAppNameAndModelName({
+      appName,
+      modelName,
+    });
+    const chain = await runtimeConnector.getChainFromDID(did);
+    const datatokenChain = await getChainOfDatatoken();
+    const conditions: any = [
+      {
+        conditionType: "evmBasic",
+        contractAddress: "",
+        standardContractType: "SIWE",
+        chain,
+        method: "",
+        parameters: [":resources"],
+        returnValueTest: {
+          comparator: "contains",
+          value: `ceramic://*?model=${modelId}`,
+        },
+      },
+    ];
+    conditions.push({ operator: "and" });
+    const unifiedAccessControlConditions = [
+      {
+        contractAddress: datatokenId,
+        conditionType: "evmContract",
+        functionName: "isCollected",
+        functionParams: [":userAddress"],
+        functionAbi: {
+          inputs: [
+            {
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+          ],
+          name: "isCollected",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        chain: datatokenChain,
+        returnValueTest: {
+          key: "",
+          comparator: "=",
+          value: "true",
+        },
+      },
+      { operator: "or" },
+      {
+        conditionType: "evmBasic",
+        contractAddress: "",
+        standardContractType: "",
+        chain,
+        method: "",
+        parameters: [":userAddress"],
+        returnValueTest: {
+          comparator: "=",
+          value: `${address}`,
+        },
+      },
+    ];
+    conditions.push(unifiedAccessControlConditions);
+    return conditions;
+  };
+
   const newLitKey = async () => {
+    const did = await connectIdentity();
     const decryptionConditions = await generateAccessControlConditions();
+    // const decryptionConditions = await generateUnifiedAccessControlConditions();
+
     const decryptionConditionsType =
       DecryptionConditionsTypes.AccessControlCondition;
 
@@ -129,6 +284,7 @@ function App() {
       decryptionConditions,
       decryptionConditionsType,
     });
+
     console.log(encryptedSymmetricKey);
 
     return {
@@ -136,6 +292,60 @@ function App() {
       decryptionConditions,
       decryptionConditionsType,
     };
+  };
+
+  const encrypt = async () => {
+    const did = await connectIdentity();
+    const decryptionConditions = await generateAccessControlConditions();
+    // const decryptionConditions = await generateUnifiedAccessControlConditions();
+    const decryptionConditionsType =
+      DecryptionConditionsTypes.AccessControlCondition;
+
+    const { encryptedContent } = await runtimeConnector.encryptWithLit({
+      did,
+      appName,
+      modelNames,
+      content: "hello world",
+      encryptedSymmetricKey:
+        "a3a328fff5dc75a4fdbb5379e06597d7b28e0da48b4ccae40fd29ab797a1822dee0a2e9a85faa2c9b24e4ffc7d45ce0f60e54fe0ab31f3d6ba03c051aebb4ae080bb025faadc299d49325172ac2f8f7bef39fabe00be00d782386cba0c7bf18f5268aff09cece700f41af20eb293c94ec1654d74baf9fb3c94bd4db52c390ecc000000000000002046b183b333424553c1ca8924d54002b5def910f1f4a9411bb9d669217d74e7295768ea89d7bbd44b046f351a0cc95f8c",
+      decryptionConditions,
+      decryptionConditionsType,
+    });
+    console.log(encryptedContent);
+  };
+
+  const decrypt = async () => {
+    const did = await connectIdentity();
+    const decryptionConditions = await generateAccessControlConditions();
+    // const decryptionConditions = await generateUnifiedAccessControlConditions();
+    // const decryptionConditions = decode(
+    //   "W3siY29uZGl0aW9uVHlwZSI6ImV2bUJhc2ljIiwiY29udHJhY3RBZGRyZXNzIjoiIiwic3RhbmRhcmRDb250cmFjdFR5cGUiOiJTSVdFIiwiY2hhaW4iOiJwb2x5Z29uIiwibWV0aG9kIjoiIiwicGFyYW1ldGVycyI6WyI6cmVzb3VyY2VzIl0sInJldHVyblZhbHVlVGVzdCI6eyJjb21wYXJhdG9yIjoiY29udGFpbnMiLCJ2YWx1ZSI6ImNlcmFtaWM6Ly8qP21vZGVsPWtqemw2aHZmcmJ3NmM1MmQxZnRlMm1tZmh5MXpxNTQ3NTE3MzRjZTNycmR3d3JtdG40N3YyOTVjbzVsZ244dyJ9fSx7Im9wZXJhdG9yIjoiYW5kIn0seyJjb25kaXRpb25UeXBlIjoiZXZtQmFzaWMiLCJjb250cmFjdEFkZHJlc3MiOiIiLCJzdGFuZGFyZENvbnRyYWN0VHlwZSI6IlNJV0UiLCJjaGFpbiI6InBvbHlnb24iLCJtZXRob2QiOiIiLCJwYXJhbWV0ZXJzIjpbIjpyZXNvdXJjZXMiXSwicmV0dXJuVmFsdWVUZXN0Ijp7ImNvbXBhcmF0b3IiOiJjb250YWlucyIsInZhbHVlIjoiY2VyYW1pYzovLyo_bW9kZWw9a2p6bDZodmZyYnc2YzdsenFzaTk3Z3Fobm8wZm45eHAyMXdncDk0a2UyZzJxNGVybjB3Znk0cmw1M2FlNmNrIn19LHsib3BlcmF0b3IiOiJhbmQifSx7ImNvbmRpdGlvblR5cGUiOiJldm1CYXNpYyIsImNvbnRyYWN0QWRkcmVzcyI6IiIsInN0YW5kYXJkQ29udHJhY3RUeXBlIjoiU0lXRSIsImNoYWluIjoicG9seWdvbiIsIm1ldGhvZCI6IiIsInBhcmFtZXRlcnMiOlsiOnJlc291cmNlcyJdLCJyZXR1cm5WYWx1ZVRlc3QiOnsiY29tcGFyYXRvciI6ImNvbnRhaW5zIiwidmFsdWUiOiJjZXJhbWljOi8vKj9tb2RlbD1ranpsNmh2ZnJidzZjOGpobW84MW1tcmU0YjVnd2hvaTkydWJhMXkzeHg2bG5ubnh6eGlidGg3eXI5amtxMG4ifX0seyJvcGVyYXRvciI6ImFuZCJ9LFt7ImNvbnRyYWN0QWRkcmVzcyI6IjB4RmQyYUM0ODQ1MjVBYUEwMkQxMTJlQzRjODdFYkE2QjE3YzdEQ0RDMSIsImNvbmRpdGlvblR5cGUiOiJldm1Db250cmFjdCIsImZ1bmN0aW9uTmFtZSI6ImlzQ29sbGVjdGVkIiwiZnVuY3Rpb25QYXJhbXMiOlsiOnVzZXJBZGRyZXNzIl0sImZ1bmN0aW9uQWJpIjp7ImlucHV0cyI6W3siaW50ZXJuYWxUeXBlIjoiYWRkcmVzcyIsIm5hbWUiOiJ1c2VyIiwidHlwZSI6ImFkZHJlc3MifV0sIm5hbWUiOiJpc0NvbGxlY3RlZCIsIm91dHB1dHMiOlt7ImludGVybmFsVHlwZSI6ImJvb2wiLCJuYW1lIjoiIiwidHlwZSI6ImJvb2wifV0sInN0YXRlTXV0YWJpbGl0eSI6InZpZXciLCJ0eXBlIjoiZnVuY3Rpb24ifSwiY2hhaW4iOiJtdW1iYWkiLCJyZXR1cm5WYWx1ZVRlc3QiOnsia2V5IjoiIiwiY29tcGFyYXRvciI6Ij0iLCJ2YWx1ZSI6InRydWUifX0seyJvcGVyYXRvciI6Im9yIn0seyJjb25kaXRpb25UeXBlIjoiZXZtQmFzaWMiLCJjb250cmFjdEFkZHJlc3MiOiIiLCJzdGFuZGFyZENvbnRyYWN0VHlwZSI6IiIsImNoYWluIjoicG9seWdvbiIsIm1ldGhvZCI6IiIsInBhcmFtZXRlcnMiOlsiOnVzZXJBZGRyZXNzIl0sInJldHVyblZhbHVlVGVzdCI6eyJjb21wYXJhdG9yIjoiPSIsInZhbHVlIjoiMHhBNDgwNzdFZjQ2ODAzMzRkYzU3M0IzQTkzMjJkMzUwZDdhMjc3MDlkIn19XV0"
+    // ) as DecryptionConditions;
+    console.log(decryptionConditions);
+    const decryptionConditionsType =
+      DecryptionConditionsTypes.AccessControlCondition;
+
+    const encryptedContent =
+      "SrcDNw4p-X_1AgG3rtzG8_zv4jt7IhEUcxaXtLFS_DE3BKIvUKjc5v7osNM7Uzl8Y1F1C3adT9RK3CpB5l6w-KOeMrRzptjDIBydRB_h2lmxdxjX9MNpj71vkg0lz6XQSq3ypmH0_4FPzXJ624NLfohNZLbpro6Jbv803LhxtGr-NifNPAvaj_LsU3zc2VdXvLOlPlPPrKSpKEym85WC5rjMoC-0TDAtDLc4Y2FKgs5ZwPV4OvPJ9uw_YM1qwWMMFLV_Inxw8WzVlTKj8tfqKyfc4DThnoa6M8Cne8wsT3Z8F4aH60RlGPsjYUjR0UM5cALBV3JqSmwf7Mpm0wKgJBkA4DRIDRC_yWwmLCVHYIEBLnOzj7D9Kwk1blJaHJs--vbGXk46VJ4rwdn616PIhoLsA-tzrAE3kIcuh4QyebSq3Sf598A96CS9G8GVADYB85FOU_V3s8n29Ag2ftDrtG46Q1vswgXsxrRUaAQAlWR93WfEh5Vo3dBZj4walgkDrgEuP4djs45mUP4cqov6RtzsV08iG35Z0PFJva1DoW9q1ZWz9kRKvWPOKqQvspsoCtR37_HhhkQVSIxrpFW1ri3cVSDo_4rjDex3PUrLxbzS17dtKjsTQ6Us1b9C5bDTohJlGnpJKdSPCugb4ZeOJKYfcrlQUu8mLfSzGM13sVU=";
+    const symmetricKeyInBase16Format =
+      "b2153aa8b3a733c881cc2648310fe777036e38ec3c68b6bafa91633b577062f9";
+    const encryptedSymmetricKey =
+      "a3a328fff5dc75a4fdbb5379e06597d7b28e0da48b4ccae40fd29ab797a1822dee0a2e9a85faa2c9b24e4ffc7d45ce0f60e54fe0ab31f3d6ba03c051aebb4ae080bb025faadc299d49325172ac2f8f7bef39fabe00be00d782386cba0c7bf18f5268aff09cece700f41af20eb293c94ec1654d74baf9fb3c94bd4db52c390ecc000000000000002046b183b333424553c1ca8924d54002b5def910f1f4a9411bb9d669217d74e7295768ea89d7bbd44b046f351a0cc95f8c";
+
+    const { content } = await runtimeConnector.decryptWithLit({
+      did,
+      appName,
+      modelNames,
+      encryptedContent,
+      ...(symmetricKeyInBase16Format
+        ? { symmetricKeyInBase16Format }
+        : {
+            encryptedSymmetricKey,
+            decryptionConditions,
+            decryptionConditionsType,
+          }),
+    });
+    console.log(content);
   };
 
   const encryptWithLit = async ({
@@ -192,8 +402,8 @@ function App() {
   /*** Lit ***/
 
   /*** Profle ***/
-  const loadOthersProfileStreamsByModel = async () => {
-    const streams = await runtimeConnector.loadStreamsByModel({
+  const loadOthersProfileStreamsByModelAndDID = async () => {
+    const streams = await runtimeConnector.loadStreamsByModelAndDID({
       did: "did:pkh:eip155:137:0x8A9800738483e9D42CA377D8F95cc5960e6912d1",
       appName,
       modelName: ModelNames.userProfile,
@@ -202,8 +412,8 @@ function App() {
     const [streamId, streamContent] = Object.entries(streams)[0];
     setProfileStreamObject({ streamId, streamContent });
   };
-  const loadMyProfileStreamsByModel = async () => {
-    const streams = await runtimeConnector.loadStreamsByModel({
+  const loadMyProfileStreamsByModelAndDID = async () => {
+    const streams = await runtimeConnector.loadStreamsByModelAndDID({
       did,
       appName,
       modelName: ModelNames.userProfile,
@@ -255,11 +465,30 @@ function App() {
   /*** Profle ***/
 
   /*** Post ***/
-  const loadMyPostStreamsByModel = async () => {
+  const loadStream = async () => {
+    const stream = await runtimeConnector.loadStream(
+      "kjzl6kcym7w8y5qmvsmqxsqhqgyf07fhy0dvqb98elo5vets7ojuo49z6oizooc"
+    );
+    console.log(stream);
+  };
+
+  const loadStreamsByModel = async () => {
     const streams = await runtimeConnector.loadStreamsByModel({
-      did,
-      appName: Apps.dTwitter,
-      modelName: ModelNames.post,
+      appName,
+      modelName,
+    });
+    console.log(streams);
+    const res = Object.values(streams).filter(
+      (el) => el.controller !== did && el.fileType === FileType.Datatoken
+    );
+    console.log(res);
+  };
+
+  const loadStreamsByModelAndDID = async () => {
+    const streams = await runtimeConnector.loadStreamsByModelAndDID({
+      did: "did:pkh:eip155:137:0x40AAD5b393388534b1598CAa54c09E9623D87C7f",
+      appName,
+      modelName,
     });
     console.log(streams);
     if (Object.entries(streams)[0]) {
@@ -268,14 +497,22 @@ function App() {
     }
   };
 
+  const getModelBaseInfo = async () => {
+    const res = await runtimeConnector.getModelBaseInfo(
+      "kjzl6hvfrbw6c7ft23trwmoox36eo7mnxlsj1dad2574bjm6c6fon8pmoqhp7br"
+    );
+    console.log(res);
+  };
+
   const createPublicPostStream = async () => {
     const streamObject = await runtimeConnector.createStream({
       did,
-      appName: Apps.dTwitter,
-      modelName: ModelNames.post,
+      appName,
+      modelName,
       streamContent: {
         appVersion: "0.0.1",
-        content: "a post",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
       fileType: FileType.Public,
     });
@@ -287,6 +524,17 @@ function App() {
 
     const encryptedContent = await encryptWithLit({
       content: "a post",
+      ...litKit,
+    });
+    console.log({
+      did,
+      appName,
+      modelName,
+      streamContent: {
+        appVersion: "0.0.1",
+        content: encryptedContent,
+      },
+      fileType: FileType.Private,
       ...litKit,
     });
 
@@ -375,76 +623,20 @@ function App() {
   /*** Folders ***/
   const readOthersFolders = async () => {
     const othersFolders = await runtimeConnector.readFolders({
-      did: "did:pkh:eip155:137:0x5915e293823FCa840c93ED2E1E5B4df32d699999",
+      did: "did:pkh:eip155:137:0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd",
       appName,
     });
     console.log(othersFolders);
   };
 
   const readMyFolders = async () => {
+    const did = await connectIdentity();
     const folders = await runtimeConnector.readFolders({
       did,
       appName,
     });
-    await Promise.all(
-      Object.values(folders).map((folder) => {
-        return Promise.all(
-          Object.values(folder.mirrors as Mirrors).map(async (mirror) => {
-            if (
-              !(mirror.mirrorFile.contentType! in IndexFileContentType) &&
-              (mirror.mirrorFile.fileKey ||
-                (mirror.mirrorFile.encryptedSymmetricKey &&
-                  mirror.mirrorFile.decryptionConditions &&
-                  mirror.mirrorFile.decryptionConditionsType))
-            ) {
-              try {
-                const content = await decryptWithLit({
-                  encryptedContent: mirror.mirrorFile.content.content,
-                  ...(mirror.mirrorFile.fileKey
-                    ? { symmetricKeyInBase16Format: mirror.mirrorFile.fileKey }
-                    : {
-                        encryptedSymmetricKey:
-                          mirror.mirrorFile.encryptedSymmetricKey,
-                      }),
-                });
-                mirror.mirrorFile.content.content = content;
-                return mirror;
-              } catch (error) {
-                console.log(error);
-              }
-            }
-          })
-        );
-      })
-    );
-
-    let sortedFoldersMirrors = {} as Record<string, Mirror[]>;
-
-    Object.values(folders).forEach((folder) => {
-      const sortedMirrors = Object.values(folder.mirrors as Mirrors).sort(
-        (mirrorA, mirrorB) =>
-          Date.parse(mirrorB.mirrorFile.updatedAt!) -
-          Date.parse(mirrorA.mirrorFile.updatedAt!)
-      );
-      sortedFoldersMirrors[folder.folderId] = sortedMirrors;
-    });
-
-    const sortedFolders = Object.values(folders).sort(
-      (folderA, folderB) =>
-        Date.parse(folderB.updatedAt) - Date.parse(folderA.updatedAt)
-    );
-
-    const folderId = sortedFolders[0]?.folderId;
-
-    setFolders(folders);
-
-    setFolderId(folderId);
-
-    setMirrorFile(sortedFoldersMirrors[folderId][0]?.mirrorFile);
-
-    console.log(folders);
-
-    console.log(sortedFoldersMirrors[folderId][0]?.mirrorFile);
+    console.log({ folders });
+    return folders;
   };
 
   const createFolder = async () => {
@@ -454,6 +646,7 @@ function App() {
       folderType: FolderType.Private,
       folderName: "Private",
     });
+    console.log(res);
     setFolderId(res.newFolder.folderId);
     console.log(res.newFolder.folderId);
   };
@@ -462,9 +655,10 @@ function App() {
     const res = await runtimeConnector.changeFolderBaseInfo({
       did,
       appName,
-      folderId,
-      newFolderName: new Date().toISOString(),
-      // syncImmediately: true,
+      folderId:
+        "kjzl6kcym7w8y9pgztpm5dmhiiz6pg87s0w8ul5tu6idwhff9z2raxbgzqdugq8",
+      newFolderDescription: new Date().toISOString(),
+      syncImmediately: true,
     });
     console.log(res);
   };
@@ -480,12 +674,64 @@ function App() {
     console.log(res);
   };
 
+  const deleteFolder = async () => {
+    const res = await runtimeConnector.deleteFolder({
+      did,
+      appName,
+      folderId:
+        "kjzl6kcym7w8y820fvzv0sijpj49p7fdptfke4vlkb0db9nd2mkpa234aityqps",
+      syncImmediately: true,
+    });
+    console.log(res);
+  };
+
+  const deleteAllFolder = async () => {
+    const did = await connectIdentity();
+    const folders = await runtimeConnector.readFolders({
+      did,
+      appName,
+    });
+    await Promise.all(
+      Object.keys(folders).map((folderId) =>
+        runtimeConnector.deleteFolder({
+          did,
+          appName,
+          folderId,
+          syncImmediately: true,
+        })
+      )
+    );
+    readMyFolders();
+  };
+
+  const monetizeFolder = async () => {
+    const res = await runtimeConnector.monetizeFolder({
+      did,
+      appName,
+      folderId:
+        "kjzl6kcym7w8y7k2u3s9euekveiao5u386qxnpe51g6zpqds1kdsn6kdoivu6sh",
+      folderDescription: "This is a datatoken folder.",
+      datatokenVars: {
+        profileId: "0x0219",
+        streamId:
+          "kjzl6kcym7w8y7k2u3s9euekveiao5u386qxnpe51g6zpqds1kdsn6kdoivu6sh",
+        collectLimit: 100,
+        amount: 0.0001,
+        currency: Currency.WMATIC,
+      },
+    });
+    console.log(res);
+    return res;
+  };
+  /*** Folders ***/
+
+  /*** Mirrors ***/
   const addMirrors = async () => {
     const res = await runtimeConnector.addMirrors({
       did,
       appName,
       folderId:
-        "kjzl6kcym7w8y8w11fog3o2yjg4rzfek4f8wn9df9evdrak5ghr865r2n3e77du",
+        "kjzl6kcym7w8y7k2u3s9euekveiao5u386qxnpe51g6zpqds1kdsn6kdoivu6sh",
       filesInfo: [
         {
           contentId:
@@ -503,28 +749,195 @@ function App() {
     console.log(res);
   };
 
+  const updateMirror = async () => {
+    const res = await runtimeConnector.updateMirror({
+      did,
+      appName,
+      mirrorId:
+        "kjzl6kcym7w8y6obo38hb8k543zk04vsm55mqq2wgcg0wkhqz895b585tw3vuo9",
+      fileInfo: {
+        fileType: FileType.Public,
+      },
+      syncImmediately: true,
+    });
+    console.log(res);
+  };
+
   const moveMirrors = async () => {
     const res = await runtimeConnector.moveMirrors({
       did,
       appName,
       targetFolderId:
-        "kjzl6kcym7w8y8w11fog3o2yjg4rzfek4f8wn9df9evdrak5ghr865r2n3e77du",
+        "kjzl6kcym7w8y94clt1zso1lov99lhu14q0fr2vl8i1nn55slrz47dvqix0it6o",
       sourceMirrorIds: [
-        "kjzl6kcym7w8y7pysqbirlyxu3jaa54pwnfgqq2j8fnp089favh1cseytpyrfrb",
+        "kjzl6kcym7w8y6obo38hb8k543zk04vsm55mqq2wgcg0wkhqz895b585tw3vuo9",
       ],
       syncImmediately: true,
     });
     console.log(res);
   };
 
-  /*** Folders ***/
+  const removeMirrors = async () => {
+    const res = await runtimeConnector.removeMirrors({
+      did,
+      appName,
+      mirrorIds: [
+        "kjzl6kcym7w8y62b7739cc4tz98zrva0se6z3qyins6a8cxfaepgek5zskg0iiq",
+        "kjzl6kcym7w8y5gwiglq0ic82705yzb4yve3741b6pnekno8ntsvh7hejxhy7c4",
+      ],
+      syncImmediately: true,
+    });
+    console.log(res);
+  };
+
+  const monetizeMirror = async () => {
+    const res = await runtimeConnector.monetizeMirror({
+      did,
+      appName,
+      mirrorId:
+        "kjzl6kcym7w8y8chugqcvqoox6nnxaf0hhofv587ba99kioz9089ofjnsrgtvyr",
+      datatokenVars: {
+        profileId: "0x0219",
+        streamId:
+          "kjzl6kcym7w8y8chugqcvqoox6nnxaf0hhofv587ba99kioz9089ofjnsrgtvyr",
+        collectLimit: 100,
+        amount: 0.0001,
+        currency: Currency.WMATIC,
+      },
+    });
+    console.log(res);
+    return res;
+  };
+  /*** Mirrors ***/
+
+  /*** Data Monetize ***/
+
+  const getChainOfDatatoken = async () => {
+    const res = await runtimeConnector.getChainOfDatatoken();
+    console.log(res);
+  };
+
+  const createLensProfile = async () => {
+    const res = await runtimeConnector.createLensProfile("jackie2");
+    console.log(res);
+  };
+
+  const getLensProfiles = async () => {
+    const res = await runtimeConnector.getLensProfiles(
+      "0xA48077Ef4680334dc573B3A9322d350d7a27709d"
+    );
+    console.log(res);
+  };
+
+  const createDatatoken = async () => {
+    const res = await runtimeConnector.createDatatoken({
+      streamId:
+        "kjzl6kcym7w8y6ds8izvyh2shsxkihazva6chw8m2aa158gx0w4i71y263uc4v7",
+      collectLimit: 100,
+      amount: 0.0001,
+      currency: Currency.WMATIC,
+    });
+    console.log(res);
+  };
+
+  const collect = async () => {
+    const res = await runtimeConnector.collect({
+      did,
+      appName,
+      indexFileId:
+        "kjzl6kcym7w8y65io6cihifwm4yqx9ochcaoq0934yeivmmbkht7cj780fxq7zo",
+    });
+    console.log(res);
+  };
+
+  const isCollected = async () => {
+    const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
+    const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
+    const res = await runtimeConnector.isCollected({
+      datatokenId,
+      address,
+    });
+    console.log(res);
+  };
+
+  const getDatatokenMetadata = async () => {
+    const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
+    const res = await runtimeConnector.getDatatokenMetadata(datatokenId);
+    console.log(res);
+  };
+
+  const unlock = async () => {
+    const indexFileId =
+      "kjzl6kcym7w8y65io6cihifwm4yqx9ochcaoq0934yeivmmbkht7cj780fxq7zo";
+    const res = await runtimeConnector.unlock({ did, appName, indexFileId });
+    console.log(res);
+  };
+  /*** Data Monetize ***/
+
+  /*** Other ***/
+
+  const migrateOldFolders = async () => {
+    const did = await runtimeConnector.connectIdentity({
+      wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
+      appName: Apps.MigrateOldFolders,
+    });
+    const res = await runtimeConnector.migrateOldFolders(did);
+    console.log(res);
+  };
+
+  /*** Other ***/
 
   return (
     <div className="App">
       <button onClick={connectWallet}>connectWallet</button>
+      <div className="blackText">{address}</div>
+      <hr />
+      <button onClick={switchNetwork}>switchNetwork</button>
+      <hr />
       <button onClick={connectIdentity}>connectIdentity</button>
+      <div className="blackText">{did}</div>
+      <hr />
+      <button onClick={getChainFromDID}>getChainFromDID</button>
+      <div className="blackText">{chain}</div>
+      <hr />
+      <button onClick={getDIDList}>getDidList</button>
+      {didList.map((did) => (
+        <div className="blackText" key={did}>
+          {did}
+        </div>
+      ))}
+      <hr />
+      <button onClick={getCurrentDID}>getCurrentDID</button>
+      <div className="blackText">{currentDid}</div>
+      <hr />
+      <button onClick={checkIsCurrentDIDValid}>checkIsCurrentDIDValid</button>
+      <div className="blackText">
+        {isCurrentDIDValid !== undefined && String(isCurrentDIDValid)}
+      </div>
+      <hr />
       <button onClick={createNewDID}>createNewDID</button>
+      <div className="blackText">{newDid}</div>
+      <hr />
       <button onClick={switchDID}>switchDID</button>
+      <br />
+      <br />
+      <button onClick={getAllAppsNames}>getAllAppsNames</button>
+      {appNameList.map((app) => (
+        <div className="blackText" key={app}>
+          {app}
+        </div>
+      ))}
+      <hr />
+      <button onClick={getAllAppsBaseInfo}>getAllAppsBaseInfo</button>
+      <button onClick={getAllAppsInfoByDID}>getAllAppsInfoByDID</button>
+      <button onClick={getModelIdByAppNameAndModelName}>
+        getModelIdByAppNameAndModelName
+      </button>
+      <button onClick={getAppNameAndModelNameByModelId}>
+        getAppNameAndModelNameByModelId
+      </button>
+      <br />
+      <br />
       <button onClick={loadStream}>loadStream</button>
       {/* <button onClick={loadOthersProfileStreamsByModel}>
         loadOthersProfileStreamsByModel
@@ -534,9 +947,11 @@ function App() {
       </button>
       <button onClick={createProfileStream}>createProfileStream</button>
       <button onClick={updateProfileStreams}>updateProfileStreams</button> */}
-      <button onClick={loadMyPostStreamsByModel}>
-        loadMyPostStreamsByModel
+      <button onClick={loadStreamsByModel}>loadStreamsByModel</button>
+      <button onClick={loadStreamsByModelAndDID}>
+        loadStreamsByModelAndDID
       </button>
+      <button onClick={getModelBaseInfo}>getModelBaseInfo</button>
       <button onClick={createPublicPostStream}>createPublicPostStream</button>
       <button onClick={createPrivatePostStream}>createPrivatePostStream</button>
       <button onClick={updatePostStreamsToPublicContent}>
@@ -545,14 +960,40 @@ function App() {
       <button onClick={updatePostStreamsToPrivateContent}>
         updatePostStreamsToPrivateContent
       </button>
-
+      <br />
+      <br />
+      <button onClick={newLitKey}>newLitKey</button>
+      <button onClick={encrypt}>encrypt</button>
+      <button onClick={decrypt}>decrypt</button>
+      <br />
+      <br />
       <button onClick={readOthersFolders}>readOthersFolders</button>
       <button onClick={readMyFolders}>readMyFolders</button>
       <button onClick={createFolder}>createFolder</button>
       <button onClick={changeFolderBaseInfo}>changeFolderBaseInfo</button>
       <button onClick={changeFolderType}>changeFolderType</button>
+      <button onClick={deleteFolder}>deleteFolder</button>
+      <button onClick={deleteAllFolder}>deleteAllFolder</button>
+      <button onClick={monetizeFolder}>monetizeFolder</button>
+
       <button onClick={addMirrors}>addMirrors</button>
+      <button onClick={updateMirror}>updateMirror</button>
       <button onClick={moveMirrors}>moveMirrors</button>
+      <button onClick={removeMirrors}>removeMirrors</button>
+      <button onClick={monetizeMirror}>monetizeMirror</button>
+      <br />
+      <br />
+      <button onClick={getChainOfDatatoken}>getChainOfDatatoken</button>
+      <button onClick={createLensProfile}>createLensProfile</button>
+      <button onClick={getLensProfiles}>getLensProfiles</button>
+      <button onClick={createDatatoken}>createDatatoken</button>
+      <button onClick={collect}>collect</button>
+      <button onClick={isCollected}>isCollected</button>
+      <button onClick={getDatatokenMetadata}>getDatatokenMetadata</button>
+      <button onClick={unlock}>unlock</button>
+      <br />
+      <br />
+      <button onClick={migrateOldFolders}>migrateOldFolders</button>
     </div>
   );
 }
