@@ -42,12 +42,18 @@ function App() {
 
   /*** Identity ***/
   const connectWallet = async () => {
-    const address = await runtimeConnector.connectWallet({
-      name: METAMASK,
-      type: CRYPTO_WALLET_TYPE,
-    });
-    setAddress(address);
-    console.log(address);
+    console.log(111);
+    try {
+      const address = await runtimeConnector.connectWallet({
+        name: METAMASK,
+        type: CRYPTO_WALLET_TYPE,
+      });
+      setAddress(address);
+      console.log(address);
+    } catch (error) {
+      console.log(222);
+      console.log(error);
+    }
   };
 
   const switchNetwork = async () => {
@@ -103,6 +109,11 @@ function App() {
 
   const getAllAppsNames = async () => {
     const appsInfo = await runtimeConnector.getAllAppsNames();
+    console.log(appsInfo);
+  };
+
+  const getAllAppsBaseInfo = async () => {
+    const appsInfo = await runtimeConnector.getAllAppsBaseInfo();
     console.log(appsInfo);
   };
 
@@ -700,8 +711,20 @@ function App() {
     });
     console.log(res);
   };
-
   /*** Data Monetize ***/
+
+  /*** Other ***/
+
+  const migrateOldFolders = async () => {
+    const did = await connectIdentity();
+    const res = await runtimeConnector.migrateOldFolders({
+      did,
+      appName,
+    });
+    console.log(res);
+  };
+
+  /*** Other ***/
 
   return (
     <div className="App">
@@ -716,6 +739,7 @@ function App() {
       <br />
       <br />
       <button onClick={getAllAppsNames}>getAllAppsNames</button>
+      <button onClick={getAllAppsBaseInfo}>getAllAppsBaseInfo</button>
       <button onClick={getAllAppsInfoByDID}>getAllAppsInfoByDID</button>
       <button onClick={getModelIdByAppNameAndModelName}>
         getModelIdByAppNameAndModelName
@@ -767,6 +791,9 @@ function App() {
       <button onClick={createDatatoken}>createDatatoken</button>
       <button onClick={collect}>collect</button>
       <button onClick={isCollected}>isCollected</button>
+      <br />
+      <br />
+      <button onClick={migrateOldFolders}>migrateOldFolders</button>
     </div>
   );
 }

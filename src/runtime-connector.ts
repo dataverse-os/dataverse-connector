@@ -269,40 +269,55 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.updateMirror];
   }
 
-  moveMirrors(params: RequestType[Methods.moveMirrors]) {
+  moveMirrors(
+    params: RequestType[Methods.moveMirrors]
+  ): ReturnType[Methods.moveMirrors] {
     return this.communicator.sendRequest({
       method: Methods.moveMirrors,
       params,
     }) as ReturnType[Methods.moveMirrors];
   }
 
-  removeMirrors(params: RequestType[Methods.removeMirrors]) {
+  removeMirrors(
+    params: RequestType[Methods.removeMirrors]
+  ): ReturnType[Methods.removeMirrors] {
     return this.communicator.sendRequest({
       method: Methods.removeMirrors,
       params,
     }) as ReturnType[Methods.removeMirrors];
   }
 
-  createDatatoken(params: RequestType[Methods.createDatatoken]) {
+  createDatatoken(
+    params: RequestType[Methods.createDatatoken]
+  ): ReturnType[Methods.createDatatoken] {
     return this.communicator.sendRequest({
       method: Methods.createDatatoken,
       params,
     }) as ReturnType[Methods.createDatatoken];
   }
 
-  collect(params: RequestType[Methods.collect]) {
+  collect(params: RequestType[Methods.collect]): ReturnType[Methods.collect] {
     return this.communicator.sendRequest({
       method: Methods.collect,
       params,
     }) as ReturnType[Methods.collect];
   }
 
-  isCollected(params: RequestType[Methods.isCollected]) {
+  isCollected(
+    params: RequestType[Methods.isCollected]
+  ): ReturnType[Methods.isCollected] {
     return this.communicator.sendRequest({
       method: Methods.isCollected,
       params,
     }) as ReturnType[Methods.isCollected];
   }
 
-  //profiles
+  migrateOldFolders(
+    params: RequestType[Methods.migrateOldFolders]
+  ): ReturnType[Methods.migrateOldFolders] {
+    return this.communicator.sendRequest({
+      method: Methods.migrateOldFolders,
+      params,
+    }) as ReturnType[Methods.migrateOldFolders];
+  }
 }

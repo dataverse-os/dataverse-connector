@@ -6,6 +6,7 @@ export type AppsInfo = Record<
     website: string;
     logo: string;
     defaultFolderName: string;
+    description: string;
     streamsNumber: number;
     isIdentityValid: boolean;
   }
@@ -17,5 +18,6 @@ export type ApplicationRegistry = Record<
     website: string;
     logo: string;
     defaultFolderName: string;
+    description: string;
   }
 >;

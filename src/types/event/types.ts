@@ -184,6 +184,11 @@ export interface RequestType {
   createDatatoken: DatatokenVars;
   collect: string;
   isCollected: { datatokenId: string; address: string };
+
+  migrateOldFolders: {
+    did: string;
+    appName: string;
+  };
 }
 
 export interface ReturnType {
@@ -282,6 +287,8 @@ export interface ReturnType {
   createDatatoken: Promise<CreateDatatokenOutPut>;
   collect: Promise<CollectOutput>;
   isCollected: Promise<boolean>;
+
+  migrateOldFolders: Promise<boolean>;
 }
 export interface RequestInputs {
   method: Methods;
