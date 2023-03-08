@@ -39,7 +39,8 @@ export enum Methods {
   updateMirror = "updateMirror",
   moveMirrors = "moveMirrors",
   removeMirrors = "removeMirrors",
-
+  monetizeMirror = "monetizeMirror",
+  
   createDatatoken = "createDatatoken",
   collect = "collect",
   isCollected = "isCollected",

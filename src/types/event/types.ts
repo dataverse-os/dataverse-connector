@@ -180,15 +180,18 @@ export interface RequestType {
     mirrorIds: string[];
     syncImmediately?: boolean;
   };
+  monetizeMirror: {
+    did: string;
+    appName: string;
+    mirrorId: string;
+    datatokenVars: DatatokenVars;
+  };
 
   createDatatoken: DatatokenVars;
   collect: string;
   isCollected: { datatokenId: string; address: string };
 
-  migrateOldFolders: {
-    did: string;
-    appName: string;
-  };
+  migrateOldFolders: string;
 }
 
 export interface ReturnType {
@@ -283,7 +286,12 @@ export interface ReturnType {
     removedMirrors: Mirrors;
     allFolders: StructuredFolders;
   }>;
-
+  monetizeMirror: Promise<{
+    currentMirror: Mirror;
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolders;
+  }>;
+  
   createDatatoken: Promise<CreateDatatokenOutPut>;
   collect: Promise<CollectOutput>;
   isCollected: Promise<boolean>;

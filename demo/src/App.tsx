@@ -25,7 +25,7 @@ import {
 // import { DataverseKernel } from "@dataverse/dataverse-kernel";
 // DataverseKernel.init();
 const runtimeConnector = new RuntimeConnector(Extension);
-const appName = Apps.Dataverse;
+const appName = Apps.Playground;
 const modelName = ModelNames.post;
 const modelNames = [ModelNames.post];
 
@@ -42,7 +42,6 @@ function App() {
 
   /*** Identity ***/
   const connectWallet = async () => {
-    console.log(111);
     try {
       const address = await runtimeConnector.connectWallet({
         name: METAMASK,
@@ -51,7 +50,6 @@ function App() {
       setAddress(address);
       console.log(address);
     } catch (error) {
-      console.log(222);
       console.log(error);
     }
   };
@@ -62,6 +60,8 @@ function App() {
   };
 
   const connectIdentity = async () => {
+    await connectWallet()
+    await switchNetwork()
     const did = await runtimeConnector.connectIdentity({
       wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
       appName,
@@ -511,6 +511,7 @@ function App() {
       appName,
     });
     console.log({ folders });
+    return folders;
     // await Promise.all(
     //   Object.values(folders).map((folder) => {
     //     return Promise.all(
@@ -619,6 +620,25 @@ function App() {
     console.log(res);
   };
 
+  const deleteAllFolder = async () => {
+    const did = await connectIdentity();
+    const folders = await runtimeConnector.readFolders({
+      did,
+      appName,
+    });
+    await Promise.all(
+      Object.keys(folders).map((folderId) =>
+        runtimeConnector.deleteFolder({
+          did,
+          appName,
+          folderId,
+          syncImmediately: true
+        })
+      )
+    );
+    readMyFolders();
+  };
+
   const addMirrors = async () => {
     const res = await runtimeConnector.addMirrors({
       did,
@@ -716,11 +736,11 @@ function App() {
   /*** Other ***/
 
   const migrateOldFolders = async () => {
-    const did = await connectIdentity();
-    const res = await runtimeConnector.migrateOldFolders({
-      did,
-      appName,
+    const did = await runtimeConnector.connectIdentity({
+      wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
+      appName: Apps.MigrateOldFolders,
     });
+    const res = await runtimeConnector.migrateOldFolders(did);
     console.log(res);
   };
 
@@ -782,6 +802,7 @@ function App() {
       <button onClick={changeFolderBaseInfo}>changeFolderBaseInfo</button>
       <button onClick={changeFolderType}>changeFolderType</button>
       <button onClick={deleteFolder}>deleteFolder</button>
+      <button onClick={deleteAllFolder}>deleteAllFolder</button>
       <button onClick={addMirrors}>addMirrors</button>
       <button onClick={updateMirror}>updateMirror</button>
       <button onClick={moveMirrors}>moveMirrors</button>

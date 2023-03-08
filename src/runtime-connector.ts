@@ -287,6 +287,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.removeMirrors];
   }
 
+  monetizeMirror(
+    params: RequestType[Methods.monetizeMirror]
+  ): ReturnType[Methods.monetizeMirror] {
+    return this.communicator.sendRequest({
+      method: Methods.monetizeMirror,
+      params,
+    }) as ReturnType[Methods.monetizeMirror];
+  }
+
   createDatatoken(
     params: RequestType[Methods.createDatatoken]
   ): ReturnType[Methods.createDatatoken] {
