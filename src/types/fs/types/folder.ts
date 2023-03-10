@@ -47,6 +47,8 @@ export interface DatatokenFolderOptions extends CommonFolderOptions {
   encryptedSymmetricKey: string;
   decryptionConditions: string;
   // chain: string;
+
+  lockedNum: number;
 }
 
 export type FolderOptions =
