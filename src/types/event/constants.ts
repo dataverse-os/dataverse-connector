@@ -32,6 +32,7 @@ export enum Methods {
   changeFolderBaseInfo = "changeFolderBaseInfo",
   changeFolderType = "changeFolderType",
   deleteFolder = "deleteFolder",
+  monetizeFolder = "monetizeFolder",
 
   updateFile = "updateFile",
 
@@ -40,7 +41,7 @@ export enum Methods {
   moveMirrors = "moveMirrors",
   removeMirrors = "removeMirrors",
   monetizeMirror = "monetizeMirror",
-  
+
   createDatatoken = "createDatatoken",
   collect = "collect",
   isCollected = "isCollected",

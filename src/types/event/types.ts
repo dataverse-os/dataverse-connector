@@ -144,6 +144,14 @@ export interface RequestType {
     folderId: string;
     syncImmediately?: boolean;
   };
+  monetizeFolder: {
+    did: string;
+    appName: string;
+    folderId: string;
+    folderDescription: string;
+    datatokenVars: DatatokenVars;
+  };
+
   updateFile: {
     did: string;
     appName: string;
@@ -151,6 +159,7 @@ export interface RequestType {
     fileInfo: FileInfo;
     syncImmediately?: boolean;
   };
+
   addMirrors: {
     did: string;
     appName: string;
@@ -262,10 +271,16 @@ export interface ReturnType {
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
+  monetizeFolder: Promise<{
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolders;
+  }>;
+
   updateFile: Promise<{
     currentFile: StructuredFile;
     allFiles: StructuredFiles;
   }>;
+
   addMirrors: Promise<{
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
@@ -291,7 +306,7 @@ export interface ReturnType {
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
-  
+
   createDatatoken: Promise<CreateDatatokenOutPut>;
   collect: Promise<CollectOutput>;
   isCollected: Promise<boolean>;

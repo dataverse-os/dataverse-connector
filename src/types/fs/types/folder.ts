@@ -36,20 +36,17 @@ export interface PublicFolderOptions extends CommonFolderOptions {}
 export interface PrivateFolderOptions extends CommonFolderOptions {
   encryptedSymmetricKey: string;
   decryptionConditions: string;
-  chain: string;
+  // chain: string;
 
   encrypted: string;
 }
 
 export interface DatatokenFolderOptions extends CommonFolderOptions {
-  curationId: string;
+  datatokenId: string;
 
   encryptedSymmetricKey: string;
   decryptionConditions: string;
-  chain: string;
-
-  previews: string | Mirrors;
-  lockedNum: number;
+  // chain: string;
 }
 
 export type FolderOptions =

@@ -242,6 +242,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.deleteFolder];
   }
 
+  monetizeFolder(
+    params: RequestType[Methods.monetizeFolder]
+  ): ReturnType[Methods.monetizeFolder] {
+    return this.communicator.sendRequest({
+      method: Methods.monetizeFolder,
+      params,
+    }) as ReturnType[Methods.monetizeFolder];
+  }
+
   readDefaultFolder(
     params: RequestType[Methods.readDefaultFolder]
   ): ReturnType[Methods.readDefaultFolder] {
