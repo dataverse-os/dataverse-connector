@@ -713,7 +713,6 @@ function App() {
   /*** Folders ***/
 
   /*** Data Monetize ***/
-  
 
   const getChainOfDatatoken = async () => {
     const res = await runtimeConnector.getChainOfDatatoken();
@@ -746,6 +745,13 @@ function App() {
     });
     console.log(res);
   };
+
+  const getDatatokenMetadata = async () => {
+    const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
+    const res = await runtimeConnector.getDatatokenMetadata(datatokenId);
+    console.log(res);
+  };
+
   /*** Data Monetize ***/
 
   /*** Other ***/
@@ -829,6 +835,8 @@ function App() {
       <button onClick={createDatatoken}>createDatatoken</button>
       <button onClick={collect}>collect</button>
       <button onClick={isCollected}>isCollected</button>
+      <button onClick={getDatatokenMetadata}>getDatatokenMetadata</button>
+
       <br />
       <br />
       <button onClick={migrateOldFolders}>migrateOldFolders</button>

@@ -24,6 +24,13 @@ export interface CollectOutput {
   txHash: string;
 }
 
+export interface DatatokenMetadata {
+  hub: string;
+  profileId: BigNumberish;
+  pubId: BigNumberish;
+  collectModule: string;
+}
+
 export interface AccessControlCondition {
   contractAddress: string;
   chain: string;

@@ -346,6 +346,16 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.isCollected];
   }
 
+  getDatatokenMetadata(
+    params: RequestType[Methods.getDatatokenMetadata]
+  ): ReturnType[Methods.getDatatokenMetadata] {
+    return this.communicator.sendRequest({
+      method: Methods.getDatatokenMetadata,
+      params,
+    }) as ReturnType[Methods.getDatatokenMetadata];
+  }
+  
+
   migrateOldFolders(
     params: RequestType[Methods.migrateOldFolders]
   ): ReturnType[Methods.migrateOldFolders] {

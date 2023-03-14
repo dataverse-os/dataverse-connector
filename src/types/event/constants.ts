@@ -47,6 +47,7 @@ export enum Methods {
   createDatatoken = "createDatatoken",
   collect = "collect",
   isCollected = "isCollected",
+  getDatatokenMetadata = "getDatatokenMetadata",
 
   migrateOldFolders = "migrateOldFolders",
 }
