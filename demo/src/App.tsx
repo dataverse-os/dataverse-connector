@@ -25,7 +25,7 @@ import {
 // import { DataverseKernel } from "@dataverse/dataverse-kernel";
 // DataverseKernel.init();
 const runtimeConnector = new RuntimeConnector(Extension);
-const appName = Apps.Dataverse;
+const appName = Apps.Playground;
 const modelName = ModelNames.post;
 const modelNames = [ModelNames.post];
 
@@ -60,8 +60,8 @@ function App() {
   };
 
   const connectIdentity = async () => {
-    await connectWallet()
-    await switchNetwork()
+    await connectWallet();
+    await switchNetwork();
     const did = await runtimeConnector.connectIdentity({
       wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
       appName,
@@ -297,8 +297,8 @@ function App() {
   /*** Lit ***/
 
   /*** Profle ***/
-  const loadOthersProfileStreamsByModel = async () => {
-    const streams = await runtimeConnector.loadStreamsByModel({
+  const loadOthersProfileStreamsByModelAndDID = async () => {
+    const streams = await runtimeConnector.loadStreamsByModelAndDID({
       did: "did:pkh:eip155:137:0x8A9800738483e9D42CA377D8F95cc5960e6912d1",
       appName,
       modelName: ModelNames.userProfile,
@@ -307,8 +307,8 @@ function App() {
     const [streamId, streamContent] = Object.entries(streams)[0];
     setProfileStreamObject({ streamId, streamContent });
   };
-  const loadMyProfileStreamsByModel = async () => {
-    const streams = await runtimeConnector.loadStreamsByModel({
+  const loadMyProfileStreamsByModelAndDID = async () => {
+    const streams = await runtimeConnector.loadStreamsByModelAndDID({
       did,
       appName,
       modelName: ModelNames.userProfile,
@@ -367,8 +367,16 @@ function App() {
     console.log(stream);
   };
 
-  const loadMyPostStreamsByModel = async () => {
+  const loadStreamsByModel = async () => {
     const streams = await runtimeConnector.loadStreamsByModel({
+      appName,
+      modelName,
+    });
+    console.log(streams);
+  };
+
+  const loadStreamsByModelAndDID = async () => {
+    const streams = await runtimeConnector.loadStreamsByModelAndDID({
       did: "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555",
       appName,
       modelName,
@@ -632,7 +640,7 @@ function App() {
           did,
           appName,
           folderId,
-          syncImmediately: true
+          syncImmediately: true,
         })
       )
     );
@@ -694,7 +702,8 @@ function App() {
       did,
       appName,
       mirrorIds: [
-        "kjzl6kcym7w8y6obo38hb8k543zk04vsm55mqq2wgcg0wkhqz895b585tw3vuo9",
+        "kjzl6kcym7w8y62b7739cc4tz98zrva0se6z3qyins6a8cxfaepgek5zskg0iiq",
+        "kjzl6kcym7w8y5gwiglq0ic82705yzb4yve3741b6pnekno8ntsvh7hejxhy7c4",
       ],
       syncImmediately: true,
     });
@@ -778,8 +787,9 @@ function App() {
       </button>
       <button onClick={createProfileStream}>createProfileStream</button>
       <button onClick={updateProfileStreams}>updateProfileStreams</button> */}
-      <button onClick={loadMyPostStreamsByModel}>
-        loadMyPostStreamsByModel
+      <button onClick={loadStreamsByModel}>loadStreamsByModel</button>
+      <button onClick={loadStreamsByModelAndDID}>
+        loadStreamsByModelAndDID
       </button>
       <button onClick={createPublicPostStream}>createPublicPostStream</button>
       <button onClick={createPrivatePostStream}>createPrivatePostStream</button>

@@ -79,32 +79,39 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getCurrentDID];
   }
 
-  createNewDID(params: RequestType[Methods.createNewDID]) {
+  createNewDID(params: RequestType[Methods.createNewDID]): ReturnType[Methods.createNewDID] {
     return this.communicator.sendRequest({
       method: Methods.createNewDID,
       params,
     }) as ReturnType[Methods.createNewDID];
   }
 
-  switchDID(params: RequestType[Methods.switchDID]) {
+  switchDID(params: RequestType[Methods.switchDID]): ReturnType[Methods.switchDID] {
     return this.communicator.sendRequest({
       method: Methods.switchDID,
       params,
     }) as ReturnType[Methods.switchDID];
   }
 
-  loadStream(params: RequestType[Methods.loadStream]) {
+  loadStream(params: RequestType[Methods.loadStream]): ReturnType[Methods.loadStream] {
     return this.communicator.sendRequest({
       method: Methods.loadStream,
       params,
     }) as ReturnType[Methods.loadStream];
   }
 
-  loadStreamsByModel(params: RequestType[Methods.loadStreamsByModel]) {
+  loadStreamsByModel(params: RequestType[Methods.loadStreamsByModel]): ReturnType[Methods.loadStreamsByModel] {
     return this.communicator.sendRequest({
       method: Methods.loadStreamsByModel,
       params,
     }) as ReturnType[Methods.loadStreamsByModel];
+  }
+
+  loadStreamsByModelAndDID(params: RequestType[Methods.loadStreamsByModelAndDID]): ReturnType[Methods.loadStreamsByModelAndDID] {
+    return this.communicator.sendRequest({
+      method: Methods.loadStreamsByModelAndDID,
+      params,
+    }) as ReturnType[Methods.loadStreamsByModelAndDID];
   }
 
   createStream(

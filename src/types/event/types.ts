@@ -42,6 +42,10 @@ export interface RequestType {
 
   loadStream: string;
   loadStreamsByModel: {
+    appName: string;
+    modelName: string;
+  };
+  loadStreamsByModelAndDID: {
     did: string;
     appName: string;
     modelName: string;
@@ -67,6 +71,7 @@ export interface RequestType {
         encryptedSymmetricKey?: string;
         decryptionConditions?: any[];
         decryptionConditionsType?: DecryptionConditionsTypes;
+        deleted?: boolean;
       }
     >;
     syncImmediately?: boolean;
@@ -225,7 +230,8 @@ export interface ReturnType {
     streamContent: any;
   }>;
   loadStreamsByModel: Promise<Record<string, any>>;
-  createStream: Promise<StreamObject>;
+  loadStreamsByModelAndDID: Promise<Record<string, any>>;
+  createStream: Promise<StreamObject & { newMirror?: Mirror }>;
   updateStreams: Promise<
     | {
         successRecord: StreamsRecord;

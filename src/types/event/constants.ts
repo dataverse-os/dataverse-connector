@@ -11,6 +11,7 @@ export enum Methods {
 
   loadStream = "loadStream",
   loadStreamsByModel = "loadStreamsByModel",
+  loadStreamsByModelAndDID = "loadStreamsByModelAndDID",
   createStream = "createStream",
   updateStreams = "updateStreams",
 
