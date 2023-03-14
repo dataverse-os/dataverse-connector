@@ -43,6 +43,7 @@ export enum Methods {
   removeMirrors = "removeMirrors",
   monetizeMirror = "monetizeMirror",
 
+  getChainOfDatatoken = "getChainOfDatatoken",
   createDatatoken = "createDatatoken",
   collect = "collect",
   isCollected = "isCollected",

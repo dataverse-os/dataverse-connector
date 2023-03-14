@@ -200,6 +200,7 @@ export interface RequestType {
     datatokenVars: DatatokenVars;
   };
 
+  getChainOfDatatoken: void;
   createDatatoken: DatatokenVars;
   collect: string;
   isCollected: { datatokenId: string; address: string };
@@ -312,6 +313,7 @@ export interface ReturnType {
     allFolders: StructuredFolders;
   }>;
 
+  getChainOfDatatoken: Promise<string>;
   createDatatoken: Promise<CreateDatatokenOutPut>;
   collect: Promise<CollectOutput>;
   isCollected: Promise<boolean>;

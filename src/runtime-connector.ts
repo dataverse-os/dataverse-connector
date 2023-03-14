@@ -311,6 +311,15 @@ export class RuntimeConnector {
       params,
     }) as ReturnType[Methods.monetizeMirror];
   }
+  
+  getChainOfDatatoken(
+    params: RequestType[Methods.getChainOfDatatoken]
+  ): ReturnType[Methods.getChainOfDatatoken] {
+    return this.communicator.sendRequest({
+      method: Methods.getChainOfDatatoken,
+      params,
+    }) as ReturnType[Methods.getChainOfDatatoken];
+  }
 
   createDatatoken(
     params: RequestType[Methods.createDatatoken]

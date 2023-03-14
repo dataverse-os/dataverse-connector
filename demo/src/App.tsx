@@ -713,6 +713,12 @@ function App() {
   /*** Folders ***/
 
   /*** Data Monetize ***/
+  
+
+  const getChainOfDatatoken = async () => {
+    const res = await runtimeConnector.getChainOfDatatoken();
+    console.log(res);
+  };
 
   const createDatatoken = async () => {
     const res = await runtimeConnector.createDatatoken({
@@ -819,6 +825,7 @@ function App() {
       <button onClick={removeMirrors}>removeMirrors</button>
       <br />
       <br />
+      <button onClick={getChainOfDatatoken}>getChainOfDatatoken</button>
       <button onClick={createDatatoken}>createDatatoken</button>
       <button onClick={collect}>collect</button>
       <button onClick={isCollected}>isCollected</button>
