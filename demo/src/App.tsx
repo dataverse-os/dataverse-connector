@@ -19,10 +19,13 @@ import {
   MirrorFile,
   StructuredFolders,
   Currency,
+  Browser,
 } from "@dataverse/runtime-connector";
 
+// import { DataverseKernel } from "@dataverse/dataverse-kernel";
+// DataverseKernel.init();
 const runtimeConnector = new RuntimeConnector(Extension);
-const appName = Apps.Dataverse;
+const appName = Apps.Playground;
 const modelName = ModelNames.post;
 const modelNames = [ModelNames.post];
 
@@ -39,12 +42,16 @@ function App() {
 
   /*** Identity ***/
   const connectWallet = async () => {
-    const address = await runtimeConnector.connectWallet({
-      name: METAMASK,
-      type: CRYPTO_WALLET_TYPE,
-    });
-    setAddress(address);
-    console.log(address);
+    try {
+      const address = await runtimeConnector.connectWallet({
+        name: METAMASK,
+        type: CRYPTO_WALLET_TYPE,
+      });
+      setAddress(address);
+      console.log(address);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const switchNetwork = async () => {
@@ -53,12 +60,15 @@ function App() {
   };
 
   const connectIdentity = async () => {
+    await connectWallet();
+    await switchNetwork();
     const did = await runtimeConnector.connectIdentity({
       wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
       appName,
     });
     setDid(did);
     console.log(did);
+    return did;
   };
 
   const getCurrentDID = async () => {
@@ -96,6 +106,17 @@ function App() {
   /*** Identity ***/
 
   /*** APP Registry ***/
+
+  const getAllAppsNames = async () => {
+    const appsInfo = await runtimeConnector.getAllAppsNames();
+    console.log(appsInfo);
+  };
+
+  const getAllAppsBaseInfo = async () => {
+    const appsInfo = await runtimeConnector.getAllAppsBaseInfo();
+    console.log(appsInfo);
+  };
+
   const getAllAppsInfoByDID = async () => {
     const appsInfo = await runtimeConnector.getAllAppsInfoByDID(
       "did:pkh:eip155:137:0x29761660d6Cb26a08e9A9c7de12E0038eE9cb623"
@@ -276,8 +297,8 @@ function App() {
   /*** Lit ***/
 
   /*** Profle ***/
-  const loadOthersProfileStreamsByModel = async () => {
-    const streams = await runtimeConnector.loadStreamsByModel({
+  const loadOthersProfileStreamsByModelAndDID = async () => {
+    const streams = await runtimeConnector.loadStreamsByModelAndDID({
       did: "did:pkh:eip155:137:0x8A9800738483e9D42CA377D8F95cc5960e6912d1",
       appName,
       modelName: ModelNames.userProfile,
@@ -286,8 +307,8 @@ function App() {
     const [streamId, streamContent] = Object.entries(streams)[0];
     setProfileStreamObject({ streamId, streamContent });
   };
-  const loadMyProfileStreamsByModel = async () => {
-    const streams = await runtimeConnector.loadStreamsByModel({
+  const loadMyProfileStreamsByModelAndDID = async () => {
+    const streams = await runtimeConnector.loadStreamsByModelAndDID({
       did,
       appName,
       modelName: ModelNames.userProfile,
@@ -346,8 +367,16 @@ function App() {
     console.log(stream);
   };
 
-  const loadMyPostStreamsByModel = async () => {
+  const loadStreamsByModel = async () => {
     const streams = await runtimeConnector.loadStreamsByModel({
+      appName,
+      modelName,
+    });
+    console.log(streams);
+  };
+
+  const loadStreamsByModelAndDID = async () => {
+    const streams = await runtimeConnector.loadStreamsByModelAndDID({
       did: "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555",
       appName,
       modelName,
@@ -484,72 +513,74 @@ function App() {
   };
 
   const readMyFolders = async () => {
+    const did = await connectIdentity();
     const folders = await runtimeConnector.readFolders({
       did,
       appName,
     });
     console.log({ folders });
-    await Promise.all(
-      Object.values(folders).map((folder) => {
-        return Promise.all(
-          Object.values(folder.mirrors as Mirrors).map(async (mirror) => {
-            if (
-              !(mirror.mirrorFile.contentType! in IndexFileContentType) &&
-              (mirror.mirrorFile.fileKey ||
-                (mirror.mirrorFile.encryptedSymmetricKey &&
-                  mirror.mirrorFile.decryptionConditions &&
-                  mirror.mirrorFile.decryptionConditionsType))
-            ) {
-              try {
-                const content = await decryptWithLit({
-                  encryptedContent: mirror.mirrorFile.content.content,
-                  ...(mirror.mirrorFile.fileKey
-                    ? { symmetricKeyInBase16Format: mirror.mirrorFile.fileKey }
-                    : {
-                        encryptedSymmetricKey:
-                          mirror.mirrorFile.encryptedSymmetricKey,
-                      }),
-                });
-                mirror.mirrorFile.content.content = content;
-                return mirror;
-              } catch (error) {
-                console.log(error);
-              }
-            }
-          })
-        );
-      })
-    );
+    return folders;
+    // await Promise.all(
+    //   Object.values(folders).map((folder) => {
+    //     return Promise.all(
+    //       Object.values(folder.mirrors as Mirrors).map(async (mirror) => {
+    //         if (
+    //           !(mirror.mirrorFile.contentType! in IndexFileContentType) &&
+    //           (mirror.mirrorFile.fileKey ||
+    //             (mirror.mirrorFile.encryptedSymmetricKey &&
+    //               mirror.mirrorFile.decryptionConditions &&
+    //               mirror.mirrorFile.decryptionConditionsType))
+    //         ) {
+    //           try {
+    //             const content = await decryptWithLit({
+    //               encryptedContent: mirror.mirrorFile.content.content,
+    //               ...(mirror.mirrorFile.fileKey
+    //                 ? { symmetricKeyInBase16Format: mirror.mirrorFile.fileKey }
+    //                 : {
+    //                     encryptedSymmetricKey:
+    //                       mirror.mirrorFile.encryptedSymmetricKey,
+    //                   }),
+    //             });
+    //             mirror.mirrorFile.content.content = content;
+    //             return mirror;
+    //           } catch (error) {
+    //             console.log(error);
+    //           }
+    //         }
+    //       })
+    //     );
+    //   })
+    // );
 
-    let sortedFoldersMirrors = {} as Record<string, Mirror[]>;
+    // let sortedFoldersMirrors = {} as Record<string, Mirror[]>;
 
-    Object.values(folders).forEach((folder) => {
-      const sortedMirrors = Object.values(folder.mirrors as Mirrors).sort(
-        (mirrorA, mirrorB) =>
-          Date.parse(mirrorB.mirrorFile.updatedAt!) -
-          Date.parse(mirrorA.mirrorFile.updatedAt!)
-      );
-      sortedFoldersMirrors[folder.folderId] = sortedMirrors;
-    });
+    // Object.values(folders).forEach((folder) => {
+    //   const sortedMirrors = Object.values(folder.mirrors as Mirrors).sort(
+    //     (mirrorA, mirrorB) =>
+    //       Date.parse(mirrorB.mirrorFile.updatedAt!) -
+    //       Date.parse(mirrorA.mirrorFile.updatedAt!)
+    //   );
+    //   sortedFoldersMirrors[folder.folderId] = sortedMirrors;
+    // });
 
-    const sortedFolders = Object.values(folders).sort(
-      (folderA, folderB) =>
-        Date.parse(folderB.updatedAt) - Date.parse(folderA.updatedAt)
-    );
+    // const sortedFolders = Object.values(folders).sort(
+    //   (folderA, folderB) =>
+    //     Date.parse(folderB.updatedAt) - Date.parse(folderA.updatedAt)
+    // );
 
-    const folderId = sortedFolders[0]?.folderId;
+    // const folderId = sortedFolders[0]?.folderId;
 
-    setFolders(folders);
+    // setFolders(folders);
 
-    setFolderId(folderId);
+    // setFolderId(folderId);
 
-    setMirrorFile(sortedFoldersMirrors[folderId]?.[0]?.mirrorFile);
+    // setMirrorFile(sortedFoldersMirrors[folderId]?.[0]?.mirrorFile);
 
-    console.log(folders);
+    // console.log(folders);
 
-    console.log(folderId);
+    // console.log(folderId);
 
-    console.log(sortedFoldersMirrors[folderId]?.[0]?.mirrorFile);
+    // console.log(sortedFoldersMirrors[folderId]?.[0]?.mirrorFile);
   };
 
   const createFolder = async () => {
@@ -595,6 +626,25 @@ function App() {
       syncImmediately: true,
     });
     console.log(res);
+  };
+
+  const deleteAllFolder = async () => {
+    const did = await connectIdentity();
+    const folders = await runtimeConnector.readFolders({
+      did,
+      appName,
+    });
+    await Promise.all(
+      Object.keys(folders).map((folderId) =>
+        runtimeConnector.deleteFolder({
+          did,
+          appName,
+          folderId,
+          syncImmediately: true,
+        })
+      )
+    );
+    readMyFolders();
   };
 
   const addMirrors = async () => {
@@ -652,7 +702,8 @@ function App() {
       did,
       appName,
       mirrorIds: [
-        "kjzl6kcym7w8y6obo38hb8k543zk04vsm55mqq2wgcg0wkhqz895b585tw3vuo9",
+        "kjzl6kcym7w8y62b7739cc4tz98zrva0se6z3qyins6a8cxfaepgek5zskg0iiq",
+        "kjzl6kcym7w8y5gwiglq0ic82705yzb4yve3741b6pnekno8ntsvh7hejxhy7c4",
       ],
       syncImmediately: true,
     });
@@ -689,8 +740,20 @@ function App() {
     });
     console.log(res);
   };
-
   /*** Data Monetize ***/
+
+  /*** Other ***/
+
+  const migrateOldFolders = async () => {
+    const did = await runtimeConnector.connectIdentity({
+      wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
+      appName: Apps.MigrateOldFolders,
+    });
+    const res = await runtimeConnector.migrateOldFolders(did);
+    console.log(res);
+  };
+
+  /*** Other ***/
 
   return (
     <div className="App">
@@ -704,6 +767,8 @@ function App() {
       <button onClick={switchDID}>switchDID</button>
       <br />
       <br />
+      <button onClick={getAllAppsNames}>getAllAppsNames</button>
+      <button onClick={getAllAppsBaseInfo}>getAllAppsBaseInfo</button>
       <button onClick={getAllAppsInfoByDID}>getAllAppsInfoByDID</button>
       <button onClick={getModelIdByAppNameAndModelName}>
         getModelIdByAppNameAndModelName
@@ -722,8 +787,9 @@ function App() {
       </button>
       <button onClick={createProfileStream}>createProfileStream</button>
       <button onClick={updateProfileStreams}>updateProfileStreams</button> */}
-      <button onClick={loadMyPostStreamsByModel}>
-        loadMyPostStreamsByModel
+      <button onClick={loadStreamsByModel}>loadStreamsByModel</button>
+      <button onClick={loadStreamsByModelAndDID}>
+        loadStreamsByModelAndDID
       </button>
       <button onClick={createPublicPostStream}>createPublicPostStream</button>
       <button onClick={createPrivatePostStream}>createPrivatePostStream</button>
@@ -746,6 +812,7 @@ function App() {
       <button onClick={changeFolderBaseInfo}>changeFolderBaseInfo</button>
       <button onClick={changeFolderType}>changeFolderType</button>
       <button onClick={deleteFolder}>deleteFolder</button>
+      <button onClick={deleteAllFolder}>deleteAllFolder</button>
       <button onClick={addMirrors}>addMirrors</button>
       <button onClick={updateMirror}>updateMirror</button>
       <button onClick={moveMirrors}>moveMirrors</button>
@@ -755,6 +822,9 @@ function App() {
       <button onClick={createDatatoken}>createDatatoken</button>
       <button onClick={collect}>collect</button>
       <button onClick={isCollected}>isCollected</button>
+      <br />
+      <br />
+      <button onClick={migrateOldFolders}>migrateOldFolders</button>
     </div>
   );
 }

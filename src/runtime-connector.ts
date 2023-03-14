@@ -43,6 +43,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.connectIdentity];
   }
 
+  checkIsCurrentDIDValid(
+    params: RequestType[Methods.checkIsCurrentDIDValid]
+  ): ReturnType[Methods.checkIsCurrentDIDValid] {
+    return this.communicator.sendRequest({
+      method: Methods.checkIsCurrentDIDValid,
+      params,
+    }) as ReturnType[Methods.checkIsCurrentDIDValid];
+  }
+
   getChainFromDID(
     params: RequestType[Methods.getChainFromDID]
   ): ReturnType[Methods.getChainFromDID] {
@@ -70,32 +79,39 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getCurrentDID];
   }
 
-  createNewDID(params: RequestType[Methods.createNewDID]) {
+  createNewDID(params: RequestType[Methods.createNewDID]): ReturnType[Methods.createNewDID] {
     return this.communicator.sendRequest({
       method: Methods.createNewDID,
       params,
     }) as ReturnType[Methods.createNewDID];
   }
 
-  switchDID(params: RequestType[Methods.switchDID]) {
+  switchDID(params: RequestType[Methods.switchDID]): ReturnType[Methods.switchDID] {
     return this.communicator.sendRequest({
       method: Methods.switchDID,
       params,
     }) as ReturnType[Methods.switchDID];
   }
 
-  loadStream(params: RequestType[Methods.loadStream]) {
+  loadStream(params: RequestType[Methods.loadStream]): ReturnType[Methods.loadStream] {
     return this.communicator.sendRequest({
       method: Methods.loadStream,
       params,
     }) as ReturnType[Methods.loadStream];
   }
 
-  loadStreamsByModel(params: RequestType[Methods.loadStreamsByModel]) {
+  loadStreamsByModel(params: RequestType[Methods.loadStreamsByModel]): ReturnType[Methods.loadStreamsByModel] {
     return this.communicator.sendRequest({
       method: Methods.loadStreamsByModel,
       params,
     }) as ReturnType[Methods.loadStreamsByModel];
+  }
+
+  loadStreamsByModelAndDID(params: RequestType[Methods.loadStreamsByModelAndDID]): ReturnType[Methods.loadStreamsByModelAndDID] {
+    return this.communicator.sendRequest({
+      method: Methods.loadStreamsByModelAndDID,
+      params,
+    }) as ReturnType[Methods.loadStreamsByModelAndDID];
   }
 
   createStream(
@@ -114,6 +130,24 @@ export class RuntimeConnector {
       method: Methods.updateStreams,
       params,
     }) as ReturnType[Methods.updateStreams];
+  }
+
+  getAllAppsNames(
+    params: RequestType[Methods.getAllAppsNames]
+  ): ReturnType[Methods.getAllAppsNames] {
+    return this.communicator.sendRequest({
+      method: Methods.getAllAppsNames,
+      params,
+    }) as ReturnType[Methods.getAllAppsNames];
+  }
+
+  getAllAppsBaseInfo(
+    params: RequestType[Methods.getAllAppsBaseInfo]
+  ): ReturnType[Methods.getAllAppsBaseInfo] {
+    return this.communicator.sendRequest({
+      method: Methods.getAllAppsBaseInfo,
+      params,
+    }) as ReturnType[Methods.getAllAppsBaseInfo];
   }
 
   getAllAppsInfoByDID(
@@ -215,6 +249,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.deleteFolder];
   }
 
+  monetizeFolder(
+    params: RequestType[Methods.monetizeFolder]
+  ): ReturnType[Methods.monetizeFolder] {
+    return this.communicator.sendRequest({
+      method: Methods.monetizeFolder,
+      params,
+    }) as ReturnType[Methods.monetizeFolder];
+  }
+
   readDefaultFolder(
     params: RequestType[Methods.readDefaultFolder]
   ): ReturnType[Methods.readDefaultFolder] {
@@ -242,40 +285,64 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.updateMirror];
   }
 
-  moveMirrors(params: RequestType[Methods.moveMirrors]) {
+  moveMirrors(
+    params: RequestType[Methods.moveMirrors]
+  ): ReturnType[Methods.moveMirrors] {
     return this.communicator.sendRequest({
       method: Methods.moveMirrors,
       params,
     }) as ReturnType[Methods.moveMirrors];
   }
 
-  removeMirrors(params: RequestType[Methods.removeMirrors]) {
+  removeMirrors(
+    params: RequestType[Methods.removeMirrors]
+  ): ReturnType[Methods.removeMirrors] {
     return this.communicator.sendRequest({
       method: Methods.removeMirrors,
       params,
     }) as ReturnType[Methods.removeMirrors];
   }
 
-  createDatatoken(params: RequestType[Methods.createDatatoken]) {
+  monetizeMirror(
+    params: RequestType[Methods.monetizeMirror]
+  ): ReturnType[Methods.monetizeMirror] {
+    return this.communicator.sendRequest({
+      method: Methods.monetizeMirror,
+      params,
+    }) as ReturnType[Methods.monetizeMirror];
+  }
+
+  createDatatoken(
+    params: RequestType[Methods.createDatatoken]
+  ): ReturnType[Methods.createDatatoken] {
     return this.communicator.sendRequest({
       method: Methods.createDatatoken,
       params,
     }) as ReturnType[Methods.createDatatoken];
   }
 
-  collect(params: RequestType[Methods.collect]) {
+  collect(params: RequestType[Methods.collect]): ReturnType[Methods.collect] {
     return this.communicator.sendRequest({
       method: Methods.collect,
       params,
     }) as ReturnType[Methods.collect];
   }
 
-  isCollected(params: RequestType[Methods.isCollected]) {
+  isCollected(
+    params: RequestType[Methods.isCollected]
+  ): ReturnType[Methods.isCollected] {
     return this.communicator.sendRequest({
       method: Methods.isCollected,
       params,
     }) as ReturnType[Methods.isCollected];
   }
 
-  //profiles
+  migrateOldFolders(
+    params: RequestType[Methods.migrateOldFolders]
+  ): ReturnType[Methods.migrateOldFolders] {
+    return this.communicator.sendRequest({
+      method: Methods.migrateOldFolders,
+      params,
+    }) as ReturnType[Methods.migrateOldFolders];
+  }
 }

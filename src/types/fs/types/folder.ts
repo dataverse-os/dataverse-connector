@@ -36,19 +36,18 @@ export interface PublicFolderOptions extends CommonFolderOptions {}
 export interface PrivateFolderOptions extends CommonFolderOptions {
   encryptedSymmetricKey: string;
   decryptionConditions: string;
-  chain: string;
+  // chain: string;
 
   encrypted: string;
 }
 
 export interface DatatokenFolderOptions extends CommonFolderOptions {
-  curationId: string;
+  datatokenId: string;
 
   encryptedSymmetricKey: string;
   decryptionConditions: string;
-  chain: string;
+  // chain: string;
 
-  previews: string | Mirrors;
   lockedNum: number;
 }
 
@@ -58,6 +57,7 @@ export type FolderOptions =
   | DatatokenFolderOptions;
 
 export interface StructuredFolder {
+  appName?: string;
   /** the ceramic indexFolder & contentFolder models of the folder */
   model: [string, string];
   /** the ceramic indexFolder streamID of the folder */

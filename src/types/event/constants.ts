@@ -2,6 +2,7 @@ export enum Methods {
   connectWallet = "connectWallet",
   switchNetwork = "switchNetwork",
   connectIdentity = "connectIdentity",
+  checkIsCurrentDIDValid = "checkIsCurrentDIDValid",
   getChainFromDID = "getChainFromDID",
   getCurrentDID = "getCurrentDID",
   getDIDList = "getDIDList",
@@ -10,9 +11,12 @@ export enum Methods {
 
   loadStream = "loadStream",
   loadStreamsByModel = "loadStreamsByModel",
+  loadStreamsByModelAndDID = "loadStreamsByModelAndDID",
   createStream = "createStream",
   updateStreams = "updateStreams",
 
+  getAllAppsNames = "getAllAppsNames",
+  getAllAppsBaseInfo = "getAllAppsBaseInfo",
   getAllAppsInfoByDID = "getAllAppsInfoByDID",
   getModelIdByAppNameAndModelName = "getModelIdByAppNameAndModelName",
   getAppNameAndModelNameByModelId = "getAppNameAndModelNameByModelId",
@@ -29,6 +33,7 @@ export enum Methods {
   changeFolderBaseInfo = "changeFolderBaseInfo",
   changeFolderType = "changeFolderType",
   deleteFolder = "deleteFolder",
+  monetizeFolder = "monetizeFolder",
 
   updateFile = "updateFile",
 
@@ -36,8 +41,11 @@ export enum Methods {
   updateMirror = "updateMirror",
   moveMirrors = "moveMirrors",
   removeMirrors = "removeMirrors",
+  monetizeMirror = "monetizeMirror",
 
   createDatatoken = "createDatatoken",
   collect = "collect",
   isCollected = "isCollected",
+
+  migrateOldFolders = "migrateOldFolders",
 }
