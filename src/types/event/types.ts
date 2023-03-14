@@ -71,7 +71,6 @@ export interface RequestType {
         encryptedSymmetricKey?: string;
         decryptionConditions?: any[];
         decryptionConditionsType?: DecryptionConditionsTypes;
-        deleted?: boolean;
       }
     >;
     syncImmediately?: boolean;
