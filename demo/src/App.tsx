@@ -1,5 +1,4 @@
 import "./App.css";
-import "./App.css";
 import React, { useEffect, useRef, useState } from "react";
 import {
   RuntimeConnector,
@@ -32,7 +31,10 @@ const modelNames = [ModelNames.post];
 function App() {
   const [address, setAddress] = useState("");
   const [did, setDid] = useState("");
+  const [chain, setChain] = useState<string>("");
   const [newDid, setNewDid] = useState("");
+  const [didList, setDidList] = useState<Array<string>>([]);
+  const [currentDid, setCurrentDid] = useState("");
 
   const [profileStreamObject, setProfileStreamObject] =
     useState<StreamObject>();
@@ -48,7 +50,7 @@ function App() {
         type: CRYPTO_WALLET_TYPE,
       });
       setAddress(address);
-      console.log(address);
+      console.log({ address });
     } catch (error) {
       console.log(error);
     }
@@ -56,7 +58,7 @@ function App() {
 
   const switchNetwork = async () => {
     const res = await runtimeConnector.switchNetwork(137);
-    console.log(res);
+    console.log({ res });
   };
 
   const connectIdentity = async () => {
@@ -67,25 +69,28 @@ function App() {
       appName,
     });
     setDid(did);
-    console.log(did);
+    console.log({ did });
     return did;
   };
 
   const getCurrentDID = async () => {
     const res = await runtimeConnector.getCurrentDID();
     console.log(res);
+    setCurrentDid(res);
   };
 
   const getChainFromDID = async () => {
     const chain = await runtimeConnector.getChainFromDID(
       "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555"
     );
-    console.log(chain);
+    console.log({ chain });
+    setChain(chain);
   };
 
   const getDIDList = async () => {
-    const res = await runtimeConnector.getDIDList();
-    console.log(res);
+    const didList = await runtimeConnector.getDIDList();
+    console.log({ didList });
+    setDidList(didList);
   };
 
   const createNewDID = async () => {
@@ -520,67 +525,6 @@ function App() {
     });
     console.log({ folders });
     return folders;
-    // await Promise.all(
-    //   Object.values(folders).map((folder) => {
-    //     return Promise.all(
-    //       Object.values(folder.mirrors as Mirrors).map(async (mirror) => {
-    //         if (
-    //           !(mirror.mirrorFile.contentType! in IndexFileContentType) &&
-    //           (mirror.mirrorFile.fileKey ||
-    //             (mirror.mirrorFile.encryptedSymmetricKey &&
-    //               mirror.mirrorFile.decryptionConditions &&
-    //               mirror.mirrorFile.decryptionConditionsType))
-    //         ) {
-    //           try {
-    //             const content = await decryptWithLit({
-    //               encryptedContent: mirror.mirrorFile.content.content,
-    //               ...(mirror.mirrorFile.fileKey
-    //                 ? { symmetricKeyInBase16Format: mirror.mirrorFile.fileKey }
-    //                 : {
-    //                     encryptedSymmetricKey:
-    //                       mirror.mirrorFile.encryptedSymmetricKey,
-    //                   }),
-    //             });
-    //             mirror.mirrorFile.content.content = content;
-    //             return mirror;
-    //           } catch (error) {
-    //             console.log(error);
-    //           }
-    //         }
-    //       })
-    //     );
-    //   })
-    // );
-
-    // let sortedFoldersMirrors = {} as Record<string, Mirror[]>;
-
-    // Object.values(folders).forEach((folder) => {
-    //   const sortedMirrors = Object.values(folder.mirrors as Mirrors).sort(
-    //     (mirrorA, mirrorB) =>
-    //       Date.parse(mirrorB.mirrorFile.updatedAt!) -
-    //       Date.parse(mirrorA.mirrorFile.updatedAt!)
-    //   );
-    //   sortedFoldersMirrors[folder.folderId] = sortedMirrors;
-    // });
-
-    // const sortedFolders = Object.values(folders).sort(
-    //   (folderA, folderB) =>
-    //     Date.parse(folderB.updatedAt) - Date.parse(folderA.updatedAt)
-    // );
-
-    // const folderId = sortedFolders[0]?.folderId;
-
-    // setFolders(folders);
-
-    // setFolderId(folderId);
-
-    // setMirrorFile(sortedFoldersMirrors[folderId]?.[0]?.mirrorFile);
-
-    // console.log(folders);
-
-    // console.log(folderId);
-
-    // console.log(sortedFoldersMirrors[folderId]?.[0]?.mirrorFile);
   };
 
   const createFolder = async () => {
@@ -758,11 +702,26 @@ function App() {
   return (
     <div className="App">
       <button onClick={connectWallet}>connectWallet</button>
+      <div className="blackText">{address}</div>
+      <hr />
       <button onClick={switchNetwork}>switchNetwork</button>
+      <hr />
       <button onClick={connectIdentity}>connectIdentity</button>
+      <div className="blackText">{did}</div>
+      <hr />
       <button onClick={getChainFromDID}>getChainFromDID</button>
+      <div className="blackText">{chain}</div>
+      <hr />
       <button onClick={getDIDList}>getDidList</button>
+      {didList.map((did) => (
+        <div className="blackText" key={did}>
+          {did}
+        </div>
+      ))}
+      <hr />
       <button onClick={getCurrentDID}>getCurrentDID</button>
+      <div className="blackText">{currentDid}</div>
+      <hr />
       <button onClick={createNewDID}>createNewDID</button>
       <button onClick={switchDID}>switchDID</button>
       <br />

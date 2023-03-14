@@ -44,3 +44,8 @@ button {
   display: block;
   margin: 0 auto 10px;
 }
+
+.blackText {
+  color: black;
+  font-family: Poppins;
+}
