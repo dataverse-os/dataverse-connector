@@ -311,6 +311,15 @@ export class RuntimeConnector {
       params,
     }) as ReturnType[Methods.monetizeMirror];
   }
+  
+  getChainOfDatatoken(
+    params: RequestType[Methods.getChainOfDatatoken]
+  ): ReturnType[Methods.getChainOfDatatoken] {
+    return this.communicator.sendRequest({
+      method: Methods.getChainOfDatatoken,
+      params,
+    }) as ReturnType[Methods.getChainOfDatatoken];
+  }
 
   createDatatoken(
     params: RequestType[Methods.createDatatoken]
@@ -336,6 +345,16 @@ export class RuntimeConnector {
       params,
     }) as ReturnType[Methods.isCollected];
   }
+
+  getDatatokenMetadata(
+    params: RequestType[Methods.getDatatokenMetadata]
+  ): ReturnType[Methods.getDatatokenMetadata] {
+    return this.communicator.sendRequest({
+      method: Methods.getDatatokenMetadata,
+      params,
+    }) as ReturnType[Methods.getDatatokenMetadata];
+  }
+  
 
   migrateOldFolders(
     params: RequestType[Methods.migrateOldFolders]

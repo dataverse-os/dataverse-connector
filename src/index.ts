@@ -16,6 +16,7 @@ export {
   FileType,
   OriginType,
   IndexFileContentType,
+  type IndexFile,
   type PublicFolderOptions,
   type PrivateFolderOptions,
   type DatatokenFolderOptions,

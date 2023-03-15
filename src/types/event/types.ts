@@ -8,6 +8,7 @@ import {
 import {
   CollectOutput,
   CreateDatatokenOutPut,
+  DatatokenMetadata,
   DatatokenVars,
 } from "../data-monetize/types";
 import { FileType, FolderType } from "../fs";
@@ -200,9 +201,11 @@ export interface RequestType {
     datatokenVars: DatatokenVars;
   };
 
+  getChainOfDatatoken: void;
   createDatatoken: DatatokenVars;
   collect: string;
   isCollected: { datatokenId: string; address: string };
+  getDatatokenMetadata: string;
 
   migrateOldFolders: string;
 }
@@ -312,9 +315,11 @@ export interface ReturnType {
     allFolders: StructuredFolders;
   }>;
 
+  getChainOfDatatoken: Promise<string>;
   createDatatoken: Promise<CreateDatatokenOutPut>;
   collect: Promise<CollectOutput>;
   isCollected: Promise<boolean>;
+  getDatatokenMetadata: Promise<DatatokenMetadata>;
 
   migrateOldFolders: Promise<boolean>;
 }

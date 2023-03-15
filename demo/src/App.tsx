@@ -660,6 +660,11 @@ function App() {
 
   /*** Data Monetize ***/
 
+  const getChainOfDatatoken = async () => {
+    const res = await runtimeConnector.getChainOfDatatoken();
+    console.log(res);
+  };
+
   const createDatatoken = async () => {
     const res = await runtimeConnector.createDatatoken({
       streamId:
@@ -686,6 +691,13 @@ function App() {
     });
     console.log(res);
   };
+
+  const getDatatokenMetadata = async () => {
+    const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
+    const res = await runtimeConnector.getDatatokenMetadata(datatokenId);
+    console.log(res);
+  };
+
   /*** Data Monetize ***/
 
   /*** Other ***/
@@ -788,9 +800,12 @@ function App() {
       <button onClick={removeMirrors}>removeMirrors</button>
       <br />
       <br />
+      <button onClick={getChainOfDatatoken}>getChainOfDatatoken</button>
       <button onClick={createDatatoken}>createDatatoken</button>
       <button onClick={collect}>collect</button>
       <button onClick={isCollected}>isCollected</button>
+      <button onClick={getDatatokenMetadata}>getDatatokenMetadata</button>
+
       <br />
       <br />
       <button onClick={migrateOldFolders}>migrateOldFolders</button>
