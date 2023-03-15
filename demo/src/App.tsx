@@ -35,6 +35,7 @@ function App() {
   const [newDid, setNewDid] = useState("");
   const [didList, setDidList] = useState<Array<string>>([]);
   const [currentDid, setCurrentDid] = useState("");
+  const [appNameList, setAppNameList] = useState<string[]>([]);
 
   const [profileStreamObject, setProfileStreamObject] =
     useState<StreamObject>();
@@ -114,7 +115,8 @@ function App() {
 
   const getAllAppsNames = async () => {
     const appsInfo = await runtimeConnector.getAllAppsNames();
-    console.log(appsInfo);
+    console.log({ appsInfo });
+    setAppNameList(appsInfo);
   };
 
   const getAllAppsBaseInfo = async () => {
@@ -723,10 +725,18 @@ function App() {
       <div className="blackText">{currentDid}</div>
       <hr />
       <button onClick={createNewDID}>createNewDID</button>
+      <div className="blackText">{newDid}</div>
+      <hr />
       <button onClick={switchDID}>switchDID</button>
       <br />
       <br />
       <button onClick={getAllAppsNames}>getAllAppsNames</button>
+      {appNameList.map((app) => (
+        <div className="blackText" key={app}>
+          {app}
+        </div>
+      ))}
+      <hr />
       <button onClick={getAllAppsBaseInfo}>getAllAppsBaseInfo</button>
       <button onClick={getAllAppsInfoByDID}>getAllAppsInfoByDID</button>
       <button onClick={getModelIdByAppNameAndModelName}>
