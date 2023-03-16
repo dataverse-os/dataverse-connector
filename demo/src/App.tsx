@@ -19,6 +19,7 @@ import {
   StructuredFolders,
   Currency,
   Browser,
+  DatatokenVars,
 } from "@dataverse/runtime-connector";
 
 // import { DataverseKernel } from "@dataverse/dataverse-kernel";
@@ -35,6 +36,7 @@ function App() {
   const [newDid, setNewDid] = useState("");
   const [didList, setDidList] = useState<Array<string>>([]);
   const [currentDid, setCurrentDid] = useState("");
+  const [isCurrentDIDValid, setIsCurrentDIDValid] = useState<boolean>();
   const [appNameList, setAppNameList] = useState<string[]>([]);
 
   const [profileStreamObject, setProfileStreamObject] =
@@ -78,6 +80,14 @@ function App() {
     const res = await runtimeConnector.getCurrentDID();
     console.log(res);
     setCurrentDid(res);
+  };
+
+  const checkIsCurrentDIDValid = async () => {
+    const isCurrentDIDValid = await runtimeConnector.checkIsCurrentDIDValid({
+      appName,
+    });
+    console.log(isCurrentDIDValid);
+    setIsCurrentDIDValid(isCurrentDIDValid);
   };
 
   const getChainFromDID = async () => {
@@ -593,6 +603,27 @@ function App() {
     readMyFolders();
   };
 
+  const monetizeFolder = async () => {
+    const res = await runtimeConnector.monetizeFolder({
+      did,
+      appName,
+      folderId:
+        "kjzl6kcym7w8y9nu1kxk4h4c59wjhue7s2aah0jvlaeye10dajwfn9d0aa1t3s1",
+      folderDescription: "This is a datatoken folder.",
+      datatokenVars: {
+        streamId:
+          "kjzl6kcym7w8y9nu1kxk4h4c59wjhue7s2aah0jvlaeye10dajwfn9d0aa1t3s1",
+        collectLimit: 100,
+        amount: 0.0001,
+        currency: Currency.WMATIC,
+      },
+    });
+    console.log(res);
+    return res;
+  };
+  /*** Folders ***/
+
+  /*** Mirrors ***/
   const addMirrors = async () => {
     const res = await runtimeConnector.addMirrors({
       did,
@@ -656,7 +687,24 @@ function App() {
     console.log(res);
   };
 
-  /*** Folders ***/
+  const monetizeMirror = async () => {
+    const res = await runtimeConnector.monetizeMirror({
+      did,
+      appName,
+      mirrorId:
+        "kjzl6kcym7w8y8chugqcvqoox6nnxaf0hhofv587ba99kioz9089ofjnsrgtvyr",
+      datatokenVars: {
+        streamId:
+          "kjzl6kcym7w8y8chugqcvqoox6nnxaf0hhofv587ba99kioz9089ofjnsrgtvyr",
+        collectLimit: 100,
+        amount: 0.0001,
+        currency: Currency.WMATIC,
+      },
+    });
+    console.log(res);
+    return res;
+  };
+  /*** Mirrors ***/
 
   /*** Data Monetize ***/
 
@@ -736,6 +784,11 @@ function App() {
       <button onClick={getCurrentDID}>getCurrentDID</button>
       <div className="blackText">{currentDid}</div>
       <hr />
+      <button onClick={checkIsCurrentDIDValid}>checkIsCurrentDIDValid</button>
+      <div className="blackText">
+        {isCurrentDIDValid !== undefined && String(isCurrentDIDValid)}
+      </div>
+      <hr />
       <button onClick={createNewDID}>createNewDID</button>
       <div className="blackText">{newDid}</div>
       <hr />
@@ -794,10 +847,13 @@ function App() {
       <button onClick={changeFolderType}>changeFolderType</button>
       <button onClick={deleteFolder}>deleteFolder</button>
       <button onClick={deleteAllFolder}>deleteAllFolder</button>
+      <button onClick={monetizeFolder}>monetizeFolder</button>
+
       <button onClick={addMirrors}>addMirrors</button>
       <button onClick={updateMirror}>updateMirror</button>
       <button onClick={moveMirrors}>moveMirrors</button>
       <button onClick={removeMirrors}>removeMirrors</button>
+      <button onClick={monetizeMirror}>monetizeMirror</button>
       <br />
       <br />
       <button onClick={getChainOfDatatoken}>getChainOfDatatoken</button>
@@ -805,7 +861,6 @@ function App() {
       <button onClick={collect}>collect</button>
       <button onClick={isCollected}>isCollected</button>
       <button onClick={getDatatokenMetadata}>getDatatokenMetadata</button>
-
       <br />
       <br />
       <button onClick={migrateOldFolders}>migrateOldFolders</button>

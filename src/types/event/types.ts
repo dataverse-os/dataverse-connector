@@ -153,7 +153,7 @@ export interface RequestType {
     did: string;
     appName: string;
     folderId: string;
-    folderDescription: string;
+    folderDescription?: string;
     datatokenVars: DatatokenVars;
   };
 
