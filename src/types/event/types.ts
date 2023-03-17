@@ -203,7 +203,12 @@ export interface RequestType {
 
   getChainOfDatatoken: void;
   createDatatoken: DatatokenVars;
-  collect: string;
+  collect: {
+    did: string;
+    appName: string;
+    datatokenId: string;
+    indexFileId: string;
+  }
   isCollected: { datatokenId: string; address: string };
   getDatatokenMetadata: string;
 
@@ -317,7 +322,14 @@ export interface ReturnType {
 
   getChainOfDatatoken: Promise<string>;
   createDatatoken: Promise<CreateDatatokenOutPut>;
-  collect: Promise<CollectOutput>;
+  collect: Promise<
+    CollectOutput & {
+      newMirrors: Mirrors;
+      isCurated: boolean;
+      currentFolder: StructuredFolder;
+      allFolders: StructuredFolders;
+    }
+  >;
   isCollected: Promise<boolean>;
   getDatatokenMetadata: Promise<DatatokenMetadata>;
 

@@ -379,7 +379,7 @@ function App() {
   /*** Post ***/
   const loadStream = async () => {
     const stream = await runtimeConnector.loadStream(
-      "kjzl6kcym7w8yac29293oqcec2rz7ellksdiuc6ea9xpnwymdctrstbmc1xhrgw"
+      "kjzl6kcym7w8y6qbarydazjfk7aq8agx9vece4dxvwzc2d3ku4xfuq9g2degpv3"
     );
     console.log(stream);
   };
@@ -390,11 +390,15 @@ function App() {
       modelName,
     });
     console.log(streams);
+    const res = Object.values(streams).filter(
+      (el) => el.controller !== did && el.fileType === FileType.Datatoken
+    );
+    console.log(res);
   };
 
   const loadStreamsByModelAndDID = async () => {
     const streams = await runtimeConnector.loadStreamsByModelAndDID({
-      did: "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555",
+      did: "did:pkh:eip155:137:0x40AAD5b393388534b1598CAa54c09E9623D87C7f",
       appName,
       modelName,
     });
@@ -725,8 +729,13 @@ function App() {
   };
 
   const collect = async () => {
-    const datatokenId = "0x56E6129a25C59334aB30C962DD84Db7670E964c1";
-    const res = await runtimeConnector.collect(datatokenId);
+    const res = await runtimeConnector.collect({
+      did,
+      appName,
+      datatokenId: "0xd1a758326F688fb775999bC5CAc2160fC426Be5f",
+      indexFileId:
+        "kjzl6kcym7w8y59fy02sqthoahjth6js42g7kj974drvdmeugrmiwa7u67tj223",
+    });
     console.log(res);
   };
 
