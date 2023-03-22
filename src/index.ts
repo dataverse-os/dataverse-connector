@@ -24,6 +24,7 @@ export {
   type Mirrors,
   type MirrorFile,
   type FileInfo,
+  type StructuredFiles,
   type StructuredFolder,
   type StructuredFolders,
 } from "./types/fs";

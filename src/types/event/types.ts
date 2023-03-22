@@ -8,6 +8,7 @@ import {
 import {
   CollectOutput,
   CreateDatatokenOutPut,
+  CreateProfileOutput,
   DatatokenMetadata,
   DatatokenVars,
 } from "../data-monetize/types";
@@ -202,13 +203,15 @@ export interface RequestType {
   };
 
   getChainOfDatatoken: void;
+  createLensProfile: string;
+  getLensProfiles: string;
   createDatatoken: DatatokenVars;
   collect: {
     did: string;
     appName: string;
     datatokenId: string;
     indexFileId: string;
-  }
+  };
   isCollected: { datatokenId: string; address: string };
   getDatatokenMetadata: string;
 
@@ -321,6 +324,8 @@ export interface ReturnType {
   }>;
 
   getChainOfDatatoken: Promise<string>;
+  createLensProfile: Promise<string>;
+  getLensProfiles: Promise<{ id: string }[]>;
   createDatatoken: Promise<CreateDatatokenOutPut>;
   collect: Promise<
     CollectOutput & {

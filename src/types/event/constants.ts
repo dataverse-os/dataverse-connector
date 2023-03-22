@@ -44,6 +44,8 @@ export enum Methods {
   monetizeMirror = "monetizeMirror",
 
   getChainOfDatatoken = "getChainOfDatatoken",
+  createLensProfile = "createLensProfile",
+  getLensProfiles = "getLensProfiles",
   createDatatoken = "createDatatoken",
   collect = "collect",
   isCollected = "isCollected",

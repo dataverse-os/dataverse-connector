@@ -3,11 +3,17 @@ import { Currency } from "./constants";
 
 export interface DatatokenVars {
   streamId: string;
-  profileId?: BigNumber;
+  profileId?: string;
   collectLimit: number;
   amount: number;
   currency: Currency;
 }
+
+export type CreateProfileOutput = {
+  profileId: BigNumber;
+  profileOwner: string;
+  txHash: string;
+};
 
 export interface CreateDatatokenOutPut {
   creator: string;

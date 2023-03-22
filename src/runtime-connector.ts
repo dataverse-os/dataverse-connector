@@ -79,35 +79,45 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getCurrentDID];
   }
 
-  createNewDID(params: RequestType[Methods.createNewDID]): ReturnType[Methods.createNewDID] {
+  createNewDID(
+    params: RequestType[Methods.createNewDID]
+  ): ReturnType[Methods.createNewDID] {
     return this.communicator.sendRequest({
       method: Methods.createNewDID,
       params,
     }) as ReturnType[Methods.createNewDID];
   }
 
-  switchDID(params: RequestType[Methods.switchDID]): ReturnType[Methods.switchDID] {
+  switchDID(
+    params: RequestType[Methods.switchDID]
+  ): ReturnType[Methods.switchDID] {
     return this.communicator.sendRequest({
       method: Methods.switchDID,
       params,
     }) as ReturnType[Methods.switchDID];
   }
 
-  loadStream(params: RequestType[Methods.loadStream]): ReturnType[Methods.loadStream] {
+  loadStream(
+    params: RequestType[Methods.loadStream]
+  ): ReturnType[Methods.loadStream] {
     return this.communicator.sendRequest({
       method: Methods.loadStream,
       params,
     }) as ReturnType[Methods.loadStream];
   }
 
-  loadStreamsByModel(params: RequestType[Methods.loadStreamsByModel]): ReturnType[Methods.loadStreamsByModel] {
+  loadStreamsByModel(
+    params: RequestType[Methods.loadStreamsByModel]
+  ): ReturnType[Methods.loadStreamsByModel] {
     return this.communicator.sendRequest({
       method: Methods.loadStreamsByModel,
       params,
     }) as ReturnType[Methods.loadStreamsByModel];
   }
 
-  loadStreamsByModelAndDID(params: RequestType[Methods.loadStreamsByModelAndDID]): ReturnType[Methods.loadStreamsByModelAndDID] {
+  loadStreamsByModelAndDID(
+    params: RequestType[Methods.loadStreamsByModelAndDID]
+  ): ReturnType[Methods.loadStreamsByModelAndDID] {
     return this.communicator.sendRequest({
       method: Methods.loadStreamsByModelAndDID,
       params,
@@ -311,7 +321,7 @@ export class RuntimeConnector {
       params,
     }) as ReturnType[Methods.monetizeMirror];
   }
-  
+
   getChainOfDatatoken(
     params: RequestType[Methods.getChainOfDatatoken]
   ): ReturnType[Methods.getChainOfDatatoken] {
@@ -319,6 +329,24 @@ export class RuntimeConnector {
       method: Methods.getChainOfDatatoken,
       params,
     }) as ReturnType[Methods.getChainOfDatatoken];
+  }
+
+  createLensProfile(
+    params: RequestType[Methods.createLensProfile]
+  ): ReturnType[Methods.createLensProfile] {
+    return this.communicator.sendRequest({
+      method: Methods.createLensProfile,
+      params,
+    }) as ReturnType[Methods.createLensProfile];
+  }
+
+  getLensProfiles(
+    params: RequestType[Methods.getLensProfiles]
+  ): ReturnType[Methods.getLensProfiles] {
+    return this.communicator.sendRequest({
+      method: Methods.getLensProfiles,
+      params,
+    }) as ReturnType[Methods.getLensProfiles];
   }
 
   createDatatoken(
@@ -354,7 +382,6 @@ export class RuntimeConnector {
       params,
     }) as ReturnType[Methods.getDatatokenMetadata];
   }
-  
 
   migrateOldFolders(
     params: RequestType[Methods.migrateOldFolders]

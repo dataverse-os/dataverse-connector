@@ -717,6 +717,18 @@ function App() {
     console.log(res);
   };
 
+  const createLensProfile = async () => {
+    const res = await runtimeConnector.createLensProfile("jackie2");
+    console.log(res);
+  };
+
+  const getLensProfiles = async () => {
+    const res = await runtimeConnector.getLensProfiles(
+      "0x40AAD5b393388534b1598CAa54c09E9623D87C7f"
+    );
+    console.log(res);
+  };
+
   const createDatatoken = async () => {
     const res = await runtimeConnector.createDatatoken({
       streamId:
@@ -866,6 +878,8 @@ function App() {
       <br />
       <br />
       <button onClick={getChainOfDatatoken}>getChainOfDatatoken</button>
+      <button onClick={createLensProfile}>createLensProfile</button>
+      <button onClick={getLensProfiles}>getLensProfiles</button>
       <button onClick={createDatatoken}>createDatatoken</button>
       <button onClick={collect}>collect</button>
       <button onClick={isCollected}>isCollected</button>
