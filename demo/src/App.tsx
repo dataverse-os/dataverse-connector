@@ -615,6 +615,7 @@ function App() {
         "kjzl6kcym7w8y9nu1kxk4h4c59wjhue7s2aah0jvlaeye10dajwfn9d0aa1t3s1",
       folderDescription: "This is a datatoken folder.",
       datatokenVars: {
+        profileId: "0x0219",
         streamId:
           "kjzl6kcym7w8y9nu1kxk4h4c59wjhue7s2aah0jvlaeye10dajwfn9d0aa1t3s1",
         collectLimit: 100,
@@ -698,6 +699,7 @@ function App() {
       mirrorId:
         "kjzl6kcym7w8y8chugqcvqoox6nnxaf0hhofv587ba99kioz9089ofjnsrgtvyr",
       datatokenVars: {
+        profileId: "0x0219",
         streamId:
           "kjzl6kcym7w8y8chugqcvqoox6nnxaf0hhofv587ba99kioz9089ofjnsrgtvyr",
         collectLimit: 100,
