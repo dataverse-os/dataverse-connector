@@ -37,6 +37,8 @@ export interface IndexFilesRecord extends Record<string, IndexFile> {}
 export interface StructuredFile {
   indexFileId: string;
   appVersion: string;
+  /* The creator of the file*/
+  controller: string;
   /* The streamId of the content that the file points to */
   contentId: string;
   /* The content type of the file */

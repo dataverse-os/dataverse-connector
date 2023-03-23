@@ -210,7 +210,7 @@ export interface RequestType {
     did: string;
     appName: string;
     datatokenId: string;
-    indexFileId: string;
+    indexFileId?: string;
   };
   isCollected: { datatokenId: string; address: string };
   getDatatokenMetadata: string;

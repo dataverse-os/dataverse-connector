@@ -10,6 +10,7 @@ export {
   Currency,
   DecryptionConditionsTypes,
   type DatatokenVars,
+  type DecryptionConditions,
 } from "./types/data-monetize";
 export {
   FolderType,

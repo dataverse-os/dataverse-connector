@@ -21,11 +21,13 @@ import {
   Browser,
   DatatokenVars,
 } from "@dataverse/runtime-connector";
+import { decode } from "./utils/encodeAndDecode";
+import { DecryptionConditions } from "@dataverse/runtime-connector";
 
 // import { DataverseKernel } from "@dataverse/dataverse-kernel";
 // DataverseKernel.init();
 const runtimeConnector = new RuntimeConnector(Extension);
-const appName = Apps.Playground;
+const appName = Apps.Dataverse;
 const modelName = ModelNames.post;
 const modelNames = [ModelNames.post];
 
@@ -194,8 +196,84 @@ function App() {
     return conditions;
   };
 
+  const generateUnifiedAccessControlConditions = async () => {
+    const datatokenId = "0xFd2aC484525AaA02D112eC4c87EbA6B17c7DCDC1";
+    const modelId = await runtimeConnector.getModelIdByAppNameAndModelName({
+      appName,
+      modelName,
+    });
+    const chain = await runtimeConnector.getChainFromDID(did);
+    const datatokenChain = await getChainOfDatatoken();
+    const conditions: any = [
+      {
+        conditionType: "evmBasic",
+        contractAddress: "",
+        standardContractType: "SIWE",
+        chain,
+        method: "",
+        parameters: [":resources"],
+        returnValueTest: {
+          comparator: "contains",
+          value: `ceramic://*?model=${modelId}`,
+        },
+      },
+    ];
+    conditions.push({ operator: "and" });
+    const unifiedAccessControlConditions = [
+      {
+        contractAddress: datatokenId,
+        conditionType: "evmContract",
+        functionName: "isCollected",
+        functionParams: [":userAddress"],
+        functionAbi: {
+          inputs: [
+            {
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+          ],
+          name: "isCollected",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        chain: datatokenChain,
+        returnValueTest: {
+          key: "",
+          comparator: "=",
+          value: "true",
+        },
+      },
+      { operator: "or" },
+      {
+        conditionType: "evmBasic",
+        contractAddress: "",
+        standardContractType: "",
+        chain,
+        method: "",
+        parameters: [":userAddress"],
+        returnValueTest: {
+          comparator: "=",
+          value: `${address}`,
+        },
+      },
+    ];
+    conditions.push(unifiedAccessControlConditions);
+    return conditions;
+  };
+
   const newLitKey = async () => {
+    const did = await connectIdentity();
     const decryptionConditions = await generateAccessControlConditions();
+    // const decryptionConditions = await generateUnifiedAccessControlConditions();
+
     const decryptionConditionsType =
       DecryptionConditionsTypes.AccessControlCondition;
 
@@ -217,7 +295,9 @@ function App() {
   };
 
   const encrypt = async () => {
+    const did = await connectIdentity();
     const decryptionConditions = await generateAccessControlConditions();
+    // const decryptionConditions = await generateUnifiedAccessControlConditions();
     const decryptionConditionsType =
       DecryptionConditionsTypes.AccessControlCondition;
 
@@ -227,7 +307,7 @@ function App() {
       modelNames,
       content: "hello world",
       encryptedSymmetricKey:
-        "02c67ba96980c11042f9e52262d48486b846af2acb7efb21ce01dafeef5697dc0f61213b6f0330883aa2b456b142550ffdd55e79b66ad399176f9f0e25ce694f3601ad1d35736db41917a12cb044b80c02199d104b8be9df0468a60514a5aca285ac6b99d478b158c59227a6e5cc223d3d1cc099a7540c14cc9c669068425bea0000000000000020603a50b4737163a66dd0172f012faedfb9a8cbb35d8da8155ff12a3c1d8ad611ad6adc5b953d118dc1fb76678422a898",
+        "a3a328fff5dc75a4fdbb5379e06597d7b28e0da48b4ccae40fd29ab797a1822dee0a2e9a85faa2c9b24e4ffc7d45ce0f60e54fe0ab31f3d6ba03c051aebb4ae080bb025faadc299d49325172ac2f8f7bef39fabe00be00d782386cba0c7bf18f5268aff09cece700f41af20eb293c94ec1654d74baf9fb3c94bd4db52c390ecc000000000000002046b183b333424553c1ca8924d54002b5def910f1f4a9411bb9d669217d74e7295768ea89d7bbd44b046f351a0cc95f8c",
       decryptionConditions,
       decryptionConditionsType,
     });
@@ -235,14 +315,20 @@ function App() {
   };
 
   const decrypt = async () => {
+    const did = await connectIdentity();
     const decryptionConditions = await generateAccessControlConditions();
+    // const decryptionConditions = await generateUnifiedAccessControlConditions();
+    // const decryptionConditions = decode(
+    //   "W3siY29uZGl0aW9uVHlwZSI6ImV2bUJhc2ljIiwiY29udHJhY3RBZGRyZXNzIjoiIiwic3RhbmRhcmRDb250cmFjdFR5cGUiOiJTSVdFIiwiY2hhaW4iOiJwb2x5Z29uIiwibWV0aG9kIjoiIiwicGFyYW1ldGVycyI6WyI6cmVzb3VyY2VzIl0sInJldHVyblZhbHVlVGVzdCI6eyJjb21wYXJhdG9yIjoiY29udGFpbnMiLCJ2YWx1ZSI6ImNlcmFtaWM6Ly8qP21vZGVsPWtqemw2aHZmcmJ3NmM1MmQxZnRlMm1tZmh5MXpxNTQ3NTE3MzRjZTNycmR3d3JtdG40N3YyOTVjbzVsZ244dyJ9fSx7Im9wZXJhdG9yIjoiYW5kIn0seyJjb25kaXRpb25UeXBlIjoiZXZtQmFzaWMiLCJjb250cmFjdEFkZHJlc3MiOiIiLCJzdGFuZGFyZENvbnRyYWN0VHlwZSI6IlNJV0UiLCJjaGFpbiI6InBvbHlnb24iLCJtZXRob2QiOiIiLCJwYXJhbWV0ZXJzIjpbIjpyZXNvdXJjZXMiXSwicmV0dXJuVmFsdWVUZXN0Ijp7ImNvbXBhcmF0b3IiOiJjb250YWlucyIsInZhbHVlIjoiY2VyYW1pYzovLyo_bW9kZWw9a2p6bDZodmZyYnc2YzdsenFzaTk3Z3Fobm8wZm45eHAyMXdncDk0a2UyZzJxNGVybjB3Znk0cmw1M2FlNmNrIn19LHsib3BlcmF0b3IiOiJhbmQifSx7ImNvbmRpdGlvblR5cGUiOiJldm1CYXNpYyIsImNvbnRyYWN0QWRkcmVzcyI6IiIsInN0YW5kYXJkQ29udHJhY3RUeXBlIjoiU0lXRSIsImNoYWluIjoicG9seWdvbiIsIm1ldGhvZCI6IiIsInBhcmFtZXRlcnMiOlsiOnJlc291cmNlcyJdLCJyZXR1cm5WYWx1ZVRlc3QiOnsiY29tcGFyYXRvciI6ImNvbnRhaW5zIiwidmFsdWUiOiJjZXJhbWljOi8vKj9tb2RlbD1ranpsNmh2ZnJidzZjOGpobW84MW1tcmU0YjVnd2hvaTkydWJhMXkzeHg2bG5ubnh6eGlidGg3eXI5amtxMG4ifX0seyJvcGVyYXRvciI6ImFuZCJ9LFt7ImNvbnRyYWN0QWRkcmVzcyI6IjB4RmQyYUM0ODQ1MjVBYUEwMkQxMTJlQzRjODdFYkE2QjE3YzdEQ0RDMSIsImNvbmRpdGlvblR5cGUiOiJldm1Db250cmFjdCIsImZ1bmN0aW9uTmFtZSI6ImlzQ29sbGVjdGVkIiwiZnVuY3Rpb25QYXJhbXMiOlsiOnVzZXJBZGRyZXNzIl0sImZ1bmN0aW9uQWJpIjp7ImlucHV0cyI6W3siaW50ZXJuYWxUeXBlIjoiYWRkcmVzcyIsIm5hbWUiOiJ1c2VyIiwidHlwZSI6ImFkZHJlc3MifV0sIm5hbWUiOiJpc0NvbGxlY3RlZCIsIm91dHB1dHMiOlt7ImludGVybmFsVHlwZSI6ImJvb2wiLCJuYW1lIjoiIiwidHlwZSI6ImJvb2wifV0sInN0YXRlTXV0YWJpbGl0eSI6InZpZXciLCJ0eXBlIjoiZnVuY3Rpb24ifSwiY2hhaW4iOiJtdW1iYWkiLCJyZXR1cm5WYWx1ZVRlc3QiOnsia2V5IjoiIiwiY29tcGFyYXRvciI6Ij0iLCJ2YWx1ZSI6InRydWUifX0seyJvcGVyYXRvciI6Im9yIn0seyJjb25kaXRpb25UeXBlIjoiZXZtQmFzaWMiLCJjb250cmFjdEFkZHJlc3MiOiIiLCJzdGFuZGFyZENvbnRyYWN0VHlwZSI6IiIsImNoYWluIjoicG9seWdvbiIsIm1ldGhvZCI6IiIsInBhcmFtZXRlcnMiOlsiOnVzZXJBZGRyZXNzIl0sInJldHVyblZhbHVlVGVzdCI6eyJjb21wYXJhdG9yIjoiPSIsInZhbHVlIjoiMHhBNDgwNzdFZjQ2ODAzMzRkYzU3M0IzQTkzMjJkMzUwZDdhMjc3MDlkIn19XV0"
+    // ) as DecryptionConditions;
+    console.log(decryptionConditions);
     const decryptionConditionsType =
       DecryptionConditionsTypes.AccessControlCondition;
 
-    const encryptedContent = "erS5KV4HfggZ8-2iC2bj1uMZwiOA38z73DxVhXGeAGw=";
+    const encryptedContent = "0-LLPc6OIK5opPocSlpf3lHeU3TGTW5ZIsm43ldTDp4=";
     const symmetricKeyInBase16Format = "";
     const encryptedSymmetricKey =
-      "02c67ba96980c11042f9e52262d48486b846af2acb7efb21ce01dafeef5697dc0f61213b6f0330883aa2b456b142550ffdd55e79b66ad399176f9f0e25ce694f3601ad1d35736db41917a12cb044b80c02199d104b8be9df0468a60514a5aca285ac6b99d478b158c59227a6e5cc223d3d1cc099a7540c14cc9c669068425bea0000000000000020603a50b4737163a66dd0172f012faedfb9a8cbb35d8da8155ff12a3c1d8ad611ad6adc5b953d118dc1fb76678422a898";
+      "a3a328fff5dc75a4fdbb5379e06597d7b28e0da48b4ccae40fd29ab797a1822dee0a2e9a85faa2c9b24e4ffc7d45ce0f60e54fe0ab31f3d6ba03c051aebb4ae080bb025faadc299d49325172ac2f8f7bef39fabe00be00d782386cba0c7bf18f5268aff09cece700f41af20eb293c94ec1654d74baf9fb3c94bd4db52c390ecc000000000000002046b183b333424553c1ca8924d54002b5def910f1f4a9411bb9d669217d74e7295768ea89d7bbd44b046f351a0cc95f8c";
 
     const { content } = await runtimeConnector.decryptWithLit({
       did,
@@ -582,7 +668,8 @@ function App() {
     const res = await runtimeConnector.deleteFolder({
       did,
       appName,
-      folderId,
+      folderId:
+        "kjzl6kcym7w8y820fvzv0sijpj49p7fdptfke4vlkb0db9nd2mkpa234aityqps",
       syncImmediately: true,
     });
     console.log(res);
@@ -612,12 +699,12 @@ function App() {
       did,
       appName,
       folderId:
-        "kjzl6kcym7w8y9nu1kxk4h4c59wjhue7s2aah0jvlaeye10dajwfn9d0aa1t3s1",
+        "kjzl6kcym7w8y7k2u3s9euekveiao5u386qxnpe51g6zpqds1kdsn6kdoivu6sh",
       folderDescription: "This is a datatoken folder.",
       datatokenVars: {
         profileId: "0x0219",
         streamId:
-          "kjzl6kcym7w8y9nu1kxk4h4c59wjhue7s2aah0jvlaeye10dajwfn9d0aa1t3s1",
+          "kjzl6kcym7w8y7k2u3s9euekveiao5u386qxnpe51g6zpqds1kdsn6kdoivu6sh",
         collectLimit: 100,
         amount: 0.0001,
         currency: Currency.WMATIC,
@@ -633,7 +720,8 @@ function App() {
     const res = await runtimeConnector.addMirrors({
       did,
       appName,
-      folderId: folderId,
+      folderId:
+        "kjzl6kcym7w8y7k2u3s9euekveiao5u386qxnpe51g6zpqds1kdsn6kdoivu6sh",
       filesInfo: [
         {
           contentId:
@@ -726,7 +814,7 @@ function App() {
 
   const getLensProfiles = async () => {
     const res = await runtimeConnector.getLensProfiles(
-      "0x40AAD5b393388534b1598CAa54c09E9623D87C7f"
+      "0xA48077Ef4680334dc573B3A9322d350d7a27709d"
     );
     console.log(res);
   };
@@ -746,9 +834,9 @@ function App() {
     const res = await runtimeConnector.collect({
       did,
       appName,
-      datatokenId: "0xd1a758326F688fb775999bC5CAc2160fC426Be5f",
+      datatokenId: "0xFd2aC484525AaA02D112eC4c87EbA6B17c7DCDC1",
       indexFileId:
-        "kjzl6kcym7w8y59fy02sqthoahjth6js42g7kj974drvdmeugrmiwa7u67tj223",
+        "kjzl6kcym7w8y65io6cihifwm4yqx9ochcaoq0934yeivmmbkht7cj780fxq7zo",
     });
     console.log(res);
   };
