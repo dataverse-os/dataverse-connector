@@ -50,6 +50,7 @@ export enum Methods {
   collect = "collect",
   isCollected = "isCollected",
   getDatatokenMetadata = "getDatatokenMetadata",
+  unlock = "unlock",
 
   migrateOldFolders = "migrateOldFolders",
 }

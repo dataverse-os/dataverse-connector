@@ -27,7 +27,7 @@ import { DecryptionConditions } from "@dataverse/runtime-connector";
 // import { DataverseKernel } from "@dataverse/dataverse-kernel";
 // DataverseKernel.init();
 const runtimeConnector = new RuntimeConnector(Extension);
-const appName = Apps.Dataverse;
+const appName = Apps.Playground;
 const modelName = ModelNames.post;
 const modelNames = [ModelNames.post];
 
@@ -325,8 +325,10 @@ function App() {
     const decryptionConditionsType =
       DecryptionConditionsTypes.AccessControlCondition;
 
-    const encryptedContent = "0-LLPc6OIK5opPocSlpf3lHeU3TGTW5ZIsm43ldTDp4=";
-    const symmetricKeyInBase16Format = "";
+    const encryptedContent =
+      "SrcDNw4p-X_1AgG3rtzG8_zv4jt7IhEUcxaXtLFS_DE3BKIvUKjc5v7osNM7Uzl8Y1F1C3adT9RK3CpB5l6w-KOeMrRzptjDIBydRB_h2lmxdxjX9MNpj71vkg0lz6XQSq3ypmH0_4FPzXJ624NLfohNZLbpro6Jbv803LhxtGr-NifNPAvaj_LsU3zc2VdXvLOlPlPPrKSpKEym85WC5rjMoC-0TDAtDLc4Y2FKgs5ZwPV4OvPJ9uw_YM1qwWMMFLV_Inxw8WzVlTKj8tfqKyfc4DThnoa6M8Cne8wsT3Z8F4aH60RlGPsjYUjR0UM5cALBV3JqSmwf7Mpm0wKgJBkA4DRIDRC_yWwmLCVHYIEBLnOzj7D9Kwk1blJaHJs--vbGXk46VJ4rwdn616PIhoLsA-tzrAE3kIcuh4QyebSq3Sf598A96CS9G8GVADYB85FOU_V3s8n29Ag2ftDrtG46Q1vswgXsxrRUaAQAlWR93WfEh5Vo3dBZj4walgkDrgEuP4djs45mUP4cqov6RtzsV08iG35Z0PFJva1DoW9q1ZWz9kRKvWPOKqQvspsoCtR37_HhhkQVSIxrpFW1ri3cVSDo_4rjDex3PUrLxbzS17dtKjsTQ6Us1b9C5bDTohJlGnpJKdSPCugb4ZeOJKYfcrlQUu8mLfSzGM13sVU=";
+    const symmetricKeyInBase16Format =
+      "b2153aa8b3a733c881cc2648310fe777036e38ec3c68b6bafa91633b577062f9";
     const encryptedSymmetricKey =
       "a3a328fff5dc75a4fdbb5379e06597d7b28e0da48b4ccae40fd29ab797a1822dee0a2e9a85faa2c9b24e4ffc7d45ce0f60e54fe0ab31f3d6ba03c051aebb4ae080bb025faadc299d49325172ac2f8f7bef39fabe00be00d782386cba0c7bf18f5268aff09cece700f41af20eb293c94ec1654d74baf9fb3c94bd4db52c390ecc000000000000002046b183b333424553c1ca8924d54002b5def910f1f4a9411bb9d669217d74e7295768ea89d7bbd44b046f351a0cc95f8c";
 
@@ -465,7 +467,7 @@ function App() {
   /*** Post ***/
   const loadStream = async () => {
     const stream = await runtimeConnector.loadStream(
-      "kjzl6kcym7w8y6qbarydazjfk7aq8agx9vece4dxvwzc2d3ku4xfuq9g2degpv3"
+      "kjzl6kcym7w8y5qmvsmqxsqhqgyf07fhy0dvqb98elo5vets7ojuo49z6oizooc"
     );
     console.log(stream);
   };
@@ -834,7 +836,6 @@ function App() {
     const res = await runtimeConnector.collect({
       did,
       appName,
-      datatokenId: "0xFd2aC484525AaA02D112eC4c87EbA6B17c7DCDC1",
       indexFileId:
         "kjzl6kcym7w8y65io6cihifwm4yqx9ochcaoq0934yeivmmbkht7cj780fxq7zo",
     });
@@ -857,6 +858,11 @@ function App() {
     console.log(res);
   };
 
+  const unlock = async () => {
+    const indexFileId = "kjzl6kcym7w8y65io6cihifwm4yqx9ochcaoq0934yeivmmbkht7cj780fxq7zo";
+    const res = await runtimeConnector.unlock({ did, appName, indexFileId });
+    console.log(res);
+  };
   /*** Data Monetize ***/
 
   /*** Other ***/
@@ -974,6 +980,7 @@ function App() {
       <button onClick={collect}>collect</button>
       <button onClick={isCollected}>isCollected</button>
       <button onClick={getDatatokenMetadata}>getDatatokenMetadata</button>
+      <button onClick={unlock}>unlock</button>
       <br />
       <br />
       <button onClick={migrateOldFolders}>migrateOldFolders</button>

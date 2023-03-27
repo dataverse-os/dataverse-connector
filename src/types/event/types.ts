@@ -209,11 +209,15 @@ export interface RequestType {
   collect: {
     did: string;
     appName: string;
-    datatokenId: string;
-    indexFileId?: string;
+    indexFileId: string;
   };
   isCollected: { datatokenId: string; address: string };
   getDatatokenMetadata: string;
+  unlock: {
+    did: string;
+    appName: string;
+    indexFileId: string;
+  };
 
   migrateOldFolders: string;
 }
@@ -337,6 +341,7 @@ export interface ReturnType {
   >;
   isCollected: Promise<boolean>;
   getDatatokenMetadata: Promise<DatatokenMetadata>;
+  unlock: Promise<object>;
 
   migrateOldFolders: Promise<boolean>;
 }

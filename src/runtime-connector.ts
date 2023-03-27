@@ -383,6 +383,13 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getDatatokenMetadata];
   }
 
+  unlock(params: RequestType[Methods.unlock]): ReturnType[Methods.unlock] {
+    return this.communicator.sendRequest({
+      method: Methods.unlock,
+      params,
+    }) as ReturnType[Methods.unlock];
+  }
+
   migrateOldFolders(
     params: RequestType[Methods.migrateOldFolders]
   ): ReturnType[Methods.migrateOldFolders] {
