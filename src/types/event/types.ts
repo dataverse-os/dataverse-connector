@@ -52,6 +52,7 @@ export interface RequestType {
     appName: string;
     modelName: string;
   };
+  getModelBaseInfo: string;
   createStream: {
     did: string;
     appName: string;
@@ -245,6 +246,7 @@ export interface ReturnType {
   }>;
   loadStreamsByModel: Promise<Record<string, any>>;
   loadStreamsByModelAndDID: Promise<Record<string, any>>;
+  getModelBaseInfo: Promise<Record<string, any>>;
   createStream: Promise<StreamObject & { newMirror?: Mirror }>;
   updateStreams: Promise<
     | {

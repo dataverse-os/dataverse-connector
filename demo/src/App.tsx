@@ -497,6 +497,13 @@ function App() {
     }
   };
 
+  const getModelBaseInfo = async () => {
+    const res = await runtimeConnector.getModelBaseInfo(
+      "kjzl6hvfrbw6c7ft23trwmoox36eo7mnxlsj1dad2574bjm6c6fon8pmoqhp7br"
+    );
+    console.log(res);
+  };
+
   const createPublicPostStream = async () => {
     const streamObject = await runtimeConnector.createStream({
       did,
@@ -944,6 +951,7 @@ function App() {
       <button onClick={loadStreamsByModelAndDID}>
         loadStreamsByModelAndDID
       </button>
+      <button onClick={getModelBaseInfo}>getModelBaseInfo</button>
       <button onClick={createPublicPostStream}>createPublicPostStream</button>
       <button onClick={createPrivatePostStream}>createPrivatePostStream</button>
       <button onClick={updatePostStreamsToPublicContent}>

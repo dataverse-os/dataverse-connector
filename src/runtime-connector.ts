@@ -124,6 +124,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.loadStreamsByModelAndDID];
   }
 
+  getModelBaseInfo(
+    params: RequestType[Methods.getModelBaseInfo]
+  ): ReturnType[Methods.getModelBaseInfo] {
+    return this.communicator.sendRequest({
+      method: Methods.getModelBaseInfo,
+      params,
+    }) as ReturnType[Methods.getModelBaseInfo];
+  }
+
   createStream(
     params: RequestType[Methods.createStream]
   ): ReturnType[Methods.createStream] {
