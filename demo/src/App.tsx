@@ -504,7 +504,8 @@ function App() {
       modelName,
       streamContent: {
         appVersion: "0.0.1",
-        content: "a post",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       },
       fileType: FileType.Public,
     });
@@ -859,7 +860,8 @@ function App() {
   };
 
   const unlock = async () => {
-    const indexFileId = "kjzl6kcym7w8y65io6cihifwm4yqx9ochcaoq0934yeivmmbkht7cj780fxq7zo";
+    const indexFileId =
+      "kjzl6kcym7w8y65io6cihifwm4yqx9ochcaoq0934yeivmmbkht7cj780fxq7zo";
     const res = await runtimeConnector.unlock({ did, appName, indexFileId });
     console.log(res);
   };
