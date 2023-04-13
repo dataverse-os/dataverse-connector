@@ -247,7 +247,9 @@ export interface ReturnType {
   loadStreamsByModel: Promise<Record<string, any>>;
   loadStreamsByModelAndDID: Promise<Record<string, any>>;
   getModelBaseInfo: Promise<Record<string, any>>;
-  createStream: Promise<StreamObject & { newMirror?: Mirror }>;
+  createStream: Promise<
+    StreamObject & { newMirror?: Mirror; existingMirror?: Mirror }
+  >;
   updateStreams: Promise<
     | {
         successRecord: StreamsRecord;
@@ -304,6 +306,9 @@ export interface ReturnType {
   }>;
 
   addMirrors: Promise<{
+    newMirrors: Mirrors;
+    isCurated: boolean;
+    existingMirror?: Mirror;
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
