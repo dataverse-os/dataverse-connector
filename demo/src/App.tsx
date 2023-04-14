@@ -20,16 +20,15 @@ import {
   Currency,
   Browser,
   DatatokenVars,
+  DecryptionConditions
 } from "@dataverse/runtime-connector";
 import { decode } from "./utils/encodeAndDecode";
-import { DecryptionConditions } from "@dataverse/runtime-connector";
 
-// import { DataverseKernel } from "@dataverse/dataverse-kernel";
-// DataverseKernel.init();
 const runtimeConnector = new RuntimeConnector(Extension);
 const appName = Apps.Playground;
-const modelName = ModelNames.post;
-const modelNames = [ModelNames.post];
+const slug = Apps.Playground;
+export const modelName = `${slug.toLowerCase()}_post`;
+export const modelNames = [modelName];
 
 function App() {
   const [address, setAddress] = useState("");
@@ -401,69 +400,6 @@ function App() {
   };
   /*** Lit ***/
 
-  /*** Profle ***/
-  const loadOthersProfileStreamsByModelAndDID = async () => {
-    const streams = await runtimeConnector.loadStreamsByModelAndDID({
-      did: "did:pkh:eip155:137:0x8A9800738483e9D42CA377D8F95cc5960e6912d1",
-      appName,
-      modelName: ModelNames.userProfile,
-    });
-    console.log(streams);
-    const [streamId, streamContent] = Object.entries(streams)[0];
-    setProfileStreamObject({ streamId, streamContent });
-  };
-  const loadMyProfileStreamsByModelAndDID = async () => {
-    const streams = await runtimeConnector.loadStreamsByModelAndDID({
-      did,
-      appName,
-      modelName: ModelNames.userProfile,
-    });
-    console.log(streams);
-    if (Object.entries(streams)[0]) {
-      const [streamId, streamContent] = Object.entries(streams)[0];
-      setProfileStreamObject({ streamId, streamContent });
-    }
-  };
-
-  const createProfileStream = async () => {
-    const streamObject = await runtimeConnector.createStream({
-      did,
-      appName,
-      modelName: ModelNames.userProfile,
-      streamContent: {
-        name: "test_name",
-        description: "test_description",
-        image: {
-          original: {
-            src: "https://i.seadn.io/gcs/files/4df295e05429b6e56e59504b7e9650b6.gif?w=500&auto=format",
-          },
-        },
-        background: {
-          original: {
-            src: "https://i.seadn.io/gae/97v7uBu0TGycl_CT73Wds8T22sqLZISSszf4f4mCrPEv5yOLn840HZU4cIyEc9WNpxXhjcyKSKdTuqH7svb3zBfl1ixVtX5Jtc3VzA?w=500&auto=format",
-          },
-        },
-      },
-      fileType: FileType.Public,
-    });
-    setProfileStreamObject(streamObject);
-    console.log(streamObject);
-  };
-
-  const updateProfileStreams = async () => {
-    if (!profileStreamObject) return;
-    console.log(profileStreamObject);
-    profileStreamObject.streamContent.name = "my_name";
-    const streams = await runtimeConnector.updateStreams({
-      streamsRecord: {
-        [profileStreamObject.streamId]: profileStreamObject.streamContent,
-      },
-      syncImmediately: true,
-    });
-    console.log(streams);
-  };
-  /*** Profle ***/
-
   /*** Post ***/
   const loadStream = async () => {
     const stream = await runtimeConnector.loadStream(
@@ -623,7 +559,7 @@ function App() {
   /*** Folders ***/
   const readOthersFolders = async () => {
     const othersFolders = await runtimeConnector.readFolders({
-      did: "did:pkh:eip155:137:0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd",
+      did: "did:pkh:eip155:137:0x3F3cceEbDfE3f5E640fDD11854855C7A32dced33",
       appName,
     });
     console.log(othersFolders);
