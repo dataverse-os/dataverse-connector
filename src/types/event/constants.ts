@@ -1,11 +1,17 @@
 export enum Methods {
+  chooseWallet = "chooseWallet",
   connectWallet = "connectWallet",
+  getCurrentWallet = "getCurrentWallet",
   switchNetwork = "switchNetwork",
+  ethereumRequest = "ethereumRequest",
+  signerSign = "signerSign",
+  contractCall = "contractCall",
   connectIdentity = "connectIdentity",
   checkIsCurrentDIDValid = "checkIsCurrentDIDValid",
   getChainFromDID = "getChainFromDID",
-  getCurrentDID = "getCurrentDID",
   getDIDList = "getDIDList",
+  getCurrentDID = "getCurrentDID",
+  getWalletByDID = "getWalletByDID",
   createNewDID = "createNewDID",
   switchDID = "switchDID",
 

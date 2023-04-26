@@ -15,6 +15,15 @@ export class RuntimeConnector {
   setPostMessageTo(postMessageTo: PostMessageTo) {
     this.communicator.setPostMessageTo(postMessageTo);
   }
+  
+  chooseWallet(
+    params: RequestType[Methods.chooseWallet]
+  ): ReturnType[Methods.chooseWallet] {
+    return this.communicator.sendRequest({
+      method: Methods.chooseWallet,
+      params,
+    }) as ReturnType[Methods.chooseWallet];
+  }
 
   connectWallet(
     params: RequestType[Methods.connectWallet]
@@ -25,6 +34,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.connectWallet];
   }
 
+  getCurrentWallet(
+    params: RequestType[Methods.getCurrentWallet]
+  ): ReturnType[Methods.getCurrentWallet] {
+    return this.communicator.sendRequest({
+      method: Methods.getCurrentWallet,
+      params,
+    }) as ReturnType[Methods.getCurrentWallet];
+  }
+
   switchNetwork(
     params: RequestType[Methods.switchNetwork]
   ): ReturnType[Methods.switchNetwork] {
@@ -32,6 +50,33 @@ export class RuntimeConnector {
       method: Methods.switchNetwork,
       params,
     }) as ReturnType[Methods.switchNetwork];
+  }
+
+  ethereumRequest(
+    params: RequestType[Methods.ethereumRequest]
+  ): ReturnType[Methods.ethereumRequest] {
+    return this.communicator.sendRequest({
+      method: Methods.ethereumRequest,
+      params,
+    }) as ReturnType[Methods.ethereumRequest];
+  }
+
+  signerSign(
+    params: RequestType[Methods.signerSign]
+  ): ReturnType[Methods.signerSign] {
+    return this.communicator.sendRequest({
+      method: Methods.signerSign,
+      params,
+    }) as ReturnType[Methods.signerSign];
+  }
+
+  contractCall(
+    params: RequestType[Methods.contractCall]
+  ): ReturnType[Methods.contractCall] {
+    return this.communicator.sendRequest({
+      method: Methods.contractCall,
+      params,
+    }) as ReturnType[Methods.contractCall];
   }
 
   connectIdentity(
@@ -77,6 +122,15 @@ export class RuntimeConnector {
       method: Methods.getCurrentDID,
       params,
     }) as ReturnType[Methods.getCurrentDID];
+  }
+
+  getWalletByDID(
+    params: RequestType[Methods.getWalletByDID]
+  ): ReturnType[Methods.getWalletByDID] {
+    return this.communicator.sendRequest({
+      method: Methods.getWalletByDID,
+      params,
+    }) as ReturnType[Methods.getWalletByDID];
   }
 
   createNewDID(

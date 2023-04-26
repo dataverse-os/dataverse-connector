@@ -19,5 +19,10 @@ export type ApplicationRegistry = Record<
     logo: string;
     defaultFolderName: string;
     description: string;
+    ceramic: string;
+    models: Record<
+      string,
+      { modelId: string; isPublicDomain: boolean; encryptable: string[] }
+    >;
   }
 >;

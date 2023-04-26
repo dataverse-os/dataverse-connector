@@ -4,6 +4,7 @@ import {
   RuntimeConnector,
   Extension,
   METAMASK,
+  PARTICLE,
   CRYPTO_WALLET_TYPE,
   Apps,
   ModelNames,
@@ -20,22 +21,31 @@ import {
   Currency,
   Browser,
   DatatokenVars,
+  DecryptionConditions,
+  Mode,
+  CRYPTO_WALLET,
 } from "@dataverse/runtime-connector";
 import { decode } from "./utils/encodeAndDecode";
-import { DecryptionConditions } from "@dataverse/runtime-connector";
+import { getAddressFromDid } from "./utils/addressAndDID";
 
-// import { DataverseKernel } from "@dataverse/dataverse-kernel";
-// DataverseKernel.init();
 const runtimeConnector = new RuntimeConnector(Extension);
-const appName = Apps.Playground;
-const modelName = ModelNames.post;
-const modelNames = [ModelNames.post];
+const appName = "test001";
+const slug = "test001";
+export const modelName = `${slug.toLowerCase()}_post`;
+export const modelNames = [modelName];
+const postVersion = "0.0.1";
+const walletName = (localStorage.getItem("walletName") as any) || METAMASK;
+const cryptoWalletType = CRYPTO_WALLET_TYPE;
 
 function App() {
   const [address, setAddress] = useState("");
+  const [wallet, setWallet] = useState<CRYPTO_WALLET>({
+    name: walletName,
+    type: cryptoWalletType,
+  });
   const [did, setDid] = useState("");
   const [chain, setChain] = useState<string>("");
-  const [newDid, setNewDid] = useState("");
+  const [newDid, setNewDid] = useState<string>("");
   const [didList, setDidList] = useState<Array<string>>([]);
   const [currentDid, setCurrentDid] = useState("");
   const [isCurrentDIDValid, setIsCurrentDIDValid] = useState<boolean>();
@@ -46,31 +56,128 @@ function App() {
   const [mirrorFile, setMirrorFile] = useState<MirrorFile>();
   const [folderId, setFolderId] = useState("");
   const [folders, setFolders] = useState<StructuredFolders>({});
+  const [walletChanged, setWalletChanged] = useState<boolean>(false);
 
-  /*** Identity ***/
+  /*** Wallet ***/
+
+  const chooseWallet = async () => {
+    const wallet = await runtimeConnector.chooseWallet();
+    localStorage.setItem("walletName", wallet.name);
+    setWallet(wallet);
+    setWalletChanged(true);
+    console.log({ wallet });
+    return wallet;
+  };
+
   const connectWallet = async () => {
     try {
-      const address = await runtimeConnector.connectWallet({
-        name: METAMASK,
-        type: CRYPTO_WALLET_TYPE,
-      });
+      const address = await runtimeConnector.connectWallet(wallet);
       setAddress(address);
       console.log({ address });
+      return address;
     } catch (error) {
       console.log(error);
     }
   };
 
+  const getCurrentWallet = async () => {
+    const res = await runtimeConnector.getCurrentWallet();
+    console.log(res);
+    return res;
+  };
+
   const switchNetwork = async () => {
-    const res = await runtimeConnector.switchNetwork(137);
+    const res = await runtimeConnector.switchNetwork(80001);
     console.log({ res });
   };
 
-  const connectIdentity = async () => {
+  const ethereumRequest = async () => {
+    const address = await connectWallet();
+    const res = await runtimeConnector.ethereumRequest({
+      method: "eth_sendTransaction",
+      params: [
+        {
+          from: address, // The user's active address.
+          to: address, // Required except during contract publications.
+          value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
+          // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
+          // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
+        },
+      ],
+    });
+    console.log({ res });
+  };
+
+  const signerSign = async () => {
     await connectWallet();
-    await switchNetwork();
+
+    const res = await runtimeConnector.signerSign({
+      method: "signMessage",
+      params: ["test"],
+    });
+    console.log({ res });
+  };
+
+  const contractCall = async () => {
+    await connectWallet();
+
+    await runtimeConnector.switchNetwork(80001);
+
+    const res = await runtimeConnector.contractCall({
+      contractAddress: "0xB07E79bB859ad18a8CbE6E111f4ad0Cca2FD3Da8",
+      abi: [
+        {
+          inputs: [],
+          name: "metadata",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "hub",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "profileId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "pubId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "collectModule",
+                  type: "address",
+                },
+              ],
+              internalType: "struct IDataToken.Metadata",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+      method: "metadata",
+      params: [],
+      mode: Mode.Read,
+    });
+    console.log({ res });
+  };
+
+  /*** Wallet ***/
+
+  /*** Identity ***/
+
+  const connectIdentity = async () => {
+    // await connectWallet();
+    // // await switchNetwork();
     const did = await runtimeConnector.connectIdentity({
-      wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
+      wallet,
       appName,
     });
     setDid(did);
@@ -106,19 +213,37 @@ function App() {
     setDidList(didList);
   };
 
+  const getWalletByDID = async () => {
+    try {
+      const wallet = await runtimeConnector.getWalletByDID(
+        "did:pkh:eip155:137:0xd10d5b408A290a5FD0C2B15074995e899E944444"
+      );
+      console.log({ wallet });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const createNewDID = async () => {
-    const { currentDID, createdDIDList } = await runtimeConnector.createNewDID({
-      name: METAMASK,
-      type: CRYPTO_WALLET_TYPE,
-    });
-    setNewDid(currentDID);
-    console.log({ currentDID, createdDIDList });
+    try {
+      const { currentDID, createdDIDList } =
+        await runtimeConnector.createNewDID(wallet);
+      setNewDid(currentDID);
+      console.log({ currentDID, createdDIDList });
+    } catch (error) {
+      console.log({ error });
+    }
   };
 
   const switchDID = async () => {
-    await runtimeConnector.switchDID(
-      "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555"
-    );
+    try {
+      const res = await runtimeConnector.switchDID(
+        "did:pkh:eip155:137:0xd10d5b408A290a5FD0C2B15074995e899E944444"
+      );
+      console.log(res);
+    } catch (error) {
+      console.log({ error });
+    }
   };
 
   /*** Identity ***/
@@ -401,74 +526,13 @@ function App() {
   };
   /*** Lit ***/
 
-  /*** Profle ***/
-  const loadOthersProfileStreamsByModelAndDID = async () => {
-    const streams = await runtimeConnector.loadStreamsByModelAndDID({
-      did: "did:pkh:eip155:137:0x8A9800738483e9D42CA377D8F95cc5960e6912d1",
-      appName,
-      modelName: ModelNames.userProfile,
-    });
-    console.log(streams);
-    const [streamId, streamContent] = Object.entries(streams)[0];
-    setProfileStreamObject({ streamId, streamContent });
-  };
-  const loadMyProfileStreamsByModelAndDID = async () => {
-    const streams = await runtimeConnector.loadStreamsByModelAndDID({
-      did,
-      appName,
-      modelName: ModelNames.userProfile,
-    });
-    console.log(streams);
-    if (Object.entries(streams)[0]) {
-      const [streamId, streamContent] = Object.entries(streams)[0];
-      setProfileStreamObject({ streamId, streamContent });
-    }
-  };
-
-  const createProfileStream = async () => {
-    const streamObject = await runtimeConnector.createStream({
-      did,
-      appName,
-      modelName: ModelNames.userProfile,
-      streamContent: {
-        name: "test_name",
-        description: "test_description",
-        image: {
-          original: {
-            src: "https://i.seadn.io/gcs/files/4df295e05429b6e56e59504b7e9650b6.gif?w=500&auto=format",
-          },
-        },
-        background: {
-          original: {
-            src: "https://i.seadn.io/gae/97v7uBu0TGycl_CT73Wds8T22sqLZISSszf4f4mCrPEv5yOLn840HZU4cIyEc9WNpxXhjcyKSKdTuqH7svb3zBfl1ixVtX5Jtc3VzA?w=500&auto=format",
-          },
-        },
-      },
-      fileType: FileType.Public,
-    });
-    setProfileStreamObject(streamObject);
-    console.log(streamObject);
-  };
-
-  const updateProfileStreams = async () => {
-    if (!profileStreamObject) return;
-    console.log(profileStreamObject);
-    profileStreamObject.streamContent.name = "my_name";
-    const streams = await runtimeConnector.updateStreams({
-      streamsRecord: {
-        [profileStreamObject.streamId]: profileStreamObject.streamContent,
-      },
-      syncImmediately: true,
-    });
-    console.log(streams);
-  };
-  /*** Profle ***/
-
   /*** Post ***/
   const loadStream = async () => {
-    const stream = await runtimeConnector.loadStream(
-      "kjzl6kcym7w8y5qmvsmqxsqhqgyf07fhy0dvqb98elo5vets7ojuo49z6oizooc"
-    );
+    const stream = await runtimeConnector.loadStream({
+      appName: "test001",
+      streamId:
+        "kjzl6kcym7w8yafvxqtfrbzl70mcphjrt1fxqsvfnz0icroykmf22enl2mz9eet",
+    });
     console.log(stream);
   };
 
@@ -478,10 +542,10 @@ function App() {
       modelName,
     });
     console.log(streams);
-    const res = Object.values(streams).filter(
-      (el) => el.controller !== did && el.fileType === FileType.Datatoken
-    );
-    console.log(res);
+    // const res = Object.values(streams).filter(
+    //   (el) => el.controller !== did && el.fileType === FileType.Datatoken
+    // );
+    // console.log(res);
   };
 
   const loadStreamsByModelAndDID = async () => {
@@ -505,125 +569,394 @@ function App() {
   };
 
   const createPublicPostStream = async () => {
-    const streamObject = await runtimeConnector.createStream({
-      did,
-      appName,
-      modelName,
-      streamContent: {
-        appVersion: "0.0.1",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      fileType: FileType.Public,
-    });
-    console.log(streamObject);
+    const date = new Date().toISOString();
+
+    const { streamContent, streamId, newMirror, existingMirror } =
+      await runtimeConnector.createStream({
+        did,
+        appName,
+        modelName,
+        streamContent: {
+          appVersion: postVersion,
+          text: "hello",
+          images: [
+            // "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+          ],
+          videos: [],
+          createdAt: date,
+          updatedAt: date,
+          encrypted: JSON.stringify({
+            text: false,
+            images: false,
+            videos: false,
+          }),
+        },
+        fileType: FileType.Public,
+      });
+
+    if (!newMirror && !existingMirror) {
+      throw "Failed to create content";
+    }
+
+    (existingMirror || newMirror)!.mirrorFile.content = streamContent;
+
+    const contentObject = {
+      content: (existingMirror || newMirror)!.mirrorFile,
+      contentId: streamId,
+    };
+
+    console.log(contentObject);
+    return contentObject;
   };
 
   const createPrivatePostStream = async () => {
-    const litKit = await newLitKey();
+    const date = new Date().toISOString();
 
-    const encryptedContent = await encryptWithLit({
-      content: "a post",
-      ...litKit,
-    });
-    console.log({
+    const res = await runtimeConnector.createStream({
       did,
       appName,
       modelName,
       streamContent: {
-        appVersion: "0.0.1",
-        content: encryptedContent,
+        appVersion: postVersion,
+        text: "hello",
+        images: [
+          "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+        ],
+        videos: [],
+        createdAt: date,
+        updatedAt: date,
+        encrypted: JSON.stringify({
+          text: false,
+          images: false,
+          videos: false,
+        }),
       },
       fileType: FileType.Private,
-      ...litKit,
     });
-
-    const streamObject = await runtimeConnector.createStream({
-      did,
-      appName,
-      modelName,
-      streamContent: {
-        appVersion: "0.0.1",
-        content: encryptedContent,
-      },
-      fileType: FileType.Private,
-      ...litKit,
-    });
-    console.log(streamObject);
   };
 
-  const updatePostStreamsToPublicContent = async () => {
-    if (!mirrorFile) return;
-    console.log(mirrorFile);
-    const { contentId: streamId, content: streamContent } = mirrorFile;
-    if (!streamId || !streamContent) return;
+  const createDatatokenPostStream = async () => {
+    const profileId = await getProfileId({ did, lensNickName: "hello123" });
 
-    streamContent.content =
-      "update my post -- public" + new Date().toISOString(); //public
+    const date = new Date().toISOString();
 
-    const streams = await runtimeConnector.updateStreams({
+    const res2 = await createPublicPostStream();
+
+    res2.content.content = {
+      appVersion: postVersion,
+      text: "metaverse",
+      images: [
+        "https://bafkreidhjbco3nh4uc7wwt5c7auirotd76ch6hlzpps7bwdvgckflp7zmi.ipfs.w3s.link/",
+      ],
+      videos: [],
+      createdAt: date,
+      updatedAt: date,
+    };
+
+    return monetizeContent({
+      did,
+      lensNickName: "hello", //Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length
+      contentId: res2.contentId,
+      mirrorFile: res2.content,
+      profileId,
+      encrypted: {
+        text: true,
+        images: true,
+        videos: false,
+      },
+      currency: Currency.WMATIC,
+      amount: 0.0001,
+      collectLimit: 1000,
+    });
+  };
+
+  const getProfileId = async ({
+    did,
+    lensNickName,
+  }: {
+    did: string;
+    lensNickName?: string;
+  }) => {
+    const lensProfiles = await runtimeConnector.getLensProfiles(
+      getAddressFromDid(did)
+    );
+
+    let profileId;
+    if (lensProfiles?.[0]?.id) {
+      profileId = lensProfiles?.[0]?.id;
+    } else {
+      if (!lensNickName) {
+        throw "Please pass in lensNickName";
+      }
+      if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
+        throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
+      }
+      profileId = await runtimeConnector.createLensProfile(lensNickName);
+    }
+
+    return profileId;
+  };
+
+  const monetizePost = async () => {
+    const contentId =
+      "kjzl6kcym7w8y5kxmz8p4iwv8up2h1x21futtfugvxbb8wswo5jhat1gtdxao5x";
+
+    const res = await monetizeContent({
+      did,
+      contentId,
+      lensNickName: "hello", //Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length
+      currency: Currency.WMATIC,
+      amount: 0.0001,
+      collectLimit: 1000,
+      encrypted: {
+        text: true,
+        images: true,
+        videos: false,
+      },
+    });
+    console.log(res);
+  };
+
+  const monetizeContent = async ({
+    did,
+    contentId,
+    lensNickName,
+    profileId,
+    mirrorFile,
+    encrypted,
+    currency,
+    amount,
+    collectLimit,
+  }: {
+    did: string;
+    contentId: string;
+    lensNickName?: string;
+    mirrorFile?: MirrorFile;
+    profileId?: string;
+    encrypted: object;
+    currency: Currency;
+    amount: number;
+    collectLimit: number;
+  }) => {
+    let datatokenId;
+    if (!profileId) {
+      profileId = await getProfileId({ did, lensNickName });
+    }
+    if (!mirrorFile) {
+      const res = await runtimeConnector.loadStream({
+        appName,
+        streamId: contentId,
+      });
+      mirrorFile = res.streamContent;
+    }
+
+    try {
+      await runtimeConnector.switchNetwork(80001);
+      const datatoken = await runtimeConnector.createDatatoken({
+        profileId,
+        streamId: mirrorFile!.indexFileId,
+        currency,
+        amount,
+        collectLimit,
+      });
+      datatokenId = datatoken.datatokenId;
+    } catch (error: any) {
+      console.log(error);
+      if (
+        error !==
+        "networkConfigurationId undefined does not match a configured networkConfiguration"
+      ) {
+        await deletePost({ did, content: mirrorFile! });
+      }
+      throw error;
+    }
+
+    (mirrorFile!.content as { encrypted: string }).encrypted =
+      JSON.stringify(encrypted);
+    (mirrorFile!.content as { updatedAt: string }).updatedAt =
+      new Date().toISOString();
+
+    const res = await runtimeConnector.updateStreams({
+      appName,
       streamsRecord: {
-        [streamId]: {
-          streamContent,
+        [contentId]: {
+          streamContent: mirrorFile!.content,
+          fileType: FileType.Datatoken,
+          ...(datatokenId && { datatokenId }),
+        },
+      },
+      syncImmediately: true,
+    });
+
+    if (!res?.successRecord?.[contentId]) {
+      throw {
+        failureRecord: res?.failureRecord,
+        failureReason: res?.failureReason,
+      };
+    }
+
+    console.log(res);
+  };
+
+  const updatePostFromPrivateToPublic = async () => {
+    const contentId =
+      "kjzl6kcym7w8y78cluptg8m0hs3qftjvkxwgn49jksqkolxkpvczw6917p2fvsa";
+
+    const encrypted = JSON.stringify({
+      text: false,
+      images: false,
+      videos: false,
+    });
+
+    const res = await runtimeConnector.updateStreams({
+      appName,
+      streamsRecord: {
+        [contentId]: {
+          streamContent: {
+            encrypted: JSON.stringify(encrypted),
+          },
           fileType: FileType.Public,
         },
       },
       syncImmediately: true,
     });
-    console.log(streams);
+
+    if (!res?.successRecord?.[contentId]) {
+      throw {
+        failureRecord: res?.failureRecord,
+        failureReason: res?.failureReason,
+      };
+    }
+    console.log(res);
   };
 
-  const updatePostStreamsToPrivateContent = async () => {
-    if (!mirrorFile) return;
-    console.log(mirrorFile);
-    const { contentId: streamId, content: streamContent } = mirrorFile;
-    if (!streamId || !streamContent) return;
+  const updatePostFromPublicToPrivate = async () => {
+    const contentId =
+      "kjzl6kcym7w8y78cluptg8m0hs3qftjvkxwgn49jksqkolxkpvczw6917p2fvsa";
 
-    let litKit;
+    const encrypted = JSON.stringify({
+      text: true,
+      images: true,
+      videos: false,
+    });
 
-    const {
-      encryptedSymmetricKey,
-      decryptionConditions,
-      decryptionConditionsType,
-    } = mirrorFile;
+    const res = await runtimeConnector.updateStreams({
+      appName,
+      streamsRecord: {
+        [contentId]: {
+          streamContent: {
+            encrypted: JSON.stringify(encrypted),
+          },
+          fileType: FileType.Private,
+        },
+      },
 
-    if (
-      encryptedSymmetricKey &&
-      decryptionConditions &&
-      decryptionConditionsType
-    ) {
-      litKit = {
-        encryptedSymmetricKey,
-        decryptionConditions,
-        decryptionConditionsType,
+      syncImmediately: true,
+    });
+
+    if (!res?.successRecord?.[contentId]) {
+      throw {
+        failureRecord: res?.failureRecord,
+        failureReason: res?.failureReason,
       };
-    } else {
-      litKit = await newLitKey();
     }
 
-    streamContent.content = await encryptWithLit({
-      content: "update my post -- private" + new Date().toISOString(), //private
-      ...litKit,
-    }); //private
+    console.log(res);
+  };
 
-    const streams = await runtimeConnector.updateStreams({
+  const updatePublicContent = async () => {
+    const contentId =
+      "kjzl6kcym7w8y78cluptg8m0hs3qftjvkxwgn49jksqkolxkpvczw6917p2fvsa";
+
+    const encrypted = JSON.stringify({
+      text: false,
+      images: false,
+      videos: false,
+    });
+
+    const res = await runtimeConnector.updateStreams({
+      appName,
       streamsRecord: {
-        [streamId]: {
-          streamContent: streamContent,
-          fileType: FileType.Private,
-          ...litKit,
+        [contentId]: {
+          streamContent: {
+            text: "update my post -- " + new Date().toISOString(),
+            images: [
+              "https://bafkreidhjbco3nh4uc7wwt5c7auirotd76ch6hlzpps7bwdvgckflp7zmi.ipfs.w3s.link",
+            ],
+            encrypted: JSON.stringify(encrypted),
+          },
         },
       },
       syncImmediately: true,
     });
-    console.log(streams);
+
+    if (!res?.successRecord?.[contentId]) {
+      throw {
+        failureRecord: res?.failureRecord,
+        failureReason: res?.failureReason,
+      };
+    }
+
+    console.log(res);
   };
+
+  const updatePrivateOrDatatokenContent = async () => {
+    const contentId =
+      "kjzl6kcym7w8y78cluptg8m0hs3qftjvkxwgn49jksqkolxkpvczw6917p2fvsa";
+
+    const encrypted = JSON.stringify({
+      text: true,
+      images: true,
+      videos: false,
+    });
+
+    const res = await runtimeConnector.updateStreams({
+      appName,
+      streamsRecord: {
+        [contentId]: {
+          streamContent: {
+            text: "update my post -- " + new Date().toISOString(),
+            images: [
+              "https://bafkreidhjbco3nh4uc7wwt5c7auirotd76ch6hlzpps7bwdvgckflp7zmi.ipfs.w3s.link",
+            ],
+            encrypted: JSON.stringify(encrypted),
+          },
+        },
+      },
+      syncImmediately: true,
+    });
+
+    if (!res?.successRecord?.[contentId]) {
+      throw {
+        failureRecord: res?.failureRecord,
+        failureReason: res?.failureReason,
+      };
+    }
+
+    console.log(res);
+  };
+
+  const deletePost = async ({
+    did,
+    content,
+  }: {
+    did: string;
+    content: MirrorFile;
+  }) => {
+    const res = await runtimeConnector.removeMirrors({
+      did,
+      appName,
+      mirrorIds: [content.indexFileId],
+    });
+    return res;
+  };
+
   /*** Post ***/
 
   /*** Folders ***/
   const readOthersFolders = async () => {
     const othersFolders = await runtimeConnector.readFolders({
-      did: "did:pkh:eip155:137:0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd",
+      did: "did:pkh:eip155:137:0x3F3cceEbDfE3f5E640fDD11854855C7A32dced33",
       appName,
     });
     console.log(othersFolders);
@@ -656,9 +989,10 @@ function App() {
       did,
       appName,
       folderId:
-        "kjzl6kcym7w8y9pgztpm5dmhiiz6pg87s0w8ul5tu6idwhff9z2raxbgzqdugq8",
+        "kjzl6kcym7w8y9k8byiqo3p1ydrpgopncdamqp9yanzus7duyxj1x07ms1cc6wi",
+      newFolderName: new Date().toISOString(),
       newFolderDescription: new Date().toISOString(),
-      syncImmediately: true,
+      // syncImmediately: true,
     });
     console.log(res);
   };
@@ -679,7 +1013,7 @@ function App() {
       did,
       appName,
       folderId:
-        "kjzl6kcym7w8y820fvzv0sijpj49p7fdptfke4vlkb0db9nd2mkpa234aityqps",
+        "kjzl6kcym7w8y6pjw6yjnr9hbkeh025jrwe4hoqfscrwmpn6bx064rywv8qxavl",
       syncImmediately: true,
     });
     console.log(res);
@@ -818,7 +1152,8 @@ function App() {
   };
 
   const createLensProfile = async () => {
-    const res = await runtimeConnector.createLensProfile("jackie2");
+    await runtimeConnector.switchNetwork(80001);
+    const res = await runtimeConnector.createLensProfile("test6");
     console.log(res);
   };
 
@@ -830,6 +1165,7 @@ function App() {
   };
 
   const createDatatoken = async () => {
+    await runtimeConnector.switchNetwork(80001);
     const res = await runtimeConnector.createDatatoken({
       streamId:
         "kjzl6kcym7w8y6ds8izvyh2shsxkihazva6chw8m2aa158gx0w4i71y263uc4v7",
@@ -841,6 +1177,7 @@ function App() {
   };
 
   const collect = async () => {
+    await runtimeConnector.switchNetwork(80001);
     const res = await runtimeConnector.collect({
       did,
       appName,
@@ -851,6 +1188,7 @@ function App() {
   };
 
   const isCollected = async () => {
+    await runtimeConnector.switchNetwork(80001);
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
     const res = await runtimeConnector.isCollected({
@@ -861,6 +1199,7 @@ function App() {
   };
 
   const getDatatokenMetadata = async () => {
+    await runtimeConnector.switchNetwork(80001);
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const res = await runtimeConnector.getDatatokenMetadata(datatokenId);
     console.log(res);
@@ -878,7 +1217,7 @@ function App() {
 
   const migrateOldFolders = async () => {
     const did = await runtimeConnector.connectIdentity({
-      wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
+      wallet,
       appName: Apps.MigrateOldFolders,
     });
     const res = await runtimeConnector.migrateOldFolders(did);
@@ -889,10 +1228,24 @@ function App() {
 
   return (
     <div className="App">
+      <button onClick={chooseWallet}>chooseWallet</button>
+      <div className="blackText">
+        {!walletChanged && "default: "}
+        {wallet?.name}
+      </div>
+      <hr />
       <button onClick={connectWallet}>connectWallet</button>
       <div className="blackText">{address}</div>
       <hr />
+      <button onClick={getCurrentWallet}>getCurrentWallet</button>
+      <hr />
       <button onClick={switchNetwork}>switchNetwork</button>
+      <hr />
+      <button onClick={ethereumRequest}>ethereumRequest</button>
+      <hr />
+      <button onClick={signerSign}>signerSign</button>
+      <hr />
+      <button onClick={contractCall}>contractCall</button>
       <hr />
       <button onClick={connectIdentity}>connectIdentity</button>
       <div className="blackText">{did}</div>
@@ -914,6 +1267,8 @@ function App() {
       <div className="blackText">
         {isCurrentDIDValid !== undefined && String(isCurrentDIDValid)}
       </div>
+      <hr />
+      <button onClick={getWalletByDID}>getWalletByDID</button>
       <hr />
       <button onClick={createNewDID}>createNewDID</button>
       <div className="blackText">{newDid}</div>
@@ -954,11 +1309,19 @@ function App() {
       <button onClick={getModelBaseInfo}>getModelBaseInfo</button>
       <button onClick={createPublicPostStream}>createPublicPostStream</button>
       <button onClick={createPrivatePostStream}>createPrivatePostStream</button>
-      <button onClick={updatePostStreamsToPublicContent}>
-        updatePostStreamsToPublicContent
+      <button onClick={createDatatokenPostStream}>
+        createDatatokenPostStream
       </button>
-      <button onClick={updatePostStreamsToPrivateContent}>
-        updatePostStreamsToPrivateContent
+      <button onClick={monetizePost}>monetizePost</button>
+      <button onClick={updatePostFromPrivateToPublic}>
+        updatePostFromPrivateToPublic
+      </button>
+      <button onClick={updatePostFromPublicToPrivate}>
+        updatePostFromPublicToPrivate
+      </button>
+      <button onClick={updatePublicContent}>updatePublicContent</button>
+      <button onClick={updatePrivateOrDatatokenContent}>
+        updatePrivateOrDatatokenContent
       </button>
       <br />
       <br />

@@ -1,3 +1,4 @@
+import { Mode } from "../constants";
 import { CRYPTO_WALLET } from "../crypto-wallet";
 import { ApplicationRegistry, AppsInfo } from "../dapp-verifier/types";
 import { StreamObject, StreamsRecord } from "../data-models";
@@ -22,13 +23,31 @@ import {
   StructuredFolder,
   StructuredFolders,
 } from "../fs/types";
+import { DIDObject } from "../identity";
 import { Methods } from "./constants";
 
 export interface RequestType {
+  chooseWallet: void;
   connectWallet: CRYPTO_WALLET;
+  getCurrentWallet: void;
   switchNetwork: number;
+  ethereumRequest: {
+    method: string;
+    params?: any;
+  };
+  contractCall: {
+    contractAddress: string;
+    abi: any[];
+    method: string;
+    params: any[];
+    mode?: Mode;
+  };
+  signerSign: {
+    method: string;
+    params: any[];
+  };
   connectIdentity: {
-    wallet: CRYPTO_WALLET;
+    wallet?: CRYPTO_WALLET;
     appName: string;
     modelNames?: string[];
   };
@@ -39,10 +58,11 @@ export interface RequestType {
   getChainFromDID: string;
   getDIDList: void;
   getCurrentDID: void;
+  getWalletByDID: string;
   createNewDID: CRYPTO_WALLET;
   switchDID: string;
 
-  loadStream: string;
+  loadStream: { appName: string; streamId: string };
   loadStreamsByModel: {
     appName: string;
     modelName: string;
@@ -64,6 +84,7 @@ export interface RequestType {
     decryptionConditionsType?: DecryptionConditionsTypes;
   };
   updateStreams: {
+    appName: string;
     streamsRecord: Record<
       string,
       {
@@ -224,13 +245,26 @@ export interface RequestType {
 }
 
 export interface ReturnType {
+  chooseWallet: Promise<CRYPTO_WALLET>;
   connectWallet: Promise<string>;
+  getCurrentWallet: Promise<{
+    wallet: CRYPTO_WALLET;
+    address: string;
+    chain: {
+      chainId: number;
+      chainName: string;
+    };
+  } | null>;
   switchNetwork: Promise<boolean>;
+  ethereumRequest: Promise<any>;
+  signerSign: Promise<any>;
+  contractCall: Promise<any>;
   connectIdentity: Promise<string>;
   checkIsCurrentDIDValid: Promise<boolean>;
   getChainFromDID: Promise<string>;
   getDIDList: Promise<string[]>;
   getCurrentDID: Promise<string>;
+  getWalletByDID: Promise<CRYPTO_WALLET>;
   createNewDID: Promise<{
     currentDID: string;
     createdDIDList: string[];
@@ -247,7 +281,9 @@ export interface ReturnType {
   loadStreamsByModel: Promise<Record<string, any>>;
   loadStreamsByModelAndDID: Promise<Record<string, any>>;
   getModelBaseInfo: Promise<Record<string, any>>;
-  createStream: Promise<StreamObject & { newMirror?: Mirror }>;
+  createStream: Promise<
+    StreamObject & { newMirror?: Mirror; existingMirror?: Mirror }
+  >;
   updateStreams: Promise<
     | {
         successRecord: StreamsRecord;
@@ -304,6 +340,9 @@ export interface ReturnType {
   }>;
 
   addMirrors: Promise<{
+    newMirrors: Mirrors;
+    isCurated: boolean;
+    existingMirror?: Mirror;
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
