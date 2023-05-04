@@ -27,6 +27,10 @@ import { Methods } from "./constants";
 export interface RequestType {
   connectWallet: CRYPTO_WALLET;
   switchNetwork: number;
+  ethereumRequest: {
+    method: string;
+    params?: any;
+  };
   connectIdentity: {
     wallet: CRYPTO_WALLET;
     appName: string;
@@ -226,6 +230,7 @@ export interface RequestType {
 export interface ReturnType {
   connectWallet: Promise<string>;
   switchNetwork: Promise<boolean>;
+  ethereumRequest: Promise<any>;
   connectIdentity: Promise<string>;
   checkIsCurrentDIDValid: Promise<boolean>;
   getChainFromDID: Promise<string>;
