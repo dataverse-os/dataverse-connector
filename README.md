@@ -34,7 +34,7 @@ cd demo
 pnpm dev  // run the demo
 ```
 
-the demo will be running on http://localhost:3008/.
+the demo will be running on http://localhost:5173/.
 
 <br/>
 <p align="center">
