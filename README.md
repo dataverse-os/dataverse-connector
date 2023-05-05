@@ -25,7 +25,7 @@ pnpm install @dataverse/runtime-connector
 - [Data Wallet](https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead) - A secure data wallet to protect your identity and data assets.
 - [MetaMask](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn) - A cryptocurrency wallet browser extension.
 - [Node.js](https://nodejs.org/en/) version >= 16.
-- [pnpm](https://pnpm.io/) version >= 6.
+- [pnpm](https://pnpm.io/) version >= 7.
 
 ```typescript
 pnpm install // install dependencies
