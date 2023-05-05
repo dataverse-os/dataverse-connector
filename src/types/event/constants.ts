@@ -1,6 +1,7 @@
 export enum Methods {
   connectWallet = "connectWallet",
   switchNetwork = "switchNetwork",
+  ethereumRequest = "ethereumRequest",
   connectIdentity = "connectIdentity",
   checkIsCurrentDIDValid = "checkIsCurrentDIDValid",
   getChainFromDID = "getChainFromDID",

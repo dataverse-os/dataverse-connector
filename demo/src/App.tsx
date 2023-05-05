@@ -20,15 +20,17 @@ import {
   Currency,
   Browser,
   DatatokenVars,
-  DecryptionConditions
+  DecryptionConditions,
 } from "@dataverse/runtime-connector";
 import { decode } from "./utils/encodeAndDecode";
+import { getAddressFromDid } from "./utils/addressAndDID";
 
 const runtimeConnector = new RuntimeConnector(Extension);
 const appName = Apps.Playground;
 const slug = Apps.Playground;
 export const modelName = `${slug.toLowerCase()}_post`;
 export const modelNames = [modelName];
+const postVersion = "0.0.1";
 
 function App() {
   const [address, setAddress] = useState("");
@@ -55,6 +57,7 @@ function App() {
       });
       setAddress(address);
       console.log({ address });
+      return address;
     } catch (error) {
       console.log(error);
     }
@@ -62,6 +65,23 @@ function App() {
 
   const switchNetwork = async () => {
     const res = await runtimeConnector.switchNetwork(137);
+    console.log({ res });
+  };
+
+  const ethereumRequest = async () => {
+    const address = await connectWallet();
+    const res = await runtimeConnector.ethereumRequest({
+      method: "eth_sendTransaction",
+      params: [
+        {
+          from: address, // The user's active address.
+          to: address, // Required except during contract publications.
+          value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
+          // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
+          // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
+        },
+      ],
+    });
     console.log({ res });
   };
 
@@ -403,7 +423,7 @@ function App() {
   /*** Post ***/
   const loadStream = async () => {
     const stream = await runtimeConnector.loadStream(
-      "kjzl6kcym7w8y5qmvsmqxsqhqgyf07fhy0dvqb98elo5vets7ojuo49z6oizooc"
+      "kjzl6kcym7w8y78cluptg8m0hs3qftjvkxwgn49jksqkolxkpvczw6917p2fvsa"
     );
     console.log(stream);
   };
@@ -414,10 +434,10 @@ function App() {
       modelName,
     });
     console.log(streams);
-    const res = Object.values(streams).filter(
-      (el) => el.controller !== did && el.fileType === FileType.Datatoken
-    );
-    console.log(res);
+    // const res = Object.values(streams).filter(
+    //   (el) => el.controller !== did && el.fileType === FileType.Datatoken
+    // );
+    // console.log(res);
   };
 
   const loadStreamsByModelAndDID = async () => {
@@ -441,119 +461,379 @@ function App() {
   };
 
   const createPublicPostStream = async () => {
-    const streamObject = await runtimeConnector.createStream({
-      did,
-      appName,
-      modelName,
-      streamContent: {
-        appVersion: "0.0.1",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      fileType: FileType.Public,
-    });
-    console.log(streamObject);
+    const date = new Date().toISOString();
+
+    const { streamContent, streamId, newMirror, existingMirror } =
+      await runtimeConnector.createStream({
+        did,
+        appName,
+        modelName,
+        streamContent: {
+          appVersion: postVersion,
+          text: "hello",
+          images: [
+            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+          ],
+          videos: [],
+          createdAt: date,
+          updatedAt: date,
+          encrypted: JSON.stringify({
+            text: false,
+            images: false,
+            videos: false,
+          }),
+        },
+        fileType: FileType.Public,
+      });
+
+    if (!newMirror && !existingMirror) {
+      throw "Failed to create content";
+    }
+
+    (existingMirror || newMirror)!.mirrorFile.content = streamContent;
+
+    const contentObject = {
+      content: (existingMirror || newMirror)!.mirrorFile,
+      contentId: streamId,
+    };
+
+    console.log(contentObject);
+    return contentObject;
   };
 
   const createPrivatePostStream = async () => {
-    const litKit = await newLitKey();
+    const date = new Date().toISOString();
 
-    const encryptedContent = await encryptWithLit({
-      content: "a post",
-      ...litKit,
-    });
-    console.log({
+    const res = await runtimeConnector.createStream({
       did,
       appName,
       modelName,
       streamContent: {
-        appVersion: "0.0.1",
-        content: encryptedContent,
+        appVersion: postVersion,
+        text: "hello",
+        images: [
+          "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+        ],
+        videos: [],
+        createdAt: date,
+        updatedAt: date,
+        encrypted: JSON.stringify({
+          text: false,
+          images: false,
+          videos: false,
+        }),
       },
       fileType: FileType.Private,
-      ...litKit,
     });
-
-    const streamObject = await runtimeConnector.createStream({
-      did,
-      appName,
-      modelName,
-      streamContent: {
-        appVersion: "0.0.1",
-        content: encryptedContent,
-      },
-      fileType: FileType.Private,
-      ...litKit,
-    });
-    console.log(streamObject);
   };
 
-  const updatePostStreamsToPublicContent = async () => {
-    if (!mirrorFile) return;
-    console.log(mirrorFile);
-    const { contentId: streamId, content: streamContent } = mirrorFile;
-    if (!streamId || !streamContent) return;
+  const createDatatokenPostStream = async () => {
+    const profileId = await getProfileId({ did, lensNickName: "hello" });
 
-    streamContent.content =
-      "update my post -- public" + new Date().toISOString(); //public
+    const date = new Date().toISOString();
 
-    const streams = await runtimeConnector.updateStreams({
+    const res2 = await createPublicPostStream();
+
+    res2.content.content = {
+      appVersion: postVersion,
+      text: "metaverse",
+      images: [
+        "https://bafkreidhjbco3nh4uc7wwt5c7auirotd76ch6hlzpps7bwdvgckflp7zmi.ipfs.w3s.link/",
+      ],
+      videos: [],
+      createdAt: date,
+      updatedAt: date,
+    };
+
+    return monetizeContent({
+      did,
+      lensNickName: "hello", //Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length
+      contentId: res2.contentId,
+      mirrorFile: res2.content,
+      profileId,
+      encrypted: {
+        text: true,
+        images: true,
+        videos: false,
+      },
+      currency: Currency.WMATIC,
+      amount: 0.0001,
+      collectLimit: 1000,
+    });
+  };
+
+  const getProfileId = async ({
+    did,
+    lensNickName,
+  }: {
+    did: string;
+    lensNickName?: string;
+  }) => {
+    const lensProfiles = await runtimeConnector.getLensProfiles(
+      getAddressFromDid(did)
+    );
+
+    let profileId;
+    if (lensProfiles?.[0]?.id) {
+      profileId = lensProfiles?.[0]?.id;
+    } else {
+      if (!lensNickName) {
+        throw "Please pass in lensNickName";
+      }
+      if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
+        throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
+      }
+      profileId = await runtimeConnector.createLensProfile(lensNickName);
+    }
+
+    return profileId;
+  };
+
+  const monetizePost = async () => {
+    const contentId =
+      "kjzl6kcym7w8y78cluptg8m0hs3qftjvkxwgn49jksqkolxkpvczw6917p2fvsa";
+
+    const res = await monetizeContent({
+      did,
+      contentId,
+      lensNickName: "hello", //Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length
+      currency: Currency.WMATIC,
+      amount: 0.0001,
+      collectLimit: 1000,
+      encrypted: {
+        text: true,
+        images: true,
+        videos: false,
+      },
+    });
+    console.log(res);
+  };
+
+  const monetizeContent = async ({
+    did,
+    contentId,
+    lensNickName,
+    profileId,
+    mirrorFile,
+    encrypted,
+    currency,
+    amount,
+    collectLimit,
+  }: {
+    did: string;
+    contentId: string;
+    lensNickName?: string;
+    mirrorFile?: MirrorFile;
+    profileId?: string;
+    encrypted: object;
+    currency: Currency;
+    amount: number;
+    collectLimit: number;
+  }) => {
+    let datatokenId;
+    if (!profileId) {
+      profileId = await getProfileId({ did, lensNickName });
+    }
+    if (!mirrorFile) {
+      const res = await runtimeConnector.loadStream(contentId);
+      mirrorFile = res.streamContent;
+    }
+
+    try {
+      const datatoken = await runtimeConnector.createDatatoken({
+        profileId,
+        streamId: mirrorFile!.indexFileId,
+        currency,
+        amount,
+        collectLimit,
+      });
+      datatokenId = datatoken.datatokenId;
+    } catch (error: any) {
+      console.log(error);
+      if (
+        error !==
+        "networkConfigurationId undefined does not match a configured networkConfiguration"
+      ) {
+        await deletePost({ did, content: mirrorFile! });
+      }
+      throw error;
+    }
+
+    (mirrorFile!.content as { encrypted: string }).encrypted =
+      JSON.stringify(encrypted);
+    (mirrorFile!.content as { updatedAt: string }).updatedAt =
+      new Date().toISOString();
+
+    const res = await runtimeConnector.updateStreams({
       streamsRecord: {
-        [streamId]: {
-          streamContent,
+        [contentId]: {
+          streamContent: mirrorFile!.content,
+          fileType: FileType.Datatoken,
+          ...(datatokenId && { datatokenId }),
+        },
+      },
+      syncImmediately: true,
+    });
+
+    if (!res?.successRecord?.[contentId]) {
+      throw {
+        failureRecord: res?.failureRecord,
+        failureReason: res?.failureReason,
+      };
+    }
+
+    console.log(res);
+  };
+
+  const updatePostFromPrivateToPublic = async () => {
+    const contentId =
+      "kjzl6kcym7w8y78cluptg8m0hs3qftjvkxwgn49jksqkolxkpvczw6917p2fvsa";
+
+    const encrypted = JSON.stringify({
+      text: false,
+      images: false,
+      videos: false,
+    });
+
+    const res = await runtimeConnector.updateStreams({
+      streamsRecord: {
+        [contentId]: {
+          streamContent: {
+            encrypted: JSON.stringify(encrypted),
+          },
           fileType: FileType.Public,
         },
       },
       syncImmediately: true,
     });
-    console.log(streams);
+
+    if (!res?.successRecord?.[contentId]) {
+      throw {
+        failureRecord: res?.failureRecord,
+        failureReason: res?.failureReason,
+      };
+    }
+    console.log(res);
   };
 
-  const updatePostStreamsToPrivateContent = async () => {
-    if (!mirrorFile) return;
-    console.log(mirrorFile);
-    const { contentId: streamId, content: streamContent } = mirrorFile;
-    if (!streamId || !streamContent) return;
+  const updatePostFromPublicToPrivate = async () => {
+    const contentId =
+      "kjzl6kcym7w8y78cluptg8m0hs3qftjvkxwgn49jksqkolxkpvczw6917p2fvsa";
 
-    let litKit;
+    const encrypted = JSON.stringify({
+      text: true,
+      images: true,
+      videos: false,
+    });
 
-    const {
-      encryptedSymmetricKey,
-      decryptionConditions,
-      decryptionConditionsType,
-    } = mirrorFile;
+    const res = await runtimeConnector.updateStreams({
+      streamsRecord: {
+        [contentId]: {
+          streamContent: {
+            encrypted: JSON.stringify(encrypted),
+          },
+          fileType: FileType.Private,
+        },
+      },
 
-    if (
-      encryptedSymmetricKey &&
-      decryptionConditions &&
-      decryptionConditionsType
-    ) {
-      litKit = {
-        encryptedSymmetricKey,
-        decryptionConditions,
-        decryptionConditionsType,
+      syncImmediately: true,
+    });
+
+    if (!res?.successRecord?.[contentId]) {
+      throw {
+        failureRecord: res?.failureRecord,
+        failureReason: res?.failureReason,
       };
-    } else {
-      litKit = await newLitKey();
     }
 
-    streamContent.content = await encryptWithLit({
-      content: "update my post -- private" + new Date().toISOString(), //private
-      ...litKit,
-    }); //private
+    console.log(res);
+  };
 
-    const streams = await runtimeConnector.updateStreams({
+  const updatePublicContent = async () => {
+    const contentId =
+      "kjzl6kcym7w8y78cluptg8m0hs3qftjvkxwgn49jksqkolxkpvczw6917p2fvsa";
+
+    const encrypted = JSON.stringify({
+      text: false,
+      images: false,
+      videos: false,
+    });
+
+    const res = await runtimeConnector.updateStreams({
       streamsRecord: {
-        [streamId]: {
-          streamContent: streamContent,
-          fileType: FileType.Private,
-          ...litKit,
+        [contentId]: {
+          streamContent: {
+            text: "update my post -- " + new Date().toISOString(),
+            images: [
+              "https://bafkreidhjbco3nh4uc7wwt5c7auirotd76ch6hlzpps7bwdvgckflp7zmi.ipfs.w3s.link",
+            ],
+            encrypted: JSON.stringify(encrypted),
+          },
         },
       },
       syncImmediately: true,
     });
-    console.log(streams);
+
+    if (!res?.successRecord?.[contentId]) {
+      throw {
+        failureRecord: res?.failureRecord,
+        failureReason: res?.failureReason,
+      };
+    }
+
+    console.log(res);
   };
+
+  const updatePrivateOrDatatokenContent = async () => {
+    const contentId =
+      "kjzl6kcym7w8y78cluptg8m0hs3qftjvkxwgn49jksqkolxkpvczw6917p2fvsa";
+
+    const encrypted = JSON.stringify({
+      text: true,
+      images: true,
+      videos: false,
+    });
+
+    const res = await runtimeConnector.updateStreams({
+      streamsRecord: {
+        [contentId]: {
+          streamContent: {
+            text: "update my post -- " + new Date().toISOString(),
+            images: [
+              "https://bafkreidhjbco3nh4uc7wwt5c7auirotd76ch6hlzpps7bwdvgckflp7zmi.ipfs.w3s.link",
+            ],
+            encrypted: JSON.stringify(encrypted),
+          },
+        },
+      },
+      syncImmediately: true,
+    });
+
+    if (!res?.successRecord?.[contentId]) {
+      throw {
+        failureRecord: res?.failureRecord,
+        failureReason: res?.failureReason,
+      };
+    }
+
+    console.log(res);
+  };
+
+  const deletePost = async ({
+    did,
+    content,
+  }: {
+    did: string;
+    content: MirrorFile;
+  }) => {
+    const res = await runtimeConnector.removeMirrors({
+      did,
+      appName,
+      mirrorIds: [content.indexFileId],
+    });
+    return res;
+  };
+
   /*** Post ***/
 
   /*** Folders ***/
@@ -830,6 +1110,8 @@ function App() {
       <hr />
       <button onClick={switchNetwork}>switchNetwork</button>
       <hr />
+      <button onClick={ethereumRequest}>ethereumRequest</button>
+      <hr />
       <button onClick={connectIdentity}>connectIdentity</button>
       <div className="blackText">{did}</div>
       <hr />
@@ -890,11 +1172,19 @@ function App() {
       <button onClick={getModelBaseInfo}>getModelBaseInfo</button>
       <button onClick={createPublicPostStream}>createPublicPostStream</button>
       <button onClick={createPrivatePostStream}>createPrivatePostStream</button>
-      <button onClick={updatePostStreamsToPublicContent}>
-        updatePostStreamsToPublicContent
+      <button onClick={createDatatokenPostStream}>
+        createDatatokenPostStream
       </button>
-      <button onClick={updatePostStreamsToPrivateContent}>
-        updatePostStreamsToPrivateContent
+      <button onClick={monetizePost}>monetizePost</button>
+      <button onClick={updatePostFromPrivateToPublic}>
+        updatePostFromPrivateToPublic
+      </button>
+      <button onClick={updatePostFromPublicToPrivate}>
+        updatePostFromPublicToPrivate
+      </button>
+      <button onClick={updatePublicContent}>updatePublicContent</button>
+      <button onClick={updatePrivateOrDatatokenContent}>
+        updatePrivateOrDatatokenContent
       </button>
       <br />
       <br />
