@@ -16,38 +16,33 @@ The system calls exposed by Dataverse Kernel
 
 ## Installation
 
-You can install the package in another project using pnpm or npm or yarn:
-
 ```bash
 pnpm install @dataverse/runtime-connector
 ```
 
-## Building the runtime-connector
+## Run demo
+### requirements
+- [Data Wallet](https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead) - A secure data wallet to protect your identity and data assets.
+- [MetaMask](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn) - A cryptocurrency wallet browser extension.
+- [Node.js](https://nodejs.org/en/) version >= 16.
+- [pnpm](https://pnpm.io/) version >= 6.
 
-You can install and build the runtime-connector as a dist folder for demo use:
-
-```bash
-pnpm install
-pnpm build
-```
-
-## Running the demo
-
-First you need to install [Dataverse Extension](https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead). It's a secure data wallet to protect your identity and data assets.
-And make sure you also installed [MetaMask](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn).  
-In the front-end environment, you can interact with Dataverse Kernel running in Dataverse Extension through runtime-connector.
-
-```bash
+```typescript
+pnpm install // install dependencies
+pnpm build  // build the package
 cd demo
-pnpm dev
+pnpm dev  // run the demo
 ```
 
-## Building the demo
+the demo will be running on http://localhost:3008/.
 
-```bash
-cd demo
-pnpm build
-```
+<br/>
+<p align="center">
+<a href=" " target="_blank">
+<img src="https://i.imgur.com/U069RGb.png" width="300" alt="Dataverse logo">
+</a >
+</p >
+<br/>
 
 ## Usage
 
@@ -57,7 +52,7 @@ import { RuntimeConnector, Extension } from "@dataverse/runtime-connector";
 const runtimeConnector = new RuntimeConnector(Extension);
 ```
 
-## SDK
+## Functions
 
 **`runtimeConnector.connectWallet({ name: METAMASK, type: CRYPTO_WALLET_TYPE })`**
 
@@ -82,56 +77,15 @@ const runtimeConnector = new RuntimeConnector(Extension);
     - If the wallet is already connected, a signature popup window will appear, and the user needs to authorize the application to write to the data model. After the user signs, the user's identity identifier, or DID, will be returned, indicating a successful connection to the identity.
   - If the identity is already connected, the function will return the DID directly, indicating a successful connection to the identity.
 
-...
-
-## Examples
-
-Here are some examples to demonstrate the usage of the package:
-
-```typescript
-import {
-  RuntimeConnector,
-  Extension,
-  METAMASK,
-  CRYPTO_WALLET_TYPE,
-} from "@dataverse/runtime-connector";
-
-const runtimeConnector = new RuntimeConnector(Extension);
-
-const address = await runtimeConnector.connectWallet({
-  name: METAMASK,
-  type: CRYPTO_WALLET_TYPE,
-});
-console.log({ address });
-```
-
-```typescript
-import {
-  RuntimeConnector,
-  Extension,
-  METAMASK,
-  CRYPTO_WALLET_TYPE,
-  Apps,
-} from "@dataverse/runtime-connector";
-
-const runtimeConnector = new RuntimeConnector(Extension);
-
-const appName = Apps.Playground;
-
-const did = await runtimeConnector.connectIdentity({
-  wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
-  appName,
-});
-console.log({ did });
-```
+check all functions in [docs](https://gitbook.dataverse-os.com/api-documentation).
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Document
+## Documentation
 
-https://gitbook.dataverse-os.com/
+View [Gitbook](https://gitbook.dataverse-os.com/).
 
 ## Contributing
 
