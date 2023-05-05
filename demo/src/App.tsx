@@ -57,6 +57,7 @@ function App() {
       });
       setAddress(address);
       console.log({ address });
+      return address;
     } catch (error) {
       console.log(error);
     }
@@ -68,15 +69,16 @@ function App() {
   };
 
   const ethereumRequest = async () => {
+    const address = await connectWallet();
     const res = await runtimeConnector.ethereumRequest({
       method: "eth_sendTransaction",
       params: [
         {
           from: address, // The user's active address.
           to: address, // Required except during contract publications.
-          value: "0x29a2241af62c0000", // Only required to send ether to the recipient from the initiating external account.
-          gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
-          gas: "0x2710", // Customizable by the user during MetaMask confirmation.
+          value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
+          // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
+          // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
         },
       ],
     });
