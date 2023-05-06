@@ -85,6 +85,54 @@ function App() {
     console.log({ res });
   };
 
+  const contractCall = async () => {
+    await connectWallet();
+
+    const res = await runtimeConnector.contractCall({
+      contractAddress: "0xB07E79bB859ad18a8CbE6E111f4ad0Cca2FD3Da8",
+      abi: [
+        {
+          inputs: [],
+          name: "metadata",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "hub",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "profileId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "pubId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "collectModule",
+                  type: "address",
+                },
+              ],
+              internalType: "struct IDataToken.Metadata",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+      method: "metadata",
+      params: [],
+    });
+    console.log({ res });
+  };
+
   const connectIdentity = async () => {
     await connectWallet();
     await switchNetwork();
@@ -1111,6 +1159,8 @@ function App() {
       <button onClick={switchNetwork}>switchNetwork</button>
       <hr />
       <button onClick={ethereumRequest}>ethereumRequest</button>
+      <hr />
+      <button onClick={contractCall}>contractCall</button>
       <hr />
       <button onClick={connectIdentity}>connectIdentity</button>
       <div className="blackText">{did}</div>

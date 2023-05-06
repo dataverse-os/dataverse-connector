@@ -43,6 +43,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.ethereumRequest];
   }
 
+  contractCall(
+    params: RequestType[Methods.contractCall]
+  ): ReturnType[Methods.contractCall] {
+    return this.communicator.sendRequest({
+      method: Methods.contractCall,
+      params,
+    }) as ReturnType[Methods.contractCall];
+  }
+
   connectIdentity(
     params: RequestType[Methods.connectIdentity]
   ): ReturnType[Methods.connectIdentity] {

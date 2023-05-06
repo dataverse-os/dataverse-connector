@@ -31,6 +31,12 @@ export interface RequestType {
     method: string;
     params?: any;
   };
+  contractCall:{
+    contractAddress: string;
+    abi: any[];
+    method: string;
+    params: any[];
+  },
   connectIdentity: {
     wallet: CRYPTO_WALLET;
     appName: string;
@@ -231,6 +237,7 @@ export interface ReturnType {
   connectWallet: Promise<string>;
   switchNetwork: Promise<boolean>;
   ethereumRequest: Promise<any>;
+  contractCall: Promise<any>;
   connectIdentity: Promise<string>;
   checkIsCurrentDIDValid: Promise<boolean>;
   getChainFromDID: Promise<string>;
