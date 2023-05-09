@@ -88,6 +88,8 @@ function App() {
   const contractCall = async () => {
     await connectWallet();
 
+    await runtimeConnector.switchNetwork(80001);
+    
     const res = await runtimeConnector.contractCall({
       contractAddress: "0xB07E79bB859ad18a8CbE6E111f4ad0Cca2FD3Da8",
       abi: [
