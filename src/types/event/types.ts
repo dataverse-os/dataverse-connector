@@ -31,12 +31,12 @@ export interface RequestType {
     method: string;
     params?: any;
   };
-  contractCall:{
+  contractCall: {
     contractAddress: string;
     abi: any[];
     method: string;
     params: any[];
-  },
+  };
   connectIdentity: {
     wallet: CRYPTO_WALLET;
     appName: string;
@@ -52,7 +52,7 @@ export interface RequestType {
   createNewDID: CRYPTO_WALLET;
   switchDID: string;
 
-  loadStream: string;
+  loadStream: { appName: string; streamId: string };
   loadStreamsByModel: {
     appName: string;
     modelName: string;
@@ -74,6 +74,7 @@ export interface RequestType {
     decryptionConditionsType?: DecryptionConditionsTypes;
   };
   updateStreams: {
+    appName: string;
     streamsRecord: Record<
       string,
       {

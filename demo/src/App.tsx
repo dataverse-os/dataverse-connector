@@ -47,6 +47,7 @@ function App() {
   const [mirrorFile, setMirrorFile] = useState<MirrorFile>();
   const [folderId, setFolderId] = useState("");
   const [folders, setFolders] = useState<StructuredFolders>({});
+  const ENV = "ENV";
 
   /*** Identity ***/
   const connectWallet = async () => {
@@ -89,7 +90,7 @@ function App() {
     await connectWallet();
 
     await runtimeConnector.switchNetwork(80001);
-    
+
     const res = await runtimeConnector.contractCall({
       contractAddress: "0xB07E79bB859ad18a8CbE6E111f4ad0Cca2FD3Da8",
       abi: [
@@ -472,9 +473,11 @@ function App() {
 
   /*** Post ***/
   const loadStream = async () => {
-    const stream = await runtimeConnector.loadStream(
-      "kjzl6kcym7w8y78cluptg8m0hs3qftjvkxwgn49jksqkolxkpvczw6917p2fvsa"
-    );
+    const stream = await runtimeConnector.loadStream({
+      appName: "test001",
+      streamId:
+        "kjzl6kcym7w8yafvxqtfrbzl70mcphjrt1fxqsvfnz0icroykmf22enl2mz9eet",
+    });
     console.log(stream);
   };
 
@@ -685,7 +688,10 @@ function App() {
       profileId = await getProfileId({ did, lensNickName });
     }
     if (!mirrorFile) {
-      const res = await runtimeConnector.loadStream(contentId);
+      const res = await runtimeConnector.loadStream({
+        appName,
+        streamId: contentId,
+      });
       mirrorFile = res.streamContent;
     }
 
@@ -715,6 +721,7 @@ function App() {
       new Date().toISOString();
 
     const res = await runtimeConnector.updateStreams({
+      appName,
       streamsRecord: {
         [contentId]: {
           streamContent: mirrorFile!.content,
@@ -746,6 +753,7 @@ function App() {
     });
 
     const res = await runtimeConnector.updateStreams({
+      appName,
       streamsRecord: {
         [contentId]: {
           streamContent: {
@@ -777,6 +785,7 @@ function App() {
     });
 
     const res = await runtimeConnector.updateStreams({
+      appName,
       streamsRecord: {
         [contentId]: {
           streamContent: {
@@ -810,6 +819,7 @@ function App() {
     });
 
     const res = await runtimeConnector.updateStreams({
+      appName,
       streamsRecord: {
         [contentId]: {
           streamContent: {
@@ -845,6 +855,7 @@ function App() {
     });
 
     const res = await runtimeConnector.updateStreams({
+      appName,
       streamsRecord: {
         [contentId]: {
           streamContent: {
@@ -922,9 +933,10 @@ function App() {
       did,
       appName,
       folderId:
-        "kjzl6kcym7w8y9pgztpm5dmhiiz6pg87s0w8ul5tu6idwhff9z2raxbgzqdugq8",
+        "kjzl6kcym7w8y9k8byiqo3p1ydrpgopncdamqp9yanzus7duyxj1x07ms1cc6wi",
+      newFolderName: new Date().toISOString(),
       newFolderDescription: new Date().toISOString(),
-      syncImmediately: true,
+      // syncImmediately: true,
     });
     console.log(res);
   };
@@ -945,7 +957,7 @@ function App() {
       did,
       appName,
       folderId:
-        "kjzl6kcym7w8y820fvzv0sijpj49p7fdptfke4vlkb0db9nd2mkpa234aityqps",
+        "kjzl6kcym7w8y6pjw6yjnr9hbkeh025jrwe4hoqfscrwmpn6bx064rywv8qxavl",
       syncImmediately: true,
     });
     console.log(res);
