@@ -28,11 +28,12 @@ import { decode } from "./utils/encodeAndDecode";
 import { getAddressFromDid } from "./utils/addressAndDID";
 
 const runtimeConnector = new RuntimeConnector(Extension);
-const appName = Apps.Playground;
-const slug = Apps.Playground;
+const appName = 'test001';
+const slug = 'test001';
 export const modelName = `${slug.toLowerCase()}_post`;
 export const modelNames = [modelName];
 const postVersion = "0.0.1";
+const walletName = PARTICLE;
 
 function App() {
   const [address, setAddress] = useState("");
@@ -55,7 +56,7 @@ function App() {
   const connectWallet = async () => {
     try {
       const address = await runtimeConnector.connectWallet({
-        name: PARTICLE,
+        name: walletName,
         type: CRYPTO_WALLET_TYPE,
       });
       setAddress(address);
@@ -77,7 +78,7 @@ function App() {
   };
 
   const switchNetwork = async () => {
-    const res = await runtimeConnector.switchNetwork(80001);
+    const res = await runtimeConnector.switchNetwork(137);
     console.log({ res });
   };
 
@@ -163,7 +164,7 @@ function App() {
     await connectWallet();
     await switchNetwork();
     const did = await runtimeConnector.connectIdentity({
-      wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
+      wallet: { name: walletName, type: CRYPTO_WALLET_TYPE },
       appName,
     });
     setDid(did);
@@ -548,7 +549,7 @@ function App() {
           appVersion: postVersion,
           text: "hello",
           images: [
-            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+            // "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
           ],
           videos: [],
           createdAt: date,
@@ -604,7 +605,7 @@ function App() {
   };
 
   const createDatatokenPostStream = async () => {
-    const profileId = await getProfileId({ did, lensNickName: "hello" });
+    const profileId = await getProfileId({ did, lensNickName: "hello123" });
 
     const date = new Date().toISOString();
 
@@ -667,7 +668,7 @@ function App() {
 
   const monetizePost = async () => {
     const contentId =
-      "kjzl6kcym7w8y78cluptg8m0hs3qftjvkxwgn49jksqkolxkpvczw6917p2fvsa";
+      "kjzl6kcym7w8y4wqvo02pg0zh287qc9mghbznxq3t01svqutdfq68r496kcagj9";
 
     const res = await monetizeContent({
       did,
@@ -719,6 +720,7 @@ function App() {
     }
 
     try {
+      await runtimeConnector.switchNetwork(80001);
       const datatoken = await runtimeConnector.createDatatoken({
         profileId,
         streamId: mirrorFile!.indexFileId,
@@ -1119,7 +1121,8 @@ function App() {
   };
 
   const createLensProfile = async () => {
-    const res = await runtimeConnector.createLensProfile("jackie2");
+    await runtimeConnector.switchNetwork(80001);
+    const res = await runtimeConnector.createLensProfile("test6");
     console.log(res);
   };
 
@@ -1131,6 +1134,7 @@ function App() {
   };
 
   const createDatatoken = async () => {
+    await runtimeConnector.switchNetwork(80001);
     const res = await runtimeConnector.createDatatoken({
       streamId:
         "kjzl6kcym7w8y6ds8izvyh2shsxkihazva6chw8m2aa158gx0w4i71y263uc4v7",
@@ -1142,6 +1146,7 @@ function App() {
   };
 
   const collect = async () => {
+    await runtimeConnector.switchNetwork(80001);
     const res = await runtimeConnector.collect({
       did,
       appName,
@@ -1152,6 +1157,7 @@ function App() {
   };
 
   const isCollected = async () => {
+    await runtimeConnector.switchNetwork(80001);
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
     const res = await runtimeConnector.isCollected({
@@ -1162,6 +1168,7 @@ function App() {
   };
 
   const getDatatokenMetadata = async () => {
+    await runtimeConnector.switchNetwork(80001);
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const res = await runtimeConnector.getDatatokenMetadata(datatokenId);
     console.log(res);
