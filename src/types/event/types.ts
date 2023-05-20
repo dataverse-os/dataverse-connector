@@ -1,3 +1,4 @@
+import { Mode } from "../constants";
 import { CRYPTO_WALLET } from "../crypto-wallet";
 import { ApplicationRegistry, AppsInfo } from "../dapp-verifier/types";
 import { StreamObject, StreamsRecord } from "../data-models";
@@ -26,6 +27,7 @@ import { Methods } from "./constants";
 
 export interface RequestType {
   connectWallet: CRYPTO_WALLET;
+  getCurrentWallet: void;
   switchNetwork: number;
   ethereumRequest: {
     method: string;
@@ -36,6 +38,7 @@ export interface RequestType {
     abi: any[];
     method: string;
     params: any[];
+    mode?: Mode;
   };
   signerSign: {
     method: string;
@@ -240,6 +243,12 @@ export interface RequestType {
 
 export interface ReturnType {
   connectWallet: Promise<string>;
+  getCurrentWallet: Promise<{
+    wallet: string;
+    address: string;
+    chainId: number;
+    chainName: string;
+  }>;
   switchNetwork: Promise<boolean>;
   ethereumRequest: Promise<any>;
   signerSign: Promise<any>;

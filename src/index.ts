@@ -1,4 +1,4 @@
-export { Extension, Browser } from "./types/constants";
+export { Extension, Browser, Mode } from "./types/constants";
 export { METAMASK, PARTICLE, CRYPTO_WALLET_TYPE } from "./types/crypto-wallet";
 export {
   Apps,

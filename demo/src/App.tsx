@@ -22,6 +22,7 @@ import {
   Browser,
   DatatokenVars,
   DecryptionConditions,
+  Mode,
 } from "@dataverse/runtime-connector";
 import { decode } from "./utils/encodeAndDecode";
 import { getAddressFromDid } from "./utils/addressAndDID";
@@ -65,8 +66,18 @@ function App() {
     }
   };
 
+  const getCurrentWallet = async () => {
+    try {
+      const res = await runtimeConnector.getCurrentWallet();
+      console.log(res);
+      return res;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const switchNetwork = async () => {
-    const res = await runtimeConnector.switchNetwork(137);
+    const res = await runtimeConnector.switchNetwork(80001);
     console.log({ res });
   };
 
@@ -89,7 +100,7 @@ function App() {
 
   const signerSign = async () => {
     await connectWallet();
-    
+
     const res = await runtimeConnector.signerSign({
       method: "signMessage",
       params: ["test"],
@@ -143,6 +154,7 @@ function App() {
       ],
       method: "metadata",
       params: [],
+      mode: Mode.Read,
     });
     console.log({ res });
   };
@@ -1180,6 +1192,8 @@ function App() {
     <div className="App">
       <button onClick={connectWallet}>connectWallet</button>
       <div className="blackText">{address}</div>
+      <hr />
+      <button onClick={getCurrentWallet}>getCurrentWallet</button>
       <hr />
       <button onClick={switchNetwork}>switchNetwork</button>
       <hr />

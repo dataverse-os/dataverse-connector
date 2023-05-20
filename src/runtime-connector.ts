@@ -25,6 +25,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.connectWallet];
   }
 
+  getCurrentWallet(
+    params: RequestType[Methods.getCurrentWallet]
+  ): ReturnType[Methods.getCurrentWallet] {
+    return this.communicator.sendRequest({
+      method: Methods.getCurrentWallet,
+      params,
+    }) as ReturnType[Methods.getCurrentWallet];
+  }
+
   switchNetwork(
     params: RequestType[Methods.switchNetwork]
   ): ReturnType[Methods.switchNetwork] {
