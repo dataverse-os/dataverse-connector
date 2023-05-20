@@ -4,6 +4,7 @@ import {
   RuntimeConnector,
   Extension,
   METAMASK,
+  PARTICLE,
   CRYPTO_WALLET_TYPE,
   Apps,
   ModelNames,
@@ -53,7 +54,7 @@ function App() {
   const connectWallet = async () => {
     try {
       const address = await runtimeConnector.connectWallet({
-        name: METAMASK,
+        name: PARTICLE,
         type: CRYPTO_WALLET_TYPE,
       });
       setAddress(address);
@@ -82,6 +83,16 @@ function App() {
           // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
         },
       ],
+    });
+    console.log({ res });
+  };
+
+  const signerSign = async () => {
+    await connectWallet();
+    
+    const res = await runtimeConnector.signerSign({
+      method: "signMessage",
+      params: ["test"],
     });
     console.log({ res });
   };
@@ -1173,6 +1184,8 @@ function App() {
       <button onClick={switchNetwork}>switchNetwork</button>
       <hr />
       <button onClick={ethereumRequest}>ethereumRequest</button>
+      <hr />
+      <button onClick={signerSign}>signerSign</button>
       <hr />
       <button onClick={contractCall}>contractCall</button>
       <hr />

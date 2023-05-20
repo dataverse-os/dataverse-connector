@@ -43,6 +43,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.ethereumRequest];
   }
 
+  signerSign(
+    params: RequestType[Methods.signerSign]
+  ): ReturnType[Methods.signerSign] {
+    return this.communicator.sendRequest({
+      method: Methods.signerSign,
+      params,
+    }) as ReturnType[Methods.signerSign];
+  }
+
   contractCall(
     params: RequestType[Methods.contractCall]
   ): ReturnType[Methods.contractCall] {

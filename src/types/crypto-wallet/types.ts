@@ -1,6 +1,12 @@
 import { ethers } from "ethers";
 
-export type CRYPTO_WALLET_NAME = "MetaMask" | "Temple";
+export type CRYPTO_WALLET_NAME =
+  | "MetaMask"
+  | "Temple"
+  | "Coinbase"
+  | "Particle"
+  | "WalletConnect";
+  
 export type CRYPTO_WALLET_TYPE = "CRYPTO_WALLET";
 export type PROVIDER =
   | ethers.providers.Web3Provider

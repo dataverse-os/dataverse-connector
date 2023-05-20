@@ -1,5 +1,5 @@
 export { Extension, Browser } from "./types/constants";
-export { METAMASK, CRYPTO_WALLET_TYPE } from "./types/crypto-wallet";
+export { METAMASK, PARTICLE, CRYPTO_WALLET_TYPE } from "./types/crypto-wallet";
 export {
   Apps,
   ModelNames,
