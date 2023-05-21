@@ -28,8 +28,8 @@ import { decode } from "./utils/encodeAndDecode";
 import { getAddressFromDid } from "./utils/addressAndDID";
 
 const runtimeConnector = new RuntimeConnector(Extension);
-const appName = 'test001';
-const slug = 'test001';
+const appName = "test001";
+const slug = "test001";
 export const modelName = `${slug.toLowerCase()}_post`;
 export const modelNames = [modelName];
 const postVersion = "0.0.1";
@@ -39,7 +39,7 @@ function App() {
   const [address, setAddress] = useState("");
   const [did, setDid] = useState("");
   const [chain, setChain] = useState<string>("");
-  const [newDid, setNewDid] = useState("");
+  const [newDid, setNewDid] = useState<string>("");
   const [didList, setDidList] = useState<Array<string>>([]);
   const [currentDid, setCurrentDid] = useState("");
   const [isCurrentDIDValid, setIsCurrentDIDValid] = useState<boolean>();
@@ -175,7 +175,7 @@ function App() {
   const getCurrentDID = async () => {
     const res = await runtimeConnector.getCurrentDID();
     console.log(res);
-    setCurrentDid(res);
+    setCurrentDid(res.did);
   };
 
   const checkIsCurrentDIDValid = async () => {
@@ -197,22 +197,32 @@ function App() {
   const getDIDList = async () => {
     const didList = await runtimeConnector.getDIDList();
     console.log({ didList });
-    setDidList(didList);
+    setDidList(didList.map((didObject) => didObject.did));
   };
 
   const createNewDID = async () => {
-    const { currentDID, createdDIDList } = await runtimeConnector.createNewDID({
-      name: METAMASK,
-      type: CRYPTO_WALLET_TYPE,
-    });
-    setNewDid(currentDID);
-    console.log({ currentDID, createdDIDList });
+    try {
+      const { currentDID, createdDIDList } =
+        await runtimeConnector.createNewDID({
+          name: METAMASK,
+          type: CRYPTO_WALLET_TYPE,
+        });
+      setNewDid(currentDID.did);
+      console.log({ currentDID, createdDIDList });
+    } catch (error) {
+      console.log({ error });
+    }
   };
 
   const switchDID = async () => {
-    await runtimeConnector.switchDID(
-      "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555"
-    );
+    try {
+      const res = await runtimeConnector.switchDID(
+        "did:pkh:eip155:137:0xC5547B323E1af990d6251D123493fa8e0Cf29aE1"
+      );
+      console.log(res);
+    } catch (error) {
+      console.log({ error });
+    }
   };
 
   /*** Identity ***/

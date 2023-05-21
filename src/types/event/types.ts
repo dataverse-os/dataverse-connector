@@ -23,6 +23,7 @@ import {
   StructuredFolder,
   StructuredFolders,
 } from "../fs/types";
+import { DIDObject } from "../identity";
 import { Methods } from "./constants";
 
 export interface RequestType {
@@ -256,11 +257,11 @@ export interface ReturnType {
   connectIdentity: Promise<string>;
   checkIsCurrentDIDValid: Promise<boolean>;
   getChainFromDID: Promise<string>;
-  getDIDList: Promise<string[]>;
-  getCurrentDID: Promise<string>;
+  getDIDList: Promise<DIDObject[]>;
+  getCurrentDID: Promise<DIDObject>;
   createNewDID: Promise<{
-    currentDID: string;
-    createdDIDList: string[];
+    currentDID: DIDObject;
+    createdDIDList: DIDObject[];
   }>;
   switchDID: Promise<boolean>;
 
