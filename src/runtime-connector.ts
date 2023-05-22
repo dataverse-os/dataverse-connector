@@ -124,6 +124,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getCurrentDID];
   }
 
+  getWalletByDID(
+    params: RequestType[Methods.getWalletByDID]
+  ): ReturnType[Methods.getWalletByDID] {
+    return this.communicator.sendRequest({
+      method: Methods.getWalletByDID,
+      params,
+    }) as ReturnType[Methods.getWalletByDID];
+  }
+
   createNewDID(
     params: RequestType[Methods.createNewDID]
   ): ReturnType[Methods.createNewDID] {

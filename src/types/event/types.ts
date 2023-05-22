@@ -47,7 +47,7 @@ export interface RequestType {
     params: any[];
   };
   connectIdentity: {
-    wallet: CRYPTO_WALLET;
+    wallet?: CRYPTO_WALLET;
     appName: string;
     modelNames?: string[];
   };
@@ -58,6 +58,7 @@ export interface RequestType {
   getChainFromDID: string;
   getDIDList: void;
   getCurrentDID: void;
+  getWalletByDID: string;
   createNewDID: CRYPTO_WALLET;
   switchDID: string;
 
@@ -261,6 +262,7 @@ export interface ReturnType {
   getChainFromDID: Promise<string>;
   getDIDList: Promise<string[]>;
   getCurrentDID: Promise<string>;
+  getWalletByDID: Promise<CRYPTO_WALLET>;
   createNewDID: Promise<{
     currentDID: string;
     createdDIDList: string[];

@@ -212,6 +212,17 @@ function App() {
     setDidList(didList);
   };
 
+  const getWalletByDID = async () => {
+    try {
+      const wallet = await runtimeConnector.getWalletByDID(
+        "did:pkh:eip155:137:0xd10d5b408A290a5FD0C2B15074995e899E944444"
+      );
+      console.log({ wallet });
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
   const createNewDID = async () => {
     try {
       const { currentDID, createdDIDList } =
@@ -1258,6 +1269,8 @@ function App() {
       <div className="blackText">
         {isCurrentDIDValid !== undefined && String(isCurrentDIDValid)}
       </div>
+      <hr />
+      <button onClick={getWalletByDID}>getWalletByDID</button>
       <hr />
       <button onClick={createNewDID}>createNewDID</button>
       <div className="blackText">{newDid}</div>

@@ -9,8 +9,9 @@ export enum Methods {
   connectIdentity = "connectIdentity",
   checkIsCurrentDIDValid = "checkIsCurrentDIDValid",
   getChainFromDID = "getChainFromDID",
-  getCurrentDID = "getCurrentDID",
   getDIDList = "getDIDList",
+  getCurrentDID = "getCurrentDID",
+  getWalletByDID = "getWalletByDID",
   createNewDID = "createNewDID",
   switchDID = "switchDID",
 
