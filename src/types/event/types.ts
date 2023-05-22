@@ -27,6 +27,7 @@ import { DIDObject } from "../identity";
 import { Methods } from "./constants";
 
 export interface RequestType {
+  chooseWallet:void;
   connectWallet: CRYPTO_WALLET;
   getCurrentWallet: void;
   switchNetwork: number;
@@ -243,13 +244,14 @@ export interface RequestType {
 }
 
 export interface ReturnType {
+  chooseWallet: Promise<CRYPTO_WALLET>;
   connectWallet: Promise<string>;
   getCurrentWallet: Promise<{
     wallet: string;
     address: string;
     chainId: number;
     chainName: string;
-  }>;
+  } | null>;
   switchNetwork: Promise<boolean>;
   ethereumRequest: Promise<any>;
   signerSign: Promise<any>;
@@ -257,11 +259,11 @@ export interface ReturnType {
   connectIdentity: Promise<string>;
   checkIsCurrentDIDValid: Promise<boolean>;
   getChainFromDID: Promise<string>;
-  getDIDList: Promise<DIDObject[]>;
-  getCurrentDID: Promise<DIDObject>;
+  getDIDList: Promise<string[]>;
+  getCurrentDID: Promise<string>;
   createNewDID: Promise<{
-    currentDID: DIDObject;
-    createdDIDList: DIDObject[];
+    currentDID: string;
+    createdDIDList: string[];
   }>;
   switchDID: Promise<boolean>;
 

@@ -23,6 +23,7 @@ import {
   DatatokenVars,
   DecryptionConditions,
   Mode,
+  CRYPTO_WALLET
 } from "@dataverse/runtime-connector";
 import { decode } from "./utils/encodeAndDecode";
 import { getAddressFromDid } from "./utils/addressAndDID";
@@ -33,10 +34,11 @@ const slug = "test001";
 export const modelName = `${slug.toLowerCase()}_post`;
 export const modelNames = [modelName];
 const postVersion = "0.0.1";
-const walletName = PARTICLE;
+const walletName = METAMASK;
 
 function App() {
   const [address, setAddress] = useState("");
+  const [wallet, setWallet] = useState<CRYPTO_WALLET>();
   const [did, setDid] = useState("");
   const [chain, setChain] = useState<string>("");
   const [newDid, setNewDid] = useState<string>("");
@@ -52,7 +54,15 @@ function App() {
   const [folders, setFolders] = useState<StructuredFolders>({});
   const ENV = "ENV";
 
-  /*** Identity ***/
+  /*** Wallet ***/
+
+  const chooseWallet = async () => {
+    const wallet = await runtimeConnector.chooseWallet();
+    setWallet(wallet);
+    console.log({ wallet });
+    return wallet;
+  };
+
   const connectWallet = async () => {
     try {
       const address = await runtimeConnector.connectWallet({
@@ -68,13 +78,9 @@ function App() {
   };
 
   const getCurrentWallet = async () => {
-    try {
-      const res = await runtimeConnector.getCurrentWallet();
-      console.log(res);
-      return res;
-    } catch (error) {
-      console.log(error);
-    }
+    const res = await runtimeConnector.getCurrentWallet();
+    console.log(res);
+    return res;
   };
 
   const switchNetwork = async () => {
@@ -160,6 +166,10 @@ function App() {
     console.log({ res });
   };
 
+  /*** Wallet ***/
+
+  /*** Identity ***/
+
   const connectIdentity = async () => {
     await connectWallet();
     await switchNetwork();
@@ -175,7 +185,7 @@ function App() {
   const getCurrentDID = async () => {
     const res = await runtimeConnector.getCurrentDID();
     console.log(res);
-    setCurrentDid(res.did);
+    setCurrentDid(res);
   };
 
   const checkIsCurrentDIDValid = async () => {
@@ -197,7 +207,7 @@ function App() {
   const getDIDList = async () => {
     const didList = await runtimeConnector.getDIDList();
     console.log({ didList });
-    setDidList(didList.map((didObject) => didObject.did));
+    setDidList(didList);
   };
 
   const createNewDID = async () => {
@@ -207,7 +217,7 @@ function App() {
           name: METAMASK,
           type: CRYPTO_WALLET_TYPE,
         });
-      setNewDid(currentDID.did);
+      setNewDid(currentDID);
       console.log({ currentDID, createdDIDList });
     } catch (error) {
       console.log({ error });
@@ -217,7 +227,7 @@ function App() {
   const switchDID = async () => {
     try {
       const res = await runtimeConnector.switchDID(
-        "did:pkh:eip155:137:0xC5547B323E1af990d6251D123493fa8e0Cf29aE1"
+        "did:pkh:eip155:137:0xd10d5b408A290a5FD0C2B15074995e899E944444"
       );
       console.log(res);
     } catch (error) {
@@ -1207,6 +1217,9 @@ function App() {
 
   return (
     <div className="App">
+      <button onClick={chooseWallet}>chooseWallet</button>
+      <div className="blackText">{wallet?.name}</div>
+      <hr />
       <button onClick={connectWallet}>connectWallet</button>
       <div className="blackText">{address}</div>
       <hr />

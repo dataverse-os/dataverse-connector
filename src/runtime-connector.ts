@@ -15,6 +15,15 @@ export class RuntimeConnector {
   setPostMessageTo(postMessageTo: PostMessageTo) {
     this.communicator.setPostMessageTo(postMessageTo);
   }
+  
+  chooseWallet(
+    params: RequestType[Methods.chooseWallet]
+  ): ReturnType[Methods.chooseWallet] {
+    return this.communicator.sendRequest({
+      method: Methods.chooseWallet,
+      params,
+    }) as ReturnType[Methods.chooseWallet];
+  }
 
   connectWallet(
     params: RequestType[Methods.connectWallet]
