@@ -23,7 +23,7 @@ import {
   DatatokenVars,
   DecryptionConditions,
   Mode,
-  CRYPTO_WALLET
+  CRYPTO_WALLET,
 } from "@dataverse/runtime-connector";
 import { decode } from "./utils/encodeAndDecode";
 import { getAddressFromDid } from "./utils/addressAndDID";
@@ -35,10 +35,14 @@ export const modelName = `${slug.toLowerCase()}_post`;
 export const modelNames = [modelName];
 const postVersion = "0.0.1";
 const walletName = METAMASK;
+const cryptoWalletType = CRYPTO_WALLET_TYPE;
 
 function App() {
   const [address, setAddress] = useState("");
-  const [wallet, setWallet] = useState<CRYPTO_WALLET>();
+  const [wallet, setWallet] = useState<CRYPTO_WALLET>({
+    name: walletName,
+    type: cryptoWalletType,
+  });
   const [did, setDid] = useState("");
   const [chain, setChain] = useState<string>("");
   const [newDid, setNewDid] = useState<string>("");
@@ -52,23 +56,21 @@ function App() {
   const [mirrorFile, setMirrorFile] = useState<MirrorFile>();
   const [folderId, setFolderId] = useState("");
   const [folders, setFolders] = useState<StructuredFolders>({});
-  const ENV = "ENV";
+  const [walletChanged, setWalletChanged] = useState<boolean>(false);
 
   /*** Wallet ***/
 
   const chooseWallet = async () => {
     const wallet = await runtimeConnector.chooseWallet();
     setWallet(wallet);
+    setWalletChanged(true);
     console.log({ wallet });
     return wallet;
   };
 
   const connectWallet = async () => {
     try {
-      const address = await runtimeConnector.connectWallet({
-        name: walletName,
-        type: CRYPTO_WALLET_TYPE,
-      });
+      const address = await runtimeConnector.connectWallet(wallet);
       setAddress(address);
       console.log({ address });
       return address;
@@ -174,7 +176,7 @@ function App() {
     await connectWallet();
     await switchNetwork();
     const did = await runtimeConnector.connectIdentity({
-      wallet: { name: walletName, type: CRYPTO_WALLET_TYPE },
+      wallet,
       appName,
     });
     setDid(did);
@@ -1206,7 +1208,7 @@ function App() {
 
   const migrateOldFolders = async () => {
     const did = await runtimeConnector.connectIdentity({
-      wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE },
+      wallet,
       appName: Apps.MigrateOldFolders,
     });
     const res = await runtimeConnector.migrateOldFolders(did);
@@ -1218,7 +1220,10 @@ function App() {
   return (
     <div className="App">
       <button onClick={chooseWallet}>chooseWallet</button>
-      <div className="blackText">{wallet?.name}</div>
+      <div className="blackText">
+        {!walletChanged && "default: "}
+        {wallet?.name}
+      </div>
       <hr />
       <button onClick={connectWallet}>connectWallet</button>
       <div className="blackText">{address}</div>

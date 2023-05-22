@@ -247,7 +247,7 @@ export interface ReturnType {
   chooseWallet: Promise<CRYPTO_WALLET>;
   connectWallet: Promise<string>;
   getCurrentWallet: Promise<{
-    wallet: string;
+    wallet: CRYPTO_WALLET;
     address: string;
     chainId: number;
     chainName: string;
