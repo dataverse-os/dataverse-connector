@@ -26,8 +26,8 @@ import { decode } from "./utils/encodeAndDecode";
 import { getAddressFromDid } from "./utils/addressAndDID";
 
 const runtimeConnector = new RuntimeConnector(Extension);
-const appName = Apps.Playground;
-const slug = Apps.Playground;
+const appName = 'test001';
+const slug = 'test001';
 export const modelName = `${slug.toLowerCase()}_post`;
 export const modelNames = [modelName];
 const postVersion = "0.0.1";
