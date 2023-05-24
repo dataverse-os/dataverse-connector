@@ -34,7 +34,7 @@ const slug = "test001";
 export const modelName = `${slug.toLowerCase()}_post`;
 export const modelNames = [modelName];
 const postVersion = "0.0.1";
-const walletName = METAMASK;
+const walletName = (localStorage.getItem("walletName") as any) || METAMASK;
 const cryptoWalletType = CRYPTO_WALLET_TYPE;
 
 function App() {
@@ -62,6 +62,7 @@ function App() {
 
   const chooseWallet = async () => {
     const wallet = await runtimeConnector.chooseWallet();
+    localStorage.setItem("walletName", wallet.name);
     setWallet(wallet);
     setWalletChanged(true);
     console.log({ wallet });
@@ -174,7 +175,7 @@ function App() {
 
   const connectIdentity = async () => {
     await connectWallet();
-    await switchNetwork();
+    // await switchNetwork();
     const did = await runtimeConnector.connectIdentity({
       wallet,
       appName,
@@ -219,7 +220,7 @@ function App() {
       );
       console.log({ wallet });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -701,7 +702,7 @@ function App() {
 
   const monetizePost = async () => {
     const contentId =
-      "kjzl6kcym7w8y4wqvo02pg0zh287qc9mghbznxq3t01svqutdfq68r496kcagj9";
+      "kjzl6kcym7w8y5kxmz8p4iwv8up2h1x21futtfugvxbb8wswo5jhat1gtdxao5x";
 
     const res = await monetizeContent({
       did,
