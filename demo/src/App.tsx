@@ -87,7 +87,7 @@ function App() {
   };
 
   const switchNetwork = async () => {
-    const res = await runtimeConnector.switchNetwork(137);
+    const res = await runtimeConnector.switchNetwork(80001);
     console.log({ res });
   };
 
@@ -174,8 +174,8 @@ function App() {
   /*** Identity ***/
 
   const connectIdentity = async () => {
-    await connectWallet();
-    // await switchNetwork();
+    // await connectWallet();
+    // // await switchNetwork();
     const did = await runtimeConnector.connectIdentity({
       wallet,
       appName,

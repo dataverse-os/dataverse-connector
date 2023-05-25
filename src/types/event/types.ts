@@ -27,7 +27,7 @@ import { DIDObject } from "../identity";
 import { Methods } from "./constants";
 
 export interface RequestType {
-  chooseWallet:void;
+  chooseWallet: void;
   connectWallet: CRYPTO_WALLET;
   getCurrentWallet: void;
   switchNetwork: number;
@@ -250,8 +250,10 @@ export interface ReturnType {
   getCurrentWallet: Promise<{
     wallet: CRYPTO_WALLET;
     address: string;
-    chainId: number;
-    chainName: string;
+    chain: {
+      chainId: number;
+      chainName: string;
+    };
   } | null>;
   switchNetwork: Promise<boolean>;
   ethereumRequest: Promise<any>;
