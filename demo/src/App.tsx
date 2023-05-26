@@ -227,10 +227,7 @@ function App() {
   const createNewDID = async () => {
     try {
       const { currentDID, createdDIDList } =
-        await runtimeConnector.createNewDID({
-          name: METAMASK,
-          type: CRYPTO_WALLET_TYPE,
-        });
+        await runtimeConnector.createNewDID(wallet);
       setNewDid(currentDID);
       console.log({ currentDID, createdDIDList });
     } catch (error) {
