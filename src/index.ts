@@ -8,7 +8,8 @@ export {
 export {
   Apps,
   ModelNames,
-  type ApplicationRegistry,
+  type DAppInfo,
+  type DAppTable,
 } from "./types/dapp-verifier";
 export type { StreamObject } from "./types/data-models";
 export {
