@@ -65,7 +65,7 @@ const runtimeConnector = new RuntimeConnector(Extension);
 
 <br>
 
-**`runtimeConnector.connectIdentity({ wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE }, appName: Apps.Dataverse, })`**
+**`runtimeConnector.createCapibility({ wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE }, appName: Apps.Dataverse, })`**
 
 - `wallet`: `CRYPTO_WALLET` object consisting of `name` and `type` properties, where `name` currently supports only the `MetaMask` string (a popular cryptocurrency wallet browser extension), while `type` is the string `CRYPTO_WALLET`.
 - `appName`: `string` representing the name of the application.
@@ -74,8 +74,8 @@ const runtimeConnector = new RuntimeConnector(Extension);
 - Returns:
   - If the identity is not connected
     - If the wallet is not connected, a popup window will appear for the user to select a wallet address. Once the user selects an address, the wallet is connected, and the subsequent steps are the same as below.
-    - If the wallet is already connected, a signature popup window will appear, and the user needs to authorize the application to write to the data model. After the user signs, the user's identity identifier, or DID, will be returned, indicating a successful connection to the identity.
-  - If the identity is already connected, the function will return the DID directly, indicating a successful connection to the identity.
+    - If the wallet is already connected, a signature popup window will appear, and the user needs to authorize the application to write to the data model. After the user signs, the user's identity identifier, or Pkh, will be returned, indicating a successful connection to the identity.
+  - If the identity is already connected, the function will return the Pkh directly, indicating a successful connection to the identity.
 
 check all functions in [docs](https://gitbook.dataverse-os.com/api-documentation).
 

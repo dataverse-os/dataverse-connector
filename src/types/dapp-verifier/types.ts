@@ -1,7 +1,5 @@
-import { Apps } from "./constants";
-
 export type AppsInfo = Record<
-  Apps,
+  string,
   {
     website: string;
     logo: string;
@@ -12,17 +10,22 @@ export type AppsInfo = Record<
   }
 >;
 
-export type ApplicationRegistry = Record<
-  Apps,
-  {
-    website: string;
-    logo: string;
-    defaultFolderName: string;
-    description: string;
-    ceramic: string;
-    models: Record<
-      string,
-      { modelId: string; isPublicDomain: boolean; encryptable: string[] }
-    >;
-  }
->;
+export interface ModelInfo {
+  modelName: string;
+  modelId: string;
+  isPublicDomain: boolean;
+  encryptable: string[];
+}
+
+export type Models = Record<string, ModelInfo>;
+
+export interface DAppInfo {
+  website: string;
+  logo: string;
+  defaultFolderName: string;
+  description: string;
+  ceramic: string;
+  models: Models;
+}
+
+export type DAppTable = Record<string, DAppInfo>;

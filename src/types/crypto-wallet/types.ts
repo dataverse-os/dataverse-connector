@@ -18,3 +18,8 @@ export interface CRYPTO_WALLET {
   name: CRYPTO_WALLET_NAME;
   type: CRYPTO_WALLET_TYPE;
 }
+
+export interface Chain {
+  chainId: number;
+  chainName: string;
+}

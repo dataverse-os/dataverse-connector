@@ -1,1 +1,1 @@
-export type { DIDObject } from "./types";
+export type { PkhObject } from "./types";
