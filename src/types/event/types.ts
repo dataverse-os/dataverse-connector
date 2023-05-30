@@ -1,29 +1,17 @@
 import { Mode } from "../constants";
 import { CRYPTO_WALLET, Chain } from "../crypto-wallet";
-import {
-  AppsInfo,
-  DAppInfo,
-  DAppTable,
-} from "../dapp-verifier/types";
-import { StreamObject, StreamsRecord } from "../data-models";
-import {
-  DecryptionConditions,
-  DecryptionConditionsTypes,
-} from "../data-monetize";
+import { AppsInfo, DAppInfo, DAppTable } from "../dapp-verifier/types";
+import { StreamObject } from "../data-models";
 import {
   CollectOutput,
-  CreateDatatokenOutPut,
-  CreateProfileOutput,
   DatatokenMetadata,
   DatatokenVars,
 } from "../data-monetize/types";
 import { FileType, FolderType } from "../fs";
 import {
   FileInfo,
-  Mirror,
-  Mirrors,
-  StructuredFile,
-  StructuredFiles,
+  MirrorFile,
+  MirrorFiles,
   StructuredFolder,
   StructuredFolders,
 } from "../fs/types";
@@ -70,31 +58,15 @@ export interface RequestType {
   createStream: {
     modelId: string;
     streamContent: any;
-    fileType: FileType;
-    encryptedSymmetricKey?: string;
-    decryptionConditions?: any[];
-    decryptionConditionsType?: DecryptionConditionsTypes;
   };
   updateStream: {
     app?: string;
-    streamsRecord: Record<
-      string,
-      {
-        streamContent?: any;
-        fileType?: FileType;
-        datatokenId?: string;
-        contentId?: string;
-        encryptedSymmetricKey?: string;
-        decryptionConditions?: any[];
-        decryptionConditionsType?: DecryptionConditionsTypes;
-      }
-    >;
+    streamId: string;
+    streamContent: any;
     syncImmediately?: boolean;
   };
 
   readFolders: string | undefined;
-  readDefaultFolder: { pkh: string; app: string };
-  readFolderFiles: { pkh: string; app: string; folderId: string };
   createFolder: {
     app?: string;
     folderType: FolderType;
@@ -123,20 +95,13 @@ export interface RequestType {
     app?: string;
     folderId: string;
     folderDescription: string;
-    datatokenVars: DatatokenVars;
-  };
-
-  updateFile: {
-    app?: string;
-    fileId: string;
-    fileInfo: FileInfo;
-    syncImmediately?: boolean;
+    datatokenVars: Omit<DatatokenVars, "streamId">;
   };
 
   uploadFile: {
     app?: string;
     folderId: string;
-    filesInfo?: (Omit<
+    fileInfo?: Omit<
       FileInfo,
       | "fileType"
       | "datatokenId"
@@ -146,12 +111,12 @@ export interface RequestType {
       | "decryptionConditionsType"
     > & {
       fileType: FileType;
-    })[];
+    };
     syncImmediately?: boolean;
   };
   updateFileBaseInfo: {
     app?: string;
-    mirrorId: string;
+    indexFileId: string;
     fileInfo?: Omit<
       FileInfo,
       | "datatokenId"
@@ -165,25 +130,22 @@ export interface RequestType {
   moveFiles: {
     app?: string;
     targetFolderId: string;
-    sourceMirrorIds: string[];
+    sourceIndexFileIds: string[];
     syncImmediately?: boolean;
   };
   removeFiles: {
     app?: string;
-
-    mirrorIds: string[];
+    indexFileIds: string[];
     syncImmediately?: boolean;
   };
   monetizeFile: {
     app?: string;
-    mirrorId: string;
-    datatokenVars: DatatokenVars;
+    indexFileId: string;
+    datatokenVars: Omit<DatatokenVars, "streamId">;
   };
 
-  getChainOfDatatoken: void;
-  createLensProfile: string;
-  getLensProfiles: string;
-  createDatatoken: DatatokenVars;
+  createProfile: string;
+  getProfiles: string;
   collect: {
     app?: string;
     indexFileId: string;
@@ -219,31 +181,21 @@ export interface ReturnType {
   getDAppTable: Promise<DAppTable>;
   getDAppInfo: Promise<DAppInfo>;
   getValidAppCaps: Promise<AppsInfo>;
+  getModelBaseInfo: Promise<Record<string, any>>;
 
   loadStream: Promise<{
     pkh: string;
     app?: string;
-    modelName?: string;
     modelId: string;
     streamContent: any;
   }>;
   loadStreamsBy: Promise<Record<string, any>>;
-  getModelBaseInfo: Promise<Record<string, any>>;
   createStream: Promise<
-    StreamObject & { newMirror?: Mirror; existingMirror?: Mirror }
+    StreamObject & { newFile?: MirrorFile; existingFile?: MirrorFile }
   >;
-  updateStream: Promise<
-    | {
-        successRecord: StreamsRecord;
-        failureRecord: StreamsRecord;
-        failureReason?: StreamsRecord;
-      }
-    | undefined
-  >;
+  updateStream: Promise<boolean>;
 
   readFolders: Promise<StructuredFolders>;
-  readDefaultFolder: Promise<StructuredFolder>;
-  readFolderFiles: Promise<Mirrors>;
   createFolder: Promise<{
     newFolder: StructuredFolder;
     allFolders: StructuredFolders;
@@ -265,48 +217,41 @@ export interface ReturnType {
     allFolders: StructuredFolders;
   }>;
 
-  updateFile: Promise<{
-    currentFile: StructuredFile;
-    allFiles: StructuredFiles;
-  }>;
-
   uploadFile: Promise<{
-    newMirrors: Mirrors;
+    newFile: MirrorFile;
     isCurated: boolean;
-    existingMirror?: Mirror;
+    existingFile?: MirrorFile;
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
   updateFileBaseInfo: Promise<{
-    currentMirror: Mirror;
+    currentFile: MirrorFile;
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
   moveFiles: Promise<{
     sourceFolders: StructuredFolders;
     targetFolder: StructuredFolder;
-    movedMirrors: Mirrors;
+    movedFiles: MirrorFiles;
     allFolders: StructuredFolders;
   }>;
   removeFiles: Promise<{
     sourceFolders: StructuredFolders;
-    removedMirrors: Mirrors;
+    removedFiles: MirrorFiles;
     allFolders: StructuredFolders;
   }>;
   monetizeFile: Promise<{
-    currentMirror: Mirror;
+    currentFile: MirrorFile;
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
 
-  getChainOfDatatoken: Promise<string>;
-  createLensProfile: Promise<string>;
-  getLensProfiles: Promise<{ id: string }[]>;
-  createDatatoken: Promise<CreateDatatokenOutPut>;
+  createProfile: Promise<string>;
+  getProfiles: Promise<{ id: string }[]>;
   collect: Promise<
     CollectOutput &
       Partial<{
-        newMirrors: Mirrors;
+        newFile: MirrorFile;
         isCurated: boolean;
         currentFolder: StructuredFolder;
         allFolders: StructuredFolders;

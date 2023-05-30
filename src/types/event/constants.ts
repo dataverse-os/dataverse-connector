@@ -17,23 +17,19 @@ export enum Methods {
   getDAppTable = "getDAppTable",
   getDAppInfo = "getDAppInfo",
   getValidAppCaps = "getValidAppCaps",
+  getModelBaseInfo = "getModelBaseInfo",
 
   loadStream = "loadStream",
   loadStreamsBy = "loadStreamsBy",
-  getModelBaseInfo = "getModelBaseInfo",
   createStream = "createStream",
   updateStream = "updateStream",
 
   readFolders = "readFolders",
-  readDefaultFolder = "readDefaultFolder",
-  readFolderFiles = "readFolderFiles",
   createFolder = "createFolder",
   updateFolderBaseInfo = "updateFolderBaseInfo",
   changeFolderType = "changeFolderType",
   deleteFolder = "deleteFolder",
   monetizeFolder = "monetizeFolder",
-
-  updateFile = "updateFile",
 
   uploadFile = "uploadFile",
   updateFileBaseInfo = "updateFileBaseInfo",
@@ -41,10 +37,8 @@ export enum Methods {
   removeFiles = "removeFiles",
   monetizeFile = "monetizeFile",
 
-  getChainOfDatatoken = "getChainOfDatatoken",
-  createLensProfile = "createLensProfile",
-  getLensProfiles = "getLensProfiles",
-  createDatatoken = "createDatatoken",
+  createProfile = "createProfile",
+  getProfiles = "getProfiles",
   collect = "collect",
   isCollected = "isCollected",
   getDatatokenMetadata = "getDatatokenMetadata",

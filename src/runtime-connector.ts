@@ -320,40 +320,22 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.monetizeFile];
   }
 
-  getChainOfDatatoken(
-    params: RequestType[Methods.getChainOfDatatoken]
-  ): ReturnType[Methods.getChainOfDatatoken] {
+  createProfile(
+    params: RequestType[Methods.createProfile]
+  ): ReturnType[Methods.createProfile] {
     return this.communicator.sendRequest({
-      method: Methods.getChainOfDatatoken,
+      method: Methods.createProfile,
       params,
-    }) as ReturnType[Methods.getChainOfDatatoken];
+    }) as ReturnType[Methods.createProfile];
   }
 
-  createLensProfile(
-    params: RequestType[Methods.createLensProfile]
-  ): ReturnType[Methods.createLensProfile] {
+  getProfiles(
+    params: RequestType[Methods.getProfiles]
+  ): ReturnType[Methods.getProfiles] {
     return this.communicator.sendRequest({
-      method: Methods.createLensProfile,
+      method: Methods.getProfiles,
       params,
-    }) as ReturnType[Methods.createLensProfile];
-  }
-
-  getLensProfiles(
-    params: RequestType[Methods.getLensProfiles]
-  ): ReturnType[Methods.getLensProfiles] {
-    return this.communicator.sendRequest({
-      method: Methods.getLensProfiles,
-      params,
-    }) as ReturnType[Methods.getLensProfiles];
-  }
-
-  createDatatoken(
-    params: RequestType[Methods.createDatatoken]
-  ): ReturnType[Methods.createDatatoken] {
-    return this.communicator.sendRequest({
-      method: Methods.createDatatoken,
-      params,
-    }) as ReturnType[Methods.createDatatoken];
+    }) as ReturnType[Methods.getProfiles];
   }
 
   collect(params: RequestType[Methods.collect]): ReturnType[Methods.collect] {
