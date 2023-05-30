@@ -363,9 +363,9 @@ function App() {
 
     const date = new Date().toISOString();
 
-    const res2 = await createPublicPostStream();
+    const res = await createPublicPostStream();
 
-    res2.content.content = {
+    const content = {
       appVersion: postVersion,
       text: "metaverse",
       images: [
@@ -376,21 +376,27 @@ function App() {
       updatedAt: date,
     };
 
-    return monetizeContent({
+    const res2 = await monetizeContent({
       pkh,
       lensNickName: "hello", //Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length
-      contentId: res2.contentId,
-      mirrorFile: res2.content,
-      profileId,
-      encrypted: {
-        text: true,
-        images: true,
-        videos: false,
+      contentId: res.contentId,
+      content: {
+        ...content,
+        encrypted: JSON.stringify({
+          text: true,
+          images: true,
+          videos: false,
+        }),
+        updatedAt: new Date().toISOString(),
       },
+      indexFileId: res.content.indexFileId,
+      profileId,
       currency: Currency.WMATIC,
       amount: 0.0001,
       collectLimit: 1000,
     });
+
+    console.log(res2);
   };
 
   const getProfileId = async ({
@@ -422,22 +428,29 @@ function App() {
 
   const monetizePost = async () => {
     const contentId =
-      "kjzl6kcym7w8y9oulzcg8vwtqk0wmqt2ry7u7oludzixy5f110bzxx5cbmuoffn";
+      "kjzl6kcym7w8y8rlcwgelcbm2v1qzfny2mbd6r1f4yaf76fxhlzqwgpqfpa3vpm";
 
     const pkh = await runtimeConnector.createCapibility({ app, wallet });
+
+    const {
+      streamContent: { indexFileId },
+    } = await runtimeConnector.loadStream({
+      app,
+      streamId: contentId,
+    });
 
     const res = await monetizeContent({
       pkh,
       contentId,
+      content: {
+        encrypted: JSON.stringify({ text: true, images: true, videos: false }),
+        updatedAt: new Date().toISOString(),
+      },
+      indexFileId,
       lensNickName: "hello", //Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length
       currency: Currency.WMATIC,
       amount: 0.0001,
       collectLimit: 1000,
-      encrypted: {
-        text: true,
-        images: true,
-        videos: false,
-      },
     });
     console.log(res);
   };
@@ -445,20 +458,20 @@ function App() {
   const monetizeContent = async ({
     pkh,
     contentId,
+    content,
+    indexFileId,
     lensNickName,
     profileId,
-    mirrorFile,
-    encrypted,
     currency,
     amount,
     collectLimit,
   }: {
     pkh: string;
     contentId: string;
+    content: any;
+    indexFileId: string;
     lensNickName?: string;
-    mirrorFile?: MirrorFile;
     profileId?: string;
-    encrypted: object;
     currency: Currency;
     amount: number;
     collectLimit: number;
@@ -466,19 +479,12 @@ function App() {
     if (!profileId) {
       profileId = await getProfileId({ pkh, lensNickName });
     }
-    if (!mirrorFile) {
-      const res = await runtimeConnector.loadStream({
-        app,
-        streamId: contentId,
-      });
-      mirrorFile = res.streamContent;
-    }
 
     try {
       await runtimeConnector.switchNetwork(80001);
       await runtimeConnector.monetizeFile({
         app,
-        indexFileId: mirrorFile!.indexFileId,
+        indexFileId,
         datatokenVars: {
           profileId,
           currency,
@@ -492,20 +498,15 @@ function App() {
         error !==
         "networkConfigurationId undefined does not match a configured networkConfiguration"
       ) {
-        await deletePost({ pkh, content: mirrorFile! });
+        await deletePost(indexFileId);
       }
       throw error;
     }
 
-    (mirrorFile!.content as { encrypted: string }).encrypted =
-      JSON.stringify(encrypted);
-    (mirrorFile!.content as { updatedAt: string }).updatedAt =
-      new Date().toISOString();
-
     const res = await runtimeConnector.updateStream({
       app,
       streamId: contentId,
-      streamContent: mirrorFile!.content,
+      streamContent: content,
       syncImmediately: true,
     });
 
@@ -562,7 +563,7 @@ function App() {
 
   const updatePrivateOrDatatokenContent = async () => {
     const contentId =
-      "kjzl6kcym7w8y6qray87uwcsc68vpq5omefq5ydfv4rpxzafdtykkbag1jnet27";
+      "kjzl6kcym7w8y8rlcwgelcbm2v1qzfny2mbd6r1f4yaf76fxhlzqwgpqfpa3vpm";
 
     const encrypted = JSON.stringify({
       text: true,
@@ -586,15 +587,10 @@ function App() {
     console.log(res);
   };
 
-  const deletePost = async ({
-    content,
-  }: {
-    pkh: string;
-    content: MirrorFile;
-  }) => {
+  const deletePost = async (indexFileId: string) => {
     const res = await runtimeConnector.removeFiles({
       app,
-      indexFileIds: [content.indexFileId],
+      indexFileIds: [indexFileId],
     });
     return res;
   };
@@ -801,7 +797,7 @@ function App() {
 
   const unlock = async () => {
     const indexFileId =
-      "kjzl6kcym7w8yaz13rj23ehtiudufl5aauuzypob3159vv7q1qmkgrd214n64hv";
+      "kjzl6kcym7w8yb93c374a7ey9dl3jb2krwpw73tt7zokc74k2a58y024wmywl6h";
     const res = await runtimeConnector.unlock({ app, indexFileId });
     console.log(res);
   };
