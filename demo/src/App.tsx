@@ -271,7 +271,7 @@ function App() {
     const stream = await runtimeConnector.loadStream({
       app: "test001",
       streamId:
-        "kjzl6kcym7w8yafvxqtfrbzl70mcphjrt1fxqsvfnz0icroykmf22enl2mz9eet",
+        "kjzl6kcym7w8yadpd2krgv873hwiy7xbrozdhctxofr8pe4d94se1n7rbam8uk9",
     });
     console.log(stream);
   };
@@ -338,22 +338,35 @@ function App() {
       videos: false,
     });
 
-    const res = await runtimeConnector.createStream({
-      modelId,
-      streamContent: {
-        appVersion: postVersion,
-        text: "hello",
-        images: [
-          "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
-        ],
-        videos: [],
-        createdAt: date,
-        updatedAt: date,
-        encrypted,
-      },
-    });
+    const { streamContent, streamId, newFile, existingFile } =
+      await runtimeConnector.createStream({
+        modelId,
+        streamContent: {
+          appVersion: postVersion,
+          text: "hello",
+          images: [
+            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+          ],
+          videos: [],
+          createdAt: date,
+          updatedAt: date,
+          encrypted,
+        },
+      });
 
-    console.log(res);
+    if (!newFile && !existingFile) {
+      throw "Failed to create content";
+    }
+
+    (existingFile || newFile)!.content = streamContent;
+
+    const contentObject = {
+      content: (existingFile || newFile)!,
+      contentId: streamId,
+    };
+
+    console.log(contentObject);
+    return contentObject;
   };
 
   const createDatatokenPostStream = async () => {
@@ -363,7 +376,7 @@ function App() {
 
     const date = new Date().toISOString();
 
-    const res = await createPublicPostStream();
+    const res = await createPrivatePostStream();
 
     const content = {
       appVersion: postVersion,
@@ -428,7 +441,7 @@ function App() {
 
   const monetizePost = async () => {
     const contentId =
-      "kjzl6kcym7w8y8rlcwgelcbm2v1qzfny2mbd6r1f4yaf76fxhlzqwgpqfpa3vpm";
+      "kjzl6kcym7w8yadpd2krgv873hwiy7xbrozdhctxofr8pe4d94se1n7rbam8uk9";
 
     const pkh = await runtimeConnector.createCapibility({ app, wallet });
 
@@ -563,7 +576,7 @@ function App() {
 
   const updatePrivateOrDatatokenContent = async () => {
     const contentId =
-      "kjzl6kcym7w8y8rlcwgelcbm2v1qzfny2mbd6r1f4yaf76fxhlzqwgpqfpa3vpm";
+      "kjzl6kcym7w8ya1cn7af70b0v8lidke822ztjmx3mhnwj715sd92266e6n8dw13";
 
     const encrypted = JSON.stringify({
       text: true,
@@ -619,7 +632,7 @@ function App() {
     const res = await runtimeConnector.updateFolderBaseInfo({
       app,
       folderId:
-        "kjzl6kcym7w8y9k8byiqo3p1ydrpgopncdamqp9yanzus7duyxj1x07ms1cc6wi",
+        "kjzl6kcym7w8y7qh3z3ycahc1gdvz1um6l3ai4x75bzeeupprwis05plzzlf023",
       newFolderName: new Date().toISOString(),
       newFolderDescription: new Date().toISOString(),
       // syncImmediately: true,
@@ -630,7 +643,8 @@ function App() {
   const changeFolderType = async () => {
     const res = await runtimeConnector.changeFolderType({
       app,
-      folderId,
+      folderId:
+        "kjzl6kcym7w8y7qh3z3ycahc1gdvz1um6l3ai4x75bzeeupprwis05plzzlf023",
       targetFolderType: FolderType.Public,
       // syncImmediately: true,
     });
@@ -641,7 +655,7 @@ function App() {
     const res = await runtimeConnector.deleteFolder({
       app,
       folderId:
-        "kjzl6kcym7w8y6pjw6yjnr9hbkeh025jrwe4hoqfscrwmpn6bx064rywv8qxavl",
+        "kjzl6kcym7w8y7qh3z3ycahc1gdvz1um6l3ai4x75bzeeupprwis05plzzlf023",
       syncImmediately: true,
     });
     console.log(res);
@@ -662,13 +676,17 @@ function App() {
   };
 
   const monetizeFolder = async () => {
+    const pkh = await runtimeConnector.createCapibility({ app, wallet });
+
+    const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
+
     const res = await runtimeConnector.monetizeFolder({
       app,
       folderId:
-        "kjzl6kcym7w8y7k2u3s9euekveiao5u386qxnpe51g6zpqds1kdsn6kdoivu6sh",
+        "kjzl6kcym7w8y7qh3z3ycahc1gdvz1um6l3ai4x75bzeeupprwis05plzzlf023",
       folderDescription: "This is a datatoken folder.",
       datatokenVars: {
-        profileId: "0x0219",
+        profileId,
         collectLimit: 100,
         amount: 0.0001,
         currency: Currency.WMATIC,
@@ -702,9 +720,9 @@ function App() {
     const res = await runtimeConnector.updateFileBaseInfo({
       app,
       indexFileId:
-        "kjzl6kcym7w8y6obo38hb8k543zk04vsm55mqq2wgcg0wkhqz895b585tw3vuo9",
+        "kjzl6kcym7w8y66naus0ftsgj6gpc0tcm8za7h4u96tq5z2cj137yam74bwvhpq",
       fileInfo: {
-        fileType: FileType.Public,
+        mirrorName: "aaa",
       },
       syncImmediately: true,
     });
@@ -715,9 +733,10 @@ function App() {
     const res = await runtimeConnector.moveFiles({
       app,
       targetFolderId:
-        "kjzl6kcym7w8y94clt1zso1lov99lhu14q0fr2vl8i1nn55slrz47dvqix0it6o",
+        "kjzl6kcym7w8y74i4y8nuh2buw2g95fh7yxrzfs41h07at1bf9p80hpc2018er1",
       sourceIndexFileIds: [
-        "kjzl6kcym7w8y6obo38hb8k543zk04vsm55mqq2wgcg0wkhqz895b585tw3vuo9",
+        "kjzl6kcym7w8y66naus0ftsgj6gpc0tcm8za7h4u96tq5z2cj137yam74bwvhpq",
+        "kjzl6kcym7w8y9vo1yy7uoz9zbiqspcxxgx1lbfxrhqsdd84cwejpfowdrekkul",
       ],
       syncImmediately: true,
     });
@@ -728,8 +747,8 @@ function App() {
     const res = await runtimeConnector.removeFiles({
       app,
       indexFileIds: [
-        "kjzl6kcym7w8y62b7739cc4tz98zrva0se6z3qyins6a8cxfaepgek5zskg0iiq",
-        "kjzl6kcym7w8y5gwiglq0ic82705yzb4yve3741b6pnekno8ntsvh7hejxhy7c4",
+        "kjzl6kcym7w8y66naus0ftsgj6gpc0tcm8za7h4u96tq5z2cj137yam74bwvhpq",
+        "kjzl6kcym7w8y9vo1yy7uoz9zbiqspcxxgx1lbfxrhqsdd84cwejpfowdrekkul",
       ],
       syncImmediately: true,
     });
@@ -737,12 +756,16 @@ function App() {
   };
 
   const monetizeFile = async () => {
+    const pkh = await runtimeConnector.createCapibility({ app, wallet });
+
+    const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
+
     const res = await runtimeConnector.monetizeFile({
       app,
-      indexFileId:
-        "kjzl6kcym7w8y8chugqcvqoox6nnxaf0hhofv587ba99kioz9089ofjnsrgtvyr",
+      streamId:
+        "kjzl6kcym7w8y8j54sv8p4l8daxbj571b1emd8a3v5s2r9afm6di17hffmaa15t",
       datatokenVars: {
-        profileId: "0x0219",
+        profileId,
         collectLimit: 100,
         amount: 0.0001,
         currency: Currency.WMATIC,
@@ -769,10 +792,11 @@ function App() {
 
   const collect = async () => {
     await runtimeConnector.switchNetwork(80001);
+    const streamId =
+      "kjzl6kcym7w8y8j54sv8p4l8daxbj571b1emd8a3v5s2r9afm6di17hffmaa15t";
     const res = await runtimeConnector.collect({
       app,
-      indexFileId:
-        "kjzl6kcym7w8y65io6cihifwm4yqx9ochcaoq0934yeivmmbkht7cj780fxq7zo",
+      streamId,
     });
     console.log(res);
   };
@@ -796,9 +820,11 @@ function App() {
   };
 
   const unlock = async () => {
-    const indexFileId =
-      "kjzl6kcym7w8yb93c374a7ey9dl3jb2krwpw73tt7zokc74k2a58y024wmywl6h";
-    const res = await runtimeConnector.unlock({ app, indexFileId });
+    const streamId =
+      "kjzl6kcym7w8y73bioqqq6v6ghazp6kl95zwiouj9tadke0dsay772dcs0kq4ub";
+    // const indexFileId =
+    //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
+    const res = await runtimeConnector.unlock({ app, streamId });
     console.log(res);
   };
   /*** Data Monetize ***/

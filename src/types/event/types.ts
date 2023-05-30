@@ -6,6 +6,7 @@ import {
   CollectOutput,
   DatatokenMetadata,
   DatatokenVars,
+  DecryptionConditions,
 } from "../data-monetize/types";
 import { FileType, FolderType } from "../fs";
 import {
@@ -140,19 +141,22 @@ export interface RequestType {
   };
   monetizeFile: {
     app?: string;
-    indexFileId: string;
+    streamId?: string;
+    indexFileId?: string;
     datatokenVars: Omit<DatatokenVars, "streamId">;
+    decryptionConditions?: DecryptionConditions;
   };
 
   createProfile: string;
   getProfiles: string;
   collect: {
     app?: string;
-    indexFileId: string;
+    streamId?: string;
+    indexFileId?: string;
   };
   isCollected: { datatokenId: string; address: string };
   getDatatokenMetadata: string;
-  unlock: { app?: string; indexFileId: string };
+  unlock: { app?: string; streamId?: string; indexFileId?: string };
 }
 
 export interface ReturnType {
@@ -193,7 +197,7 @@ export interface ReturnType {
   createStream: Promise<
     StreamObject & { newFile?: MirrorFile; existingFile?: MirrorFile }
   >;
-  updateStream: Promise<boolean>;
+  updateStream: Promise<{ streamContent: any; currentFile: MirrorFile }>;
 
   readFolders: Promise<StructuredFolders>;
   createFolder: Promise<{
@@ -241,9 +245,8 @@ export interface ReturnType {
     allFolders: StructuredFolders;
   }>;
   monetizeFile: Promise<{
+    streamContent: any;
     currentFile: MirrorFile;
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
   }>;
 
   createProfile: Promise<string>;
