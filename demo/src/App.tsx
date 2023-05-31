@@ -14,6 +14,7 @@ import {
   Currency,
   Mode,
   CRYPTO_WALLET,
+  UploadProviderName,
 } from "@dataverse/runtime-connector";
 import { getAddressFromPkh } from "./utils/addressAndPkh";
 
@@ -29,6 +30,10 @@ const modelId =
   "kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs";
 //kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs
 //kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo
+const uploadProvider = {
+  name: UploadProviderName.Lighthouse,
+  apiKey: "", // input your api key to call uploadFile successfully
+};
 
 function App() {
   const [address, setAddress] = useState("");
@@ -69,7 +74,7 @@ function App() {
       console.log({ address });
       return address;
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -162,6 +167,23 @@ function App() {
     console.log({ res });
   };
 
+  const ethereumRequest = async () => {
+    const address = await connectWallet();
+    const res = await runtimeConnector.ethereumRequest({
+      method: "eth_sendTransaction",
+      params: [
+        {
+          from: address, // The user's active address.
+          to: address, // Required except during contract publications.
+          value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
+          // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
+          // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
+        },
+      ],
+    });
+    console.log({ res });
+  };
+
   /*** Wallet ***/
 
   /*** Identity ***/
@@ -211,7 +233,7 @@ function App() {
       );
       console.log({ wallet });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -506,7 +528,7 @@ function App() {
         },
       });
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
       if (
         error !==
         "networkConfigurationId undefined does not match a configured networkConfiguration"
@@ -576,7 +598,7 @@ function App() {
 
   const updatePrivateOrDatatokenContent = async () => {
     const contentId =
-      "kjzl6kcym7w8ya1cn7af70b0v8lidke822ztjmx3mhnwj715sd92266e6n8dw13";
+      "kjzl6kcym7w8y73jgpvkx1xcr67apdtdfj96vg142909nhwykxp6hslx529rlo7";
 
     const encrypted = JSON.stringify({
       text: true,
@@ -697,23 +719,39 @@ function App() {
   };
   /*** Folders ***/
 
-  /*** Mirrors ***/
-  const uploadFile = async () => {
-    const res = await runtimeConnector.uploadFile({
-      app,
-      folderId:
-        "kjzl6kcym7w8y7k2u3s9euekveiao5u386qxnpe51g6zpqds1kdsn6kdoivu6sh",
-      // contentId: "bafybeibsels6lnv7pcoyh4v3diezwm5v7lmp2yezkzczk3hl22hvmhgmwq",
-      // contentType: IndexFileContentType.CID,
-      // fileType: FileType.Private,
-      // mirrorName: "BSC_logo.png",
-      // originDate: new Date().toISOString(),
-      // originType: OriginType.upload,
-      // originURL: "https://dataverse-os.com",
+  /*** Files ***/
+  const uploadFile = async (event: any) => {
+    try {
+      await createCapibility();
 
-      syncImmediately: true,
-    });
-    console.log(res);
+      const file = event.target.files[0];
+      console.log(file);
+      const fileName = file.name;
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      const fileBase64: string = await new Promise((resolve) => {
+        reader.addEventListener("load", async (e: any) => {
+          resolve(e.target.result);
+        });
+      });
+
+      console.log(fileBase64);
+
+      const res = await runtimeConnector.uploadFile({
+        app,
+        folderId:
+          "kjzl6kcym7w8y9rs0bzdj838kejq72e0otx6c31q6yhfw6j8ubvns1mmt9wpnzy",
+        fileBase64,
+        fileName,
+        encrypted: false,
+        uploadProvider,
+        syncImmediately: true,
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const updateFileBaseInfo = async () => {
@@ -747,32 +785,39 @@ function App() {
     const res = await runtimeConnector.removeFiles({
       app,
       indexFileIds: [
-        "kjzl6kcym7w8y66naus0ftsgj6gpc0tcm8za7h4u96tq5z2cj137yam74bwvhpq",
-        "kjzl6kcym7w8y9vo1yy7uoz9zbiqspcxxgx1lbfxrhqsdd84cwejpfowdrekkul",
+        "kjzl6kcym7w8y7owefxq7at6tyqspgv6m67c94max7jlgi7goz8m64119s5xtu6",
       ],
       syncImmediately: true,
     });
     console.log(res);
+    HTMLHRElement;
   };
 
   const monetizeFile = async () => {
-    const pkh = await runtimeConnector.createCapibility({ app, wallet });
+    try {
+      const pkh = await runtimeConnector.createCapibility({ app, wallet });
 
-    const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
+      const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
 
-    const res = await runtimeConnector.monetizeFile({
-      app,
-      streamId:
-        "kjzl6kcym7w8y8j54sv8p4l8daxbj571b1emd8a3v5s2r9afm6di17hffmaa15t",
-      datatokenVars: {
-        profileId,
-        collectLimit: 100,
-        amount: 0.0001,
-        currency: Currency.WMATIC,
-      },
-    });
-    console.log(res);
-    return res;
+      const res = await runtimeConnector.monetizeFile({
+        app,
+        // streamId:
+        //   "kjzl6kcym7w8y8j54sv8p4l8daxbj571b1emd8a3v5s2r9afm6di17hffmaa15t",
+        indexFileId:
+          "kjzl6kcym7w8y95pg3pskvbn81qedyf0htw12g6donw105dufu6atjqfoi9t57a",
+        datatokenVars: {
+          profileId,
+          collectLimit: 100,
+          amount: 0.0001,
+          currency: Currency.WMATIC,
+        },
+        uploadProvider,
+      });
+      console.log(res);
+      return res;
+    } catch (error) {
+      console.error(error);
+    }
   };
   /*** Mirrors ***/
 
@@ -820,11 +865,12 @@ function App() {
   };
 
   const unlock = async () => {
-    const streamId =
-      "kjzl6kcym7w8y73bioqqq6v6ghazp6kl95zwiouj9tadke0dsay772dcs0kq4ub";
+    await createCapibility();
+    const indexFileId =
+      "kjzl6kcym7w8y95pg3pskvbn81qedyf0htw12g6donw105dufu6atjqfoi9t57a";
     // const indexFileId =
     //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
-    const res = await runtimeConnector.unlock({ app, streamId });
+    const res = await runtimeConnector.unlock({ app, indexFileId });
     console.log(res);
   };
   /*** Data Monetize ***/
@@ -847,6 +893,8 @@ function App() {
       <button onClick={sign}>sign</button>
       <hr />
       <button onClick={contractCall}>contractCall</button>
+      <hr />
+      <button onClick={ethereumRequest}>ethereumRequest</button>
       <hr />
       <button onClick={createCapibility}>createCapibility</button>
       <div className="blackText">{pkh}</div>
@@ -921,8 +969,18 @@ function App() {
       <button onClick={deleteFolder}>deleteFolder</button>
       <button onClick={deleteAllFolder}>deleteAllFolder</button>
       <button onClick={monetizeFolder}>monetizeFolder</button>
+      <br />
+      <br />
+      <button>
+        <span>uploadFile</span>
+        <input
+          type="file"
+          onChange={uploadFile}
+          name="uploadFile"
+          style={{ width: "168px", marginLeft: "10px" }}
+        />
+      </button>
 
-      <button onClick={uploadFile}>uploadFile</button>
       <button onClick={updateFileBaseInfo}>updateFileBaseInfo</button>
       <button onClick={moveFiles}>moveFiles</button>
       <button onClick={removeFiles}>removeFiles</button>

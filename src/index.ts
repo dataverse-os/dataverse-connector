@@ -1,4 +1,9 @@
-export { Extension, Browser, Mode } from "./types/constants";
+export {
+  Extension,
+  Browser,
+  Mode,
+  UploadProviderName,
+} from "./types/constants";
 export {
   METAMASK,
   PARTICLE,

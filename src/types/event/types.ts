@@ -1,7 +1,8 @@
-import { Mode } from "../constants";
+import { Mode, UploadProvider } from "../constants";
 import { CRYPTO_WALLET, Chain } from "../crypto-wallet";
 import { AppsInfo, DAppInfo, DAppTable } from "../dapp-verifier/types";
 import { StreamObject } from "../data-models";
+import { StreamContent } from "../data-models/types";
 import {
   CollectOutput,
   DatatokenMetadata,
@@ -34,6 +35,10 @@ export interface RequestType {
     params: any[];
     mode?: Mode;
   };
+  ethereumRequest: {
+    method: string;
+    params?: any;
+  };
   createCapibility: {
     wallet?: CRYPTO_WALLET;
     app?: string;
@@ -58,12 +63,12 @@ export interface RequestType {
   getModelBaseInfo: string;
   createStream: {
     modelId: string;
-    streamContent: any;
+    streamContent: StreamContent;
   };
   updateStream: {
     app?: string;
     streamId: string;
-    streamContent: any;
+    streamContent: StreamContent;
     syncImmediately?: boolean;
   };
 
@@ -102,17 +107,10 @@ export interface RequestType {
   uploadFile: {
     app?: string;
     folderId: string;
-    fileInfo?: Omit<
-      FileInfo,
-      | "fileType"
-      | "datatokenId"
-      | "fileKey"
-      | "encryptedSymmetricKey"
-      | "decryptionConditions"
-      | "decryptionConditionsType"
-    > & {
-      fileType: FileType;
-    };
+    fileBase64: string;
+    fileName: string;
+    encrypted: boolean;
+    uploadProvider: UploadProvider;
     syncImmediately?: boolean;
   };
   updateFileBaseInfo: {
@@ -145,6 +143,7 @@ export interface RequestType {
     indexFileId?: string;
     datatokenVars: Omit<DatatokenVars, "streamId">;
     decryptionConditions?: DecryptionConditions;
+    uploadProvider?: UploadProvider;
   };
 
   createProfile: string;
@@ -170,6 +169,7 @@ export interface ReturnType {
   switchNetwork: Promise<boolean>;
   sign: Promise<any>;
   contractCall: Promise<any>;
+  ethereumRequest: Promise<any>;
   createCapibility: Promise<string>;
   checkCapibility: Promise<boolean>;
   getChainFromPkh: Promise<string>;
@@ -185,19 +185,22 @@ export interface ReturnType {
   getDAppTable: Promise<DAppTable>;
   getDAppInfo: Promise<DAppInfo>;
   getValidAppCaps: Promise<AppsInfo>;
-  getModelBaseInfo: Promise<Record<string, any>>;
+  getModelBaseInfo: Promise<StreamContent>;
 
   loadStream: Promise<{
     pkh: string;
     app?: string;
     modelId: string;
-    streamContent: any;
+    streamContent: StreamContent;
   }>;
-  loadStreamsBy: Promise<Record<string, any>>;
+  loadStreamsBy: Promise<StreamContent>;
   createStream: Promise<
     StreamObject & { newFile?: MirrorFile; existingFile?: MirrorFile }
   >;
-  updateStream: Promise<{ streamContent: any; currentFile: MirrorFile }>;
+  updateStream: Promise<{
+    streamContent: StreamContent;
+    currentFile: MirrorFile;
+  }>;
 
   readFolders: Promise<StructuredFolders>;
   createFolder: Promise<{
@@ -245,7 +248,7 @@ export interface ReturnType {
     allFolders: StructuredFolders;
   }>;
   monetizeFile: Promise<{
-    streamContent: any;
+    streamContent?: StreamContent;
     currentFile: MirrorFile;
   }>;
 
@@ -262,7 +265,7 @@ export interface ReturnType {
   >;
   isCollected: Promise<boolean>;
   getDatatokenMetadata: Promise<DatatokenMetadata>;
-  unlock: Promise<object>;
+  unlock: Promise<MirrorFile>;
 }
 export interface RequestInputs {
   method: Methods;

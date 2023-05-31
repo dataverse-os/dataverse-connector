@@ -131,6 +131,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.contractCall];
   }
 
+  ethereumRequest(
+    params: RequestType[Methods.ethereumRequest]
+  ): ReturnType[Methods.ethereumRequest] {
+    return this.communicator.sendRequest({
+      method: Methods.ethereumRequest,
+      params,
+    }) as ReturnType[Methods.ethereumRequest];
+  }
+
   createCapibility(
     params: RequestType[Methods.createCapibility]
   ): ReturnType[Methods.createCapibility] {

@@ -5,6 +5,7 @@ export enum Methods {
   switchNetwork = "switchNetwork",
   sign = "sign",
   contractCall = "contractCall",
+  ethereumRequest = "ethereumRequest",
   createCapibility = "createCapibility",
   checkCapibility = "checkCapibility",
   getChainFromPkh = "getChainFromPkh",
