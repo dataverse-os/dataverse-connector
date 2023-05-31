@@ -15,6 +15,7 @@ import {
   Mode,
   CRYPTO_WALLET,
   UploadProviderName,
+  DecryptionConditions,
 } from "@dataverse/runtime-connector";
 import { getAddressFromPkh } from "./utils/addressAndPkh";
 
@@ -293,7 +294,7 @@ function App() {
     const stream = await runtimeConnector.loadStream({
       app: "test001",
       streamId:
-        "kjzl6kcym7w8yadpd2krgv873hwiy7xbrozdhctxofr8pe4d94se1n7rbam8uk9",
+        "kjzl6kcym7w8ya8g9cj5764kll6veldqws40ub29r1odut2pxiqxet80sl9p6th",
     });
     console.log(stream);
   };
@@ -463,7 +464,7 @@ function App() {
 
   const monetizePost = async () => {
     const contentId =
-      "kjzl6kcym7w8yadpd2krgv873hwiy7xbrozdhctxofr8pe4d94se1n7rbam8uk9";
+      "kjzl6kcym7w8y808e1c24rmozejq2yjhs6rqi3y9p2mmhst9x7wy5muockde39b";
 
     const pkh = await runtimeConnector.createCapibility({ app, wallet });
 
@@ -486,6 +487,20 @@ function App() {
       currency: Currency.WMATIC,
       amount: 0.0001,
       collectLimit: 1000,
+      decryptionConditions: [
+        {
+          conditionType: "evmBasic",
+          contractAddress: "",
+          standardContractType: "",
+          chain: "polygon",
+          method: "",
+          parameters: [":userAddress"],
+          returnValueTest: {
+            comparator: "=",
+            value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
+          },
+        },
+      ], // Only sell to specific users
     });
     console.log(res);
   };
@@ -500,6 +515,7 @@ function App() {
     currency,
     amount,
     collectLimit,
+    decryptionConditions,
   }: {
     pkh: string;
     contentId: string;
@@ -510,6 +526,7 @@ function App() {
     currency: Currency;
     amount: number;
     collectLimit: number;
+    decryptionConditions?: DecryptionConditions;
   }) => {
     if (!profileId) {
       profileId = await getProfileId({ pkh, lensNickName });
@@ -526,6 +543,7 @@ function App() {
           amount,
           collectLimit,
         },
+        decryptionConditions,
       });
     } catch (error: any) {
       console.error(error);
@@ -865,13 +883,17 @@ function App() {
   };
 
   const unlock = async () => {
-    await createCapibility();
-    const indexFileId =
-      "kjzl6kcym7w8y95pg3pskvbn81qedyf0htw12g6donw105dufu6atjqfoi9t57a";
-    // const indexFileId =
-    //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
-    const res = await runtimeConnector.unlock({ app, indexFileId });
-    console.log(res);
+    try {
+      await createCapibility();
+      const streamId =
+        "kjzl6kcym7w8y808e1c24rmozejq2yjhs6rqi3y9p2mmhst9x7wy5muockde39b";
+      // const indexFileId =
+      //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
+      const res = await runtimeConnector.unlock({ app, streamId });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
   };
   /*** Data Monetize ***/
 
