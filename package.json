@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/runtime-connector",
-  "version": "1.0.41",
+  "version": "1.0.42",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "files": [
