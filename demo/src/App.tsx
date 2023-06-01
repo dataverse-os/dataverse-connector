@@ -58,7 +58,6 @@ function App() {
   const [walletChanged, setWalletChanged] = useState<boolean>(false);
 
   /*** Wallet ***/
-
   const selectWallet = async () => {
     const wallet = await runtimeConnector.selectWallet();
     localStorage.setItem("walletName", wallet.name);
@@ -89,23 +88,6 @@ function App() {
     const res = await runtimeConnector.switchNetwork(137);
     console.log({ res });
   };
-
-  // const ethereumRequest = async () => {
-  //   const address = await connectWallet();
-  //   const res = await runtimeConnector.ethereumRequest({
-  //     method: "eth_sendTransaction",
-  //     params: [
-  //       {
-  //         from: address, // The user's active address.
-  //         to: address, // Required except during contract publications.
-  //         value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
-  //         // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
-  //         // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
-  //       },
-  //     ],
-  //   });
-  //   console.log({ res });
-  // };
 
   const sign = async () => {
     await connectWallet();
@@ -185,40 +167,10 @@ function App() {
     console.log({ res });
   };
 
-  /*** Wallet ***/
-
-  /*** Identity ***/
-
-  const createCapibility = async () => {
-    // await connectWallet();
-    // // await switchNetwork();
-    const pkh = await runtimeConnector.createCapibility({
-      wallet,
-      app,
-    });
-    setPkh(pkh);
-    console.log({ pkh });
-    return pkh;
-  };
-
-  const checkCapibility = async () => {
-    const isCurrentPkhValid = await runtimeConnector.checkCapibility(app);
-    console.log(isCurrentPkhValid);
-    setIsCurrentPkhValid(isCurrentPkhValid);
-  };
-
   const getCurrentPkh = async () => {
     const res = await runtimeConnector.wallet.getCurrentPkh();
     console.log(res);
     setCurrentPkh(res);
-  };
-
-  const getChainFromPkh = async () => {
-    const chain = await runtimeConnector.wallet.getChainFromPkh(
-      "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555"
-    );
-    console.log({ chain });
-    setChain(chain);
   };
 
   const getPkhList = async () => {
@@ -259,11 +211,9 @@ function App() {
       console.log({ error });
     }
   };
+  /*** Wallet ***/
 
-  /*** Identity ***/
-
-  /*** APP Registry ***/
-
+  /*** DApp ***/
   const getDAppTable = async () => {
     const appsInfo = await runtimeConnector.getDAppTable();
     console.log({ appsInfo });
@@ -286,10 +236,27 @@ function App() {
     );
     console.log(res);
   };
+  /*** DApp ***/
 
-  /*** APP Registry ***/
+  /*** Stream ***/
+  const createCapibility = async () => {
+    // await connectWallet();
+    // // await switchNetwork();
+    const pkh = await runtimeConnector.createCapibility({
+      wallet,
+      app,
+    });
+    setPkh(pkh);
+    console.log({ pkh });
+    return pkh;
+  };
 
-  /*** Post ***/
+  const checkCapibility = async () => {
+    const isCurrentPkhValid = await runtimeConnector.checkCapibility(app);
+    console.log(isCurrentPkhValid);
+    setIsCurrentPkhValid(isCurrentPkhValid);
+  };
+
   const loadStream = async () => {
     const stream = await runtimeConnector.loadStream({
       app: "test001",
@@ -312,7 +279,7 @@ function App() {
     // console.log(res);
   };
 
-  const createPublicPostStream = async () => {
+  const createStream = async () => {
     const date = new Date().toISOString();
 
     const encrypted = JSON.stringify({
@@ -321,38 +288,24 @@ function App() {
       videos: false,
     });
 
-    const { streamContent, streamId, newFile, existingFile } =
-      await runtimeConnector.createStream({
-        modelId,
-        streamContent: {
-          appVersion: postVersion,
-          text: "hello",
-          images: [
-            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
-          ],
-          videos: [],
-          createdAt: date,
-          updatedAt: date,
-          encrypted,
-        },
-      });
-
-    if (!newFile && !existingFile) {
-      throw "Failed to create content";
-    }
-
-    (existingFile || newFile)!.content = streamContent;
-
-    const contentObject = {
-      content: (existingFile || newFile)!,
-      contentId: streamId,
-    };
-
-    console.log(contentObject);
-    return contentObject;
+    const res = await runtimeConnector.createStream({
+      modelId,
+      streamContent: {
+        appVersion: postVersion,
+        text: "hello",
+        images: [
+          "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+        ],
+        videos: [],
+        createdAt: date,
+        updatedAt: date,
+        encrypted,
+      },
+    });
+    console.log(res);
   };
 
-  const createPrivatePostStream = async () => {
+  const updateStream = async () => {
     const date = new Date().toISOString();
 
     const encrypted = JSON.stringify({
@@ -361,294 +314,24 @@ function App() {
       videos: false,
     });
 
-    const { streamContent, streamId, newFile, existingFile } =
-      await runtimeConnector.createStream({
-        modelId,
-        streamContent: {
-          appVersion: postVersion,
-          text: "hello",
-          images: [
-            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
-          ],
-          videos: [],
-          createdAt: date,
-          updatedAt: date,
-          encrypted,
-        },
-      });
-
-    if (!newFile && !existingFile) {
-      throw "Failed to create content";
-    }
-
-    (existingFile || newFile)!.content = streamContent;
-
-    const contentObject = {
-      content: (existingFile || newFile)!,
-      contentId: streamId,
-    };
-
-    console.log(contentObject);
-    return contentObject;
-  };
-
-  const createDatatokenPostStream = async () => {
-    const pkh = await runtimeConnector.createCapibility({ app, wallet });
-
-    const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
-
-    const date = new Date().toISOString();
-
-    const res = await createPrivatePostStream();
-
-    const content = {
-      appVersion: postVersion,
-      text: "metaverse",
-      images: [
-        "https://bafkreidhjbco3nh4uc7wwt5c7auirotd76ch6hlzpps7bwdvgckflp7zmi.ipfs.w3s.link/",
-      ],
-      videos: [],
-      createdAt: date,
-      updatedAt: date,
-    };
-
-    const res2 = await monetizeContent({
-      pkh,
-      lensNickName: "hello", //Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length
-      contentId: res.contentId,
-      content: {
-        ...content,
-        encrypted: JSON.stringify({
-          text: true,
-          images: true,
-          videos: false,
-        }),
-        updatedAt: new Date().toISOString(),
-      },
-      indexFileId: res.content.indexFileId,
-      profileId,
-      currency: Currency.WMATIC,
-      amount: 0.0001,
-      collectLimit: 1000,
-    });
-
-    console.log(res2);
-  };
-
-  const getProfileId = async ({
-    pkh,
-    lensNickName,
-  }: {
-    pkh: string;
-    lensNickName?: string;
-  }) => {
-    const lensProfiles = await runtimeConnector.getProfiles(
-      getAddressFromPkh(pkh)
-    );
-
-    let profileId;
-    if (lensProfiles?.[0]?.id) {
-      profileId = lensProfiles?.[0]?.id;
-    } else {
-      if (!lensNickName) {
-        throw "Please pass in lensNickName";
-      }
-      if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
-        throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
-      }
-      profileId = await runtimeConnector.createProfile(lensNickName);
-    }
-
-    return profileId;
-  };
-
-  const monetizePost = async () => {
-    const contentId =
-      "kjzl6kcym7w8y808e1c24rmozejq2yjhs6rqi3y9p2mmhst9x7wy5muockde39b";
-
-    const pkh = await runtimeConnector.createCapibility({ app, wallet });
-
-    const {
-      streamContent: { indexFileId },
-    } = await runtimeConnector.loadStream({
-      app,
-      streamId: contentId,
-    });
-
-    const res = await monetizeContent({
-      pkh,
-      contentId,
-      content: {
-        encrypted: JSON.stringify({ text: true, images: true, videos: false }),
-        updatedAt: new Date().toISOString(),
-      },
-      indexFileId,
-      lensNickName: "hello", //Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length
-      currency: Currency.WMATIC,
-      amount: 0.0001,
-      collectLimit: 1000,
-      decryptionConditions: [
-        {
-          conditionType: "evmBasic",
-          contractAddress: "",
-          standardContractType: "",
-          chain: "polygon",
-          method: "",
-          parameters: [":userAddress"],
-          returnValueTest: {
-            comparator: "=",
-            value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
-          },
-        },
-      ], // Only sell to specific users
-    });
-    console.log(res);
-  };
-
-  const monetizeContent = async ({
-    pkh,
-    contentId,
-    content,
-    indexFileId,
-    lensNickName,
-    profileId,
-    currency,
-    amount,
-    collectLimit,
-    decryptionConditions,
-  }: {
-    pkh: string;
-    contentId: string;
-    content: any;
-    indexFileId: string;
-    lensNickName?: string;
-    profileId?: string;
-    currency: Currency;
-    amount: number;
-    collectLimit: number;
-    decryptionConditions?: DecryptionConditions;
-  }) => {
-    if (!profileId) {
-      profileId = await getProfileId({ pkh, lensNickName });
-    }
-
-    try {
-      await runtimeConnector.switchNetwork(80001);
-      await runtimeConnector.monetizeFile({
-        app,
-        indexFileId,
-        datatokenVars: {
-          profileId,
-          currency,
-          amount,
-          collectLimit,
-        },
-        decryptionConditions,
-      });
-    } catch (error: any) {
-      console.error(error);
-      if (
-        error !==
-        "networkConfigurationId undefined does not match a configured networkConfiguration"
-      ) {
-        await deletePost(indexFileId);
-      }
-      throw error;
-    }
-
     const res = await runtimeConnector.updateStream({
-      app,
-      streamId: contentId,
-      streamContent: content,
-      syncImmediately: true,
-    });
-
-    return res;
-  };
-
-  const updatePostFromPublicToPrivate = async () => {
-    const contentId =
-      "kjzl6kcym7w8y5ieh12ywk2d248xjn2tke5si45s6xeg8ka7uibrav53przbffp";
-
-    const encrypted = JSON.stringify({
-      text: true,
-      images: true,
-      videos: false,
-    });
-
-    const res = await runtimeConnector.updateStream({
-      app,
-      streamId: contentId,
+      streamId:
+        "kjzl6kcym7w8y69ar71y7owfizordoq3g4ancmlqmjg9x6q3cff9nqdjizsy4rt",
       streamContent: {
-        encrypted,
-      },
-      syncImmediately: true,
-    });
-
-    console.log(res);
-  };
-
-  const updatePublicContent = async () => {
-    const contentId =
-      "kjzl6kcym7w8y69ar71y7owfizordoq3g4ancmlqmjg9x6q3cff9nqdjizsy4rt";
-
-    const encrypted = JSON.stringify({
-      text: false,
-      images: false,
-      videos: false,
-    });
-
-    const res = await runtimeConnector.updateStream({
-      app,
-      streamId: contentId,
-      streamContent: {
-        text: "update my post -- " + new Date().toISOString(),
+        appVersion: postVersion,
+        text: "hello",
         images: [
-          "https://bafkreidhjbco3nh4uc7wwt5c7auirotd76ch6hlzpps7bwdvgckflp7zmi.ipfs.w3s.link",
+          "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
         ],
+        videos: [],
+        createdAt: date,
+        updatedAt: date,
         encrypted,
       },
-      syncImmediately: true,
     });
-
     console.log(res);
   };
-
-  const updatePrivateOrDatatokenContent = async () => {
-    const contentId =
-      "kjzl6kcym7w8y73jgpvkx1xcr67apdtdfj96vg142909nhwykxp6hslx529rlo7";
-
-    const encrypted = JSON.stringify({
-      text: true,
-      images: true,
-      videos: false,
-    });
-
-    const res = await runtimeConnector.updateStream({
-      app,
-      streamId: contentId,
-      streamContent: {
-        text: "update my post -- " + new Date().toISOString(),
-        images: [
-          "https://bafkreidhjbco3nh4uc7wwt5c7auirotd76ch6hlzpps7bwdvgckflp7zmi.ipfs.w3s.link",
-        ],
-        encrypted,
-      },
-      syncImmediately: true,
-    });
-
-    console.log(res);
-  };
-
-  const deletePost = async (indexFileId: string) => {
-    const res = await runtimeConnector.removeFiles({
-      app,
-      indexFileIds: [indexFileId],
-    });
-    return res;
-  };
-
-  /*** Post ***/
+  /*** Stream ***/
 
   /*** Folders ***/
   const readFolders = async () => {
@@ -837,9 +520,9 @@ function App() {
       console.error(error);
     }
   };
-  /*** Mirrors ***/
+  /*** Files ***/
 
-  /*** Data Monetize ***/
+  /*** Monetize ***/
   const createProfile = async () => {
     await runtimeConnector.switchNetwork(80001);
     const res = await runtimeConnector.createProfile("test6");
@@ -853,15 +536,45 @@ function App() {
     console.log(res);
   };
 
-  const collect = async () => {
-    await runtimeConnector.switchNetwork(80001);
-    const streamId =
-      "kjzl6kcym7w8y8j54sv8p4l8daxbj571b1emd8a3v5s2r9afm6di17hffmaa15t";
-    const res = await runtimeConnector.collect({
-      app,
-      streamId,
-    });
-    console.log(res);
+  const getProfileId = async ({
+    pkh,
+    lensNickName,
+  }: {
+    pkh: string;
+    lensNickName?: string;
+  }) => {
+    const lensProfiles = await runtimeConnector.getProfiles(
+      getAddressFromPkh(pkh)
+    );
+
+    let profileId;
+    if (lensProfiles?.[0]?.id) {
+      profileId = lensProfiles?.[0]?.id;
+    } else {
+      if (!lensNickName) {
+        throw "Please pass in lensNickName";
+      }
+      if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
+        throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
+      }
+      profileId = await runtimeConnector.createProfile(lensNickName);
+    }
+
+    return profileId;
+  };
+
+  const unlock = async () => {
+    try {
+      await createCapibility();
+      const streamId =
+        "kjzl6kcym7w8y808e1c24rmozejq2yjhs6rqi3y9p2mmhst9x7wy5muockde39b";
+      // const indexFileId =
+      //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
+      const res = await runtimeConnector.unlock({ app, streamId });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const isCollected = async () => {
@@ -881,21 +594,7 @@ function App() {
     const res = await runtimeConnector.getDatatokenMetadata(datatokenId);
     console.log(res);
   };
-
-  const unlock = async () => {
-    try {
-      await createCapibility();
-      const streamId =
-        "kjzl6kcym7w8y808e1c24rmozejq2yjhs6rqi3y9p2mmhst9x7wy5muockde39b";
-      // const indexFileId =
-      //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
-      const res = await runtimeConnector.unlock({ app, streamId });
-      console.log(res);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  /*** Data Monetize ***/
+  /*** Monetize ***/
 
   return (
     <div className="App">
@@ -917,17 +616,6 @@ function App() {
       <button onClick={contractCall}>contractCall</button>
       <hr />
       <button onClick={ethereumRequest}>ethereumRequest</button>
-      <hr />
-      <button onClick={createCapibility}>createCapibility</button>
-      <div className="blackText">{pkh}</div>
-      <hr />
-      <button onClick={checkCapibility}>checkCapibility</button>
-      <div className="blackText">
-        {isCurrentPkhValid !== undefined && String(isCurrentPkhValid)}
-      </div>
-      <hr />
-      <button onClick={getChainFromPkh}>getChainFromPkh</button>
-      <div className="blackText">{chain}</div>
       <hr />
       <button onClick={getPkhList}>getPkhList</button>
       {pkhList.map((pkh) => (
@@ -959,29 +647,18 @@ function App() {
       <button onClick={getModelBaseInfo}>getModelBaseInfo</button>
       <br />
       <br />
+      <button onClick={createCapibility}>createCapibility</button>
+      <div className="blackText">{pkh}</div>
+      <hr />
+      <button onClick={checkCapibility}>checkCapibility</button>
+      <div className="blackText">
+        {isCurrentPkhValid !== undefined && String(isCurrentPkhValid)}
+      </div>
+      <hr />
       <button onClick={loadStream}>loadStream</button>
-      {/* <button onClick={loadOthersProfileStreamsByModel}>
-        loadOthersProfileStreamsByModel
-      </button>
-      <button onClick={loadMyProfileStreamsByModel}>
-        loadMyProfileStreamsByModel
-      </button>
-      <button onClick={createProfileStream}>createProfileStream</button>
-      <button onClick={updateProfileStreams}>updateProfileStreams</button> */}
       <button onClick={loadStreamsBy}>loadStreamsBy</button>
-      <button onClick={createPublicPostStream}>createPublicPostStream</button>
-      <button onClick={createPrivatePostStream}>createPrivatePostStream</button>
-      <button onClick={createDatatokenPostStream}>
-        createDatatokenPostStream
-      </button>
-      <button onClick={monetizePost}>monetizePost</button>
-      <button onClick={updatePostFromPublicToPrivate}>
-        updatePostFromPublicToPrivate
-      </button>
-      <button onClick={updatePublicContent}>updatePublicContent</button>
-      <button onClick={updatePrivateOrDatatokenContent}>
-        updatePrivateOrDatatokenContent
-      </button>
+      <button onClick={createStream}>createStream</button>
+      <button onClick={updateStream}>updateStream</button>
       <br />
       <br />
       <button onClick={readFolders}>readFolders</button>
@@ -1011,10 +688,9 @@ function App() {
       <br />
       <button onClick={createProfile}>createProfile</button>
       <button onClick={getProfiles}>getProfiles</button>
-      <button onClick={collect}>collect</button>
+      <button onClick={unlock}>unlock</button>
       <button onClick={isCollected}>isCollected</button>
       <button onClick={getDatatokenMetadata}>getDatatokenMetadata</button>
-      <button onClick={unlock}>unlock</button>
       <br />
       <br />
     </div>

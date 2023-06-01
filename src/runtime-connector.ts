@@ -8,15 +8,6 @@ export class Wallet {
     this.communicator = communicator;
   }
 
-  getChainFromPkh(
-    params: RequestType[Methods.getChainFromPkh]
-  ): ReturnType[Methods.getChainFromPkh] {
-    return this.communicator.sendRequest({
-      method: Methods.getChainFromPkh,
-      params,
-    }) as ReturnType[Methods.getChainFromPkh];
-  }
-
   getPkhList(
     params: RequestType[Methods.getPkhList]
   ): ReturnType[Methods.getPkhList] {
@@ -347,11 +338,11 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getProfiles];
   }
 
-  collect(params: RequestType[Methods.collect]): ReturnType[Methods.collect] {
+  unlock(params: RequestType[Methods.unlock]): ReturnType[Methods.unlock] {
     return this.communicator.sendRequest({
-      method: Methods.collect,
+      method: Methods.unlock,
       params,
-    }) as ReturnType[Methods.collect];
+    }) as ReturnType[Methods.unlock];
   }
 
   isCollected(
@@ -370,12 +361,5 @@ export class RuntimeConnector {
       method: Methods.getDatatokenMetadata,
       params,
     }) as ReturnType[Methods.getDatatokenMetadata];
-  }
-
-  unlock(params: RequestType[Methods.unlock]): ReturnType[Methods.unlock] {
-    return this.communicator.sendRequest({
-      method: Methods.unlock,
-      params,
-    }) as ReturnType[Methods.unlock];
   }
 }
