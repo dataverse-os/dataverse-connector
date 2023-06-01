@@ -29,11 +29,10 @@ const walletName = (localStorage.getItem("walletName") as any) || METAMASK;
 const cryptoWalletType = CRYPTO_WALLET_TYPE;
 const modelId =
   "kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs";
-//kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs
-//kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo
+
 const uploadProvider = {
   name: UploadProviderName.Lighthouse,
-  apiKey: "", // input your api key to call uploadFile successfully
+  apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call uploadFile successfully
 };
 
 function App() {
@@ -43,17 +42,15 @@ function App() {
     type: cryptoWalletType,
   });
   const [pkh, setPkh] = useState("");
-  const [chain, setChain] = useState<string>("");
   const [newPkh, setNewPkh] = useState<string>("");
   const [pkhList, setPkhList] = useState<Array<string>>([]);
   const [currentPkh, setCurrentPkh] = useState("");
   const [isCurrentPkhValid, setIsCurrentPkhValid] = useState<boolean>();
   const [appList, setAppList] = useState<string[]>([]);
 
-  const [profileStreamObject, setProfileStreamObject] =
-    useState<StreamObject>();
-  const [mirrorFile, setMirrorFile] = useState<MirrorFile>();
+  const [streamId, setStreamId] = useState("");
   const [folderId, setFolderId] = useState("");
+  const [indexFileId, setIndexFileId] = useState("");
   const [folders, setFolders] = useState<StructuredFolders>({});
   const [walletChanged, setWalletChanged] = useState<boolean>(false);
 
@@ -204,7 +201,7 @@ function App() {
   const switchPkh = async () => {
     try {
       const res = await runtimeConnector.wallet.switchPkh(
-        "did:pkh:eip155:137:0xd10d5b408A290a5FD0C2B15074995e899E944444"
+        "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555"
       );
       console.log(res);
     } catch (error) {
@@ -221,8 +218,8 @@ function App() {
   };
 
   const getDAppInfo = async () => {
-    const appsInfo = await runtimeConnector.getDAppInfo(Apps.Dataverse);
-    console.log(appsInfo);
+    const appsInfo = await runtimeConnector.getDAppInfo(app);
+    return appsInfo;
   };
 
   const getValidAppCaps = async () => {
@@ -231,9 +228,7 @@ function App() {
   };
 
   const getModelBaseInfo = async () => {
-    const res = await runtimeConnector.getModelBaseInfo(
-      "kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo"
-    );
+    const res = await runtimeConnector.getModelBaseInfo(modelId);
     console.log(res);
   };
   /*** DApp ***/
@@ -268,8 +263,7 @@ function App() {
 
   const loadStreamsBy = async () => {
     const streams = await runtimeConnector.loadStreamsBy({
-      modelId:
-        "kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo",
+      modelId,
       pkh: "did:pkh:eip155:137:0x5915e293823FCa840c93ED2E1E5B4df32d699999",
     });
     console.log(streams);
@@ -302,6 +296,8 @@ function App() {
         encrypted,
       },
     });
+
+    setStreamId(res.newFile!.contentId!);
     console.log(res);
   };
 
@@ -315,8 +311,8 @@ function App() {
     });
 
     const res = await runtimeConnector.updateStream({
-      streamId:
-        "kjzl6kcym7w8y69ar71y7owfizordoq3g4ancmlqmjg9x6q3cff9nqdjizsy4rt",
+      app,
+      streamId,
       streamContent: {
         appVersion: postVersion,
         text: "hello",
@@ -336,6 +332,7 @@ function App() {
   /*** Folders ***/
   const readFolders = async () => {
     const folders = await runtimeConnector.readFolders(app);
+    setFolders(folders);
     console.log({ folders });
     return folders;
   };
@@ -354,8 +351,7 @@ function App() {
   const updateFolderBaseInfo = async () => {
     const res = await runtimeConnector.updateFolderBaseInfo({
       app,
-      folderId:
-        "kjzl6kcym7w8y7qh3z3ycahc1gdvz1um6l3ai4x75bzeeupprwis05plzzlf023",
+      folderId,
       newFolderName: new Date().toISOString(),
       newFolderDescription: new Date().toISOString(),
       // syncImmediately: true,
@@ -366,36 +362,11 @@ function App() {
   const changeFolderType = async () => {
     const res = await runtimeConnector.changeFolderType({
       app,
-      folderId:
-        "kjzl6kcym7w8y7qh3z3ycahc1gdvz1um6l3ai4x75bzeeupprwis05plzzlf023",
+      folderId,
       targetFolderType: FolderType.Public,
       // syncImmediately: true,
     });
     console.log(res);
-  };
-
-  const deleteFolder = async () => {
-    const res = await runtimeConnector.deleteFolder({
-      app,
-      folderId:
-        "kjzl6kcym7w8y7qh3z3ycahc1gdvz1um6l3ai4x75bzeeupprwis05plzzlf023",
-      syncImmediately: true,
-    });
-    console.log(res);
-  };
-
-  const deleteAllFolder = async () => {
-    const folders = await runtimeConnector.readFolders(app);
-    await Promise.all(
-      Object.keys(folders).map((folderId) =>
-        runtimeConnector.deleteFolder({
-          app,
-          folderId,
-          syncImmediately: true,
-        })
-      )
-    );
-    readFolders();
   };
 
   const monetizeFolder = async () => {
@@ -405,9 +376,8 @@ function App() {
 
     const res = await runtimeConnector.monetizeFolder({
       app,
-      folderId:
-        "kjzl6kcym7w8y7qh3z3ycahc1gdvz1um6l3ai4x75bzeeupprwis05plzzlf023",
-      folderDescription: "This is a datatoken folder.",
+      folderId,
+      folderDescription: "This is a payable folder.",
       datatokenVars: {
         profileId,
         collectLimit: 100,
@@ -417,6 +387,35 @@ function App() {
     });
     console.log(res);
     return res;
+  };
+
+  const deleteFolder = async () => {
+    const res = await runtimeConnector.deleteFolder({
+      app,
+      folderId,
+      syncImmediately: true,
+    });
+    console.log(res);
+  };
+
+  const deleteAllFolder = async () => {
+    await Promise.all(
+      Object.keys(folders).map((folderId) =>
+        runtimeConnector.deleteFolder({
+          app,
+          folderId,
+          syncImmediately: true,
+        })
+      )
+    );
+  };
+
+  const getDefaultFolderId = async () => {
+    const { defaultFolderName } = await getDAppInfo();
+    const folder = Object.values(folders).find(
+      (folder) => folder.options.folderName === defaultFolderName
+    );
+    return folder!.folderId;
   };
   /*** Folders ***/
 
@@ -441,14 +440,14 @@ function App() {
 
       const res = await runtimeConnector.uploadFile({
         app,
-        folderId:
-          "kjzl6kcym7w8y9rs0bzdj838kejq72e0otx6c31q6yhfw6j8ubvns1mmt9wpnzy",
+        folderId: await getDefaultFolderId(),
         fileBase64,
         fileName,
         encrypted: false,
         uploadProvider,
         syncImmediately: true,
       });
+      setIndexFileId(res.newFile.indexFileId);
       console.log(res);
     } catch (error) {
       console.error(error);
@@ -458,8 +457,7 @@ function App() {
   const updateFileBaseInfo = async () => {
     const res = await runtimeConnector.updateFileBaseInfo({
       app,
-      indexFileId:
-        "kjzl6kcym7w8y66naus0ftsgj6gpc0tcm8za7h4u96tq5z2cj137yam74bwvhpq",
+      indexFileId,
       fileInfo: {
         mirrorName: "aaa",
       },
@@ -471,27 +469,11 @@ function App() {
   const moveFiles = async () => {
     const res = await runtimeConnector.moveFiles({
       app,
-      targetFolderId:
-        "kjzl6kcym7w8y74i4y8nuh2buw2g95fh7yxrzfs41h07at1bf9p80hpc2018er1",
-      sourceIndexFileIds: [
-        "kjzl6kcym7w8y66naus0ftsgj6gpc0tcm8za7h4u96tq5z2cj137yam74bwvhpq",
-        "kjzl6kcym7w8y9vo1yy7uoz9zbiqspcxxgx1lbfxrhqsdd84cwejpfowdrekkul",
-      ],
+      targetFolderId: folderId || (await getDefaultFolderId()),
+      sourceIndexFileIds: [indexFileId],
       syncImmediately: true,
     });
     console.log(res);
-  };
-
-  const removeFiles = async () => {
-    const res = await runtimeConnector.removeFiles({
-      app,
-      indexFileIds: [
-        "kjzl6kcym7w8y7owefxq7at6tyqspgv6m67c94max7jlgi7goz8m64119s5xtu6",
-      ],
-      syncImmediately: true,
-    });
-    console.log(res);
-    HTMLHRElement;
   };
 
   const monetizeFile = async () => {
@@ -504,8 +486,7 @@ function App() {
         app,
         // streamId:
         //   "kjzl6kcym7w8y8j54sv8p4l8daxbj571b1emd8a3v5s2r9afm6di17hffmaa15t",
-        indexFileId:
-          "kjzl6kcym7w8y95pg3pskvbn81qedyf0htw12g6donw105dufu6atjqfoi9t57a",
+        indexFileId,
         datatokenVars: {
           profileId,
           collectLimit: 100,
@@ -513,12 +494,35 @@ function App() {
           currency: Currency.WMATIC,
         },
         uploadProvider,
+        decryptionConditions: [
+          {
+            conditionType: "evmBasic",
+            contractAddress: "",
+            standardContractType: "",
+            chain: "filecoin",
+            method: "",
+            parameters: [":userAddress"],
+            returnValueTest: {
+              comparator: "=",
+              value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
+            },
+          },
+        ], // Only sell to specific users
       });
       console.log(res);
       return res;
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const removeFiles = async () => {
+    const res = await runtimeConnector.removeFiles({
+      app,
+      indexFileIds: [indexFileId],
+      syncImmediately: true,
+    });
+    console.log(res);
   };
   /*** Files ***/
 
@@ -570,7 +574,10 @@ function App() {
         "kjzl6kcym7w8y808e1c24rmozejq2yjhs6rqi3y9p2mmhst9x7wy5muockde39b";
       // const indexFileId =
       //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
-      const res = await runtimeConnector.unlock({ app, streamId });
+      const res = await runtimeConnector.unlock({
+        app,
+        indexFileId:'kjzl6kcym7w8y5xf0j7kmies5i30f86xlerbfp42qnxju2vfno1io6i04sy2p2d'
+      });
       console.log(res);
     } catch (error) {
       console.error(error);
@@ -665,9 +672,9 @@ function App() {
       <button onClick={createFolder}>createFolder</button>
       <button onClick={updateFolderBaseInfo}>updateFolderBaseInfo</button>
       <button onClick={changeFolderType}>changeFolderType</button>
+      <button onClick={monetizeFolder}>monetizeFolder</button>
       <button onClick={deleteFolder}>deleteFolder</button>
       <button onClick={deleteAllFolder}>deleteAllFolder</button>
-      <button onClick={monetizeFolder}>monetizeFolder</button>
       <br />
       <br />
       <button>
@@ -682,8 +689,8 @@ function App() {
 
       <button onClick={updateFileBaseInfo}>updateFileBaseInfo</button>
       <button onClick={moveFiles}>moveFiles</button>
-      <button onClick={removeFiles}>removeFiles</button>
       <button onClick={monetizeFile}>monetizeFile</button>
+      <button onClick={removeFiles}>removeFiles</button>
       <br />
       <br />
       <button onClick={createProfile}>createProfile</button>

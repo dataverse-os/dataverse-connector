@@ -4,6 +4,7 @@ export {
   Mode,
   UploadProviderName,
 } from "./types/constants";
+export { type UploadProvider } from "./types";
 export {
   METAMASK,
   PARTICLE,
@@ -35,6 +36,7 @@ export {
   type Mirror,
   type Mirrors,
   type MirrorFile,
+  type MirrorFiles,
   type FileInfo,
   type StructuredFiles,
   type StructuredFolder,
@@ -42,3 +44,4 @@ export {
 } from "./types/fs";
 export { RuntimeConnector } from "./runtime-connector";
 export { type PostMessageTo } from "@dataverse/communicator";
+export { type RequestType, type ReturnType, type Methods } from "./types/event";

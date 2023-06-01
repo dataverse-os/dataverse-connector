@@ -1,4 +1,5 @@
-import { Mode, UploadProvider } from "../constants";
+import { UploadProvider } from "..";
+import { Mode } from "../constants";
 import { CRYPTO_WALLET, Chain } from "../crypto-wallet";
 import { AppsInfo, DAppInfo, DAppTable } from "../dapp-verifier/types";
 import { StreamObject } from "../data-models";
