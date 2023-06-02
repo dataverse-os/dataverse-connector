@@ -40,28 +40,23 @@ export interface RequestType {
     method: string;
     params?: any;
   };
+  getCurrentPkh: void;
+
+  getDAppTable: void;
+  getDAppInfo: string;
+  getValidAppCaps: void;
+  getModelBaseInfo: string;
+
   createCapability: {
     wallet?: CRYPTO_WALLET;
     app?: string;
   };
   checkCapability: string | undefined;
-  getChainFromPkh: string;
-  getPkhList: void;
-  getCurrentPkh: void;
-  getWalletByPkh: string;
-  createNewPkh: CRYPTO_WALLET;
-  switchPkh: string;
-
-  getDAppTable: void;
-  getDAppInfo: string;
-  getValidAppCaps: void;
-
   loadStream: { app: string; streamId: string };
   loadStreamsBy: {
     modelId: string;
     pkh?: string;
   };
-  getModelBaseInfo: string;
   createStream: {
     modelId: string;
     streamContent: StreamContent;
@@ -171,23 +166,15 @@ export interface ReturnType {
   sign: Promise<any>;
   contractCall: Promise<any>;
   ethereumRequest: Promise<any>;
-  createCapability: Promise<string>;
-  checkCapability: Promise<boolean>;
-  getChainFromPkh: Promise<string>;
-  getPkhList: Promise<string[]>;
   getCurrentPkh: Promise<string>;
-  getWalletByPkh: Promise<CRYPTO_WALLET>;
-  createNewPkh: Promise<{
-    currentPkh: string;
-    createdPkhList: string[];
-  }>;
-  switchPkh: Promise<boolean>;
 
   getDAppTable: Promise<DAppTable>;
   getDAppInfo: Promise<DAppInfo>;
   getValidAppCaps: Promise<AppsInfo>;
   getModelBaseInfo: Promise<StreamContent>;
 
+  createCapability: Promise<string>;
+  checkCapability: Promise<boolean>;
   loadStream: Promise<{
     pkh: string;
     app?: string;

@@ -8,15 +8,6 @@ export class Wallet {
     this.communicator = communicator;
   }
 
-  getPkhList(
-    params: RequestType[Methods.getPkhList]
-  ): ReturnType[Methods.getPkhList] {
-    return this.communicator.sendRequest({
-      method: Methods.getPkhList,
-      params,
-    }) as ReturnType[Methods.getPkhList];
-  }
-
   getCurrentPkh(
     params: RequestType[Methods.getCurrentPkh]
   ): ReturnType[Methods.getCurrentPkh] {
@@ -25,33 +16,7 @@ export class Wallet {
       params,
     }) as ReturnType[Methods.getCurrentPkh];
   }
-
-  getWalletByPkh(
-    params: RequestType[Methods.getWalletByPkh]
-  ): ReturnType[Methods.getWalletByPkh] {
-    return this.communicator.sendRequest({
-      method: Methods.getWalletByPkh,
-      params,
-    }) as ReturnType[Methods.getWalletByPkh];
-  }
-
-  createNewPkh(
-    params: RequestType[Methods.createNewPkh]
-  ): ReturnType[Methods.createNewPkh] {
-    return this.communicator.sendRequest({
-      method: Methods.createNewPkh,
-      params,
-    }) as ReturnType[Methods.createNewPkh];
-  }
-
-  switchPkh(
-    params: RequestType[Methods.switchPkh]
-  ): ReturnType[Methods.switchPkh] {
-    return this.communicator.sendRequest({
-      method: Methods.switchPkh,
-      params,
-    }) as ReturnType[Methods.switchPkh];
-  }
+  
 }
 
 export class RuntimeConnector {

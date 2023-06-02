@@ -169,45 +169,6 @@ function App() {
     console.log(res);
     setCurrentPkh(res);
   };
-
-  const getPkhList = async () => {
-    const pkhList = await runtimeConnector.wallet.getPkhList();
-    console.log({ pkhList });
-    setPkhList(pkhList);
-  };
-
-  const getWalletByPkh = async () => {
-    try {
-      const wallet = await runtimeConnector.wallet.getWalletByPkh(
-        "did:pkh:eip155:137:0xd10d5b408A290a5FD0C2B15074995e899E944444"
-      );
-      console.log({ wallet });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const createNewPkh = async () => {
-    try {
-      const { currentPkh, createdPkhList } =
-        await runtimeConnector.wallet.createNewPkh(wallet);
-      setNewPkh(currentPkh);
-      console.log({ currentPkh, createdPkhList });
-    } catch (error) {
-      console.log({ error });
-    }
-  };
-
-  const switchPkh = async () => {
-    try {
-      const res = await runtimeConnector.wallet.switchPkh(
-        "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555"
-      );
-      console.log(res);
-    } catch (error) {
-      console.log({ error });
-    }
-  };
   /*** Wallet ***/
 
   /*** DApp ***/
@@ -624,22 +585,9 @@ function App() {
       <hr />
       <button onClick={ethereumRequest}>ethereumRequest</button>
       <hr />
-      <button onClick={getPkhList}>getPkhList</button>
-      {pkhList.map((pkh) => (
-        <div className="blackText" key={pkh}>
-          {pkh}
-        </div>
-      ))}
-      <hr />
       <button onClick={getCurrentPkh}>getCurrentPkh</button>
       <div className="blackText">{currentPkh}</div>
       <hr />
-      <button onClick={getWalletByPkh}>getWalletByPkh</button>
-      <hr />
-      <button onClick={createNewPkh}>createNewPkh</button>
-      <div className="blackText">{newPkh}</div>
-      <hr />
-      <button onClick={switchPkh}>switchPkh</button>
       <br />
       <br />
       <button onClick={getDAppTable}>getDAppTable</button>
