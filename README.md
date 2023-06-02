@@ -65,7 +65,7 @@ const runtimeConnector = new RuntimeConnector(Extension);
 
 <br>
 
-**`runtimeConnector.createCapibility({ wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE }, appName: Apps.Dataverse, })`**
+**`runtimeConnector.createCapability({ wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE }, appName: Apps.Dataverse, })`**
 
 - `wallet`: `CRYPTO_WALLET` object consisting of `name` and `type` properties, where `name` currently supports only the `MetaMask` string (a popular cryptocurrency wallet browser extension), while `type` is the string `CRYPTO_WALLET`.
 - `appName`: `string` representing the name of the application.

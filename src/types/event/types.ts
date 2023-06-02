@@ -40,11 +40,11 @@ export interface RequestType {
     method: string;
     params?: any;
   };
-  createCapibility: {
+  createCapability: {
     wallet?: CRYPTO_WALLET;
     app?: string;
   };
-  checkCapibility: string | undefined;
+  checkCapability: string | undefined;
   getChainFromPkh: string;
   getPkhList: void;
   getCurrentPkh: void;
@@ -171,8 +171,8 @@ export interface ReturnType {
   sign: Promise<any>;
   contractCall: Promise<any>;
   ethereumRequest: Promise<any>;
-  createCapibility: Promise<string>;
-  checkCapibility: Promise<boolean>;
+  createCapability: Promise<string>;
+  checkCapability: Promise<boolean>;
   getChainFromPkh: Promise<string>;
   getPkhList: Promise<string[]>;
   getCurrentPkh: Promise<string>;

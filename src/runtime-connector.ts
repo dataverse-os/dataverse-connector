@@ -131,22 +131,22 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.ethereumRequest];
   }
 
-  createCapibility(
-    params: RequestType[Methods.createCapibility]
-  ): ReturnType[Methods.createCapibility] {
+  createCapability(
+    params: RequestType[Methods.createCapability]
+  ): ReturnType[Methods.createCapability] {
     return this.communicator.sendRequest({
-      method: Methods.createCapibility,
+      method: Methods.createCapability,
       params,
-    }) as ReturnType[Methods.createCapibility];
+    }) as ReturnType[Methods.createCapability];
   }
 
-  checkCapibility(
-    params: RequestType[Methods.checkCapibility]
-  ): ReturnType[Methods.checkCapibility] {
+  checkCapability(
+    params: RequestType[Methods.checkCapability]
+  ): ReturnType[Methods.checkCapability] {
     return this.communicator.sendRequest({
-      method: Methods.checkCapibility,
+      method: Methods.checkCapability,
       params,
-    }) as ReturnType[Methods.checkCapibility];
+    }) as ReturnType[Methods.checkCapability];
   }
 
   loadStream(

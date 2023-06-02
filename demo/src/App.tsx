@@ -234,10 +234,10 @@ function App() {
   /*** DApp ***/
 
   /*** Stream ***/
-  const createCapibility = async () => {
+  const createCapability = async () => {
     // await connectWallet();
     // // await switchNetwork();
-    const pkh = await runtimeConnector.createCapibility({
+    const pkh = await runtimeConnector.createCapability({
       wallet,
       app,
     });
@@ -246,8 +246,8 @@ function App() {
     return pkh;
   };
 
-  const checkCapibility = async () => {
-    const isCurrentPkhValid = await runtimeConnector.checkCapibility(app);
+  const checkCapability = async () => {
+    const isCurrentPkhValid = await runtimeConnector.checkCapability(app);
     console.log(isCurrentPkhValid);
     setIsCurrentPkhValid(isCurrentPkhValid);
   };
@@ -370,7 +370,7 @@ function App() {
   };
 
   const monetizeFolder = async () => {
-    const pkh = await runtimeConnector.createCapibility({ app, wallet });
+    const pkh = await runtimeConnector.createCapability({ app, wallet });
 
     const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
 
@@ -422,7 +422,7 @@ function App() {
   /*** Files ***/
   const uploadFile = async (event: any) => {
     try {
-      await createCapibility();
+      await createCapability();
 
       const file = event.target.files[0];
       console.log(file);
@@ -478,7 +478,7 @@ function App() {
 
   const monetizeFile = async () => {
     try {
-      const pkh = await runtimeConnector.createCapibility({ app, wallet });
+      const pkh = await runtimeConnector.createCapability({ app, wallet });
 
       const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
 
@@ -569,7 +569,7 @@ function App() {
 
   const unlock = async () => {
     try {
-      await createCapibility();
+      await createCapability();
       const streamId =
         "kjzl6kcym7w8y808e1c24rmozejq2yjhs6rqi3y9p2mmhst9x7wy5muockde39b";
       // const indexFileId =
@@ -654,10 +654,10 @@ function App() {
       <button onClick={getModelBaseInfo}>getModelBaseInfo</button>
       <br />
       <br />
-      <button onClick={createCapibility}>createCapibility</button>
+      <button onClick={createCapability}>createCapability</button>
       <div className="blackText">{pkh}</div>
       <hr />
-      <button onClick={checkCapibility}>checkCapibility</button>
+      <button onClick={checkCapability}>checkCapability</button>
       <div className="blackText">
         {isCurrentPkhValid !== undefined && String(isCurrentPkhValid)}
       </div>

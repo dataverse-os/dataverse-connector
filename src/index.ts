@@ -14,6 +14,7 @@ export {
 export {
   Apps,
   ModelNames,
+  type Models,
   type DAppInfo,
   type DAppTable,
 } from "./types/dapp-verifier";
