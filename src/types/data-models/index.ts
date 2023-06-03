@@ -1,1 +1,1 @@
-export type { StreamsRecord, StreamObject } from "./types";
+export type { StreamsRecord, StreamObject, StreamContent } from "./types";

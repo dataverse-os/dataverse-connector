@@ -19,7 +19,7 @@ export {
   type DAppInfo,
   type DAppTable,
 } from "./types/dapp-verifier";
-export type { StreamObject } from "./types/data-models";
+export type { StreamObject, StreamContent } from "./types/data-models";
 export {
   Currency,
   DecryptionConditionsTypes,
