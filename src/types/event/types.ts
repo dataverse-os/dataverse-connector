@@ -1,5 +1,5 @@
-import { UploadProvider } from "..";
-import { Mode } from "../constants";
+import { UploadProvider } from "../types";
+import { Mode, SignMethod } from "../constants";
 import { CRYPTO_WALLET, Chain } from "../crypto-wallet";
 import { AppsInfo, DAppInfo, DAppTable } from "../dapp-verifier/types";
 import { StreamObject } from "../data-models";
@@ -26,7 +26,7 @@ export interface RequestType {
   getCurrentWallet: void;
   switchNetwork: number;
   sign: {
-    method: string;
+    method: SignMethod;
     params: any[];
   };
   contractCall: {
@@ -150,7 +150,7 @@ export interface RequestType {
     indexFileId?: string;
   };
   isCollected: { datatokenId: string; address: string };
-  getDatatokenMetadata: string;
+  getDatatokenBaseInfo: string;
   unlock: { app?: string; streamId?: string; indexFileId?: string };
 }
 
@@ -163,7 +163,7 @@ export interface ReturnType {
     chain: Chain;
   } | null>;
   switchNetwork: Promise<boolean>;
-  sign: Promise<any>;
+  sign: Promise<string>;
   contractCall: Promise<any>;
   ethereumRequest: Promise<any>;
   getCurrentPkh: Promise<string>;
@@ -252,7 +252,7 @@ export interface ReturnType {
       }>
   >;
   isCollected: Promise<boolean>;
-  getDatatokenMetadata: Promise<DatatokenMetadata>;
+  getDatatokenBaseInfo: Promise<DatatokenMetadata>;
   unlock: Promise<MirrorFile>;
 }
 export interface RequestInputs {

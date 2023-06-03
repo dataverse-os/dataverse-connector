@@ -16,6 +16,7 @@ import {
   CRYPTO_WALLET,
   UploadProviderName,
   DecryptionConditions,
+  SignMethod,
 } from "@dataverse/runtime-connector";
 import { getAddressFromPkh } from "./utils/addressAndPkh";
 
@@ -90,7 +91,7 @@ function App() {
     await connectWallet();
 
     const res = await runtimeConnector.sign({
-      method: "signMessage",
+      method: SignMethod.signMessage,
       params: ["test"],
     });
     console.log({ res });
@@ -537,7 +538,8 @@ function App() {
       //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
       const res = await runtimeConnector.unlock({
         app,
-        indexFileId:'kjzl6kcym7w8y5xf0j7kmies5i30f86xlerbfp42qnxju2vfno1io6i04sy2p2d'
+        indexFileId:
+          "kjzl6kcym7w8y5xf0j7kmies5i30f86xlerbfp42qnxju2vfno1io6i04sy2p2d",
       });
       console.log(res);
     } catch (error) {
@@ -556,10 +558,10 @@ function App() {
     console.log(res);
   };
 
-  const getDatatokenMetadata = async () => {
+  const getDatatokenBaseInfo = async () => {
     await runtimeConnector.switchNetwork(80001);
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
-    const res = await runtimeConnector.getDatatokenMetadata(datatokenId);
+    const res = await runtimeConnector.getDatatokenBaseInfo(datatokenId);
     console.log(res);
   };
   /*** Monetize ***/
@@ -645,7 +647,7 @@ function App() {
       <button onClick={getProfiles}>getProfiles</button>
       <button onClick={unlock}>unlock</button>
       <button onClick={isCollected}>isCollected</button>
-      <button onClick={getDatatokenMetadata}>getDatatokenMetadata</button>
+      <button onClick={getDatatokenBaseInfo}>getDatatokenBaseInfo</button>
       <br />
       <br />
     </div>

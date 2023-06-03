@@ -10,3 +10,8 @@ export enum UploadProviderName {
   Web3Storage,
   Lighthouse,
 }
+
+export enum SignMethod {
+  signMessage = "signMessage",
+  _signTypedData = "_signTypedData",
+}

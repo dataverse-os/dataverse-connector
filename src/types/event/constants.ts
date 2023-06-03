@@ -37,6 +37,6 @@ export enum Methods {
   getProfiles = "getProfiles",
   collect = "collect",
   isCollected = "isCollected",
-  getDatatokenMetadata = "getDatatokenMetadata",
+  getDatatokenBaseInfo = "getDatatokenBaseInfo",
   unlock = "unlock",
 }

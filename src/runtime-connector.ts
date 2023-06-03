@@ -319,12 +319,12 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.isCollected];
   }
 
-  getDatatokenMetadata(
-    params: RequestType[Methods.getDatatokenMetadata]
-  ): ReturnType[Methods.getDatatokenMetadata] {
+  getDatatokenBaseInfo(
+    params: RequestType[Methods.getDatatokenBaseInfo]
+  ): ReturnType[Methods.getDatatokenBaseInfo] {
     return this.communicator.sendRequest({
-      method: Methods.getDatatokenMetadata,
+      method: Methods.getDatatokenBaseInfo,
       params,
-    }) as ReturnType[Methods.getDatatokenMetadata];
+    }) as ReturnType[Methods.getDatatokenBaseInfo];
   }
 }

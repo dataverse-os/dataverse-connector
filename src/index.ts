@@ -3,8 +3,9 @@ export {
   Browser,
   Mode,
   UploadProviderName,
+  SignMethod,
 } from "./types/constants";
-export { type UploadProvider } from "./types";
+export type { UploadProvider } from "./types/types";
 export {
   METAMASK,
   PARTICLE,
