@@ -1,11 +1,25 @@
-export { Extension, Browser } from "./types/constants";
-export { METAMASK, CRYPTO_WALLET_TYPE } from "./types/crypto-wallet";
+export {
+  Extension,
+  Browser,
+  Mode,
+  UploadProviderName,
+  SignMethod,
+} from "./types/constants";
+export type { UploadProvider } from "./types/types";
+export {
+  METAMASK,
+  PARTICLE,
+  CRYPTO_WALLET_TYPE,
+  type CRYPTO_WALLET,
+} from "./types/crypto-wallet";
 export {
   Apps,
   ModelNames,
-  type ApplicationRegistry,
+  type Models,
+  type DAppInfo,
+  type DAppTable,
 } from "./types/dapp-verifier";
-export type { StreamObject } from "./types/data-models";
+export type { StreamObject, StreamContent } from "./types/data-models";
 export {
   Currency,
   DecryptionConditionsTypes,
@@ -24,6 +38,7 @@ export {
   type Mirror,
   type Mirrors,
   type MirrorFile,
+  type MirrorFiles,
   type FileInfo,
   type StructuredFiles,
   type StructuredFolder,
@@ -31,3 +46,4 @@ export {
 } from "./types/fs";
 export { RuntimeConnector } from "./runtime-connector";
 export { type PostMessageTo } from "@dataverse/communicator";
+export { type RequestType, type ReturnType, type Methods } from "./types/event";

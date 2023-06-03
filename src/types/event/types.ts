@@ -1,302 +1,201 @@
-import { CRYPTO_WALLET } from "../crypto-wallet";
-import { ApplicationRegistry, AppsInfo } from "../dapp-verifier/types";
-import { StreamObject, StreamsRecord } from "../data-models";
-import {
-  DecryptionConditions,
-  DecryptionConditionsTypes,
-} from "../data-monetize";
+import { UploadProvider } from "../types";
+import { Mode, SignMethod } from "../constants";
+import { CRYPTO_WALLET, Chain } from "../crypto-wallet";
+import { AppsInfo, DAppInfo, DAppTable } from "../dapp-verifier/types";
+import { StreamObject } from "../data-models";
+import { StreamContent } from "../data-models/types";
 import {
   CollectOutput,
-  CreateDatatokenOutPut,
-  CreateProfileOutput,
   DatatokenMetadata,
   DatatokenVars,
+  DecryptionConditions,
 } from "../data-monetize/types";
 import { FileType, FolderType } from "../fs";
 import {
   FileInfo,
-  Mirror,
-  Mirrors,
-  StructuredFile,
-  StructuredFiles,
+  MirrorFile,
+  MirrorFiles,
   StructuredFolder,
   StructuredFolders,
 } from "../fs/types";
 import { Methods } from "./constants";
 
 export interface RequestType {
+  selectWallet: void;
   connectWallet: CRYPTO_WALLET;
+  getCurrentWallet: void;
   switchNetwork: number;
-  ethereumRequest: {
-    method: string;
-    params?: any;
+  sign: {
+    method: SignMethod;
+    params: any[];
   };
   contractCall: {
     contractAddress: string;
     abi: any[];
     method: string;
     params: any[];
+    mode?: Mode;
   };
-  connectIdentity: {
-    wallet: CRYPTO_WALLET;
-    appName: string;
-    modelNames?: string[];
+  ethereumRequest: {
+    method: string;
+    params?: any;
   };
-  checkIsCurrentDIDValid: {
-    appName: string;
-    modelNames?: string[];
-  };
-  getChainFromDID: string;
-  getDIDList: void;
-  getCurrentDID: void;
-  createNewDID: CRYPTO_WALLET;
-  switchDID: string;
+  getCurrentPkh: void;
 
-  loadStream: { appName: string; streamId: string };
-  loadStreamsByModel: {
-    appName: string;
-    modelName: string;
-  };
-  loadStreamsByModelAndDID: {
-    did: string;
-    appName: string;
-    modelName: string;
-  };
+  getDAppTable: void;
+  getDAppInfo: string;
+  getValidAppCaps: void;
   getModelBaseInfo: string;
-  createStream: {
-    did: string;
-    appName: string;
-    modelName: string;
-    streamContent: any;
-    fileType: FileType;
-    encryptedSymmetricKey?: string;
-    decryptionConditions?: any[];
-    decryptionConditionsType?: DecryptionConditionsTypes;
+
+  createCapability: {
+    wallet?: CRYPTO_WALLET;
+    app?: string;
   };
-  updateStreams: {
-    appName: string;
-    streamsRecord: Record<
-      string,
-      {
-        streamContent?: any;
-        fileType?: FileType;
-        datatokenId?: string;
-        contentId?: string;
-        encryptedSymmetricKey?: string;
-        decryptionConditions?: any[];
-        decryptionConditionsType?: DecryptionConditionsTypes;
-      }
-    >;
+  checkCapability: string | undefined;
+  loadStream: { app: string; streamId: string };
+  loadStreamsBy: {
+    modelId: string;
+    pkh?: string;
+  };
+  createStream: {
+    modelId: string;
+    streamContent: StreamContent;
+  };
+  updateStream: {
+    app?: string;
+    streamId: string;
+    streamContent: StreamContent;
     syncImmediately?: boolean;
   };
 
-  getAllAppsNames: void;
-  getAllAppsBaseInfo: void;
-  getAllAppsInfoByDID: string;
-  getModelIdByAppNameAndModelName: { appName: string; modelName: string };
-  getAppNameAndModelNameByModelId: string;
-
-  newLitKey: {
-    did: string;
-    appName: string;
-    modelNames: string[];
-    decryptionConditions: DecryptionConditions;
-    decryptionConditionsType: DecryptionConditionsTypes;
-  };
-  getLitKey: {
-    did: string;
-    appName: string;
-    modelNames: string[];
-    encryptedSymmetricKey: string;
-    decryptionConditions: DecryptionConditions;
-    decryptionConditionsType: DecryptionConditionsTypes;
-  };
-  encryptWithLit: {
-    did: string;
-    appName: string;
-    modelNames: string[];
-    content: string;
-    encryptedSymmetricKey: string;
-    decryptionConditions: DecryptionConditions;
-    decryptionConditionsType: DecryptionConditionsTypes;
-  };
-  decryptWithLit: {
-    did?: string;
-    appName?: string;
-    modelNames?: string[];
-    encryptedContent: string;
-    symmetricKeyInBase16Format?: string;
-    encryptedSymmetricKey?: string;
-    decryptionConditions?: DecryptionConditions;
-    decryptionConditionsType?: DecryptionConditionsTypes;
-  };
-
-  readFolders: { did: string; appName: string };
-  readDefaultFolder: { did: string; appName: string };
-  readFolderFiles: { did: string; appName: string; folderId: string };
+  readFolders: string | undefined;
   createFolder: {
-    did: string;
-    appName: string;
+    app?: string;
     folderType: FolderType;
     folderName: string;
     folderDescription?: string;
   };
-  changeFolderBaseInfo: {
-    did: string;
-    appName: string;
+  updateFolderBaseInfo: {
+    app?: string;
     folderId: string;
     newFolderName?: string;
     newFolderDescription?: string;
     syncImmediately?: boolean;
   };
   changeFolderType: {
-    did: string;
-    appName: string;
+    app?: string;
     folderId: string;
     targetFolderType: FolderType;
     syncImmediately?: boolean;
   };
   deleteFolder: {
-    did: string;
-    appName: string;
+    app?: string;
     folderId: string;
     syncImmediately?: boolean;
   };
   monetizeFolder: {
-    did: string;
-    appName: string;
+    app?: string;
     folderId: string;
-    folderDescription?: string;
-    datatokenVars: DatatokenVars;
+    folderDescription: string;
+    datatokenVars: Omit<DatatokenVars, "streamId">;
   };
 
-  updateFile: {
-    did: string;
-    appName: string;
-    fileId: string;
-    fileInfo: FileInfo;
-    syncImmediately?: boolean;
-  };
-
-  addMirrors: {
-    did: string;
-    appName: string;
+  uploadFile: {
+    app?: string;
     folderId: string;
-    filesInfo?: (Omit<FileInfo, "fileType"> & {
-      fileType: FileType;
-    })[];
+    fileBase64: string;
+    fileName: string;
+    encrypted: boolean;
+    uploadProvider: UploadProvider;
     syncImmediately?: boolean;
   };
-  updateMirror: {
-    did: string;
-    appName: string;
-    mirrorId: string;
-    fileInfo: FileInfo;
-    syncImmediately?: boolean;
-  };
-  moveMirrors: {
-    did: string;
-    appName: string;
-    targetFolderId: string;
-    sourceMirrorIds: string[];
-    syncImmediately?: boolean;
-  };
-  removeMirrors: {
-    did: string;
-    appName: string;
-    mirrorIds: string[];
-    syncImmediately?: boolean;
-  };
-  monetizeMirror: {
-    did: string;
-    appName: string;
-    mirrorId: string;
-    datatokenVars: DatatokenVars;
-  };
-
-  getChainOfDatatoken: void;
-  createLensProfile: string;
-  getLensProfiles: string;
-  createDatatoken: DatatokenVars;
-  collect: {
-    did: string;
-    appName: string;
+  updateFileBaseInfo: {
+    app?: string;
     indexFileId: string;
+    fileInfo?: Omit<
+      FileInfo,
+      | "datatokenId"
+      | "fileKey"
+      | "encryptedSymmetricKey"
+      | "decryptionConditions"
+      | "decryptionConditionsType"
+    >;
+    syncImmediately?: boolean;
+  };
+  moveFiles: {
+    app?: string;
+    targetFolderId: string;
+    sourceIndexFileIds: string[];
+    syncImmediately?: boolean;
+  };
+  removeFiles: {
+    app?: string;
+    indexFileIds: string[];
+    syncImmediately?: boolean;
+  };
+  monetizeFile: {
+    app?: string;
+    streamId?: string;
+    indexFileId?: string;
+    datatokenVars: Omit<DatatokenVars, "streamId">;
+    decryptionConditions?: DecryptionConditions;
+    uploadProvider?: UploadProvider;
+  };
+
+  createProfile: string;
+  getProfiles: string;
+  collect: {
+    app?: string;
+    streamId?: string;
+    indexFileId?: string;
   };
   isCollected: { datatokenId: string; address: string };
-  getDatatokenMetadata: string;
-  unlock: {
-    did: string;
-    appName: string;
-    indexFileId: string;
-  };
-
-  migrateOldFolders: string;
+  getDatatokenBaseInfo: string;
+  unlock: { app?: string; streamId?: string; indexFileId?: string };
 }
 
 export interface ReturnType {
+  selectWallet: Promise<CRYPTO_WALLET>;
   connectWallet: Promise<string>;
+  getCurrentWallet: Promise<{
+    wallet: CRYPTO_WALLET;
+    address: string;
+    chain: Chain;
+  } | null>;
   switchNetwork: Promise<boolean>;
-  ethereumRequest: Promise<any>;
+  sign: Promise<string>;
   contractCall: Promise<any>;
-  connectIdentity: Promise<string>;
-  checkIsCurrentDIDValid: Promise<boolean>;
-  getChainFromDID: Promise<string>;
-  getDIDList: Promise<string[]>;
-  getCurrentDID: Promise<string>;
-  createNewDID: Promise<{
-    currentDID: string;
-    createdDIDList: string[];
-  }>;
-  switchDID: Promise<boolean>;
+  ethereumRequest: Promise<any>;
+  getCurrentPkh: Promise<string>;
 
+  getDAppTable: Promise<DAppTable>;
+  getDAppInfo: Promise<DAppInfo>;
+  getValidAppCaps: Promise<AppsInfo>;
+  getModelBaseInfo: Promise<StreamContent>;
+
+  createCapability: Promise<string>;
+  checkCapability: Promise<boolean>;
   loadStream: Promise<{
-    did: string;
-    appName?: string;
-    modelName?: string;
+    pkh: string;
+    app?: string;
     modelId: string;
-    streamContent: any;
+    streamContent: StreamContent;
   }>;
-  loadStreamsByModel: Promise<Record<string, any>>;
-  loadStreamsByModelAndDID: Promise<Record<string, any>>;
-  getModelBaseInfo: Promise<Record<string, any>>;
+  loadStreamsBy: Promise<StreamContent>;
   createStream: Promise<
-    StreamObject & { newMirror?: Mirror; existingMirror?: Mirror }
+    StreamObject & { newFile?: MirrorFile; existingFile?: MirrorFile }
   >;
-  updateStreams: Promise<
-    | {
-        successRecord: StreamsRecord;
-        failureRecord: StreamsRecord;
-        failureReason?: StreamsRecord;
-      }
-    | undefined
-  >;
-
-  getAllAppsNames: Promise<string[]>;
-  getAllAppsBaseInfo: Promise<ApplicationRegistry>;
-  getAllAppsInfoByDID: Promise<AppsInfo>;
-  getModelIdByAppNameAndModelName: Promise<string>;
-  getAppNameAndModelNameByModelId: Promise<{
-    appName: string;
-    modelName: string;
+  updateStream: Promise<{
+    streamContent: StreamContent;
+    currentFile: MirrorFile;
   }>;
-
-  newLitKey: Promise<{
-    // symmetricKeyInBase16Format: string;
-    encryptedSymmetricKey: string;
-  }>;
-  getLitKey: Promise<{ symmetricKeyInBase16Format: string }>;
-  encryptWithLit: Promise<{ encryptedContent: string }>;
-  decryptWithLit: Promise<{ content: string }>;
 
   readFolders: Promise<StructuredFolders>;
-  readDefaultFolder: Promise<StructuredFolder>;
-  readFolderFiles: Promise<Mirrors>;
   createFolder: Promise<{
     newFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
-  changeFolderBaseInfo: Promise<{
+  updateFolderBaseInfo: Promise<{
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
@@ -313,57 +212,48 @@ export interface ReturnType {
     allFolders: StructuredFolders;
   }>;
 
-  updateFile: Promise<{
-    currentFile: StructuredFile;
-    allFiles: StructuredFiles;
-  }>;
-
-  addMirrors: Promise<{
-    newMirrors: Mirrors;
+  uploadFile: Promise<{
+    newFile: MirrorFile;
     isCurated: boolean;
-    existingMirror?: Mirror;
+    existingFile?: MirrorFile;
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
-  updateMirror: Promise<{
-    currentMirror: Mirror;
+  updateFileBaseInfo: Promise<{
+    currentFile: MirrorFile;
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
-  moveMirrors: Promise<{
+  moveFiles: Promise<{
     sourceFolders: StructuredFolders;
     targetFolder: StructuredFolder;
-    movedMirrors: Mirrors;
+    movedFiles: MirrorFiles;
     allFolders: StructuredFolders;
   }>;
-  removeMirrors: Promise<{
+  removeFiles: Promise<{
     sourceFolders: StructuredFolders;
-    removedMirrors: Mirrors;
+    removedFiles: MirrorFiles;
     allFolders: StructuredFolders;
   }>;
-  monetizeMirror: Promise<{
-    currentMirror: Mirror;
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
+  monetizeFile: Promise<{
+    streamContent?: StreamContent;
+    currentFile: MirrorFile;
   }>;
 
-  getChainOfDatatoken: Promise<string>;
-  createLensProfile: Promise<string>;
-  getLensProfiles: Promise<{ id: string }[]>;
-  createDatatoken: Promise<CreateDatatokenOutPut>;
+  createProfile: Promise<string>;
+  getProfiles: Promise<{ id: string }[]>;
   collect: Promise<
-    CollectOutput & {
-      newMirrors: Mirrors;
-      isCurated: boolean;
-      currentFolder: StructuredFolder;
-      allFolders: StructuredFolders;
-    }
+    CollectOutput &
+      Partial<{
+        newFile: MirrorFile;
+        isCurated: boolean;
+        currentFolder: StructuredFolder;
+        allFolders: StructuredFolders;
+      }>
   >;
   isCollected: Promise<boolean>;
-  getDatatokenMetadata: Promise<DatatokenMetadata>;
-  unlock: Promise<object>;
-
-  migrateOldFolders: Promise<boolean>;
+  getDatatokenBaseInfo: Promise<DatatokenMetadata>;
+  unlock: Promise<MirrorFile>;
 }
 export interface RequestInputs {
   method: Methods;

@@ -1,19 +1,47 @@
 import { Communicator, PostMessageTo } from "@dataverse/communicator";
 import { RequestType, Methods, ReturnType } from "./types/event";
 
-export class RuntimeConnector {
+export class Wallet {
   communicator: Communicator;
 
+  constructor(communicator: Communicator) {
+    this.communicator = communicator;
+  }
+
+  getCurrentPkh(
+    params: RequestType[Methods.getCurrentPkh]
+  ): ReturnType[Methods.getCurrentPkh] {
+    return this.communicator.sendRequest({
+      method: Methods.getCurrentPkh,
+      params,
+    }) as ReturnType[Methods.getCurrentPkh];
+  }
+  
+}
+
+export class RuntimeConnector {
+  communicator: Communicator;
+  wallet: Wallet;
   constructor(postMessageTo: PostMessageTo) {
     this.communicator = new Communicator({
       source: window,
       target: window.top,
       postMessageTo,
     });
+    this.wallet = new Wallet(this.communicator);
   }
 
   setPostMessageTo(postMessageTo: PostMessageTo) {
     this.communicator.setPostMessageTo(postMessageTo);
+  }
+
+  selectWallet(
+    params: RequestType[Methods.selectWallet]
+  ): ReturnType[Methods.selectWallet] {
+    return this.communicator.sendRequest({
+      method: Methods.selectWallet,
+      params,
+    }) as ReturnType[Methods.selectWallet];
   }
 
   connectWallet(
@@ -25,6 +53,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.connectWallet];
   }
 
+  getCurrentWallet(
+    params: RequestType[Methods.getCurrentWallet]
+  ): ReturnType[Methods.getCurrentWallet] {
+    return this.communicator.sendRequest({
+      method: Methods.getCurrentWallet,
+      params,
+    }) as ReturnType[Methods.getCurrentWallet];
+  }
+
   switchNetwork(
     params: RequestType[Methods.switchNetwork]
   ): ReturnType[Methods.switchNetwork] {
@@ -34,13 +71,11 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.switchNetwork];
   }
 
-  ethereumRequest(
-    params: RequestType[Methods.ethereumRequest]
-  ): ReturnType[Methods.ethereumRequest] {
+  sign(params: RequestType[Methods.sign]): ReturnType[Methods.sign] {
     return this.communicator.sendRequest({
-      method: Methods.ethereumRequest,
+      method: Methods.sign,
       params,
-    }) as ReturnType[Methods.ethereumRequest];
+    }) as ReturnType[Methods.sign];
   }
 
   contractCall(
@@ -52,67 +87,31 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.contractCall];
   }
 
-  connectIdentity(
-    params: RequestType[Methods.connectIdentity]
-  ): ReturnType[Methods.connectIdentity] {
+  ethereumRequest(
+    params: RequestType[Methods.ethereumRequest]
+  ): ReturnType[Methods.ethereumRequest] {
     return this.communicator.sendRequest({
-      method: Methods.connectIdentity,
+      method: Methods.ethereumRequest,
       params,
-    }) as ReturnType[Methods.connectIdentity];
+    }) as ReturnType[Methods.ethereumRequest];
   }
 
-  checkIsCurrentDIDValid(
-    params: RequestType[Methods.checkIsCurrentDIDValid]
-  ): ReturnType[Methods.checkIsCurrentDIDValid] {
+  createCapability(
+    params: RequestType[Methods.createCapability]
+  ): ReturnType[Methods.createCapability] {
     return this.communicator.sendRequest({
-      method: Methods.checkIsCurrentDIDValid,
+      method: Methods.createCapability,
       params,
-    }) as ReturnType[Methods.checkIsCurrentDIDValid];
+    }) as ReturnType[Methods.createCapability];
   }
 
-  getChainFromDID(
-    params: RequestType[Methods.getChainFromDID]
-  ): ReturnType[Methods.getChainFromDID] {
+  checkCapability(
+    params: RequestType[Methods.checkCapability]
+  ): ReturnType[Methods.checkCapability] {
     return this.communicator.sendRequest({
-      method: Methods.getChainFromDID,
+      method: Methods.checkCapability,
       params,
-    }) as ReturnType[Methods.getChainFromDID];
-  }
-
-  getDIDList(
-    params: RequestType[Methods.getDIDList]
-  ): ReturnType[Methods.getDIDList] {
-    return this.communicator.sendRequest({
-      method: Methods.getDIDList,
-      params,
-    }) as ReturnType[Methods.getDIDList];
-  }
-
-  getCurrentDID(
-    params: RequestType[Methods.getCurrentDID]
-  ): ReturnType[Methods.getCurrentDID] {
-    return this.communicator.sendRequest({
-      method: Methods.getCurrentDID,
-      params,
-    }) as ReturnType[Methods.getCurrentDID];
-  }
-
-  createNewDID(
-    params: RequestType[Methods.createNewDID]
-  ): ReturnType[Methods.createNewDID] {
-    return this.communicator.sendRequest({
-      method: Methods.createNewDID,
-      params,
-    }) as ReturnType[Methods.createNewDID];
-  }
-
-  switchDID(
-    params: RequestType[Methods.switchDID]
-  ): ReturnType[Methods.switchDID] {
-    return this.communicator.sendRequest({
-      method: Methods.switchDID,
-      params,
-    }) as ReturnType[Methods.switchDID];
+    }) as ReturnType[Methods.checkCapability];
   }
 
   loadStream(
@@ -124,22 +123,13 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.loadStream];
   }
 
-  loadStreamsByModel(
-    params: RequestType[Methods.loadStreamsByModel]
-  ): ReturnType[Methods.loadStreamsByModel] {
+  loadStreamsBy(
+    params: RequestType[Methods.loadStreamsBy]
+  ): ReturnType[Methods.loadStreamsBy] {
     return this.communicator.sendRequest({
-      method: Methods.loadStreamsByModel,
+      method: Methods.loadStreamsBy,
       params,
-    }) as ReturnType[Methods.loadStreamsByModel];
-  }
-
-  loadStreamsByModelAndDID(
-    params: RequestType[Methods.loadStreamsByModelAndDID]
-  ): ReturnType[Methods.loadStreamsByModelAndDID] {
-    return this.communicator.sendRequest({
-      method: Methods.loadStreamsByModelAndDID,
-      params,
-    }) as ReturnType[Methods.loadStreamsByModelAndDID];
+    }) as ReturnType[Methods.loadStreamsBy];
   }
 
   getModelBaseInfo(
@@ -160,85 +150,40 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.createStream];
   }
 
-  updateStreams(
-    params: RequestType[Methods.updateStreams]
-  ): ReturnType[Methods.updateStreams] {
+  updateStream(
+    params: RequestType[Methods.updateStream]
+  ): ReturnType[Methods.updateStream] {
     return this.communicator.sendRequest({
-      method: Methods.updateStreams,
+      method: Methods.updateStream,
       params,
-    }) as ReturnType[Methods.updateStreams];
+    }) as ReturnType[Methods.updateStream];
   }
 
-  getAllAppsNames(
-    params: RequestType[Methods.getAllAppsNames]
-  ): ReturnType[Methods.getAllAppsNames] {
+  getDAppTable(
+    params: RequestType[Methods.getDAppTable]
+  ): ReturnType[Methods.getDAppTable] {
     return this.communicator.sendRequest({
-      method: Methods.getAllAppsNames,
+      method: Methods.getDAppTable,
       params,
-    }) as ReturnType[Methods.getAllAppsNames];
+    }) as ReturnType[Methods.getDAppTable];
   }
 
-  getAllAppsBaseInfo(
-    params: RequestType[Methods.getAllAppsBaseInfo]
-  ): ReturnType[Methods.getAllAppsBaseInfo] {
+  getDAppInfo(
+    params: RequestType[Methods.getDAppInfo]
+  ): ReturnType[Methods.getDAppInfo] {
     return this.communicator.sendRequest({
-      method: Methods.getAllAppsBaseInfo,
+      method: Methods.getDAppInfo,
       params,
-    }) as ReturnType[Methods.getAllAppsBaseInfo];
+    }) as ReturnType[Methods.getDAppInfo];
   }
 
-  getAllAppsInfoByDID(
-    params: RequestType[Methods.getAllAppsInfoByDID]
-  ): ReturnType[Methods.getAllAppsInfoByDID] {
+  getValidAppCaps(
+    params: RequestType[Methods.getValidAppCaps]
+  ): ReturnType[Methods.getValidAppCaps] {
     return this.communicator.sendRequest({
-      method: Methods.getAllAppsInfoByDID,
+      method: Methods.getValidAppCaps,
       params,
-    }) as ReturnType[Methods.getAllAppsInfoByDID];
-  }
-
-  getModelIdByAppNameAndModelName(
-    params: RequestType[Methods.getModelIdByAppNameAndModelName]
-  ): ReturnType[Methods.getModelIdByAppNameAndModelName] {
-    return this.communicator.sendRequest({
-      method: Methods.getModelIdByAppNameAndModelName,
-      params,
-    }) as ReturnType[Methods.getModelIdByAppNameAndModelName];
-  }
-
-  getAppNameAndModelNameByModelId(
-    params: RequestType[Methods.getAppNameAndModelNameByModelId]
-  ): ReturnType[Methods.getAppNameAndModelNameByModelId] {
-    return this.communicator.sendRequest({
-      method: Methods.getAppNameAndModelNameByModelId,
-      params,
-    }) as ReturnType[Methods.getAppNameAndModelNameByModelId];
-  }
-
-  newLitKey(
-    params: RequestType[Methods.newLitKey]
-  ): ReturnType[Methods.newLitKey] {
-    return this.communicator.sendRequest({
-      method: Methods.newLitKey,
-      params,
-    }) as ReturnType[Methods.newLitKey];
-  }
-
-  encryptWithLit(
-    params: RequestType[Methods.encryptWithLit]
-  ): ReturnType[Methods.encryptWithLit] {
-    return this.communicator.sendRequest({
-      method: Methods.encryptWithLit,
-      params,
-    }) as ReturnType[Methods.encryptWithLit];
-  }
-
-  decryptWithLit(
-    params: RequestType[Methods.decryptWithLit]
-  ): ReturnType[Methods.decryptWithLit] {
-    return this.communicator.sendRequest({
-      method: Methods.decryptWithLit,
-      params,
-    }) as ReturnType[Methods.decryptWithLit];
+    }) as ReturnType[Methods.getValidAppCaps];
   }
 
   readFolders(
@@ -259,13 +204,13 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.createFolder];
   }
 
-  changeFolderBaseInfo(
-    params: RequestType[Methods.changeFolderBaseInfo]
-  ): ReturnType[Methods.changeFolderBaseInfo] {
+  updateFolderBaseInfo(
+    params: RequestType[Methods.updateFolderBaseInfo]
+  ): ReturnType[Methods.updateFolderBaseInfo] {
     return this.communicator.sendRequest({
-      method: Methods.changeFolderBaseInfo,
+      method: Methods.updateFolderBaseInfo,
       params,
-    }) as ReturnType[Methods.changeFolderBaseInfo];
+    }) as ReturnType[Methods.updateFolderBaseInfo];
   }
 
   changeFolderType(
@@ -295,101 +240,74 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.monetizeFolder];
   }
 
-  readDefaultFolder(
-    params: RequestType[Methods.readDefaultFolder]
-  ): ReturnType[Methods.readDefaultFolder] {
+  uploadFile(
+    params: RequestType[Methods.uploadFile]
+  ): ReturnType[Methods.uploadFile] {
     return this.communicator.sendRequest({
-      method: Methods.readDefaultFolder,
+      method: Methods.uploadFile,
       params,
-    }) as ReturnType[Methods.readDefaultFolder];
+    }) as ReturnType[Methods.uploadFile];
   }
 
-  addMirrors(
-    params: RequestType[Methods.addMirrors]
-  ): ReturnType[Methods.addMirrors] {
+  updateFileBaseInfo(
+    params: RequestType[Methods.updateFileBaseInfo]
+  ): ReturnType[Methods.updateFileBaseInfo] {
     return this.communicator.sendRequest({
-      method: Methods.addMirrors,
+      method: Methods.updateFileBaseInfo,
       params,
-    }) as ReturnType[Methods.addMirrors];
+    }) as ReturnType[Methods.updateFileBaseInfo];
   }
 
-  updateMirror(
-    params: RequestType[Methods.updateMirror]
-  ): ReturnType[Methods.updateMirror] {
+  moveFiles(
+    params: RequestType[Methods.moveFiles]
+  ): ReturnType[Methods.moveFiles] {
     return this.communicator.sendRequest({
-      method: Methods.updateMirror,
+      method: Methods.moveFiles,
       params,
-    }) as ReturnType[Methods.updateMirror];
+    }) as ReturnType[Methods.moveFiles];
   }
 
-  moveMirrors(
-    params: RequestType[Methods.moveMirrors]
-  ): ReturnType[Methods.moveMirrors] {
+  removeFiles(
+    params: RequestType[Methods.removeFiles]
+  ): ReturnType[Methods.removeFiles] {
     return this.communicator.sendRequest({
-      method: Methods.moveMirrors,
+      method: Methods.removeFiles,
       params,
-    }) as ReturnType[Methods.moveMirrors];
+    }) as ReturnType[Methods.removeFiles];
   }
 
-  removeMirrors(
-    params: RequestType[Methods.removeMirrors]
-  ): ReturnType[Methods.removeMirrors] {
+  monetizeFile(
+    params: RequestType[Methods.monetizeFile]
+  ): ReturnType[Methods.monetizeFile] {
     return this.communicator.sendRequest({
-      method: Methods.removeMirrors,
+      method: Methods.monetizeFile,
       params,
-    }) as ReturnType[Methods.removeMirrors];
+    }) as ReturnType[Methods.monetizeFile];
   }
 
-  monetizeMirror(
-    params: RequestType[Methods.monetizeMirror]
-  ): ReturnType[Methods.monetizeMirror] {
+  createProfile(
+    params: RequestType[Methods.createProfile]
+  ): ReturnType[Methods.createProfile] {
     return this.communicator.sendRequest({
-      method: Methods.monetizeMirror,
+      method: Methods.createProfile,
       params,
-    }) as ReturnType[Methods.monetizeMirror];
+    }) as ReturnType[Methods.createProfile];
   }
 
-  getChainOfDatatoken(
-    params: RequestType[Methods.getChainOfDatatoken]
-  ): ReturnType[Methods.getChainOfDatatoken] {
+  getProfiles(
+    params: RequestType[Methods.getProfiles]
+  ): ReturnType[Methods.getProfiles] {
     return this.communicator.sendRequest({
-      method: Methods.getChainOfDatatoken,
+      method: Methods.getProfiles,
       params,
-    }) as ReturnType[Methods.getChainOfDatatoken];
+    }) as ReturnType[Methods.getProfiles];
   }
 
-  createLensProfile(
-    params: RequestType[Methods.createLensProfile]
-  ): ReturnType[Methods.createLensProfile] {
+  unlock(params: RequestType[Methods.unlock]): ReturnType[Methods.unlock] {
     return this.communicator.sendRequest({
-      method: Methods.createLensProfile,
+      method: Methods.unlock,
       params,
-    }) as ReturnType[Methods.createLensProfile];
-  }
-
-  getLensProfiles(
-    params: RequestType[Methods.getLensProfiles]
-  ): ReturnType[Methods.getLensProfiles] {
-    return this.communicator.sendRequest({
-      method: Methods.getLensProfiles,
-      params,
-    }) as ReturnType[Methods.getLensProfiles];
-  }
-
-  createDatatoken(
-    params: RequestType[Methods.createDatatoken]
-  ): ReturnType[Methods.createDatatoken] {
-    return this.communicator.sendRequest({
-      method: Methods.createDatatoken,
-      params,
-    }) as ReturnType[Methods.createDatatoken];
-  }
-
-  collect(params: RequestType[Methods.collect]): ReturnType[Methods.collect] {
-    return this.communicator.sendRequest({
-      method: Methods.collect,
-      params,
-    }) as ReturnType[Methods.collect];
+    }) as ReturnType[Methods.unlock];
   }
 
   isCollected(
@@ -401,28 +319,12 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.isCollected];
   }
 
-  getDatatokenMetadata(
-    params: RequestType[Methods.getDatatokenMetadata]
-  ): ReturnType[Methods.getDatatokenMetadata] {
+  getDatatokenBaseInfo(
+    params: RequestType[Methods.getDatatokenBaseInfo]
+  ): ReturnType[Methods.getDatatokenBaseInfo] {
     return this.communicator.sendRequest({
-      method: Methods.getDatatokenMetadata,
+      method: Methods.getDatatokenBaseInfo,
       params,
-    }) as ReturnType[Methods.getDatatokenMetadata];
-  }
-
-  unlock(params: RequestType[Methods.unlock]): ReturnType[Methods.unlock] {
-    return this.communicator.sendRequest({
-      method: Methods.unlock,
-      params,
-    }) as ReturnType[Methods.unlock];
-  }
-
-  migrateOldFolders(
-    params: RequestType[Methods.migrateOldFolders]
-  ): ReturnType[Methods.migrateOldFolders] {
-    return this.communicator.sendRequest({
-      method: Methods.migrateOldFolders,
-      params,
-    }) as ReturnType[Methods.migrateOldFolders];
+    }) as ReturnType[Methods.getDatatokenBaseInfo];
   }
 }

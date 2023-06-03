@@ -1,2 +1,2 @@
-export type { CRYPTO_WALLET, PROVIDER } from "./types";
-export { METAMASK, CRYPTO_WALLET_TYPE } from "./constants";
+export type { CRYPTO_WALLET, PROVIDER, Chain } from "./types";
+export { METAMASK, PARTICLE, CRYPTO_WALLET_TYPE } from "./constants";
