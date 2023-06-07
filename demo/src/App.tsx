@@ -11,7 +11,7 @@ import {
   StructuredFolders,
   Currency,
   Mode,
-  UploadProviderName,
+  StorageProviderName,
   DecryptionConditions,
   SignMethod,
   WALLET,
@@ -27,8 +27,8 @@ const defaultWallet =
 const modelId =
   "kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs";
 
-const uploadProvider = {
-  name: UploadProviderName.Lighthouse,
+const storageProvider = {
+  name: StorageProviderName.Lighthouse,
   apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call uploadFile successfully
 };
 
@@ -384,7 +384,7 @@ function App() {
         fileBase64,
         fileName,
         encrypted: false,
-        uploadProvider,
+        storageProvider,
         syncImmediately: true,
       });
       setIndexFileId(res.newFile.indexFileId);
@@ -431,7 +431,7 @@ function App() {
           amount: 0.0001,
           currency: Currency.WMATIC,
         },
-        uploadProvider,
+        storageProvider,
         // decryptionConditions: [
         //   {
         //     conditionType: "evmBasic",

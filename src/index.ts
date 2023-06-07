@@ -2,10 +2,10 @@ export {
   Extension,
   Browser,
   Mode,
-  UploadProviderName,
+  StorageProviderName,
   SignMethod,
 } from "./types/constants";
-export type { UploadProvider } from "./types/types";
+export type { StorageProvider } from "./types/types";
 export { WALLET } from "./types/crypto-wallet";
 export {
   Apps,

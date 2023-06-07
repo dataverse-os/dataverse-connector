@@ -6,7 +6,7 @@ export enum Mode {
   Write,
 }
 
-export enum UploadProviderName {
+export enum StorageProviderName {
   Web3Storage,
   Lighthouse,
 }

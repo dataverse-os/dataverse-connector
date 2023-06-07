@@ -1,4 +1,4 @@
-import { UploadProvider } from "../types";
+import { StorageProvider } from "../types";
 import { Mode, SignMethod } from "../constants";
 import { Chain, WALLET } from "../crypto-wallet";
 import { AppsInfo, DAppInfo, DAppTable } from "../dapp-verifier/types";
@@ -104,7 +104,7 @@ export interface RequestType {
     fileBase64: string;
     fileName: string;
     encrypted: boolean;
-    uploadProvider: UploadProvider;
+    storageProvider: StorageProvider;
     syncImmediately?: boolean;
   };
   updateFileBaseInfo: {
@@ -138,7 +138,7 @@ export interface RequestType {
     indexFileId?: string;
     datatokenVars: Omit<DatatokenVars, "streamId">;
     decryptionConditions?: DecryptionConditions;
-    uploadProvider?: UploadProvider;
+    storageProvider?: StorageProvider;
   };
 
   createProfile: string;
@@ -223,7 +223,6 @@ export interface ReturnType {
 
   uploadFile: Promise<{
     newFile: MirrorFile;
-    isCurated: boolean;
     existingFile?: MirrorFile;
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
@@ -255,7 +254,6 @@ export interface ReturnType {
     CollectOutput &
       Partial<{
         newFile: MirrorFile;
-        isCurated: boolean;
         currentFolder: StructuredFolder;
         allFolders: StructuredFolders;
       }>
