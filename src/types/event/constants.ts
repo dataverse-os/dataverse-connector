@@ -1,7 +1,5 @@
 export enum Methods {
-  selectWallet = "selectWallet",
   connectWallet = "connectWallet",
-  getCurrentWallet = "getCurrentWallet",
   switchNetwork = "switchNetwork",
   sign = "sign",
   contractCall = "contractCall",

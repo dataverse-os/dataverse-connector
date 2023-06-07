@@ -16,7 +16,6 @@ export class Wallet {
       params,
     }) as ReturnType[Methods.getCurrentPkh];
   }
-  
 }
 
 export class RuntimeConnector {
@@ -35,15 +34,6 @@ export class RuntimeConnector {
     this.communicator.setPostMessageTo(postMessageTo);
   }
 
-  selectWallet(
-    params: RequestType[Methods.selectWallet]
-  ): ReturnType[Methods.selectWallet] {
-    return this.communicator.sendRequest({
-      method: Methods.selectWallet,
-      params,
-    }) as ReturnType[Methods.selectWallet];
-  }
-
   connectWallet(
     params: RequestType[Methods.connectWallet]
   ): ReturnType[Methods.connectWallet] {
@@ -51,15 +41,6 @@ export class RuntimeConnector {
       method: Methods.connectWallet,
       params,
     }) as ReturnType[Methods.connectWallet];
-  }
-
-  getCurrentWallet(
-    params: RequestType[Methods.getCurrentWallet]
-  ): ReturnType[Methods.getCurrentWallet] {
-    return this.communicator.sendRequest({
-      method: Methods.getCurrentWallet,
-      params,
-    }) as ReturnType[Methods.getCurrentWallet];
   }
 
   switchNetwork(

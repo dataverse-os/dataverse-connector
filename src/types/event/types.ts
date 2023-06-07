@@ -21,9 +21,7 @@ import {
 import { Methods } from "./constants";
 
 export interface RequestType {
-  selectWallet: void;
   connectWallet: WALLET;
-  getCurrentWallet: void;
   switchNetwork: number;
   sign: {
     method: SignMethod;
@@ -155,14 +153,8 @@ export interface RequestType {
 }
 
 export interface ReturnType {
-  selectWallet: Promise<WALLET>;
-  connectWallet: Promise<string>;
-  getCurrentWallet: Promise<{
-    wallet: WALLET;
-    address: string;
-    chain: Chain;
-  } | null>;
-  switchNetwork: Promise<boolean>;
+  connectWallet: Promise<{ address: string; chain: Chain; wallet: WALLET }>;
+  switchNetwork: Promise<{ chainId: number; chainName: string }>;
   sign: Promise<string>;
   contractCall: Promise<any>;
   ethereumRequest: Promise<any>;

@@ -49,30 +49,15 @@ function App() {
   const [walletChanged, setWalletChanged] = useState<boolean>(false);
 
   /*** Wallet ***/
-  const selectWallet = async () => {
-    const wallet = await runtimeConnector.selectWallet();
-    localStorage.setItem("walletName", wallet);
-    setWallet(wallet);
-    setWalletChanged(true);
-    console.log({ wallet });
-    return wallet;
-  };
-
   const connectWallet = async () => {
     try {
-      const address = await runtimeConnector.connectWallet(wallet);
-      setAddress(address);
+      const res = await runtimeConnector.connectWallet(wallet);
+      setAddress(res.address);
       console.log({ address });
       return address;
     } catch (error) {
       console.error(error);
     }
-  };
-
-  const getCurrentWallet = async () => {
-    const res = await runtimeConnector.getCurrentWallet();
-    console.log(res);
-    return res;
   };
 
   const switchNetwork = async () => {
@@ -561,16 +546,8 @@ function App() {
 
   return (
     <div className="App">
-      <button onClick={selectWallet}>selectWallet</button>
-      <div className="blackText">
-        {!walletChanged && "default: "}
-        {wallet}
-      </div>
-      <hr />
       <button onClick={connectWallet}>connectWallet</button>
       <div className="blackText">{address}</div>
-      <hr />
-      <button onClick={getCurrentWallet}>getCurrentWallet</button>
       <hr />
       <button onClick={switchNetwork}>switchNetwork</button>
       <hr />
