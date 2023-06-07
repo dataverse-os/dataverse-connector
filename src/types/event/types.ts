@@ -49,8 +49,8 @@ export interface RequestType {
     wallet?: WALLET;
     app?: string;
   };
-  checkCapability: string | undefined;
-  loadStream: { app: string; streamId: string };
+  checkCapability: void;
+  loadStream: string;
   loadStreamsBy: {
     modelId: string;
     pkh?: string;
@@ -60,7 +60,6 @@ export interface RequestType {
     streamContent: StreamContent;
   };
   updateStream: {
-    app?: string;
     streamId: string;
     streamContent: StreamContent;
     syncImmediately?: boolean;
@@ -68,38 +67,32 @@ export interface RequestType {
 
   readFolders: string | undefined;
   createFolder: {
-    app?: string;
     folderType: FolderType;
     folderName: string;
     folderDescription?: string;
   };
   updateFolderBaseInfo: {
-    app?: string;
     folderId: string;
     newFolderName?: string;
     newFolderDescription?: string;
     syncImmediately?: boolean;
   };
   changeFolderType: {
-    app?: string;
     folderId: string;
     targetFolderType: FolderType;
     syncImmediately?: boolean;
   };
   deleteFolder: {
-    app?: string;
     folderId: string;
     syncImmediately?: boolean;
   };
   monetizeFolder: {
-    app?: string;
     folderId: string;
     folderDescription: string;
     datatokenVars: Omit<DatatokenVars, "streamId">;
   };
 
   uploadFile: {
-    app?: string;
     folderId: string;
     fileBase64: string;
     fileName: string;
@@ -108,7 +101,6 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
   updateFileBaseInfo: {
-    app?: string;
     indexFileId: string;
     fileInfo?: Omit<
       FileInfo,
@@ -121,18 +113,15 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
   moveFiles: {
-    app?: string;
     targetFolderId: string;
     sourceIndexFileIds: string[];
     syncImmediately?: boolean;
   };
   removeFiles: {
-    app?: string;
     indexFileIds: string[];
     syncImmediately?: boolean;
   };
   monetizeFile: {
-    app?: string;
     folderId?: string;
     streamId?: string;
     indexFileId?: string;
@@ -144,13 +133,12 @@ export interface RequestType {
   createProfile: string;
   getProfiles: string;
   collect: {
-    app?: string;
     streamId?: string;
     indexFileId?: string;
   };
   isCollected: { datatokenId: string; address: string };
   getDatatokenBaseInfo: string;
-  unlock: { app?: string; streamId?: string; indexFileId?: string };
+  unlock: { streamId?: string; indexFileId?: string };
 }
 
 export interface ReturnType {
@@ -259,7 +247,7 @@ export interface ReturnType {
       }>
   >;
   isCollected: Promise<boolean>;
-  getDatatokenBaseInfo: Promise<DatatokenMetadata>;
+  getDatatokenBaseInfo: Promise<object>;
   unlock: Promise<MirrorFile>;
 }
 export interface RequestInputs {

@@ -45,7 +45,7 @@ function App() {
   const [streamId, setStreamId] = useState("");
   const [folderId, setFolderId] = useState("");
   const [indexFileId, setIndexFileId] = useState("");
-  const [folders, setFolders] = useState<StructuredFolders>({});
+  const [folders, setFolders] = useState<StructuredFolders>();
   const [walletChanged, setWalletChanged] = useState<boolean>(false);
 
   /*** Wallet ***/
@@ -123,7 +123,7 @@ function App() {
       params: [],
       mode: Mode.Read,
     });
-    console.log({ res });
+    console.log(res);
   };
 
   const ethereumRequest = async () => {
@@ -159,6 +159,7 @@ function App() {
 
   const getDAppInfo = async () => {
     const appsInfo = await runtimeConnector.getDAppInfo(app);
+    console.log(appsInfo);
     return appsInfo;
   };
 
@@ -187,7 +188,7 @@ function App() {
   };
 
   const checkCapability = async () => {
-    const isCurrentPkhValid = await runtimeConnector.checkCapability(app);
+    const isCurrentPkhValid = await runtimeConnector.checkCapability();
     console.log(isCurrentPkhValid);
     setIsCurrentPkhValid(isCurrentPkhValid);
   };
@@ -230,7 +231,6 @@ function App() {
     });
 
     const res = await runtimeConnector.updateStream({
-      app,
       streamId,
       streamContent: {
         appVersion: postVersion,
@@ -248,10 +248,7 @@ function App() {
   };
 
   const loadStream = async () => {
-    const stream = await runtimeConnector.loadStream({
-      app: "test001",
-      streamId,
-    });
+    const stream = await runtimeConnector.loadStream(streamId);
     console.log(stream);
   };
 
@@ -279,7 +276,6 @@ function App() {
 
   const createFolder = async () => {
     const res = await runtimeConnector.createFolder({
-      app,
       folderType: FolderType.Private,
       folderName: "Private",
     });
@@ -290,7 +286,6 @@ function App() {
 
   const updateFolderBaseInfo = async () => {
     const res = await runtimeConnector.updateFolderBaseInfo({
-      app,
       folderId,
       newFolderName: new Date().toISOString(),
       newFolderDescription: new Date().toISOString(),
@@ -301,7 +296,6 @@ function App() {
 
   const changeFolderType = async () => {
     const res = await runtimeConnector.changeFolderType({
-      app,
       folderId,
       targetFolderType: FolderType.Public,
       // syncImmediately: true,
@@ -310,12 +304,9 @@ function App() {
   };
 
   const monetizeFolder = async () => {
-    const pkh = await runtimeConnector.createCapability({ app, wallet });
-
     const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
 
     const res = await runtimeConnector.monetizeFolder({
-      app,
       folderId,
       folderDescription: "This is a payable folder.",
       datatokenVars: {
@@ -331,7 +322,6 @@ function App() {
 
   const deleteFolder = async () => {
     const res = await runtimeConnector.deleteFolder({
-      app,
       folderId,
       syncImmediately: true,
     });
@@ -342,7 +332,6 @@ function App() {
     await Promise.all(
       Object.keys(folders).map((folderId) =>
         runtimeConnector.deleteFolder({
-          app,
           folderId,
           syncImmediately: true,
         })
@@ -352,7 +341,11 @@ function App() {
 
   const getDefaultFolderId = async () => {
     const { defaultFolderName } = await getDAppInfo();
-    const folder = Object.values(folders).find(
+    let _folders = folders;
+    if (!folders) {
+      _folders = await readFolders();
+    }
+    const folder = Object.values(_folders).find(
       (folder) => folder.options.folderName === defaultFolderName
     );
     return folder!.folderId;
@@ -362,8 +355,6 @@ function App() {
   /*** Files ***/
   const uploadFile = async (event: any) => {
     try {
-      await createCapability();
-
       const file = event.target.files[0];
       console.log(file);
       const fileName = file.name;
@@ -379,7 +370,6 @@ function App() {
       console.log(fileBase64);
 
       const res = await runtimeConnector.uploadFile({
-        app,
         folderId,
         fileBase64,
         fileName,
@@ -396,7 +386,6 @@ function App() {
 
   const updateFileBaseInfo = async () => {
     const res = await runtimeConnector.updateFileBaseInfo({
-      app,
       indexFileId,
       fileInfo: {
         mirrorName: "aaa",
@@ -408,7 +397,6 @@ function App() {
 
   const moveFiles = async () => {
     const res = await runtimeConnector.moveFiles({
-      app,
       targetFolderId: folderId || (await getDefaultFolderId()),
       sourceIndexFileIds: [indexFileId],
       syncImmediately: true,
@@ -418,12 +406,12 @@ function App() {
 
   const monetizeFile = async () => {
     try {
-      const pkh = await runtimeConnector.createCapability({ app, wallet });
-
+      if (!pkh) {
+        throw "You must connect capability";
+      }
       const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
 
       const res = await runtimeConnector.monetizeFile({
-        app,
         ...(indexFileId ? { indexFileId } : { streamId }),
         datatokenVars: {
           profileId,
@@ -456,7 +444,6 @@ function App() {
 
   const removeFiles = async () => {
     const res = await runtimeConnector.removeFiles({
-      app,
       indexFileIds: [indexFileId],
       syncImmediately: true,
     });
@@ -507,11 +494,9 @@ function App() {
 
   const unlock = async () => {
     try {
-      await createCapability();
       // const indexFileId =
       //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
       const res = await runtimeConnector.unlock({
-        app,
         ...(indexFileId ? { indexFileId } : { streamId }),
       });
       console.log(res);
@@ -532,7 +517,6 @@ function App() {
   };
 
   const getDatatokenBaseInfo = async () => {
-    await runtimeConnector.switchNetwork(80001);
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const res = await runtimeConnector.getDatatokenBaseInfo(datatokenId);
     console.log(res);
