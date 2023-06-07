@@ -133,6 +133,7 @@ export interface RequestType {
   };
   monetizeFile: {
     app?: string;
+    folderId?: string;
     streamId?: string;
     indexFileId?: string;
     datatokenVars: Omit<DatatokenVars, "streamId">;
@@ -184,12 +185,18 @@ export interface ReturnType {
       }
     >
   >;
-  createStream: Promise<
-    StreamObject & { newFile?: MirrorFile; existingFile?: MirrorFile }
-  >;
-  updateStream: Promise<{
+  createStream: Promise<{
+    pkh: string;
+    app: string;
+    modelId: string;
+    streamId: string;
     streamContent: StreamContent;
-    currentFile: MirrorFile;
+  }>;
+  updateStream: Promise<{
+    pkh: string;
+    app: string;
+    modelId: string;
+    streamContent: StreamContent;
   }>;
 
   readFolders: Promise<StructuredFolders>;

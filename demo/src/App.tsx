@@ -192,27 +192,6 @@ function App() {
     setIsCurrentPkhValid(isCurrentPkhValid);
   };
 
-  const loadStream = async () => {
-    const stream = await runtimeConnector.loadStream({
-      app: "test001",
-      streamId:
-        "kjzl6kcym7w8ya8g9cj5764kll6veldqws40ub29r1odut2pxiqxet80sl9p6th",
-    });
-    console.log(stream);
-  };
-
-  const loadStreamsBy = async () => {
-    const streams = await runtimeConnector.loadStreamsBy({
-      modelId,
-      pkh: "did:pkh:eip155:137:0x5915e293823FCa840c93ED2E1E5B4df32d699999",
-    });
-    console.log(streams);
-    // const res = Object.values(streams).filter(
-    //   (el) => el.controller !== pkh && el.fileType === FileType.Datatoken
-    // );
-    // console.log(res);
-  };
-
   const createStream = async () => {
     const date = new Date().toISOString();
 
@@ -237,7 +216,7 @@ function App() {
       },
     });
 
-    setStreamId(res.newFile!.contentId!);
+    setStreamId(res.streamId);
     console.log(res);
   };
 
@@ -267,6 +246,27 @@ function App() {
     });
     console.log(res);
   };
+
+  const loadStream = async () => {
+    const stream = await runtimeConnector.loadStream({
+      app: "test001",
+      streamId,
+    });
+    console.log(stream);
+  };
+
+  const loadStreamsBy = async () => {
+    const streams = await runtimeConnector.loadStreamsBy({
+      modelId,
+      pkh,
+    });
+    console.log(streams);
+    // const res = Object.values(streams).filter(
+    //   (el) => el.controller !== pkh && el.fileType === FileType.Datatoken
+    // );
+    // console.log(res);
+  };
+
   /*** Stream ***/
 
   /*** Folders ***/
@@ -380,7 +380,7 @@ function App() {
 
       const res = await runtimeConnector.uploadFile({
         app,
-        folderId: await getDefaultFolderId(),
+        folderId,
         fileBase64,
         fileName,
         encrypted: false,
@@ -424,9 +424,7 @@ function App() {
 
       const res = await runtimeConnector.monetizeFile({
         app,
-        // streamId:
-        //   "kjzl6kcym7w8y8j54sv8p4l8daxbj571b1emd8a3v5s2r9afm6di17hffmaa15t",
-        indexFileId,
+        ...(indexFileId ? { indexFileId } : { streamId }),
         datatokenVars: {
           profileId,
           collectLimit: 100,
@@ -434,20 +432,20 @@ function App() {
           currency: Currency.WMATIC,
         },
         uploadProvider,
-        decryptionConditions: [
-          {
-            conditionType: "evmBasic",
-            contractAddress: "",
-            standardContractType: "",
-            chain: "filecoin",
-            method: "",
-            parameters: [":userAddress"],
-            returnValueTest: {
-              comparator: "=",
-              value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
-            },
-          },
-        ], // Only sell to specific users
+        // decryptionConditions: [
+        //   {
+        //     conditionType: "evmBasic",
+        //     contractAddress: "",
+        //     standardContractType: "",
+        //     chain: "filecoin",
+        //     method: "",
+        //     parameters: [":userAddress"],
+        //     returnValueTest: {
+        //       comparator: "=",
+        //       value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
+        //     },
+        //   },
+        // ], // Only sell to specific users
       });
       console.log(res);
       return res;
@@ -510,14 +508,11 @@ function App() {
   const unlock = async () => {
     try {
       await createCapability();
-      const streamId =
-        "kjzl6kcym7w8y808e1c24rmozejq2yjhs6rqi3y9p2mmhst9x7wy5muockde39b";
       // const indexFileId =
       //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
       const res = await runtimeConnector.unlock({
         app,
-        indexFileId:
-          "kjzl6kcym7w8y5xf0j7kmies5i30f86xlerbfp42qnxju2vfno1io6i04sy2p2d",
+        ...(indexFileId ? { indexFileId } : { streamId }),
       });
       console.log(res);
     } catch (error) {
@@ -582,10 +577,10 @@ function App() {
         {isCurrentPkhValid !== undefined && String(isCurrentPkhValid)}
       </div>
       <hr />
-      <button onClick={loadStream}>loadStream</button>
-      <button onClick={loadStreamsBy}>loadStreamsBy</button>
       <button onClick={createStream}>createStream</button>
       <button onClick={updateStream}>updateStream</button>
+      <button onClick={loadStream}>loadStream</button>
+      <button onClick={loadStreamsBy}>loadStreamsBy</button>
       <br />
       <br />
       <button onClick={readFolders}>readFolders</button>
