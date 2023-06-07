@@ -1,6 +1,6 @@
-import { CRYPTO_WALLET } from "../crypto-wallet";
+import { WALLET } from "../crypto-wallet";
 
 export interface PkhObject {
   pkh: string;
-  wallet: CRYPTO_WALLET;
+  wallet: WALLET;
 }

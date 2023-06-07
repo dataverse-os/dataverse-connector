@@ -6,12 +6,7 @@ export {
   SignMethod,
 } from "./types/constants";
 export type { UploadProvider } from "./types/types";
-export {
-  METAMASK,
-  PARTICLE,
-  CRYPTO_WALLET_TYPE,
-  type CRYPTO_WALLET,
-} from "./types/crypto-wallet";
+export { WALLET } from "./types/crypto-wallet";
 export {
   Apps,
   ModelNames,

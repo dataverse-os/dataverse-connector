@@ -3,8 +3,6 @@ import React, { useState } from "react";
 import {
   RuntimeConnector,
   Extension,
-  METAMASK,
-  CRYPTO_WALLET_TYPE,
   Apps,
   FolderType,
   StreamObject,
@@ -13,21 +11,19 @@ import {
   StructuredFolders,
   Currency,
   Mode,
-  CRYPTO_WALLET,
   UploadProviderName,
   DecryptionConditions,
   SignMethod,
+  WALLET,
 } from "@dataverse/runtime-connector";
 import { getAddressFromPkh } from "./utils/addressAndPkh";
 
 const runtimeConnector = new RuntimeConnector(Extension);
 const app = "fxy001"; //fxy001 test001
 const slug = "fxy001";
-export const modelName = `${slug.toLowerCase()}_post`;
-export const modelNames = [modelName];
 const postVersion = "0.0.1";
-const walletName = (localStorage.getItem("walletName") as any) || METAMASK;
-const cryptoWalletType = CRYPTO_WALLET_TYPE;
+const defaultWallet =
+  (localStorage.getItem("walletName") as any) || WALLET.METAMASK;
 const modelId =
   "kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs";
 
@@ -38,10 +34,7 @@ const uploadProvider = {
 
 function App() {
   const [address, setAddress] = useState("");
-  const [wallet, setWallet] = useState<CRYPTO_WALLET>({
-    name: walletName,
-    type: cryptoWalletType,
-  });
+  const [wallet, setWallet] = useState<WALLET>(defaultWallet);
   const [pkh, setPkh] = useState("");
   const [newPkh, setNewPkh] = useState<string>("");
   const [pkhList, setPkhList] = useState<Array<string>>([]);
@@ -58,7 +51,7 @@ function App() {
   /*** Wallet ***/
   const selectWallet = async () => {
     const wallet = await runtimeConnector.selectWallet();
-    localStorage.setItem("walletName", wallet.name);
+    localStorage.setItem("walletName", wallet);
     setWallet(wallet);
     setWalletChanged(true);
     console.log({ wallet });
@@ -571,7 +564,7 @@ function App() {
       <button onClick={selectWallet}>selectWallet</button>
       <div className="blackText">
         {!walletChanged && "default: "}
-        {wallet?.name}
+        {wallet}
       </div>
       <hr />
       <button onClick={connectWallet}>connectWallet</button>

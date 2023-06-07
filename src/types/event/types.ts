@@ -1,6 +1,6 @@
 import { UploadProvider } from "../types";
 import { Mode, SignMethod } from "../constants";
-import { CRYPTO_WALLET, Chain } from "../crypto-wallet";
+import { Chain, WALLET } from "../crypto-wallet";
 import { AppsInfo, DAppInfo, DAppTable } from "../dapp-verifier/types";
 import { StreamObject } from "../data-models";
 import { StreamContent } from "../data-models/types";
@@ -22,7 +22,7 @@ import { Methods } from "./constants";
 
 export interface RequestType {
   selectWallet: void;
-  connectWallet: CRYPTO_WALLET;
+  connectWallet: WALLET;
   getCurrentWallet: void;
   switchNetwork: number;
   sign: {
@@ -48,7 +48,7 @@ export interface RequestType {
   getModelBaseInfo: string;
 
   createCapability: {
-    wallet?: CRYPTO_WALLET;
+    wallet?: WALLET;
     app?: string;
   };
   checkCapability: string | undefined;
@@ -155,10 +155,10 @@ export interface RequestType {
 }
 
 export interface ReturnType {
-  selectWallet: Promise<CRYPTO_WALLET>;
+  selectWallet: Promise<WALLET>;
   connectWallet: Promise<string>;
   getCurrentWallet: Promise<{
-    wallet: CRYPTO_WALLET;
+    wallet: WALLET;
     address: string;
     chain: Chain;
   } | null>;
