@@ -169,11 +169,21 @@ export interface ReturnType {
   checkCapability: Promise<boolean>;
   loadStream: Promise<{
     pkh: string;
-    app?: string;
+    app: string;
     modelId: string;
     streamContent: StreamContent;
   }>;
-  loadStreamsBy: Promise<StreamContent>;
+  loadStreamsBy: Promise<
+    Record<
+      string,
+      {
+        app: string;
+        modelId: string;
+        pkh: string;
+        streamContent: StreamContent;
+      }
+    >
+  >;
   createStream: Promise<
     StreamObject & { newFile?: MirrorFile; existingFile?: MirrorFile }
   >;

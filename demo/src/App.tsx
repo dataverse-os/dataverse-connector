@@ -52,8 +52,8 @@ function App() {
   const connectWallet = async () => {
     try {
       const res = await runtimeConnector.connectWallet(wallet);
+      console.log(res);
       setAddress(res.address);
-      console.log({ address });
       return address;
     } catch (error) {
       console.error(error);
@@ -62,7 +62,7 @@ function App() {
 
   const switchNetwork = async () => {
     const res = await runtimeConnector.switchNetwork(137);
-    console.log({ res });
+    console.log(res);
   };
 
   const sign = async () => {
@@ -72,7 +72,7 @@ function App() {
       method: SignMethod.signMessage,
       params: ["test"],
     });
-    console.log({ res });
+    console.log(res);
   };
 
   const contractCall = async () => {
@@ -140,7 +140,7 @@ function App() {
         },
       ],
     });
-    console.log({ res });
+    console.log(res);
   };
 
   const getCurrentPkh = async () => {
@@ -153,7 +153,7 @@ function App() {
   /*** DApp ***/
   const getDAppTable = async () => {
     const appsInfo = await runtimeConnector.getDAppTable();
-    console.log({ appsInfo });
+    console.log(appsInfo);
     setAppList(Object.keys(appsInfo));
   };
 
@@ -182,7 +182,7 @@ function App() {
       app,
     });
     setPkh(pkh);
-    console.log({ pkh });
+    console.log(pkh);
     return pkh;
   };
 
