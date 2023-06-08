@@ -48,8 +48,8 @@ export interface RequestType {
   getModelBaseInfo: string;
 
   createCapability: {
+    app: string;
     wallet?: WALLET;
-    app?: string;
   };
   checkCapability: void;
   loadStream: string;

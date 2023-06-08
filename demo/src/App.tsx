@@ -249,7 +249,7 @@ function App() {
       images: false,
       videos: false,
     });
-
+    
     const res = await runtimeConnector.createStream({
       modelId,
       streamContent: {
