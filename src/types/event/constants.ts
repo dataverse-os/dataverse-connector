@@ -10,7 +10,7 @@ export enum Methods {
   getDAppInfo = "getDAppInfo",
   getValidAppCaps = "getValidAppCaps",
   getModelBaseInfo = "getModelBaseInfo",
-
+  
   createCapability = "createCapability",
   checkCapability = "checkCapability",
   loadStream = "loadStream",
@@ -33,8 +33,7 @@ export enum Methods {
 
   createProfile = "createProfile",
   getProfiles = "getProfiles",
-  collect = "collect",
+  unlock = "unlock",
   isCollected = "isCollected",
   getDatatokenBaseInfo = "getDatatokenBaseInfo",
-  unlock = "unlock",
 }

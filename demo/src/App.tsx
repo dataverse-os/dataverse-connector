@@ -329,6 +329,9 @@ function App() {
   };
 
   const deleteAllFolder = async () => {
+    if (!folders) {
+      throw "please call readFolders first";
+    }
     await Promise.all(
       Object.keys(folders).map((folderId) =>
         runtimeConnector.deleteFolder({
@@ -340,12 +343,11 @@ function App() {
   };
 
   const getDefaultFolderId = async () => {
-    const { defaultFolderName } = await getDAppInfo();
-    let _folders = folders;
     if (!folders) {
-      _folders = await readFolders();
+      throw "please call readFolders first";
     }
-    const folder = Object.values(_folders).find(
+    const { defaultFolderName } = await getDAppInfo();
+    const folder = Object.values(folders).find(
       (folder) => folder.options.folderName === defaultFolderName
     );
     return folder!.folderId;

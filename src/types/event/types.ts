@@ -93,7 +93,7 @@ export interface RequestType {
   };
 
   uploadFile: {
-    folderId: string;
+    folderId?: string;
     fileBase64: string;
     fileName: string;
     encrypted: boolean;
@@ -117,28 +117,23 @@ export interface RequestType {
     sourceIndexFileIds: string[];
     syncImmediately?: boolean;
   };
-  removeFiles: {
-    indexFileIds: string[];
-    syncImmediately?: boolean;
-  };
   monetizeFile: {
-    folderId?: string;
     streamId?: string;
     indexFileId?: string;
     datatokenVars: Omit<DatatokenVars, "streamId">;
     decryptionConditions?: DecryptionConditions;
     storageProvider?: StorageProvider;
   };
+  removeFiles: {
+    indexFileIds: string[];
+    syncImmediately?: boolean;
+  };
 
   createProfile: string;
   getProfiles: string;
-  collect: {
-    streamId?: string;
-    indexFileId?: string;
-  };
+  unlock: { streamId?: string; indexFileId?: string };
   isCollected: { datatokenId: string; address: string };
   getDatatokenBaseInfo: string;
-  unlock: { streamId?: string; indexFileId?: string };
 }
 
 export interface ReturnType {
@@ -181,9 +176,6 @@ export interface ReturnType {
     streamContent: StreamContent;
   }>;
   updateStream: Promise<{
-    pkh: string;
-    app: string;
-    modelId: string;
     streamContent: StreamContent;
   }>;
 
@@ -211,7 +203,6 @@ export interface ReturnType {
 
   uploadFile: Promise<{
     newFile: MirrorFile;
-    existingFile?: MirrorFile;
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
@@ -226,29 +217,22 @@ export interface ReturnType {
     movedFiles: MirrorFiles;
     allFolders: StructuredFolders;
   }>;
+  monetizeFile: Promise<{
+    streamContent: StreamContent;
+  }>;
   removeFiles: Promise<{
     sourceFolders: StructuredFolders;
     removedFiles: MirrorFiles;
     allFolders: StructuredFolders;
   }>;
-  monetizeFile: Promise<{
-    streamContent?: StreamContent;
-    currentFile: MirrorFile;
-  }>;
 
   createProfile: Promise<string>;
   getProfiles: Promise<{ id: string }[]>;
-  collect: Promise<
-    CollectOutput &
-      Partial<{
-        newFile: MirrorFile;
-        currentFolder: StructuredFolder;
-        allFolders: StructuredFolders;
-      }>
-  >;
+  unlock: Promise<{
+    streamContent: StreamContent;
+  }>;
   isCollected: Promise<boolean>;
   getDatatokenBaseInfo: Promise<object>;
-  unlock: Promise<MirrorFile>;
 }
 export interface RequestInputs {
   method: Methods;
