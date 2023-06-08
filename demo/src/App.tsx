@@ -39,6 +39,12 @@ function App() {
   const [newPkh, setNewPkh] = useState<string>("");
   const [pkhList, setPkhList] = useState<Array<string>>([]);
   const [currentPkh, setCurrentPkh] = useState("");
+  const [pkpWallet, setPKPWallet] = useState({
+    address: "",
+    publicKey: "",
+  });
+  const [litActionResponse, setLitActionResponse] = useState("");
+
   const [isCurrentPkhValid, setIsCurrentPkhValid] = useState<boolean>();
   const [appList, setAppList] = useState<string[]>([]);
 
@@ -147,6 +153,48 @@ function App() {
     const res = await runtimeConnector.wallet.getCurrentPkh();
     console.log(res);
     setCurrentPkh(res);
+  };
+
+  const connectPKPWallet = async () => {
+    const res = await runtimeConnector.connectPKPWallet();
+    console.log(res);
+    setPKPWallet(res);
+  };
+
+  const executeLitAction = async () => {
+    if (!pkpWallet.address) {
+      throw "Please connect PKP wallet first";
+    }
+    //   const LIT_ACTION_CALL_CODE = `(async () => {
+    //     const latestNonce = await Lit.Actions.getLatestNonce({ address, chain });
+    //     Lit.Actions.setResponse({response: JSON.stringify({latestNonce})});
+    // })();`;
+    //   const executeJsArgs = {
+    //     code: LIT_ACTION_CALL_CODE,
+    //     jsParams: {
+    //       address: pkpWallet.address,
+    //       chain: "mumbai",
+    //     },
+    //   };
+    //   const res = await runtimeConnector.executeLitAction(executeJsArgs);
+    //   console.log(res);
+    //   setLitActionResponse(JSON.stringify(res));
+
+    const LIT_ACTION_SIGN_CODE = `(async () => {
+        const sigShare = await Lit.Actions.signEcdsa({ toSign, publicKey , sigName });
+        Lit.Actions.setResponse({response: JSON.stringify({sigShare})});
+    })();`;
+    const executeJsArgs = {
+      code: LIT_ACTION_SIGN_CODE,
+      jsParams: {
+        toSign: [72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100],
+        publicKey: pkpWallet.publicKey,
+        sigName: "sig1",
+      },
+    };
+    const res = await runtimeConnector.executeLitAction(executeJsArgs);
+    console.log(res);
+    setLitActionResponse(JSON.stringify(res));
   };
   /*** Wallet ***/
 
@@ -331,7 +379,7 @@ function App() {
 
   const deleteAllFolder = async () => {
     if (!folders) {
-      throw "please call readFolders first";
+      throw "Please call readFolders first";
     }
     await Promise.all(
       Object.keys(folders).map((folderId) =>
@@ -345,7 +393,7 @@ function App() {
 
   const getDefaultFolderId = async () => {
     if (!folders) {
-      throw "please call readFolders first";
+      throw "Please call readFolders first";
     }
     const { defaultFolderName } = await getDAppInfo();
     const folder = Object.values(folders).find(
@@ -541,6 +589,17 @@ function App() {
       <hr />
       <button onClick={getCurrentPkh}>getCurrentPkh</button>
       <div className="blackText">{currentPkh}</div>
+      <hr />
+      <button onClick={connectPKPWallet}>connectPKPWallet</button>
+      {pkpWallet.address && (
+        <div className="blackText">
+          address: {pkpWallet.address} <br />
+          publicKey: {pkpWallet.publicKey}
+        </div>
+      )}
+      <hr />
+      <button onClick={executeLitAction}>executeLitAction</button>
+      <div className="blackText json">{litActionResponse}</div>
       <hr />
       <br />
       <br />
