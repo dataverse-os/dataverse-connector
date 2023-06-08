@@ -243,6 +243,7 @@ function App() {
         updatedAt: date,
         encrypted,
       },
+      syncImmediately: true,
     });
     console.log(res);
   };

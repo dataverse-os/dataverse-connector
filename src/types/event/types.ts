@@ -21,7 +21,7 @@ import {
 import { Methods } from "./constants";
 
 export interface RequestType {
-  connectWallet: WALLET;
+  connectWallet: WALLET | undefined;
   switchNetwork: number;
   sign: {
     method: SignMethod;
