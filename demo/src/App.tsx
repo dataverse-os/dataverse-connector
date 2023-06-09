@@ -57,9 +57,7 @@ function App() {
   /*** Wallet ***/
   const connectWallet = async () => {
     try {
-      console.log(wallet)
       const res = await runtimeConnector.connectWallet(wallet);
-      console.log(res);
       setWallet(res.wallet);
       setAddress(res.address);
       return address;
