@@ -16,7 +16,6 @@ export class Wallet {
       params,
     }) as ReturnType[Methods.getCurrentPkh];
   }
-  
 }
 
 export class RuntimeConnector {
@@ -35,39 +34,21 @@ export class RuntimeConnector {
     this.communicator.setPostMessageTo(postMessageTo);
   }
 
-  selectWallet(
-    params: RequestType[Methods.selectWallet]
-  ): ReturnType[Methods.selectWallet] {
-    return this.communicator.sendRequest({
-      method: Methods.selectWallet,
-      params,
-    }) as ReturnType[Methods.selectWallet];
-  }
-
   connectWallet(
-    params: RequestType[Methods.connectWallet]
+    wallet?: RequestType[Methods.connectWallet]
   ): ReturnType[Methods.connectWallet] {
     return this.communicator.sendRequest({
       method: Methods.connectWallet,
-      params,
+      params: wallet,
     }) as ReturnType[Methods.connectWallet];
   }
 
-  getCurrentWallet(
-    params: RequestType[Methods.getCurrentWallet]
-  ): ReturnType[Methods.getCurrentWallet] {
-    return this.communicator.sendRequest({
-      method: Methods.getCurrentWallet,
-      params,
-    }) as ReturnType[Methods.getCurrentWallet];
-  }
-
   switchNetwork(
-    params: RequestType[Methods.switchNetwork]
+    chainId: RequestType[Methods.switchNetwork]
   ): ReturnType[Methods.switchNetwork] {
     return this.communicator.sendRequest({
       method: Methods.switchNetwork,
-      params,
+      params: chainId,
     }) as ReturnType[Methods.switchNetwork];
   }
 
@@ -96,67 +77,19 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.ethereumRequest];
   }
 
-  createCapability(
-    params: RequestType[Methods.createCapability]
-  ): ReturnType[Methods.createCapability] {
+  connectPKPWallet(): ReturnType[Methods.connectPKPWallet] {
     return this.communicator.sendRequest({
-      method: Methods.createCapability,
-      params,
-    }) as ReturnType[Methods.createCapability];
+      method: Methods.connectPKPWallet,
+    }) as ReturnType[Methods.connectPKPWallet];
   }
 
-  checkCapability(
-    params: RequestType[Methods.checkCapability]
-  ): ReturnType[Methods.checkCapability] {
+  executeLitAction(
+    params: RequestType[Methods.executeLitAction]
+  ): ReturnType[Methods.executeLitAction] {
     return this.communicator.sendRequest({
-      method: Methods.checkCapability,
+      method: Methods.executeLitAction,
       params,
-    }) as ReturnType[Methods.checkCapability];
-  }
-
-  loadStream(
-    params: RequestType[Methods.loadStream]
-  ): ReturnType[Methods.loadStream] {
-    return this.communicator.sendRequest({
-      method: Methods.loadStream,
-      params,
-    }) as ReturnType[Methods.loadStream];
-  }
-
-  loadStreamsBy(
-    params: RequestType[Methods.loadStreamsBy]
-  ): ReturnType[Methods.loadStreamsBy] {
-    return this.communicator.sendRequest({
-      method: Methods.loadStreamsBy,
-      params,
-    }) as ReturnType[Methods.loadStreamsBy];
-  }
-
-  getModelBaseInfo(
-    params: RequestType[Methods.getModelBaseInfo]
-  ): ReturnType[Methods.getModelBaseInfo] {
-    return this.communicator.sendRequest({
-      method: Methods.getModelBaseInfo,
-      params,
-    }) as ReturnType[Methods.getModelBaseInfo];
-  }
-
-  createStream(
-    params: RequestType[Methods.createStream]
-  ): ReturnType[Methods.createStream] {
-    return this.communicator.sendRequest({
-      method: Methods.createStream,
-      params,
-    }) as ReturnType[Methods.createStream];
-  }
-
-  updateStream(
-    params: RequestType[Methods.updateStream]
-  ): ReturnType[Methods.updateStream] {
-    return this.communicator.sendRequest({
-      method: Methods.updateStream,
-      params,
-    }) as ReturnType[Methods.updateStream];
+    }) as ReturnType[Methods.executeLitAction];
   }
 
   getDAppTable(
@@ -186,12 +119,72 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getValidAppCaps];
   }
 
-  readFolders(
-    params: RequestType[Methods.readFolders]
-  ): ReturnType[Methods.readFolders] {
+  getModelBaseInfo(
+    modelId: RequestType[Methods.getModelBaseInfo]
+  ): ReturnType[Methods.getModelBaseInfo] {
+    return this.communicator.sendRequest({
+      method: Methods.getModelBaseInfo,
+      params: modelId,
+    }) as ReturnType[Methods.getModelBaseInfo];
+  }
+
+  createCapability(
+    params: RequestType[Methods.createCapability]
+  ): ReturnType[Methods.createCapability] {
+    return this.communicator.sendRequest({
+      method: Methods.createCapability,
+      params,
+    }) as ReturnType[Methods.createCapability];
+  }
+
+  checkCapability(
+    params?: RequestType[Methods.checkCapability]
+  ): ReturnType[Methods.checkCapability] {
+    return this.communicator.sendRequest({
+      method: Methods.checkCapability,
+      params,
+    }) as ReturnType[Methods.checkCapability];
+  }
+
+  createStream(
+    params: RequestType[Methods.createStream]
+  ): ReturnType[Methods.createStream] {
+    return this.communicator.sendRequest({
+      method: Methods.createStream,
+      params,
+    }) as ReturnType[Methods.createStream];
+  }
+
+  updateStream(
+    params: RequestType[Methods.updateStream]
+  ): ReturnType[Methods.updateStream] {
+    return this.communicator.sendRequest({
+      method: Methods.updateStream,
+      params,
+    }) as ReturnType[Methods.updateStream];
+  }
+
+  loadStream(
+    streamId: RequestType[Methods.loadStream]
+  ): ReturnType[Methods.loadStream] {
+    return this.communicator.sendRequest({
+      method: Methods.loadStream,
+      params: streamId,
+    }) as ReturnType[Methods.loadStream];
+  }
+
+  loadStreamsBy(
+    params: RequestType[Methods.loadStreamsBy]
+  ): ReturnType[Methods.loadStreamsBy] {
+    return this.communicator.sendRequest({
+      method: Methods.loadStreamsBy,
+      params,
+    }) as ReturnType[Methods.loadStreamsBy];
+  }
+
+  readFolders(): ReturnType[Methods.readFolders] {
     return this.communicator.sendRequest({
       method: Methods.readFolders,
-      params,
     }) as ReturnType[Methods.readFolders];
   }
 
@@ -223,11 +216,11 @@ export class RuntimeConnector {
   }
 
   deleteFolder(
-    params: RequestType[Methods.deleteFolder]
+    folderId: RequestType[Methods.deleteFolder]
   ): ReturnType[Methods.deleteFolder] {
     return this.communicator.sendRequest({
       method: Methods.deleteFolder,
-      params,
+      params: folderId,
     }) as ReturnType[Methods.deleteFolder];
   }
 
@@ -286,20 +279,20 @@ export class RuntimeConnector {
   }
 
   createProfile(
-    params: RequestType[Methods.createProfile]
+    handle: RequestType[Methods.createProfile]
   ): ReturnType[Methods.createProfile] {
     return this.communicator.sendRequest({
       method: Methods.createProfile,
-      params,
+      params: handle,
     }) as ReturnType[Methods.createProfile];
   }
 
   getProfiles(
-    params: RequestType[Methods.getProfiles]
+    address: RequestType[Methods.getProfiles]
   ): ReturnType[Methods.getProfiles] {
     return this.communicator.sendRequest({
       method: Methods.getProfiles,
-      params,
+      params: address,
     }) as ReturnType[Methods.getProfiles];
   }
 
@@ -320,11 +313,11 @@ export class RuntimeConnector {
   }
 
   getDatatokenBaseInfo(
-    params: RequestType[Methods.getDatatokenBaseInfo]
+    datatokenId: RequestType[Methods.getDatatokenBaseInfo]
   ): ReturnType[Methods.getDatatokenBaseInfo] {
     return this.communicator.sendRequest({
       method: Methods.getDatatokenBaseInfo,
-      params,
+      params: datatokenId,
     }) as ReturnType[Methods.getDatatokenBaseInfo];
   }
 }

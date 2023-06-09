@@ -1,6 +1,6 @@
-import { UploadProviderName } from "./constants";
+import { StorageProviderName } from "./constants";
 
-export interface UploadProvider {
-  name: UploadProviderName;
+export interface StorageProvider {
+  name: StorageProviderName;
   apiKey: string;
 }

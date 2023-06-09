@@ -1,12 +1,12 @@
 export enum Methods {
-  selectWallet = "selectWallet",
   connectWallet = "connectWallet",
-  getCurrentWallet = "getCurrentWallet",
   switchNetwork = "switchNetwork",
   sign = "sign",
   contractCall = "contractCall",
   ethereumRequest = "ethereumRequest",
   getCurrentPkh = "getCurrentPkh",
+  connectPKPWallet = "connectPKPWallet",
+  executeLitAction = "executeLitAction",
 
   getDAppTable = "getDAppTable",
   getDAppInfo = "getDAppInfo",
@@ -35,8 +35,7 @@ export enum Methods {
 
   createProfile = "createProfile",
   getProfiles = "getProfiles",
-  collect = "collect",
+  unlock = "unlock",
   isCollected = "isCollected",
   getDatatokenBaseInfo = "getDatatokenBaseInfo",
-  unlock = "unlock",
 }

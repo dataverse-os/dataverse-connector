@@ -3,88 +3,65 @@ import React, { useState } from "react";
 import {
   RuntimeConnector,
   Extension,
-  METAMASK,
-  CRYPTO_WALLET_TYPE,
-  Apps,
   FolderType,
-  StreamObject,
-  FileType,
-  MirrorFile,
   StructuredFolders,
   Currency,
   Mode,
-  CRYPTO_WALLET,
-  UploadProviderName,
+  StorageProviderName,
   DecryptionConditions,
   SignMethod,
+  WALLET,
+  RESOURCE,
 } from "@dataverse/runtime-connector";
 import { getAddressFromPkh } from "./utils/addressAndPkh";
 
 const runtimeConnector = new RuntimeConnector(Extension);
 const app = "fxy001"; //fxy001 test001
 const slug = "fxy001";
-export const modelName = `${slug.toLowerCase()}_post`;
-export const modelNames = [modelName];
 const postVersion = "0.0.1";
-const walletName = (localStorage.getItem("walletName") as any) || METAMASK;
-const cryptoWalletType = CRYPTO_WALLET_TYPE;
+
 const modelId =
   "kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs";
 
-const uploadProvider = {
-  name: UploadProviderName.Lighthouse,
+const storageProvider = {
+  name: StorageProviderName.Lighthouse,
   apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call uploadFile successfully
 };
 
 function App() {
   const [address, setAddress] = useState("");
-  const [wallet, setWallet] = useState<CRYPTO_WALLET>({
-    name: walletName,
-    type: cryptoWalletType,
-  });
+  const [wallet, setWallet] = useState<WALLET>();
   const [pkh, setPkh] = useState("");
-  const [newPkh, setNewPkh] = useState<string>("");
-  const [pkhList, setPkhList] = useState<Array<string>>([]);
   const [currentPkh, setCurrentPkh] = useState("");
+  const [pkpWallet, setPKPWallet] = useState({
+    address: "",
+    publicKey: "",
+  });
+  const [litActionResponse, setLitActionResponse] = useState("");
+
   const [isCurrentPkhValid, setIsCurrentPkhValid] = useState<boolean>();
   const [appList, setAppList] = useState<string[]>([]);
 
   const [streamId, setStreamId] = useState("");
   const [folderId, setFolderId] = useState("");
   const [indexFileId, setIndexFileId] = useState("");
-  const [folders, setFolders] = useState<StructuredFolders>({});
-  const [walletChanged, setWalletChanged] = useState<boolean>(false);
+  const [folders, setFolders] = useState<StructuredFolders>();
 
   /*** Wallet ***/
-  const selectWallet = async () => {
-    const wallet = await runtimeConnector.selectWallet();
-    localStorage.setItem("walletName", wallet.name);
-    setWallet(wallet);
-    setWalletChanged(true);
-    console.log({ wallet });
-    return wallet;
-  };
-
   const connectWallet = async () => {
     try {
-      const address = await runtimeConnector.connectWallet(wallet);
-      setAddress(address);
-      console.log({ address });
+      const res = await runtimeConnector.connectWallet(wallet);
+      setWallet(res.wallet);
+      setAddress(res.address);
       return address;
     } catch (error) {
       console.error(error);
     }
   };
 
-  const getCurrentWallet = async () => {
-    const res = await runtimeConnector.getCurrentWallet();
-    console.log(res);
-    return res;
-  };
-
   const switchNetwork = async () => {
     const res = await runtimeConnector.switchNetwork(137);
-    console.log({ res });
+    console.log(res);
   };
 
   const sign = async () => {
@@ -94,7 +71,7 @@ function App() {
       method: SignMethod.signMessage,
       params: ["test"],
     });
-    console.log({ res });
+    console.log(res);
   };
 
   const contractCall = async () => {
@@ -145,7 +122,7 @@ function App() {
       params: [],
       mode: Mode.Read,
     });
-    console.log({ res });
+    console.log(res);
   };
 
   const ethereumRequest = async () => {
@@ -162,7 +139,7 @@ function App() {
         },
       ],
     });
-    console.log({ res });
+    console.log(res);
   };
 
   const getCurrentPkh = async () => {
@@ -170,17 +147,60 @@ function App() {
     console.log(res);
     setCurrentPkh(res);
   };
+
+  const connectPKPWallet = async () => {
+    const res = await runtimeConnector.connectPKPWallet();
+    console.log(res);
+    setPKPWallet(res);
+  };
+
+  const executeLitAction = async () => {
+    if (!pkpWallet.address) {
+      throw "Please connect PKP wallet first";
+    }
+    //   const LIT_ACTION_CALL_CODE = `(async () => {
+    //     const latestNonce = await Lit.Actions.getLatestNonce({ address, chain });
+    //     Lit.Actions.setResponse({response: JSON.stringify({latestNonce})});
+    // })();`;
+    //   const executeJsArgs = {
+    //     code: LIT_ACTION_CALL_CODE,
+    //     jsParams: {
+    //       address: pkpWallet.address,
+    //       chain: "mumbai",
+    //     },
+    //   };
+    //   const res = await runtimeConnector.executeLitAction(executeJsArgs);
+    //   console.log(res);
+    //   setLitActionResponse(JSON.stringify(res));
+
+    const LIT_ACTION_SIGN_CODE = `(async () => {
+        const sigShare = await Lit.Actions.signEcdsa({ toSign, publicKey , sigName });
+        Lit.Actions.setResponse({response: JSON.stringify({sigShare})});
+    })();`;
+    const executeJsArgs = {
+      code: LIT_ACTION_SIGN_CODE,
+      jsParams: {
+        toSign: [72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100],
+        publicKey: pkpWallet.publicKey,
+        sigName: "sig1",
+      },
+    };
+    const res = await runtimeConnector.executeLitAction(executeJsArgs);
+    console.log(res);
+    setLitActionResponse(JSON.stringify(res));
+  };
   /*** Wallet ***/
 
   /*** DApp ***/
   const getDAppTable = async () => {
     const appsInfo = await runtimeConnector.getDAppTable();
-    console.log({ appsInfo });
+    console.log(appsInfo);
     setAppList(Object.keys(appsInfo));
   };
 
   const getDAppInfo = async () => {
     const appsInfo = await runtimeConnector.getDAppInfo(app);
+    console.log(appsInfo);
     return appsInfo;
   };
 
@@ -200,39 +220,19 @@ function App() {
     // await connectWallet();
     // // await switchNetwork();
     const pkh = await runtimeConnector.createCapability({
-      wallet,
       app,
+      resource: RESOURCE.CERAMIC,
+      wallet,
     });
     setPkh(pkh);
-    console.log({ pkh });
+    console.log(pkh);
     return pkh;
   };
 
   const checkCapability = async () => {
-    const isCurrentPkhValid = await runtimeConnector.checkCapability(app);
+    const isCurrentPkhValid = await runtimeConnector.checkCapability();
     console.log(isCurrentPkhValid);
     setIsCurrentPkhValid(isCurrentPkhValid);
-  };
-
-  const loadStream = async () => {
-    const stream = await runtimeConnector.loadStream({
-      app: "test001",
-      streamId:
-        "kjzl6kcym7w8ya8g9cj5764kll6veldqws40ub29r1odut2pxiqxet80sl9p6th",
-    });
-    console.log(stream);
-  };
-
-  const loadStreamsBy = async () => {
-    const streams = await runtimeConnector.loadStreamsBy({
-      modelId,
-      pkh: "did:pkh:eip155:137:0x5915e293823FCa840c93ED2E1E5B4df32d699999",
-    });
-    console.log(streams);
-    // const res = Object.values(streams).filter(
-    //   (el) => el.controller !== pkh && el.fileType === FileType.Datatoken
-    // );
-    // console.log(res);
   };
 
   const createStream = async () => {
@@ -259,7 +259,7 @@ function App() {
       },
     });
 
-    setStreamId(res.newFile!.contentId!);
+    setStreamId(res.streamId);
     console.log(res);
   };
 
@@ -273,7 +273,6 @@ function App() {
     });
 
     const res = await runtimeConnector.updateStream({
-      app,
       streamId,
       streamContent: {
         appVersion: postVersion,
@@ -289,11 +288,29 @@ function App() {
     });
     console.log(res);
   };
+
+  const loadStream = async () => {
+    const stream = await runtimeConnector.loadStream(streamId);
+    console.log(stream);
+  };
+
+  const loadStreamsBy = async () => {
+    const streams = await runtimeConnector.loadStreamsBy({
+      modelId,
+      pkh,
+    });
+    console.log(streams);
+    // const res = Object.values(streams).filter(
+    //   (el) => el.controller !== pkh && el.fileType === FileType.Datatoken
+    // );
+    // console.log(res);
+  };
+
   /*** Stream ***/
 
   /*** Folders ***/
   const readFolders = async () => {
-    const folders = await runtimeConnector.readFolders(app);
+    const folders = await runtimeConnector.readFolders();
     setFolders(folders);
     console.log({ folders });
     return folders;
@@ -301,7 +318,6 @@ function App() {
 
   const createFolder = async () => {
     const res = await runtimeConnector.createFolder({
-      app,
       folderType: FolderType.Private,
       folderName: "Private",
     });
@@ -312,32 +328,25 @@ function App() {
 
   const updateFolderBaseInfo = async () => {
     const res = await runtimeConnector.updateFolderBaseInfo({
-      app,
       folderId,
       newFolderName: new Date().toISOString(),
       newFolderDescription: new Date().toISOString(),
-      // syncImmediately: true,
     });
     console.log(res);
   };
 
   const changeFolderType = async () => {
     const res = await runtimeConnector.changeFolderType({
-      app,
       folderId,
       targetFolderType: FolderType.Public,
-      // syncImmediately: true,
     });
     console.log(res);
   };
 
   const monetizeFolder = async () => {
-    const pkh = await runtimeConnector.createCapability({ app, wallet });
-
     const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
 
     const res = await runtimeConnector.monetizeFolder({
-      app,
       folderId,
       folderDescription: "This is a payable folder.",
       datatokenVars: {
@@ -353,26 +362,28 @@ function App() {
 
   const deleteFolder = async () => {
     const res = await runtimeConnector.deleteFolder({
-      app,
       folderId,
-      syncImmediately: true,
     });
     console.log(res);
   };
 
   const deleteAllFolder = async () => {
+    if (!folders) {
+      throw "Please call readFolders first";
+    }
     await Promise.all(
       Object.keys(folders).map((folderId) =>
         runtimeConnector.deleteFolder({
-          app,
           folderId,
-          syncImmediately: true,
         })
       )
     );
   };
 
   const getDefaultFolderId = async () => {
+    if (!folders) {
+      throw "Please call readFolders first";
+    }
     const { defaultFolderName } = await getDAppInfo();
     const folder = Object.values(folders).find(
       (folder) => folder.options.folderName === defaultFolderName
@@ -384,8 +395,6 @@ function App() {
   /*** Files ***/
   const uploadFile = async (event: any) => {
     try {
-      await createCapability();
-
       const file = event.target.files[0];
       console.log(file);
       const fileName = file.name;
@@ -401,13 +410,11 @@ function App() {
       console.log(fileBase64);
 
       const res = await runtimeConnector.uploadFile({
-        app,
-        folderId: await getDefaultFolderId(),
+        folderId,
         fileBase64,
         fileName,
         encrypted: false,
-        uploadProvider,
-        syncImmediately: true,
+        storageProvider,
       });
       setIndexFileId(res.newFile.indexFileId);
       console.log(res);
@@ -418,58 +425,52 @@ function App() {
 
   const updateFileBaseInfo = async () => {
     const res = await runtimeConnector.updateFileBaseInfo({
-      app,
       indexFileId,
       fileInfo: {
         mirrorName: "aaa",
       },
-      syncImmediately: true,
     });
     console.log(res);
   };
 
   const moveFiles = async () => {
     const res = await runtimeConnector.moveFiles({
-      app,
       targetFolderId: folderId || (await getDefaultFolderId()),
       sourceIndexFileIds: [indexFileId],
-      syncImmediately: true,
     });
     console.log(res);
   };
 
   const monetizeFile = async () => {
     try {
-      const pkh = await runtimeConnector.createCapability({ app, wallet });
-
+      if (!pkh) {
+        throw "You must connect capability";
+      }
       const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
 
       const res = await runtimeConnector.monetizeFile({
-        app,
-        // streamId:
-        //   "kjzl6kcym7w8y8j54sv8p4l8daxbj571b1emd8a3v5s2r9afm6di17hffmaa15t",
-        indexFileId,
+        ...(indexFileId ? { indexFileId } : { streamId }),
         datatokenVars: {
           profileId,
           collectLimit: 100,
           amount: 0.0001,
           currency: Currency.WMATIC,
         },
-        uploadProvider,
-        decryptionConditions: [
-          {
-            conditionType: "evmBasic",
-            contractAddress: "",
-            standardContractType: "",
-            chain: "filecoin",
-            method: "",
-            parameters: [":userAddress"],
-            returnValueTest: {
-              comparator: "=",
-              value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
-            },
-          },
-        ], // Only sell to specific users
+        storageProvider,
+        // decryptionConditions: [
+        //   {
+        //     conditionType: "evmBasic",
+        //     contractAddress: "",
+        //     standardContractType: "",
+        //     chain: "filecoin",
+        //     method: "",
+        //     parameters: [":userAddress"],
+        //     returnValueTest: {
+        //       comparator: "=",
+        //       value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
+        //     },
+        //   },
+        // ], // Only sell to specific users
       });
       console.log(res);
       return res;
@@ -480,9 +481,7 @@ function App() {
 
   const removeFiles = async () => {
     const res = await runtimeConnector.removeFiles({
-      app,
       indexFileIds: [indexFileId],
-      syncImmediately: true,
     });
     console.log(res);
   };
@@ -531,15 +530,10 @@ function App() {
 
   const unlock = async () => {
     try {
-      await createCapability();
-      const streamId =
-        "kjzl6kcym7w8y808e1c24rmozejq2yjhs6rqi3y9p2mmhst9x7wy5muockde39b";
       // const indexFileId =
       //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
       const res = await runtimeConnector.unlock({
-        app,
-        indexFileId:
-          "kjzl6kcym7w8y5xf0j7kmies5i30f86xlerbfp42qnxju2vfno1io6i04sy2p2d",
+        ...(indexFileId ? { indexFileId } : { streamId }),
       });
       console.log(res);
     } catch (error) {
@@ -559,7 +553,6 @@ function App() {
   };
 
   const getDatatokenBaseInfo = async () => {
-    await runtimeConnector.switchNetwork(80001);
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const res = await runtimeConnector.getDatatokenBaseInfo(datatokenId);
     console.log(res);
@@ -568,16 +561,8 @@ function App() {
 
   return (
     <div className="App">
-      <button onClick={selectWallet}>selectWallet</button>
-      <div className="blackText">
-        {!walletChanged && "default: "}
-        {wallet?.name}
-      </div>
-      <hr />
       <button onClick={connectWallet}>connectWallet</button>
       <div className="blackText">{address}</div>
-      <hr />
-      <button onClick={getCurrentWallet}>getCurrentWallet</button>
       <hr />
       <button onClick={switchNetwork}>switchNetwork</button>
       <hr />
@@ -589,6 +574,17 @@ function App() {
       <hr />
       <button onClick={getCurrentPkh}>getCurrentPkh</button>
       <div className="blackText">{currentPkh}</div>
+      <hr />
+      <button onClick={connectPKPWallet}>connectPKPWallet</button>
+      {pkpWallet.address && (
+        <div className="blackText">
+          address: {pkpWallet.address} <br />
+          publicKey: {pkpWallet.publicKey}
+        </div>
+      )}
+      <hr />
+      <button onClick={executeLitAction}>executeLitAction</button>
+      <div className="blackText json">{litActionResponse}</div>
       <hr />
       <br />
       <br />
@@ -612,10 +608,10 @@ function App() {
         {isCurrentPkhValid !== undefined && String(isCurrentPkhValid)}
       </div>
       <hr />
-      <button onClick={loadStream}>loadStream</button>
-      <button onClick={loadStreamsBy}>loadStreamsBy</button>
       <button onClick={createStream}>createStream</button>
       <button onClick={updateStream}>updateStream</button>
+      <button onClick={loadStream}>loadStream</button>
+      <button onClick={loadStreamsBy}>loadStreamsBy</button>
       <br />
       <br />
       <button onClick={readFolders}>readFolders</button>
