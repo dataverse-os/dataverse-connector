@@ -32,6 +32,7 @@ function App() {
   const [address, setAddress] = useState("");
   const [wallet, setWallet] = useState<WALLET>();
   const [pkh, setPkh] = useState("");
+  const [currentPkh, setCurrentPkh] = useState("");
   const [pkpWallet, setPKPWallet] = useState({
     address: "",
     publicKey: "",
@@ -139,6 +140,12 @@ function App() {
       ],
     });
     console.log(res);
+  };
+
+  const getCurrentPkh = async () => {
+    const res = await runtimeConnector.wallet.getCurrentPkh();
+    console.log(res);
+    setCurrentPkh(res);
   };
 
   const connectPKPWallet = async () => {
@@ -564,6 +571,9 @@ function App() {
       <button onClick={contractCall}>contractCall</button>
       <hr />
       <button onClick={ethereumRequest}>ethereumRequest</button>
+      <hr />
+      <button onClick={getCurrentPkh}>getCurrentPkh</button>
+      <div className="blackText">{currentPkh}</div>
       <hr />
       <button onClick={connectPKPWallet}>connectPKPWallet</button>
       {pkpWallet.address && (

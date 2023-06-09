@@ -4,14 +4,15 @@ export enum Methods {
   sign = "sign",
   contractCall = "contractCall",
   ethereumRequest = "ethereumRequest",
+  getCurrentPkh = "getCurrentPkh",
   connectPKPWallet = "connectPKPWallet",
   executeLitAction = "executeLitAction",
-  
+
   getDAppTable = "getDAppTable",
   getDAppInfo = "getDAppInfo",
   getValidAppCaps = "getValidAppCaps",
   getModelBaseInfo = "getModelBaseInfo",
-  
+
   createCapability = "createCapability",
   checkCapability = "checkCapability",
   loadStream = "loadStream",

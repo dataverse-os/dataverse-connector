@@ -1,14 +1,33 @@
 import { Communicator, PostMessageTo } from "@dataverse/communicator";
 import { RequestType, Methods, ReturnType } from "./types/event";
 
+export class Wallet {
+  communicator: Communicator;
+
+  constructor(communicator: Communicator) {
+    this.communicator = communicator;
+  }
+
+  getCurrentPkh(
+    params: RequestType[Methods.getCurrentPkh]
+  ): ReturnType[Methods.getCurrentPkh] {
+    return this.communicator.sendRequest({
+      method: Methods.getCurrentPkh,
+      params,
+    }) as ReturnType[Methods.getCurrentPkh];
+  }
+}
+
 export class RuntimeConnector {
   communicator: Communicator;
+  wallet: Wallet;
   constructor(postMessageTo: PostMessageTo) {
     this.communicator = new Communicator({
       source: window,
       target: window.top,
       postMessageTo,
     });
+    this.wallet = new Wallet(this.communicator);
   }
 
   setPostMessageTo(postMessageTo: PostMessageTo) {
@@ -16,7 +35,7 @@ export class RuntimeConnector {
   }
 
   connectWallet(
-    wallet: RequestType[Methods.connectWallet]
+    wallet?: RequestType[Methods.connectWallet]
   ): ReturnType[Methods.connectWallet] {
     return this.communicator.sendRequest({
       method: Methods.connectWallet,

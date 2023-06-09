@@ -39,6 +39,7 @@ export interface RequestType {
     method: string;
     params?: any;
   };
+  getCurrentPkh: void;
   connectPKPWallet: void;
   executeLitAction: { code: string; jsParams: object };
 
@@ -144,6 +145,7 @@ export interface ReturnType {
   sign: Promise<string>;
   contractCall: Promise<any>;
   ethereumRequest: Promise<any>;
+  getCurrentPkh: Promise<string>;
   connectPKPWallet: Promise<{ address: string; publicKey: string }>;
   executeLitAction: Promise<any>;
 
