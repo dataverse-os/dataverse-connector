@@ -101,7 +101,6 @@ export interface RequestType {
     fileName: string;
     encrypted: boolean;
     storageProvider: StorageProvider;
-    syncImmediately?: boolean;
   };
   updateFileBaseInfo: {
     indexFileId: string;
@@ -159,7 +158,12 @@ export interface ReturnType {
     pkh: string;
     app: string;
     modelId: string;
-    streamContent: StreamContent;
+    streamContent:
+      | {
+          file?: Omit<MirrorFile, "fileKey" | "content">;
+          content?: StreamContent;
+        }
+      | StreamContent;
   }>;
   loadStreamsBy: Promise<
     Record<
@@ -168,7 +172,12 @@ export interface ReturnType {
         app: string;
         modelId: string;
         pkh: string;
-        streamContent: StreamContent;
+        streamContent:
+          | {
+              file?: Omit<MirrorFile, "fileKey" | "content">;
+              content?: StreamContent;
+            }
+          | StreamContent;
       }
     >
   >;
@@ -177,10 +186,16 @@ export interface ReturnType {
     app: string;
     modelId: string;
     streamId: string;
-    streamContent: StreamContent;
+    streamContent: {
+      file: Omit<MirrorFile, "fileKey" | "content">;
+      content: StreamContent;
+    };
   }>;
   updateStream: Promise<{
-    streamContent: StreamContent;
+    streamContent: {
+      file: Omit<MirrorFile, "fileKey" | "content">;
+      content: StreamContent;
+    };
   }>;
 
   readFolders: Promise<StructuredFolders>;
@@ -222,7 +237,10 @@ export interface ReturnType {
     allFolders: StructuredFolders;
   }>;
   monetizeFile: Promise<{
-    streamContent: StreamContent;
+    streamContent: {
+      file: Omit<MirrorFile, "fileKey" | "content">;
+      content: StreamContent | string;
+    };
   }>;
   removeFiles: Promise<{
     sourceFolders: StructuredFolders;
@@ -233,7 +251,10 @@ export interface ReturnType {
   createProfile: Promise<string>;
   getProfiles: Promise<{ id: string }[]>;
   unlock: Promise<{
-    streamContent: StreamContent;
+    streamContent: {
+      file: Omit<MirrorFile, "fileKey" | "content">;
+      content: StreamContent | string;
+    };
   }>;
   isCollected: Promise<boolean>;
   getDatatokenBaseInfo: Promise<object>;

@@ -23,8 +23,7 @@ const runtimeConnector = new RuntimeConnector(Extension);
 const app = "fxy001"; //fxy001 test001
 const slug = "fxy001";
 const postVersion = "0.0.1";
-const defaultWallet =
-  (localStorage.getItem("walletName") as any) || WALLET.METAMASK;
+
 const modelId =
   "kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs";
 
@@ -35,7 +34,7 @@ const storageProvider = {
 
 function App() {
   const [address, setAddress] = useState("");
-  const [wallet, setWallet] = useState<WALLET>(defaultWallet);
+  const [wallet, setWallet] = useState<WALLET>();
   const [pkh, setPkh] = useState("");
   const [newPkh, setNewPkh] = useState<string>("");
   const [pkhList, setPkhList] = useState<Array<string>>([]);
@@ -58,8 +57,10 @@ function App() {
   /*** Wallet ***/
   const connectWallet = async () => {
     try {
+      console.log(wallet)
       const res = await runtimeConnector.connectWallet(wallet);
       console.log(res);
+      setWallet(res.wallet);
       setAddress(res.address);
       return address;
     } catch (error) {
@@ -287,7 +288,6 @@ function App() {
         updatedAt: date,
         encrypted,
       },
-      syncImmediately: true,
     });
     console.log(res);
   };
@@ -334,7 +334,6 @@ function App() {
       folderId,
       newFolderName: new Date().toISOString(),
       newFolderDescription: new Date().toISOString(),
-      // syncImmediately: true,
     });
     console.log(res);
   };
@@ -343,7 +342,6 @@ function App() {
     const res = await runtimeConnector.changeFolderType({
       folderId,
       targetFolderType: FolderType.Public,
-      // syncImmediately: true,
     });
     console.log(res);
   };
@@ -368,7 +366,6 @@ function App() {
   const deleteFolder = async () => {
     const res = await runtimeConnector.deleteFolder({
       folderId,
-      syncImmediately: true,
     });
     console.log(res);
   };
@@ -381,7 +378,6 @@ function App() {
       Object.keys(folders).map((folderId) =>
         runtimeConnector.deleteFolder({
           folderId,
-          syncImmediately: true,
         })
       )
     );
@@ -422,7 +418,6 @@ function App() {
         fileName,
         encrypted: false,
         storageProvider,
-        syncImmediately: true,
       });
       setIndexFileId(res.newFile.indexFileId);
       console.log(res);
@@ -437,7 +432,6 @@ function App() {
       fileInfo: {
         mirrorName: "aaa",
       },
-      syncImmediately: true,
     });
     console.log(res);
   };
@@ -446,7 +440,6 @@ function App() {
     const res = await runtimeConnector.moveFiles({
       targetFolderId: folderId || (await getDefaultFolderId()),
       sourceIndexFileIds: [indexFileId],
-      syncImmediately: true,
     });
     console.log(res);
   };
@@ -492,7 +485,6 @@ function App() {
   const removeFiles = async () => {
     const res = await runtimeConnector.removeFiles({
       indexFileIds: [indexFileId],
-      syncImmediately: true,
     });
     console.log(res);
   };
