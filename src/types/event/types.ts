@@ -72,7 +72,7 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
 
-  readFolders?: string | undefined;
+  readFolders: void;
   createFolder: {
     folderType: FolderType;
     folderName: string;
