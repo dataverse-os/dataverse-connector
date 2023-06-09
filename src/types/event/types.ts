@@ -19,6 +19,7 @@ import {
   StructuredFolders,
 } from "../fs/types";
 import { Methods } from "./constants";
+import { RESOURCE } from "../identity/constants";
 
 export interface RequestType {
   connectWallet: WALLET | undefined;
@@ -38,7 +39,6 @@ export interface RequestType {
     method: string;
     params?: any;
   };
-  getCurrentPkh: void;
   connectPKPWallet: void;
   executeLitAction: { code: string; jsParams: object };
 
@@ -49,6 +49,7 @@ export interface RequestType {
 
   createCapability: {
     app: string;
+    resource?: RESOURCE;
     wallet?: WALLET;
   };
   checkCapability: void;
@@ -144,10 +145,9 @@ export interface ReturnType {
   sign: Promise<string>;
   contractCall: Promise<any>;
   ethereumRequest: Promise<any>;
-  getCurrentPkh: Promise<string>;
   connectPKPWallet: Promise<{ address: string; publicKey: string }>;
   executeLitAction: Promise<any>;
-  
+
   getDAppTable: Promise<DAppTable>;
   getDAppInfo: Promise<DAppInfo>;
   getValidAppCaps: Promise<AppsInfo>;

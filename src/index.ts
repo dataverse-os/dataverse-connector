@@ -7,6 +7,7 @@ export {
 } from "./types/constants";
 export type { StorageProvider } from "./types/types";
 export { WALLET } from "./types/crypto-wallet";
+export { RESOURCE } from "./types/identity";
 export {
   Apps,
   ModelNames,

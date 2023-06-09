@@ -15,6 +15,7 @@ import {
   DecryptionConditions,
   SignMethod,
   WALLET,
+  RESOURCE,
 } from "@dataverse/runtime-connector";
 import { getAddressFromPkh } from "./utils/addressAndPkh";
 
@@ -149,12 +150,6 @@ function App() {
     console.log(res);
   };
 
-  const getCurrentPkh = async () => {
-    const res = await runtimeConnector.wallet.getCurrentPkh();
-    console.log(res);
-    setCurrentPkh(res);
-  };
-
   const connectPKPWallet = async () => {
     const res = await runtimeConnector.connectPKPWallet();
     console.log(res);
@@ -227,8 +222,9 @@ function App() {
     // await connectWallet();
     // // await switchNetwork();
     const pkh = await runtimeConnector.createCapability({
-      wallet,
       app,
+      resource: RESOURCE.CERAMIC,
+      wallet,
     });
     setPkh(pkh);
     console.log(pkh);
@@ -249,7 +245,7 @@ function App() {
       images: false,
       videos: false,
     });
-    
+
     const res = await runtimeConnector.createStream({
       modelId,
       streamContent: {
@@ -586,9 +582,6 @@ function App() {
       <button onClick={contractCall}>contractCall</button>
       <hr />
       <button onClick={ethereumRequest}>ethereumRequest</button>
-      <hr />
-      <button onClick={getCurrentPkh}>getCurrentPkh</button>
-      <div className="blackText">{currentPkh}</div>
       <hr />
       <button onClick={connectPKPWallet}>connectPKPWallet</button>
       {pkpWallet.address && (

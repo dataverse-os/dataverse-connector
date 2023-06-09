@@ -4,7 +4,6 @@ export enum Methods {
   sign = "sign",
   contractCall = "contractCall",
   ethereumRequest = "ethereumRequest",
-  getCurrentPkh = "getCurrentPkh",
   connectPKPWallet = "connectPKPWallet",
   executeLitAction = "executeLitAction",
   
