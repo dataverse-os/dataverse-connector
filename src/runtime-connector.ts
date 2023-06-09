@@ -137,9 +137,12 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.createCapability];
   }
 
-  checkCapability(): ReturnType[Methods.checkCapability] {
+  checkCapability(
+    params?: RequestType[Methods.checkCapability]
+  ): ReturnType[Methods.checkCapability] {
     return this.communicator.sendRequest({
       method: Methods.checkCapability,
+      params,
     }) as ReturnType[Methods.checkCapability];
   }
 

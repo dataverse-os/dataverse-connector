@@ -53,7 +53,10 @@ export interface RequestType {
     resource?: RESOURCE;
     wallet?: WALLET;
   };
-  checkCapability: void;
+  checkCapability: {
+    app: string;
+    resource?: RESOURCE;
+  };
   loadStream: string;
   loadStreamsBy: {
     modelId: string;
