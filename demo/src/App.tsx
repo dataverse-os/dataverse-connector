@@ -3,11 +3,7 @@ import React, { useState } from "react";
 import {
   RuntimeConnector,
   Extension,
-  Apps,
   FolderType,
-  StreamObject,
-  FileType,
-  MirrorFile,
   StructuredFolders,
   Currency,
   Mode,
@@ -36,9 +32,6 @@ function App() {
   const [address, setAddress] = useState("");
   const [wallet, setWallet] = useState<WALLET>();
   const [pkh, setPkh] = useState("");
-  const [newPkh, setNewPkh] = useState<string>("");
-  const [pkhList, setPkhList] = useState<Array<string>>([]);
-  const [currentPkh, setCurrentPkh] = useState("");
   const [pkpWallet, setPKPWallet] = useState({
     address: "",
     publicKey: "",
@@ -52,7 +45,6 @@ function App() {
   const [folderId, setFolderId] = useState("");
   const [indexFileId, setIndexFileId] = useState("");
   const [folders, setFolders] = useState<StructuredFolders>();
-  const [walletChanged, setWalletChanged] = useState<boolean>(false);
 
   /*** Wallet ***/
   const connectWallet = async () => {
@@ -311,7 +303,7 @@ function App() {
 
   /*** Folders ***/
   const readFolders = async () => {
-    const folders = await runtimeConnector.readFolders(app);
+    const folders = await runtimeConnector.readFolders();
     setFolders(folders);
     console.log({ folders });
     return folders;

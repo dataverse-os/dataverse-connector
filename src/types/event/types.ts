@@ -22,7 +22,7 @@ import { Methods } from "./constants";
 import { RESOURCE } from "../identity/constants";
 
 export interface RequestType {
-  connectWallet: WALLET | undefined;
+  connectWallet?: WALLET | undefined;
   switchNetwork: number;
   sign: {
     method: SignMethod;
@@ -68,7 +68,7 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
 
-  readFolders: string | undefined;
+  readFolders?: string | undefined;
   createFolder: {
     folderType: FolderType;
     folderName: string;
