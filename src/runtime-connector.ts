@@ -77,10 +77,10 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.ethereumRequest];
   }
 
-  connectPKPWallet(): ReturnType[Methods.connectPKPWallet] {
+  getPKP(): ReturnType[Methods.getPKP] {
     return this.communicator.sendRequest({
-      method: Methods.connectPKPWallet,
-    }) as ReturnType[Methods.connectPKPWallet];
+      method: Methods.getPKP,
+    }) as ReturnType[Methods.getPKP];
   }
 
   executeLitAction(

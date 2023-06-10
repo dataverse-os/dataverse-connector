@@ -40,7 +40,7 @@ export interface RequestType {
     params?: any;
   };
   getCurrentPkh: void;
-  connectPKPWallet: void;
+  getPKP: void;
   executeLitAction: { code: string; jsParams: object };
 
   getDAppTable: void;
@@ -149,7 +149,7 @@ export interface ReturnType {
   contractCall: Promise<any>;
   ethereumRequest: Promise<any>;
   getCurrentPkh: Promise<string>;
-  connectPKPWallet: Promise<{ address: string; publicKey: string }>;
+  getPKP: Promise<{ address: string; publicKey: string }>;
   executeLitAction: Promise<any>;
 
   getDAppTable: Promise<DAppTable>;

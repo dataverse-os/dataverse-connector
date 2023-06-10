@@ -51,6 +51,7 @@ function App() {
   const connectWallet = async () => {
     try {
       const res = await runtimeConnector.connectWallet(wallet);
+      console.log(res)
       setWallet(res.wallet);
       setAddress(res.address);
       return address;
@@ -148,16 +149,13 @@ function App() {
     setCurrentPkh(res);
   };
 
-  const connectPKPWallet = async () => {
-    const res = await runtimeConnector.connectPKPWallet();
+  const getPKP = async () => {
+    const res = await runtimeConnector.getPKP();
     console.log(res);
     setPKPWallet(res);
   };
 
   const executeLitAction = async () => {
-    if (!pkpWallet.address) {
-      throw "Please connect PKP wallet first";
-    }
     //   const LIT_ACTION_CALL_CODE = `(async () => {
     //     const latestNonce = await Lit.Actions.getLatestNonce({ address, chain });
     //     Lit.Actions.setResponse({response: JSON.stringify({latestNonce})});
@@ -575,7 +573,7 @@ function App() {
       <button onClick={getCurrentPkh}>getCurrentPkh</button>
       <div className="blackText">{currentPkh}</div>
       <hr />
-      <button onClick={connectPKPWallet}>connectPKPWallet</button>
+      <button onClick={getPKP}>getPKP</button>
       {pkpWallet.address && (
         <div className="blackText">
           address: {pkpWallet.address} <br />
