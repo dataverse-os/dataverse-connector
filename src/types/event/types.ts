@@ -128,7 +128,6 @@ export interface RequestType {
     indexFileId?: string;
     datatokenVars: Omit<DatatokenVars, "streamId">;
     decryptionConditions?: DecryptionConditions;
-    storageProvider?: StorageProvider;
   };
   removeFiles: {
     indexFileIds: string[];

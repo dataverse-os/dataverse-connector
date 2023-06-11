@@ -454,7 +454,6 @@ function App() {
           amount: 0.0001,
           currency: Currency.WMATIC,
         },
-        storageProvider,
         // decryptionConditions: [
         //   {
         //     conditionType: "evmBasic",
