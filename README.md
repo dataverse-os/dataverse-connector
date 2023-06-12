@@ -39,7 +39,7 @@ the demo will be running on http://localhost:5173/.
 <br/>
 <p align="center">
 <a href=" " target="_blank">
-<img src="https://i.imgur.com/U069RGb.png" width="300" alt="Dataverse logo">
+<img src="https://s2.loli.net/2023/06/12/zeyQlmbTpUEvHdu.png" width="300" alt="Dataverse logo">
 </a >
 </p >
 <br/>
@@ -54,30 +54,82 @@ const runtimeConnector = new RuntimeConnector(Extension);
 
 ## Functions
 
-**`runtimeConnector.connectWallet({ name: METAMASK, type: CRYPTO_WALLET_TYPE })`**
+**`runtimeConnector.connectWallet(WALLET.METAMASK)`**
 
-- `name`: Currently, only METAMASK is supported as the name attribute.
-- `type`: The type attribute is of type CRYPTO_WALLET_TYPE.
+Connect with user wallet.
+pass in which wallet you want to connect with, currently support MetaMask and Particle Network.
 
+  ```js
+  enum WALLET {
+    METAMASK = "MetaMask",
+    PARTICLE = "Particle"
+  }
+  ```
 - Returns:
   - If the wallet is not connected, a pop-up will appear for the user to select a wallet address. After the user selects an address, the address will be returned to indicate that the wallet is connected.
-  - If the wallet is already connected, the wallet address will be returned directly.
+  - If the wallet is already connected, will return wallet address and other info, example:
+```json
+{
+    "address": "0x312eA852726E3A9f633A0377c0ea882086d66666",
+    "chain": {
+        "chainId": 80001,
+        "chainName": "mumbai"
+    },
+    "wallet": "MetaMask"
+}
+```
+<br>
+
+**`runtimeConnector.createCapability({app: string, resource: RESOURCE, wallet: WALLET})`**
+
+Create a capability for the application to access the data resources.
+- `app`: `string` - which app is requesting the capability.
+- `resource`: `RESOURCE` - Resource to give access to the capability.
+  ```js
+  enum RESOURCE {
+    CERAMIC,
+  }
+  ```
+This method will open a popup and ask the user to sign a message to create a capability. The message will be like this.
+```yaml
+Message:
+Give this application access to some of your data
+
+URI:
+did:key:z6MknFM4H7EFyBGANghNvV43uLvUKvRPU94fUcc8AZQZCq8Z
+
+Version:
+1
+
+Chain ID:
+1
+
+Nonce:
+UboH08SYfJn9N2
+
+Issued At:
+2023-06-12T06:35:19.225Z
+
+Expires At:
+2023-06-19T06:35:19.225Z
+
+Resources: 4
+ceramic://*?model=kjzl6hvfrbw6c763ubdhowzao0m4yp84cxzbfnlh4hdi5alqo4yrebmc0qpjdi5
+ceramic://*?model=kjzl6hvfrbw6c7cp6xafsa7ghxh1yfw4bsub1363ehrxhi999vlpxny9k69uoxz
+ceramic://*?model=kjzl6hvfrbw6c5qdzwi9esxvt1v5mtt7od7hb2947624mn4u0rmq1rh9anjcnxx
+ceramic://*?model=kjzl6hvfrbw6c6ad7ydn0hi4vtamx2v620hdgu6llq49h28rfd6cs02g3cmn9za
+```
+
+- Returns:
+  - `pkh`: `string` - a pkh did you may use to interact with the data resources later.
+```js
+did:pkh:eip155:137:0x29761660d6Cb26a08e9A9c7de12E0038eE9cb623
+```
+
 
 <br>
 
-**`runtimeConnector.createCapability({ wallet: { name: METAMASK, type: CRYPTO_WALLET_TYPE }, appName: Apps.Dataverse, })`**
-
-- `wallet`: `CRYPTO_WALLET` object consisting of `name` and `type` properties, where `name` currently supports only the `MetaMask` string (a popular cryptocurrency wallet browser extension), while `type` is the string `CRYPTO_WALLET`.
-- `appName`: `string` representing the name of the application.
-- `modelNames`: The parameter `modelNames` is an optional array of model names. If provided, when the authorization pop-up is shown, the user will be asked to grant the application access to the specified model's stream ID(s) (including the stream IDs of `indexFolder`, `contentFolder`, and `indexFile`). If `modelNames` is not provided, the user will be asked to grant access to the stream IDs of all models under the application.
-
-- Returns:
-  - If the identity is not connected
-    - If the wallet is not connected, a popup window will appear for the user to select a wallet address. Once the user selects an address, the wallet is connected, and the subsequent steps are the same as below.
-    - If the wallet is already connected, a signature popup window will appear, and the user needs to authorize the application to write to the data model. After the user signs, the user's identity identifier, or Pkh, will be returned, indicating a successful connection to the identity.
-  - If the identity is already connected, the function will return the Pkh directly, indicating a successful connection to the identity.
-
-check all functions in [docs](https://gitbook.dataverse-os.com/api-documentation).
+check all functions in [docs](https://docs.dataverse-os.com/sdk/apis).
 
 ## License
 
@@ -85,7 +137,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) f
 
 ## Documentation
 
-View [Gitbook](https://gitbook.dataverse-os.com/).
+View [Docs](https://docs.dataverse-os.com/).
 
 ## Contributing
 
