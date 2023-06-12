@@ -16,13 +16,14 @@ import {
 import { getAddressFromPkh } from "./utils/addressAndPkh";
 
 const runtimeConnector = new RuntimeConnector(Extension);
-const app = "fxy001"; //fxy001 test001
-const slug = "fxy001";
+
+const app = "test001"; //fxy001 (mainnet)   test001 (testnet)
+const slug = "test001";
 const postVersion = "0.0.1";
 
 const modelId =
-  "kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs";
-
+  "kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo"; // (testnet)
+  // kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs // (mainnet)
 const storageProvider = {
   name: StorageProviderName.Lighthouse,
   apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call uploadFile successfully
@@ -228,7 +229,7 @@ function App() {
   };
 
   const checkCapability = async () => {
-    const isCurrentPkhValid = await runtimeConnector.checkCapability();
+    const isCurrentPkhValid = await runtimeConnector.checkCapability({app});
     console.log(isCurrentPkhValid);
     setIsCurrentPkhValid(isCurrentPkhValid);
   };
@@ -539,7 +540,6 @@ function App() {
   };
 
   const isCollected = async () => {
-    await runtimeConnector.switchNetwork(80001);
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
     const res = await runtimeConnector.isCollected({
