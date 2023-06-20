@@ -1,3 +1,4 @@
+import { Signer as EthersSigner, providers } from "ethers";
 import { StorageProvider } from "../types";
 import { Mode, SignMethod } from "../constants";
 import { Chain, WALLET } from "../crypto-wallet";
@@ -20,6 +21,8 @@ import {
 } from "../fs/types";
 import { Methods } from "./constants";
 import { RESOURCE } from "../identity/constants";
+import { Provider } from "../../provider";
+import { Signer } from "../../signer";
 
 export interface RequestType {
   connectWallet?: WALLET | undefined;
@@ -33,7 +36,6 @@ export interface RequestType {
     abi: any[];
     method: string;
     params: any[];
-    mode?: Mode;
   };
   ethereumRequest: {
     method: string;
@@ -142,7 +144,15 @@ export interface RequestType {
 }
 
 export interface ReturnType {
-  connectWallet: Promise<{ address: string; chain: Chain; wallet: WALLET }>;
+  connectWallet: Promise<{
+    address: string;
+    chain: Chain;
+    wallet: WALLET;
+    provider: Provider;
+    signer: Signer;
+    ethersProvider: providers.Web3Provider;
+    ethersSigner: EthersSigner;
+  }>;
   switchNetwork: Promise<{ chainId: number; chainName: string }>;
   sign: Promise<string>;
   contractCall: Promise<any>;

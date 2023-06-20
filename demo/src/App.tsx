@@ -6,24 +6,26 @@ import {
   FolderType,
   StructuredFolders,
   Currency,
-  Mode,
   StorageProviderName,
   DecryptionConditions,
   SignMethod,
   WALLET,
   RESOURCE,
+  Provider,
+  Signer,
 } from "@dataverse/runtime-connector";
 import { getAddressFromPkh } from "./utils/addressAndPkh";
+import { Contract, ethers, Signer as EthersSigner, providers } from "ethers";
 
 const runtimeConnector = new RuntimeConnector(Extension);
 
-const app = "test001"; //fxy001 (mainnet)   test001 (testnet)
-const slug = "test001";
+const app = "test0001"; //fxy001 (mainnet)   test001 (testnet)
+const slug = "test0001";
 const postVersion = "0.0.1";
 
 const modelId =
-  "kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo"; // (testnet)
-  // kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs // (mainnet)
+  "kjzl6hvfrbw6cardizjjgu1ipaulmcazowhjrsb6d5ozowz0nzuxfrl8gavupf2"; // (testnet)
+// kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs // (mainnet)
 const storageProvider = {
   name: StorageProviderName.Lighthouse,
   apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call uploadFile successfully
@@ -32,6 +34,11 @@ const storageProvider = {
 function App() {
   const [address, setAddress] = useState("");
   const [wallet, setWallet] = useState<WALLET>();
+  const [provider, setProvider] = useState<Provider>();
+  const [signer, setSigner] = useState<Signer>();
+  const [ethersProvider, setEthersProvider] =
+    useState<providers.Web3Provider>();
+  const [ethersSigner, setEthersSigner] = useState<EthersSigner>();
   const [pkh, setPkh] = useState("");
   const [currentPkh, setCurrentPkh] = useState("");
   const [pkpWallet, setPKPWallet] = useState({
@@ -50,15 +57,15 @@ function App() {
 
   /*** Wallet ***/
   const connectWallet = async () => {
-    try {
-      const res = await runtimeConnector.connectWallet(wallet);
-      console.log(res)
-      setWallet(res.wallet);
-      setAddress(res.address);
-      return address;
-    } catch (error) {
-      console.error(error);
-    }
+    const res = await runtimeConnector.connectWallet(wallet);
+    console.log(res);
+    setWallet(res.wallet);
+    setAddress(res.address);
+    setProvider(res.provider);
+    setSigner(res.signer);
+    setEthersProvider(res.ethersProvider);
+    setEthersSigner(res.ethersSigner);
+    return res;
   };
 
   const switchNetwork = async () => {
@@ -67,68 +74,99 @@ function App() {
   };
 
   const sign = async () => {
-    await connectWallet();
+    const { signer } = await connectWallet();
 
-    const res = await runtimeConnector.sign({
-      method: SignMethod.signMessage,
-      params: ["test"],
-    });
+    const res = await signer.signMessage("test");
+
     console.log(res);
+
+    return res;
+  };
+
+  const signTypedData = async () => {
+    const { signer } = await connectWallet();
+
+    const res = await signer._signTypedData(
+      {
+        name: "EPNS COMM V1",
+        chainId: 5,
+        verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
+      },
+      {
+        Data: [
+          {
+            name: "data",
+            type: "string",
+          },
+        ],
+      },
+      {
+        data: '2+{"notification":{"title":"Push Title Hello","body":"Good to see you bodies"},"data":{"acta":"","aimg":"","amsg":"Payload Push Title Hello Body","asub":"Payload Push Title Hello","type":"1"},"recipients":"eip155:5:0x6ed14ee482d3C4764C533f56B90360b767d21D5E"}',
+      }
+    );
+
+    console.log(res);
+
+    return res;
   };
 
   const contractCall = async () => {
-    await connectWallet();
-
+    const { ethersProvider, ethersSigner } = await connectWallet();
+    console.log(ethersSigner);
     await runtimeConnector.switchNetwork(80001);
 
-    const res = await runtimeConnector.contractCall({
-      contractAddress: "0xB07E79bB859ad18a8CbE6E111f4ad0Cca2FD3Da8",
-      abi: [
-        {
-          inputs: [],
-          name: "metadata",
-          outputs: [
-            {
-              components: [
-                {
-                  internalType: "address",
-                  name: "hub",
-                  type: "address",
-                },
-                {
-                  internalType: "uint256",
-                  name: "profileId",
-                  type: "uint256",
-                },
-                {
-                  internalType: "uint256",
-                  name: "pubId",
-                  type: "uint256",
-                },
-                {
-                  internalType: "address",
-                  name: "collectModule",
-                  type: "address",
-                },
-              ],
-              internalType: "struct IDataToken.Metadata",
-              name: "",
-              type: "tuple",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-      ],
-      method: "metadata",
-      params: [],
-      mode: Mode.Read,
-    });
+    const contractAddress = "0x2e43c080B56c644F548610f45998399d42e3d400";
+
+    const abi = [
+      {
+        inputs: [],
+        stateMutability: "nonpayable",
+        type: "constructor",
+      },
+      {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "value_",
+            type: "uint256",
+          },
+        ],
+        name: "setValue",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "value",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+    ];
+
+    const contract = new Contract(contractAddress, abi, ethersSigner);
+
+    const res = await contract.setValue(12345);
     console.log(res);
+
+    const tx = await res.wait();
+    console.log(tx);
+
+    const value = await contract.value();
+    console.log(value);
+
+    return tx;
   };
 
   const ethereumRequest = async () => {
-    const address = await connectWallet();
+    const { address } = await connectWallet();
     const res = await runtimeConnector.ethereumRequest({
       method: "eth_sendTransaction",
       params: [
@@ -229,7 +267,7 @@ function App() {
   };
 
   const checkCapability = async () => {
-    const isCurrentPkhValid = await runtimeConnector.checkCapability({app});
+    const isCurrentPkhValid = await runtimeConnector.checkCapability({ app });
     console.log(isCurrentPkhValid);
     setIsCurrentPkhValid(isCurrentPkhValid);
   };
@@ -456,18 +494,33 @@ function App() {
           currency: Currency.WMATIC,
         },
         // decryptionConditions: [
-        //   {
-        //     conditionType: "evmBasic",
-        //     contractAddress: "",
-        //     standardContractType: "",
-        //     chain: "filecoin",
-        //     method: "",
-        //     parameters: [":userAddress"],
-        //     returnValueTest: {
-        //       comparator: "=",
-        //       value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
+        //   [
+        //     {
+        //       conditionType: "evmBasic",
+        //       contractAddress: "",
+        //       standardContractType: "",
+        //       chain: "filecoin",
+        //       method: "",
+        //       parameters: [":userAddress"],
+        //       returnValueTest: {
+        //         comparator: "=",
+        //         value: "0xd10d5b408A290a5FD0C2B15074995e899E944444",
+        //       },
         //     },
-        //   },
+        //     { operator: "or" },
+        //     {
+        //       conditionType: "evmBasic",
+        //       contractAddress: "",
+        //       standardContractType: "",
+        //       chain: "filecoin",
+        //       method: "",
+        //       parameters: [":userAddress"],
+        //       returnValueTest: {
+        //         comparator: "=",
+        //         value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
+        //       },
+        //     },
+        //   ] as any,
         // ], // Only sell to specific users
       });
       console.log(res);
@@ -564,6 +617,8 @@ function App() {
       <button onClick={switchNetwork}>switchNetwork</button>
       <hr />
       <button onClick={sign}>sign</button>
+      <hr />
+      <button onClick={signTypedData}>signTypedData</button>
       <hr />
       <button onClick={contractCall}>contractCall</button>
       <hr />

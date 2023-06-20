@@ -1,5 +1,8 @@
 import { Communicator, PostMessageTo } from "@dataverse/communicator";
 import { RequestType, Methods, ReturnType } from "./types/event";
+import { Signer } from "./signer";
+import { Provider } from "./provider";
+import { ethers, Signer as EthersSigner, providers } from "ethers";
 
 export class Wallet {
   communicator: Communicator;
@@ -21,6 +24,11 @@ export class Wallet {
 export class RuntimeConnector {
   communicator: Communicator;
   wallet: Wallet;
+  provider: Provider;
+  signer: Signer;
+  ethersProvider: providers.Web3Provider;
+  ethersSigner: EthersSigner;
+
   constructor(postMessageTo: PostMessageTo) {
     this.communicator = new Communicator({
       source: window,
@@ -34,13 +42,27 @@ export class RuntimeConnector {
     this.communicator.setPostMessageTo(postMessageTo);
   }
 
-  connectWallet(
+  async connectWallet(
     wallet?: RequestType[Methods.connectWallet]
-  ): ReturnType[Methods.connectWallet] {
-    return this.communicator.sendRequest({
+  ): Promise<ReturnType[Methods.connectWallet]> {
+    const res = await (this.communicator.sendRequest({
       method: Methods.connectWallet,
       params: wallet,
-    }) as ReturnType[Methods.connectWallet];
+    }) as ReturnType[Methods.connectWallet]);
+
+    this.provider = new Provider({ runtimeConnector: this, walletInfo: res });
+    this.signer = new Signer({ runtimeConnector: this, walletInfo: res });
+
+    this.ethersProvider = new ethers.providers.Web3Provider(this.provider);
+    this.ethersSigner = this.ethersProvider.getSigner();
+
+    return {
+      ...res,
+      provider: this.provider,
+      signer: this.signer,
+      ethersProvider: this.ethersProvider,
+      ethersSigner: this.ethersSigner,
+    } as Awaited<ReturnType[Methods.connectWallet]>;
   }
 
   switchNetwork(
