@@ -1,4 +1,4 @@
-import { Bytes, Signer as _Signer } from "ethers";
+import { BigNumber, Bytes, VoidSigner, Signer as _Signer } from "ethers";
 import {
   TypedDataDomain,
   TypedDataField,
@@ -7,9 +7,12 @@ import { RuntimeConnector } from "./runtime-connector";
 import { SignMethod } from "./types/constants";
 import { ReturnType, Methods } from "./types/event";
 
-export class Signer extends _Signer {
-  private runtimeConnector: RuntimeConnector;
-  private walletInfo: Awaited<ReturnType[Methods.connectWallet]>;
+export class Signer extends VoidSigner {
+  runtimeConnector: RuntimeConnector;
+  walletInfo: Omit<
+    Awaited<ReturnType[Methods.connectWallet]>,
+    "provider" | "signer" | "ethersProvider" | "ethersSigner"
+  >;
 
   constructor({
     runtimeConnector,
@@ -18,38 +21,41 @@ export class Signer extends _Signer {
     runtimeConnector: RuntimeConnector;
     walletInfo: Awaited<ReturnType[Methods.connectWallet]>;
   }) {
-    super();
+    super(walletInfo.address, walletInfo.provider);
     this.runtimeConnector = runtimeConnector;
     this.walletInfo = walletInfo;
   }
 
-  public connect(): _Signer {
-    return this;
+  async getAddress(): Promise<string> {
+    const res = await this.runtimeConnector.ethereumRequest({
+      method: "eth_accounts",
+    });
+    return res[0];
   }
 
-  public async signMessage(message: Bytes | string): Promise<string> {
-    return await this.runtimeConnector.sign({
+  signMessage(message: Bytes | string): Promise<string> {
+    return this.runtimeConnector.sign({
       method: SignMethod.signMessage,
       params: [message],
     });
   }
 
-  public async _signTypedData(
+  _signTypedData(
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
     value: Record<string, any>
   ): Promise<string> {
-    return await this.runtimeConnector.sign({
+    return this.runtimeConnector.sign({
       method: SignMethod._signTypedData,
       params: [domain, types, value],
     });
   }
 
-  public async getAddress(): Promise<string> {
-    return this.walletInfo.address;
+  signTransaction(): Promise<string> {
+    throw new Error("'signTransaction' is unsupported !");
   }
 
-  public signTransaction(): Promise<string> {
-    throw new Error("'signTransaction' is unsupported !");
+  connect(): Signer {
+    return this;
   }
 }

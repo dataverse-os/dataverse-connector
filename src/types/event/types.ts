@@ -150,8 +150,6 @@ export interface ReturnType {
     wallet: WALLET;
     provider: Provider;
     signer: Signer;
-    ethersProvider: providers.Web3Provider;
-    ethersSigner: EthersSigner;
   }>;
   switchNetwork: Promise<{ chainId: number; chainName: string }>;
   sign: Promise<string>;

@@ -33,12 +33,7 @@ const storageProvider = {
 
 function App() {
   const [address, setAddress] = useState("");
-  const [wallet, setWallet] = useState<WALLET>();
-  const [provider, setProvider] = useState<Provider>();
-  const [signer, setSigner] = useState<Signer>();
-  const [ethersProvider, setEthersProvider] =
-    useState<providers.Web3Provider>();
-  const [ethersSigner, setEthersSigner] = useState<EthersSigner>();
+  const [wallet, setWallet] = useState<WALLET>(WALLET.METAMASK);
   const [pkh, setPkh] = useState("");
   const [currentPkh, setCurrentPkh] = useState("");
   const [pkpWallet, setPKPWallet] = useState({
@@ -61,32 +56,34 @@ function App() {
     console.log(res);
     setWallet(res.wallet);
     setAddress(res.address);
-    setProvider(res.provider);
-    setSigner(res.signer);
-    setEthersProvider(res.ethersProvider);
-    setEthersSigner(res.ethersSigner);
     return res;
   };
 
   const switchNetwork = async () => {
-    const res = await runtimeConnector.switchNetwork(137);
-    console.log(res);
+    if (!runtimeConnector.isConnected) {
+      console.error("please connect wallet first");
+      return;
+    }
+
+    await runtimeConnector.provider.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x89" }],
+    });
+
+    // const res = await runtimeConnector.switchNetwork(137);
   };
 
-  const sign = async () => {
-    const { signer } = await connectWallet();
+  const signOrSignTypedData = async () => {
+    if (!runtimeConnector.isConnected) {
+      console.error("please connect wallet first");
+      return;
+    }
 
-    const res = await signer.signMessage("test");
+    const res = await runtimeConnector.signer.signMessage("test");
 
     console.log(res);
 
-    return res;
-  };
-
-  const signTypedData = async () => {
-    const { signer } = await connectWallet();
-
-    const res = await signer._signTypedData(
+    const res2 = await runtimeConnector.signer._signTypedData(
       {
         name: "EPNS COMM V1",
         chainId: 5,
@@ -105,14 +102,32 @@ function App() {
       }
     );
 
-    console.log(res);
+    console.log(res2);
+  };
 
-    return res;
+  const sendTransaction = async () => {
+    if (!runtimeConnector.isConnected) {
+      console.error("please connect wallet first");
+      return;
+    }
+
+    const res = await runtimeConnector.signer.sendTransaction({
+      from: runtimeConnector.address, // The user's active address.
+      to: runtimeConnector.address, // Required except during contract publications.
+      value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
+      // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
+      // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
+    });
+
+    console.log(res);
   };
 
   const contractCall = async () => {
-    const { ethersProvider, ethersSigner } = await connectWallet();
-    console.log(ethersSigner);
+    if (!runtimeConnector.isConnected) {
+      console.error("please connect wallet first");
+      return;
+    }
+
     await runtimeConnector.switchNetwork(80001);
 
     const contractAddress = "0x2e43c080B56c644F548610f45998399d42e3d400";
@@ -151,6 +166,12 @@ function App() {
       },
     ];
 
+    const ethersProvider = new ethers.providers.Web3Provider(
+      runtimeConnector.provider
+    );
+
+    const ethersSigner = ethersProvider.getSigner();
+
     const contract = new Contract(contractAddress, abi, ethersSigner);
 
     const res = await contract.setValue(12345);
@@ -165,25 +186,8 @@ function App() {
     return tx;
   };
 
-  const ethereumRequest = async () => {
-    const { address } = await connectWallet();
-    const res = await runtimeConnector.ethereumRequest({
-      method: "eth_sendTransaction",
-      params: [
-        {
-          from: address, // The user's active address.
-          to: address, // Required except during contract publications.
-          value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
-          // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
-          // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
-        },
-      ],
-    });
-    console.log(res);
-  };
-
   const getCurrentPkh = async () => {
-    const res = await runtimeConnector.wallet.getCurrentPkh();
+    const res = await runtimeConnector.getCurrentPkh();
     console.log(res);
     setCurrentPkh(res);
   };
@@ -445,7 +449,14 @@ function App() {
       });
 
       console.log(fileBase64);
-
+      var binaryString = atob(fileBase64.split(",")[1]);
+      console.log(binaryString);
+      var bytes = new Uint8Array(binaryString.length);
+      for (var i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      console.log(bytes);
+      console.log(bytes.buffer);
       const res = await runtimeConnector.uploadFile({
         folderId,
         fileBase64,
@@ -616,13 +627,11 @@ function App() {
       <hr />
       <button onClick={switchNetwork}>switchNetwork</button>
       <hr />
-      <button onClick={sign}>sign</button>
+      <button onClick={signOrSignTypedData}>signOrSignTypedData</button>
       <hr />
-      <button onClick={signTypedData}>signTypedData</button>
+      <button onClick={sendTransaction}>sendTransaction</button>
       <hr />
       <button onClick={contractCall}>contractCall</button>
-      <hr />
-      <button onClick={ethereumRequest}>ethereumRequest</button>
       <hr />
       <button onClick={getCurrentPkh}>getCurrentPkh</button>
       <div className="blackText">{currentPkh}</div>

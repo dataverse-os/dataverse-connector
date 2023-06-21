@@ -3,31 +3,18 @@ import { RequestType, Methods, ReturnType } from "./types/event";
 import { Signer } from "./signer";
 import { Provider } from "./provider";
 import { ethers, Signer as EthersSigner, providers } from "ethers";
-
-export class Wallet {
-  communicator: Communicator;
-
-  constructor(communicator: Communicator) {
-    this.communicator = communicator;
-  }
-
-  getCurrentPkh(
-    params: RequestType[Methods.getCurrentPkh]
-  ): ReturnType[Methods.getCurrentPkh] {
-    return this.communicator.sendRequest({
-      method: Methods.getCurrentPkh,
-      params,
-    }) as ReturnType[Methods.getCurrentPkh];
-  }
-}
+import { Chain, WALLET } from "./types/crypto-wallet";
 
 export class RuntimeConnector {
   communicator: Communicator;
-  wallet: Wallet;
+  isConnected: boolean;
+  wallet: WALLET;
+  address: string;
+  chain: Chain;
   provider: Provider;
   signer: Signer;
-  ethersProvider: providers.Web3Provider;
-  ethersSigner: EthersSigner;
+  // ethersProvider: providers.Web3Provider;
+  // ethersSigner: EthersSigner;
 
   constructor(postMessageTo: PostMessageTo) {
     this.communicator = new Communicator({
@@ -35,7 +22,6 @@ export class RuntimeConnector {
       target: window.top,
       postMessageTo,
     });
-    this.wallet = new Wallet(this.communicator);
   }
 
   setPostMessageTo(postMessageTo: PostMessageTo) {
@@ -50,18 +36,22 @@ export class RuntimeConnector {
       params: wallet,
     }) as ReturnType[Methods.connectWallet]);
 
+    this.isConnected = true;
+    this.wallet = res.wallet;
+    this.address = res.address;
+    this.chain = res.chain;
     this.provider = new Provider({ runtimeConnector: this, walletInfo: res });
     this.signer = new Signer({ runtimeConnector: this, walletInfo: res });
-
-    this.ethersProvider = new ethers.providers.Web3Provider(this.provider);
-    this.ethersSigner = this.ethersProvider.getSigner();
+    
+    // this.ethersProvider = new ethers.providers.Web3Provider(this.provider);
+    // this.ethersSigner = this.ethersProvider.getSigner();
 
     return {
       ...res,
       provider: this.provider,
       signer: this.signer,
-      ethersProvider: this.ethersProvider,
-      ethersSigner: this.ethersSigner,
+      // ethersProvider: this.ethersProvider,
+      // ethersSigner: this.ethersSigner,
     } as Awaited<ReturnType[Methods.connectWallet]>;
   }
 
@@ -103,6 +93,15 @@ export class RuntimeConnector {
     return this.communicator.sendRequest({
       method: Methods.getPKP,
     }) as ReturnType[Methods.getPKP];
+  }
+
+  getCurrentPkh(
+    params: RequestType[Methods.getCurrentPkh]
+  ): ReturnType[Methods.getCurrentPkh] {
+    return this.communicator.sendRequest({
+      method: Methods.getCurrentPkh,
+      params,
+    }) as ReturnType[Methods.getCurrentPkh];
   }
 
   executeLitAction(
