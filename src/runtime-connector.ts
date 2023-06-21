@@ -40,9 +40,9 @@ export class RuntimeConnector {
     this.wallet = res.wallet;
     this.address = res.address;
     this.chain = res.chain;
-    this.provider = new Provider({ runtimeConnector: this, walletInfo: res });
-    this.signer = new Signer({ runtimeConnector: this, walletInfo: res });
-    
+    this.provider = new Provider(this);
+    this.signer = new Signer(this);
+
     // this.ethersProvider = new ethers.providers.Web3Provider(this.provider);
     // this.ethersSigner = this.ethersProvider.getSigner();
 

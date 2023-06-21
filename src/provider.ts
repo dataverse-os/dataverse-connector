@@ -17,28 +17,16 @@ import {
 } from "@ethersproject/abstract-provider";
 
 import { RuntimeConnector } from "./runtime-connector";
-import { ReturnType, Methods } from "./types/event";
 import { BigNumber, BigNumberish, Signer, ethers } from "ethers";
 import { Deferrable } from "ethers/lib/utils";
 
 export class Provider extends _Provider implements ExternalProvider {
   runtimeConnector: RuntimeConnector;
-  walletInfo: Omit<
-    Awaited<ReturnType[Methods.connectWallet]>,
-    "provider" | "signer" | "ethersProvider" | "ethersSigner"
-  >;
   ethersProvider: ethers.providers.Web3Provider;
 
-  constructor({
-    runtimeConnector,
-    walletInfo,
-  }: {
-    runtimeConnector: RuntimeConnector;
-    walletInfo: Awaited<ReturnType[Methods.connectWallet]>;
-  }) {
+  constructor(runtimeConnector: RuntimeConnector) {
     super();
     this.runtimeConnector = runtimeConnector;
-    this.walletInfo = walletInfo;
     this.ethersProvider = new ethers.providers.Web3Provider(this);
   }
 
@@ -184,33 +172,31 @@ export class Provider extends _Provider implements ExternalProvider {
 
   // Event Emitter (ish)
   on(eventName: EventType, listener: Listener): _Provider {
-    const ethersProvider = new ethers.providers.Web3Provider(this);
-    return ethersProvider.on(eventName, listener);
+    throw new Error("Not yet implemented");
   }
 
   once(eventName: EventType, listener: Listener): _Provider {
-    const ethersProvider = new ethers.providers.Web3Provider(this);
-    return ethersProvider.once(eventName, listener);
+    throw new Error("Not yet implemented");
   }
 
   emit(eventName: EventType, ...args: Array<any>): boolean {
-    return true;
+    throw new Error("Not yet implemented");
   }
 
   listenerCount(eventName?: EventType): number {
-    return 1;
+    throw new Error("Not yet implemented");
   }
 
   listeners(eventName?: EventType): Array<Listener> {
-    return [() => {}];
+    throw new Error("Not yet implemented");
   }
 
   off(eventName: EventType, listener?: Listener): _Provider {
-    return this;
+    throw new Error("Not yet implemented");
   }
 
   removeAllListeners(eventName?: EventType): _Provider {
-    return this;
+    throw new Error("Not yet implemented");
   }
 
   waitForTransaction(transactionHash: string): Promise<TransactionReceipt> {

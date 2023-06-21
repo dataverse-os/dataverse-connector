@@ -1,29 +1,17 @@
-import { BigNumber, Bytes, VoidSigner, Signer as _Signer } from "ethers";
+import { Bytes, VoidSigner, Signer as _Signer } from "ethers";
 import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
 import { RuntimeConnector } from "./runtime-connector";
 import { SignMethod } from "./types/constants";
-import { ReturnType, Methods } from "./types/event";
 
 export class Signer extends VoidSigner {
   runtimeConnector: RuntimeConnector;
-  walletInfo: Omit<
-    Awaited<ReturnType[Methods.connectWallet]>,
-    "provider" | "signer" | "ethersProvider" | "ethersSigner"
-  >;
 
-  constructor({
-    runtimeConnector,
-    walletInfo,
-  }: {
-    runtimeConnector: RuntimeConnector;
-    walletInfo: Awaited<ReturnType[Methods.connectWallet]>;
-  }) {
-    super(walletInfo.address, walletInfo.provider);
+  constructor(runtimeConnector: RuntimeConnector) {
+    super(runtimeConnector.address, runtimeConnector.provider);
     this.runtimeConnector = runtimeConnector;
-    this.walletInfo = walletInfo;
   }
 
   async getAddress(): Promise<string> {
