@@ -5,6 +5,8 @@ import {
 } from "@ethersproject/abstract-signer";
 import { RuntimeConnector } from "./runtime-connector";
 import { SignMethod } from "./types/constants";
+import { TransactionRequest } from "@ethersproject/abstract-provider";
+import { Deferrable } from "ethers/lib/utils";
 
 export class Signer extends VoidSigner {
   runtimeConnector: RuntimeConnector;
@@ -39,8 +41,13 @@ export class Signer extends VoidSigner {
     });
   }
 
-  signTransaction(): Promise<string> {
-    throw new Error("'signTransaction' is unsupported !");
+  signTransaction(
+    transaction: Deferrable<TransactionRequest>
+  ): Promise<string> {
+    return this.runtimeConnector.ethereumRequest({
+      method: "eth_signTransaction",
+      params: [transaction],
+    });
   }
 
   connect(): Signer {

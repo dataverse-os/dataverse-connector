@@ -21,6 +21,7 @@ export enum Methods {
   updateStream = "updateStream",
 
   readFolders = "readFolders",
+  readFolderById = "readFolderById",
   createFolder = "createFolder",
   updateFolderBaseInfo = "updateFolderBaseInfo",
   changeFolderType = "changeFolderType",

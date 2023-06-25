@@ -209,6 +209,15 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.readFolders];
   }
 
+  readFolderById(
+    folderId: RequestType[Methods.readFolderById]
+  ): ReturnType[Methods.readFolderById] {
+    return this.communicator.sendRequest({
+      method: Methods.readFolderById,
+      params: folderId,
+    }) as ReturnType[Methods.readFolderById];
+  }
+
   createFolder(
     params: RequestType[Methods.createFolder]
   ): ReturnType[Methods.createFolder] {

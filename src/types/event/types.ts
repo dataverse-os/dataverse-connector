@@ -75,6 +75,7 @@ export interface RequestType {
   };
 
   readFolders: void;
+  readFolderById: string;
   createFolder: {
     folderType: FolderType;
     folderName: string;
@@ -211,6 +212,7 @@ export interface ReturnType {
   }>;
 
   readFolders: Promise<StructuredFolders>;
+  readFolderById: Promise<StructuredFolder>;
   createFolder: Promise<{
     newFolder: StructuredFolder;
     allFolders: StructuredFolders;
