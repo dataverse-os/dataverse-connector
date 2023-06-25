@@ -687,11 +687,11 @@ function App() {
       <br />
       <br />
       <button onClick={readFolders}>readFolders</button>
-      <button onClick={readFolderById}>readFolderById</button>
       <button onClick={createFolder}>createFolder</button>
       <button onClick={updateFolderBaseInfo}>updateFolderBaseInfo</button>
       <button onClick={changeFolderType}>changeFolderType</button>
       <button onClick={monetizeFolder}>monetizeFolder</button>
+      <button onClick={readFolderById}>readFolderById</button>
       <button onClick={deleteFolder}>deleteFolder</button>
       <button onClick={deleteAllFolder}>deleteAllFolder</button>
       <br />
