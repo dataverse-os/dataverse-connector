@@ -19,13 +19,14 @@ import { Contract, ethers, Signer as EthersSigner, providers } from "ethers";
 
 const runtimeConnector = new RuntimeConnector(Extension);
 
-const app = "Dataverse"; //fxy001 (mainnet)   test001 (testnet)
-const slug = "test0001";
+const app = "fxy001"; //fxy001 (mainnet)   test001 (testnet)
+const slug = "fxy001";
 const postVersion = "0.0.1";
 
 const modelId =
-  "kjzl6hvfrbw6cardizjjgu1ipaulmcazowhjrsb6d5ozowz0nzuxfrl8gavupf2"; // (testnet)
-// kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs // (mainnet)
+  "kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs"; // (mainnet)
+  //kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo // (testnet)
+
 const storageProvider = {
   name: StorageProviderName.Lighthouse,
   apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call uploadFile successfully
@@ -127,7 +128,7 @@ function App() {
       console.error("please connect wallet first");
       return;
     }
-    
+
     await runtimeConnector.switchNetwork(80001);
 
     const contractAddress = "0x2e43c080B56c644F548610f45998399d42e3d400";
@@ -240,7 +241,7 @@ function App() {
   };
 
   const getDAppInfo = async () => {
-    const appsInfo = await runtimeConnector.getDAppInfo("soulcial");
+    const appsInfo = await runtimeConnector.getDAppInfo(app);
     console.log(appsInfo);
     return appsInfo;
   };
@@ -258,8 +259,6 @@ function App() {
 
   /*** Stream ***/
   const createCapability = async () => {
-    // await connectWallet();
-    // // await switchNetwork();
     const pkh = await runtimeConnector.createCapability({
       app,
       resource: RESOURCE.CERAMIC,
@@ -331,19 +330,14 @@ function App() {
   };
 
   const loadStream = async () => {
-    const stream = await runtimeConnector.loadStream(
-      "kjzl6kcym7w8y8jb0nxptx7ce9ty2nyxhi4edi5bd1zhlsynssjnr5p7nimumlv"
-    );
-    const stream2 = await runtimeConnector.loadStream(
-      "kjzl6kcym7w8y7kti2r3qr0oieje6tmf5vnswc6whm6knta0xm5rk751peafpj1"
-    );
+    const stream = await runtimeConnector.loadStream(streamId);
+
     console.log(stream);
-    console.log(stream2);
   };
 
   const loadStreamsBy = async () => {
     const streams = await runtimeConnector.loadStreamsBy({
-      modelId:'kjzl6hvfrbw6c763ubdhowzao0m4yp84cxzbfnlh4hdi5alqo4yrebmc0qpjdi5',
+      modelId,
       pkh,
     });
     console.log(streams);
