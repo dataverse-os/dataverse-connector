@@ -454,14 +454,14 @@ function App() {
       });
 
       console.log(fileBase64);
-      var binaryString = atob(fileBase64.split(",")[1]);
-      console.log(binaryString);
-      var bytes = new Uint8Array(binaryString.length);
-      for (var i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      console.log(bytes);
-      console.log(bytes.buffer);
+      // var binaryString = atob(fileBase64.split(",")[1]);
+      // console.log(binaryString);
+      // var bytes = new Uint8Array(binaryString.length);
+      // for (var i = 0; i < binaryString.length; i++) {
+      //   bytes[i] = binaryString.charCodeAt(i);
+      // }
+      // console.log(bytes);
+      // console.log(bytes.buffer);
       const res = await runtimeConnector.uploadFile({
         folderId,
         fileBase64,
