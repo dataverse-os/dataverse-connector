@@ -4,15 +4,16 @@ import { Signer } from "./signer";
 import { Provider } from "./provider";
 import { ethers, Signer as EthersSigner, providers } from "ethers";
 import { Chain, WALLET } from "./types/crypto-wallet";
+import { detectDataverseExtension } from "./utils/extension-detector";
 
 export class RuntimeConnector {
   communicator: Communicator;
-  isConnected: boolean;
-  wallet: WALLET;
-  address: string;
-  chain: Chain;
-  provider: Provider;
-  signer: Signer;
+  isConnected = false;
+  wallet?: WALLET;
+  address?: string;
+  chain?: Chain;
+  provider?: Provider;
+  signer?: Signer;
   // ethersProvider: providers.Web3Provider;
   // ethersSigner: EthersSigner;
 
@@ -31,6 +32,9 @@ export class RuntimeConnector {
   async connectWallet(
     wallet?: RequestType[Methods.connectWallet]
   ): Promise<ReturnType[Methods.connectWallet]> {
+    if (!(await detectDataverseExtension())) {
+      throw "The plugin has not been loaded yet. Please check the plugin status or go to https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead to install plugins";
+    }
     const res = await (this.communicator.sendRequest({
       method: Methods.connectWallet,
       params: wallet,
@@ -55,13 +59,15 @@ export class RuntimeConnector {
     } as Awaited<ReturnType[Methods.connectWallet]>;
   }
 
-  switchNetwork(
+  async switchNetwork(
     chainId: RequestType[Methods.switchNetwork]
   ): ReturnType[Methods.switchNetwork] {
-    return this.communicator.sendRequest({
+    const res = await (this.communicator.sendRequest({
       method: Methods.switchNetwork,
       params: chainId,
-    }) as ReturnType[Methods.switchNetwork];
+    }) as ReturnType[Methods.switchNetwork]);
+    this.chain = res;
+    return res;
   }
 
   sign(params: RequestType[Methods.sign]): ReturnType[Methods.sign] {
@@ -80,13 +86,19 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.contractCall];
   }
 
-  ethereumRequest(
+  async ethereumRequest(
     params: RequestType[Methods.ethereumRequest]
   ): ReturnType[Methods.ethereumRequest] {
-    return this.communicator.sendRequest({
+    const res = await (this.communicator.sendRequest({
       method: Methods.ethereumRequest,
       params,
-    }) as ReturnType[Methods.ethereumRequest];
+    }) as ReturnType[Methods.ethereumRequest]);
+
+    if (params.method === "wallet_switchEthereumChain") {
+      await this.switchNetwork(Number(params.params[0].chainId));
+    }
+
+    return res;
   }
 
   getPKP(): ReturnType[Methods.getPKP] {

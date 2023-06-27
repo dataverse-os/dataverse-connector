@@ -66,7 +66,7 @@ function App() {
       return;
     }
 
-    await runtimeConnector.provider.request({
+    await runtimeConnector.provider?.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: "0x89" }],
     });
@@ -80,11 +80,11 @@ function App() {
       return;
     }
 
-    const res = await runtimeConnector.signer.signMessage("test");
+    const res = await runtimeConnector.signer!.signMessage("test");
 
     console.log(res);
 
-    const res2 = await runtimeConnector.signer._signTypedData(
+    const res2 = await runtimeConnector.signer!._signTypedData(
       {
         name: "EPNS COMM V1",
         chainId: 5,
@@ -112,7 +112,7 @@ function App() {
       return;
     }
 
-    const res = await runtimeConnector.signer.sendTransaction({
+    const res = await runtimeConnector.signer!.sendTransaction({
       from: runtimeConnector.address, // The user's active address.
       to: runtimeConnector.address, // Required except during contract publications.
       value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
@@ -168,7 +168,7 @@ function App() {
     ];
 
     const ethersProvider = new ethers.providers.Web3Provider(
-      runtimeConnector.provider
+      runtimeConnector.provider!
     );
 
     const ethersSigner = ethersProvider.getSigner();
