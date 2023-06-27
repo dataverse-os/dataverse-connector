@@ -14,6 +14,7 @@ export class RuntimeConnector {
   chain?: Chain;
   provider?: Provider;
   signer?: Signer;
+  app?: string;
   // ethersProvider: providers.Web3Provider;
   // ethersSigner: EthersSigner;
 
@@ -164,6 +165,7 @@ export class RuntimeConnector {
   createCapability(
     params: RequestType[Methods.createCapability]
   ): ReturnType[Methods.createCapability] {
+    this.app = params.app;
     return this.communicator.sendRequest({
       method: Methods.createCapability,
       params,
