@@ -7,15 +7,11 @@ import {
   StructuredFolders,
   Currency,
   StorageProviderName,
-  DecryptionConditions,
-  SignMethod,
   WALLET,
   RESOURCE,
-  Provider,
-  Signer,
 } from "@dataverse/runtime-connector";
 import { getAddressFromPkh } from "./utils/addressAndPkh";
-import { Contract, ethers, Signer as EthersSigner, providers } from "ethers";
+import { Contract, ethers } from "ethers";
 
 const runtimeConnector = new RuntimeConnector(Extension);
 
@@ -84,10 +80,15 @@ function App() {
 
     console.log(res);
 
+    await runtimeConnector.provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
+    });
+
     const res2 = await runtimeConnector.signer!._signTypedData(
       {
         name: "EPNS COMM V1",
-        chainId: 5,
+        chainId: 80001,
         verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
       },
       {

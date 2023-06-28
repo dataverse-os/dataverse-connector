@@ -2,9 +2,10 @@ import { Communicator, PostMessageTo } from "@dataverse/communicator";
 import { RequestType, Methods, ReturnType } from "./types/event";
 import { Signer } from "./signer";
 import { Provider } from "./provider";
-import { ethers, Signer as EthersSigner, providers } from "ethers";
+import { BigNumber, ethers, Signer as EthersSigner, providers } from "ethers";
 import { Chain, WALLET } from "./types/crypto-wallet";
-import { detectDataverseExtension } from "./utils/extension-detector";
+import { detectDataverseExtension } from "./utils/extensionDetector";
+import { formatSendTransactionData } from "./utils/formatSendTransactionData";
 
 export class RuntimeConnector {
   communicator: Communicator;
@@ -90,6 +91,17 @@ export class RuntimeConnector {
   async ethereumRequest(
     params: RequestType[Methods.ethereumRequest]
   ): ReturnType[Methods.ethereumRequest] {
+    if (params.method === "eth_sendTransaction") {
+      if (!params?.params?.[0]?.from) {
+        params.params[0].from = this.address;
+      }
+      if (params?.params?.[0]) {
+        Object.entries(params?.params?.[0]).forEach(([key, value]) => {
+          params.params[0][key] = formatSendTransactionData(value);
+        });
+      }
+    }
+
     const res = await (this.communicator.sendRequest({
       method: Methods.ethereumRequest,
       params,

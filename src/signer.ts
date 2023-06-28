@@ -5,8 +5,12 @@ import {
 } from "@ethersproject/abstract-signer";
 import { RuntimeConnector } from "./runtime-connector";
 import { SignMethod } from "./types/constants";
-import { TransactionRequest } from "@ethersproject/abstract-provider";
+import {
+  TransactionRequest,
+  TransactionResponse,
+} from "@ethersproject/abstract-provider";
 import { Deferrable } from "ethers/lib/utils";
+import { formatSendTransactionData } from "./utils/formatSendTransactionData";
 
 export class Signer extends VoidSigner {
   runtimeConnector: RuntimeConnector;
@@ -33,24 +37,40 @@ export class Signer extends VoidSigner {
   _signTypedData(
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
-    value: Record<string, any>
+    message: Record<string, Array<TypedDataField> | string>
   ): Promise<string> {
     return this.runtimeConnector.sign({
       method: SignMethod._signTypedData,
-      params: [domain, types, value],
+      params: [domain, types, message],
     });
   }
 
-  signTransaction(
+  signTransaction(): Promise<string> {
+    throw new Error("'signTransaction' is unsupported !");
+  }
+
+  async sendTransaction(
     transaction: Deferrable<TransactionRequest>
-  ): Promise<string> {
-    return this.runtimeConnector.ethereumRequest({
-      method: "eth_signTransaction",
-      params: [transaction],
-    });
-  }
+  ): Promise<TransactionResponse> {
+    if (transaction && typeof transaction === "object") {
+      if (!transaction?.from) {
+        transaction.from = this.address;
+      }
+      Object.entries(transaction).forEach(([key, value]) => {
+        if (formatSendTransactionData(value)) {
+          transaction[key] = formatSendTransactionData(value);
+        } else {
+          delete transaction[key];
+        }
+      });
+    }
 
-  connect(): Signer {
-    return this;
+    const signer = this.runtimeConnector.provider.ethersProvider.getSigner();
+    const res = await signer.sendTransaction(transaction);
+    return res;
+    // return this.runtimeConnector.ethereumRequest({
+    //   method: "eth_sendTransaction",
+    //   params: [transaction],
+    // });
   }
 }
