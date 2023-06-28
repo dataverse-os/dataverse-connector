@@ -61,64 +61,64 @@ export class Provider extends _Provider implements ExternalProvider {
   }
 
   // Account
-  getBalance(
+  async getBalance(
     addressOrName: string | Promise<string>,
     blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<BigNumber> {
     return this.runtimeConnector.ethereumRequest({
       method: "eth_getBalance",
-      params: [addressOrName, blockTag],
+      params: [await addressOrName, await blockTag],
     });
   }
 
-  getTransactionCount(
+  async getTransactionCount(
     addressOrName: string | Promise<string>,
-    blockTag?: BlockTag
+    blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<number> {
     return this.runtimeConnector.ethereumRequest({
       method: "eth_getTransactionCount",
-      params: [addressOrName, blockTag],
+      params: [await addressOrName, await blockTag],
     });
   }
 
-  getCode(
+  async getCode(
     addressOrName: string | Promise<string>,
     blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<string> {
     return this.runtimeConnector.ethereumRequest({
       method: "eth_getCode",
-      params: [addressOrName, blockTag],
+      params: [await addressOrName, await blockTag],
     });
   }
 
-  getStorageAt(
+  async getStorageAt(
     addressOrName: string | Promise<string>,
     position: BigNumberish | Promise<BigNumberish>,
     blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<string> {
     return this.runtimeConnector.ethereumRequest({
       method: "eth_getStorageAt",
-      params: [addressOrName, position, blockTag],
+      params: [await addressOrName, await position, await blockTag],
     });
   }
 
   // Execution
-  sendTransaction(
+  async sendTransaction(
     transaction: string | Promise<string>
   ): Promise<TransactionResponse> {
     return this.runtimeConnector.ethereumRequest({
       method: "eth_sendTransaction",
-      params: [transaction],
+      params: [await transaction],
     });
   }
 
-  call(
+  async call(
     transaction: Deferrable<TransactionRequest>,
-    blockTag?: BlockTag
+    blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<string> {
     return this.runtimeConnector.ethereumRequest({
       method: "eth_call",
-      params: [transaction, blockTag],
+      params: [transaction, await blockTag],
     });
   }
 
@@ -134,10 +134,10 @@ export class Provider extends _Provider implements ExternalProvider {
     return this.ethersProvider.getBlock(blockHash);
   }
 
-  getBlockWithTransactions(
+  async getBlockWithTransactions(
     blockHash: BlockTag | string | Promise<BlockTag | string>
   ): Promise<BlockWithTransactions> {
-    return this.ethersProvider.getBlockWithTransactions(blockHash);
+    return this.ethersProvider.getBlockWithTransactions(await blockHash);
   }
 
   getTransaction(transactionHash: string): Promise<TransactionResponse> {
