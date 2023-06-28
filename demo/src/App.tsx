@@ -17,13 +17,13 @@ import { getAddressFromPkh } from "./utils/addressAndPkh";
 
 const runtimeConnector = new RuntimeConnector(Extension);
 
-const app = "test001"; //fxy001 (mainnet)   test001 (testnet)
+const app = "test001"; //mainnet002 (mainnet)   test001 (testnet)
 const slug = "test001";
 const postVersion = "0.0.1";
 
 const modelId =
   "kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo"; // (testnet)
-  // kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs // (mainnet)
+  // kjzl6hvfrbw6c7zy79iqdnav50bustri0cnubdgshp4562iin3zdpkuivk0bqrq // (mainnet)
 const storageProvider = {
   name: StorageProviderName.Lighthouse,
   apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call uploadFile successfully
