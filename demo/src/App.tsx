@@ -19,13 +19,13 @@ import { Contract, ethers, Signer as EthersSigner, providers } from "ethers";
 
 const runtimeConnector = new RuntimeConnector(Extension);
 
-const app = "fxy001"; //fxy001 (mainnet)   test001 (testnet)
-const slug = "fxy001";
+const app = "mainnet002"; //mainnet002 (mainnet)   test001 (testnet)
+const slug = "mainnet002";
 const postVersion = "0.0.1";
 
 const modelId =
-  "kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs"; // (mainnet)
-  //kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo // (testnet)
+  "kjzl6hvfrbw6c7zy79iqdnav50bustri0cnubdgshp4562iin3zdpkuivk0bqrq"; // (mainnet)
+//kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo // (testnet)
 
 const storageProvider = {
   name: StorageProviderName.Lighthouse,
