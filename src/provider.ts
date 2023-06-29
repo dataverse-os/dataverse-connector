@@ -27,7 +27,7 @@ export class Provider extends _Provider implements ExternalProvider {
   constructor(runtimeConnector: RuntimeConnector) {
     super();
     this.runtimeConnector = runtimeConnector;
-    this.ethersProvider = new ethers.providers.Web3Provider(this);
+    this.ethersProvider = new ethers.providers.Web3Provider(this, "any");
   }
 
   // Network
@@ -160,14 +160,12 @@ export class Provider extends _Provider implements ExternalProvider {
   }
 
   // ENS
-  async resolveName(name: string): Promise<string> {
-    const ethersProvider = new ethers.providers.Web3Provider(this);
-    return ethersProvider.resolveName(name);
+  resolveName(name: string): Promise<string> {
+    return this.ethersProvider.resolveName(name);
   }
 
-  async lookupAddress(address: string): Promise<string> {
-    const ethersProvider = new ethers.providers.Web3Provider(this);
-    return ethersProvider.lookupAddress(address);
+  lookupAddress(address: string): Promise<string> {
+    return this.ethersProvider.lookupAddress(address);
   }
 
   // Event Emitter (ish)
