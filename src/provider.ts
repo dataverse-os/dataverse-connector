@@ -170,31 +170,38 @@ export class Provider extends _Provider implements ExternalProvider {
 
   // Event Emitter (ish)
   on(eventName: EventType, listener: Listener): _Provider {
-    throw new Error("Not yet implemented");
+    console.warn("Method not implemented yet.");
+    return this;
   }
 
   once(eventName: EventType, listener: Listener): _Provider {
-    throw new Error("Not yet implemented");
+    console.warn("Method not implemented yet.");
+    return this;
   }
 
   emit(eventName: EventType, ...args: Array<any>): boolean {
-    throw new Error("Not yet implemented");
+    console.warn("Method not implemented yet.");
+    return false;
   }
 
   listenerCount(eventName?: EventType): number {
-    throw new Error("Not yet implemented");
+    console.warn("Method not implemented yet.");
+    return 0;
   }
 
   listeners(eventName?: EventType): Array<Listener> {
-    throw new Error("Not yet implemented");
+    console.warn("Method not implemented yet.");
+    return []
   }
 
   off(eventName: EventType, listener?: Listener): _Provider {
-    throw new Error("Not yet implemented");
+    console.warn("Method not implemented yet.");
+    return this;
   }
 
   removeAllListeners(eventName?: EventType): _Provider {
-    throw new Error("Not yet implemented");
+    console.warn("Method not implemented yet.");
+    return this;
   }
 
   waitForTransaction(transactionHash: string): Promise<TransactionReceipt> {
