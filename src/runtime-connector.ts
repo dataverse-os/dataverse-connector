@@ -16,8 +16,6 @@ export class RuntimeConnector {
   provider?: Provider;
   signer?: Signer;
   app?: string;
-  // ethersProvider: providers.Web3Provider;
-  // ethersSigner: EthersSigner;
 
   constructor(postMessageTo: PostMessageTo) {
     this.communicator = new Communicator({
@@ -46,8 +44,10 @@ export class RuntimeConnector {
     this.wallet = res.wallet;
     this.address = res.address;
     this.chain = res.chain;
-    this.provider = new Provider(this);
-    this.signer = new Signer(this);
+    if (!this.provider) {
+      this.provider = new Provider(this);
+      this.signer = new Signer(this);
+    }
 
     // this.ethersProvider = new ethers.providers.Web3Provider(this.provider);
     // this.ethersSigner = this.ethersProvider.getSigner();
@@ -69,6 +69,7 @@ export class RuntimeConnector {
       params: chainId,
     }) as ReturnType[Methods.switchNetwork]);
     this.chain = res;
+    this.provider.emit("chainChanged", chainId);
     return res;
   }
 
@@ -109,6 +110,7 @@ export class RuntimeConnector {
 
     if (params.method === "wallet_switchEthereumChain") {
       await this.switchNetwork(Number(params.params[0].chainId));
+      this.provider.emit("chainChanged", Number(params.params[0].chainId));
     }
 
     return res;

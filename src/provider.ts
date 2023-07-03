@@ -9,6 +9,7 @@ import {
   TransactionReceipt,
   Network,
   Block,
+  BaseProvider,
 } from "@ethersproject/providers";
 import {
   BlockWithTransactions,
@@ -20,12 +21,12 @@ import { RuntimeConnector } from "./runtime-connector";
 import { BigNumber, BigNumberish, Signer, ethers } from "ethers";
 import { Deferrable } from "ethers/lib/utils";
 
-export class Provider extends _Provider implements ExternalProvider {
+export class Provider extends BaseProvider implements ExternalProvider {
   runtimeConnector: RuntimeConnector;
   ethersProvider: ethers.providers.Web3Provider;
 
   constructor(runtimeConnector: RuntimeConnector) {
-    super();
+    super("any");
     this.runtimeConnector = runtimeConnector;
     this.ethersProvider = new ethers.providers.Web3Provider(this, "any");
   }
@@ -169,40 +170,41 @@ export class Provider extends _Provider implements ExternalProvider {
   }
 
   // Event Emitter (ish)
-  on(eventName: EventType, listener: Listener): _Provider {
-    console.warn("Method not implemented yet.");
-    return this;
-  }
+  // on(eventName: EventType, listener: Listener): _Provider {
+  //   console.warn("Method not implemented yet.");
+  //   return this;
+  // }
 
-  once(eventName: EventType, listener: Listener): _Provider {
-    console.warn("Method not implemented yet.");
-    return this;
-  }
+  // once(eventName: EventType, listener: Listener): _Provider {
+  //   console.warn("Method not implemented yet.");
+  //   return this;
+  // }
 
-  emit(eventName: EventType, ...args: Array<any>): boolean {
-    console.warn("Method not implemented yet.");
-    return false;
-  }
+  // emit(eventName: EventType, ...args: Array<any>): boolean {
+  //   console.warn("Method not implemented yet.");
+  //   return false;
+  // }
 
-  listenerCount(eventName?: EventType): number {
-    console.warn("Method not implemented yet.");
-    return 0;
-  }
+  // listenerCount(eventName?: EventType): number {
+  //   console.warn("Method not implemented yet.");
+  //   return 0;
+  // }
 
-  listeners(eventName?: EventType): Array<Listener> {
-    console.warn("Method not implemented yet.");
-    return []
-  }
+  // listeners(eventName?: EventType): Array<Listener> {
+  //   console.warn("Method not implemented yet.");
+  //   return [];
+  // }
 
-  off(eventName: EventType, listener?: Listener): _Provider {
-    console.warn("Method not implemented yet.");
-    return this;
-  }
+  // off(eventName: EventType, listener?: Listener): this {
+  //   console.log(eventName,listener)
+  //   console.warn("Method not implemented yet.");
+  //   return this;
+  // }
 
-  removeAllListeners(eventName?: EventType): _Provider {
-    console.warn("Method not implemented yet.");
-    return this;
-  }
+  // removeAllListeners(eventName?: EventType): _Provider {
+  //   console.warn("Method not implemented yet.");
+  //   return this;
+  // }
 
   waitForTransaction(transactionHash: string): Promise<TransactionReceipt> {
     return this.ethersProvider.waitForTransaction(transactionHash);
