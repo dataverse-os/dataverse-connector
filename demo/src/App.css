@@ -49,3 +49,8 @@ button {
   color: black;
   font-family: Poppins;
 }
+
+.json {
+  word-break: break-all;
+  text-align: left;
+}

@@ -3,253 +3,248 @@ import React, { useState } from "react";
 import {
   RuntimeConnector,
   Extension,
-  METAMASK,
-  CRYPTO_WALLET_TYPE,
-  Apps,
   FolderType,
-  StreamObject,
-  FileType,
-  MirrorFile,
   StructuredFolders,
   Currency,
-  Mode,
-  CRYPTO_WALLET,
+  StorageProviderName,
+  WALLET,
+  RESOURCE,
 } from "@dataverse/runtime-connector";
 import { getAddressFromPkh } from "./utils/addressAndPkh";
+import { Contract, ethers } from "ethers";
 
 const runtimeConnector = new RuntimeConnector(Extension);
-const app = "fxy001"; //fxy001 test001
-const slug = "fxy001";
-export const modelName = `${slug.toLowerCase()}_post`;
-export const modelNames = [modelName];
+
+const app = "mainnet002"; //mainnet002 (mainnet)   test001 (testnet)
+const slug = "mainnet002";
 const postVersion = "0.0.1";
-const walletName = (localStorage.getItem("walletName") as any) || METAMASK;
-const cryptoWalletType = CRYPTO_WALLET_TYPE;
+
 const modelId =
-  "kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs";
-//kjzl6hvfrbw6c7gkypf9654o0vu1jd1q85fcnyrpc1koobuys71zhp0m7kbmrvs
-//kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo
+  "kjzl6hvfrbw6c7zy79iqdnav50bustri0cnubdgshp4562iin3zdpkuivk0bqrq"; // (mainnet)
+//kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo // (testnet)
+
+const storageProvider = {
+  name: StorageProviderName.Lighthouse,
+  apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call uploadFile successfully
+};
 
 function App() {
   const [address, setAddress] = useState("");
-  const [wallet, setWallet] = useState<CRYPTO_WALLET>({
-    name: walletName,
-    type: cryptoWalletType,
-  });
+  const [wallet, setWallet] = useState<WALLET>(WALLET.METAMASK);
   const [pkh, setPkh] = useState("");
-  const [chain, setChain] = useState<string>("");
-  const [newPkh, setNewPkh] = useState<string>("");
-  const [pkhList, setPkhList] = useState<Array<string>>([]);
   const [currentPkh, setCurrentPkh] = useState("");
+  const [pkpWallet, setPKPWallet] = useState({
+    address: "",
+    publicKey: "",
+  });
+  const [litActionResponse, setLitActionResponse] = useState("");
+
   const [isCurrentPkhValid, setIsCurrentPkhValid] = useState<boolean>();
   const [appList, setAppList] = useState<string[]>([]);
 
-  const [profileStreamObject, setProfileStreamObject] =
-    useState<StreamObject>();
-  const [mirrorFile, setMirrorFile] = useState<MirrorFile>();
+  const [streamId, setStreamId] = useState("");
   const [folderId, setFolderId] = useState("");
-  const [folders, setFolders] = useState<StructuredFolders>({});
-  const [walletChanged, setWalletChanged] = useState<boolean>(false);
+  const [indexFileId, setIndexFileId] = useState("");
+  const [folders, setFolders] = useState<StructuredFolders>();
 
   /*** Wallet ***/
-
-  const selectWallet = async () => {
-    const wallet = await runtimeConnector.selectWallet();
-    localStorage.setItem("walletName", wallet.name);
-    setWallet(wallet);
-    setWalletChanged(true);
-    console.log({ wallet });
-    return wallet;
-  };
-
   const connectWallet = async () => {
-    try {
-      const address = await runtimeConnector.connectWallet(wallet);
-      setAddress(address);
-      console.log({ address });
-      return address;
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getCurrentWallet = async () => {
-    const res = await runtimeConnector.getCurrentWallet();
+    const res = await runtimeConnector.connectWallet(wallet);
     console.log(res);
+    setWallet(res.wallet);
+    setAddress(res.address);
     return res;
   };
 
   const switchNetwork = async () => {
-    const res = await runtimeConnector.switchNetwork(137);
-    console.log({ res });
+    if (!runtimeConnector.isConnected) {
+      console.error("please connect wallet first");
+      return;
+    }
+
+    await runtimeConnector.provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x89" }],
+    });
+
+    // const res = await runtimeConnector.switchNetwork(137);
   };
 
-  // const ethereumRequest = async () => {
-  //   const address = await connectWallet();
-  //   const res = await runtimeConnector.ethereumRequest({
-  //     method: "eth_sendTransaction",
-  //     params: [
-  //       {
-  //         from: address, // The user's active address.
-  //         to: address, // Required except during contract publications.
-  //         value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
-  //         // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
-  //         // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
-  //       },
-  //     ],
-  //   });
-  //   console.log({ res });
-  // };
+  const signOrSignTypedData = async () => {
+    if (!runtimeConnector.isConnected) {
+      console.error("please connect wallet first");
+      return;
+    }
 
-  const sign = async () => {
-    await connectWallet();
+    const res = await runtimeConnector.signer!.signMessage("test");
 
-    const res = await runtimeConnector.sign({
-      method: "signMessage",
-      params: ["test"],
+    console.log(res);
+
+    await runtimeConnector.provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
     });
-    console.log({ res });
+
+    const res2 = await runtimeConnector.signer!._signTypedData(
+      {
+        name: "EPNS COMM V1",
+        chainId: 80001,
+        verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
+      },
+      {
+        Data: [
+          {
+            name: "data",
+            type: "string",
+          },
+        ],
+      },
+      {
+        data: '2+{"notification":{"title":"Push Title Hello","body":"Good to see you bodies"},"data":{"acta":"","aimg":"","amsg":"Payload Push Title Hello Body","asub":"Payload Push Title Hello","type":"1"},"recipients":"eip155:5:0x6ed14ee482d3C4764C533f56B90360b767d21D5E"}',
+      }
+    );
+
+    console.log(res2);
+  };
+
+  const sendTransaction = async () => {
+    if (!runtimeConnector.isConnected) {
+      console.error("please connect wallet first");
+      return;
+    }
+
+    const res = await runtimeConnector.signer!.sendTransaction({
+      from: runtimeConnector.address, // The user's active address.
+      to: runtimeConnector.address, // Required except during contract publications.
+      value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
+      // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
+      // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
+    });
+
+    console.log(res);
   };
 
   const contractCall = async () => {
-    await connectWallet();
+    if (!runtimeConnector.isConnected) {
+      console.error("please connect wallet first");
+      return;
+    }
 
     await runtimeConnector.switchNetwork(80001);
 
-    const res = await runtimeConnector.contractCall({
-      contractAddress: "0xB07E79bB859ad18a8CbE6E111f4ad0Cca2FD3Da8",
-      abi: [
-        {
-          inputs: [],
-          name: "metadata",
-          outputs: [
-            {
-              components: [
-                {
-                  internalType: "address",
-                  name: "hub",
-                  type: "address",
-                },
-                {
-                  internalType: "uint256",
-                  name: "profileId",
-                  type: "uint256",
-                },
-                {
-                  internalType: "uint256",
-                  name: "pubId",
-                  type: "uint256",
-                },
-                {
-                  internalType: "address",
-                  name: "collectModule",
-                  type: "address",
-                },
-              ],
-              internalType: "struct IDataToken.Metadata",
-              name: "",
-              type: "tuple",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-      ],
-      method: "metadata",
-      params: [],
-      mode: Mode.Read,
-    });
-    console.log({ res });
-  };
+    const contractAddress = "0x2e43c080B56c644F548610f45998399d42e3d400";
 
-  /*** Wallet ***/
+    const abi = [
+      {
+        inputs: [],
+        stateMutability: "nonpayable",
+        type: "constructor",
+      },
+      {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "value_",
+            type: "uint256",
+          },
+        ],
+        name: "setValue",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "value",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+    ];
 
-  /*** Identity ***/
+    const ethersProvider = new ethers.providers.Web3Provider(
+      runtimeConnector.provider!
+    );
 
-  const createCapibility = async () => {
-    // await connectWallet();
-    // // await switchNetwork();
-    const pkh = await runtimeConnector.createCapibility({
-      wallet,
-      app,
-    });
-    setPkh(pkh);
-    console.log({ pkh });
-    return pkh;
-  };
+    const ethersSigner = ethersProvider.getSigner();
 
-  const checkCapibility = async () => {
-    const isCurrentPkhValid = await runtimeConnector.checkCapibility(app);
-    console.log(isCurrentPkhValid);
-    setIsCurrentPkhValid(isCurrentPkhValid);
+    const contract = new Contract(contractAddress, abi, ethersSigner);
+
+    const res = await contract.setValue(12345);
+    console.log(res);
+
+    const tx = await res.wait();
+    console.log(tx);
+
+    const value = await contract.value();
+    console.log(value);
+
+    return tx;
   };
 
   const getCurrentPkh = async () => {
-    const res = await runtimeConnector.wallet.getCurrentPkh();
+    const res = await runtimeConnector.getCurrentPkh();
     console.log(res);
     setCurrentPkh(res);
   };
 
-  const getChainFromPkh = async () => {
-    const chain = await runtimeConnector.wallet.getChainFromPkh(
-      "did:pkh:eip155:137:0x3c6216caE32FF6691C55cb691766220Fd3f55555"
-    );
-    console.log({ chain });
-    setChain(chain);
+  const getPKP = async () => {
+    const res = await runtimeConnector.getPKP();
+    console.log(res);
+    setPKPWallet(res);
   };
 
-  const getPkhList = async () => {
-    const pkhList = await runtimeConnector.wallet.getPkhList();
-    console.log({ pkhList });
-    setPkhList(pkhList);
+  const executeLitAction = async () => {
+    //   const LIT_ACTION_CALL_CODE = `(async () => {
+    //     const latestNonce = await Lit.Actions.getLatestNonce({ address, chain });
+    //     Lit.Actions.setResponse({response: JSON.stringify({latestNonce})});
+    // })();`;
+    //   const executeJsArgs = {
+    //     code: LIT_ACTION_CALL_CODE,
+    //     jsParams: {
+    //       address: pkpWallet.address,
+    //       chain: "mumbai",
+    //     },
+    //   };
+    //   const res = await runtimeConnector.executeLitAction(executeJsArgs);
+    //   console.log(res);
+    //   setLitActionResponse(JSON.stringify(res));
+
+    const LIT_ACTION_SIGN_CODE = `(async () => {
+        const sigShare = await Lit.Actions.signEcdsa({ toSign, publicKey , sigName });
+        Lit.Actions.setResponse({response: JSON.stringify({sigShare})});
+    })();`;
+    const executeJsArgs = {
+      code: LIT_ACTION_SIGN_CODE,
+      jsParams: {
+        toSign: [72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100],
+        publicKey: pkpWallet.publicKey,
+        sigName: "sig1",
+      },
+    };
+    const res = await runtimeConnector.executeLitAction(executeJsArgs);
+    console.log(res);
+    setLitActionResponse(JSON.stringify(res));
   };
+  /*** Wallet ***/
 
-  const getWalletByPkh = async () => {
-    try {
-      const wallet = await runtimeConnector.wallet.getWalletByPkh(
-        "did:pkh:eip155:137:0xd10d5b408A290a5FD0C2B15074995e899E944444"
-      );
-      console.log({ wallet });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const createNewPkh = async () => {
-    try {
-      const { currentPkh, createdPkhList } =
-        await runtimeConnector.wallet.createNewPkh(wallet);
-      setNewPkh(currentPkh);
-      console.log({ currentPkh, createdPkhList });
-    } catch (error) {
-      console.log({ error });
-    }
-  };
-
-  const switchPkh = async () => {
-    try {
-      const res = await runtimeConnector.wallet.switchPkh(
-        "did:pkh:eip155:137:0xd10d5b408A290a5FD0C2B15074995e899E944444"
-      );
-      console.log(res);
-    } catch (error) {
-      console.log({ error });
-    }
-  };
-
-  /*** Identity ***/
-
-  /*** APP Registry ***/
-
+  /*** DApp ***/
   const getDAppTable = async () => {
     const appsInfo = await runtimeConnector.getDAppTable();
-    console.log({ appsInfo });
+    console.log(appsInfo);
     setAppList(Object.keys(appsInfo));
   };
 
   const getDAppInfo = async () => {
-    const appsInfo = await runtimeConnector.getDAppInfo(Apps.Dataverse);
+    const appsInfo = await runtimeConnector.getDAppInfo(app);
     console.log(appsInfo);
+    return appsInfo;
   };
 
   const getValidAppCaps = async () => {
@@ -258,83 +253,35 @@ function App() {
   };
 
   const getModelBaseInfo = async () => {
-    const res = await runtimeConnector.getModelBaseInfo(
-      "kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo"
-    );
+    const res = await runtimeConnector.getModelBaseInfo(modelId);
     console.log(res);
   };
+  /*** DApp ***/
 
-  /*** APP Registry ***/
-
-  /*** Post ***/
-  const loadStream = async () => {
-    const stream = await runtimeConnector.loadStream({
-      app: "test001",
-      streamId:
-        "kjzl6kcym7w8yafvxqtfrbzl70mcphjrt1fxqsvfnz0icroykmf22enl2mz9eet",
+  /*** Stream ***/
+  const createCapability = async () => {
+    const pkh = await runtimeConnector.createCapability({
+      app,
+      resource: RESOURCE.CERAMIC,
+      wallet,
     });
-    console.log(stream);
+    setPkh(pkh);
+    console.log(pkh);
+    return pkh;
   };
 
-  const loadStreamsBy = async () => {
-    const streams = await runtimeConnector.loadStreamsBy({
-      modelId:
-        "kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo",
-      pkh: "did:pkh:eip155:137:0x5915e293823FCa840c93ED2E1E5B4df32d699999",
-    });
-    console.log(streams);
-    // const res = Object.values(streams).filter(
-    //   (el) => el.controller !== pkh && el.fileType === FileType.Datatoken
-    // );
-    // console.log(res);
+  const checkCapability = async () => {
+    const isCurrentPkhValid = await runtimeConnector.checkCapability({ app });
+    console.log(isCurrentPkhValid);
+    setIsCurrentPkhValid(isCurrentPkhValid);
   };
 
-  const createPublicPostStream = async () => {
+  const createStream = async () => {
     const date = new Date().toISOString();
 
     const encrypted = JSON.stringify({
       text: false,
       images: false,
-      videos: false,
-    });
-
-    const { streamContent, streamId, newFile, existingFile } =
-      await runtimeConnector.createStream({
-        modelId,
-        streamContent: {
-          appVersion: postVersion,
-          text: "hello",
-          images: [
-            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
-          ],
-          videos: [],
-          createdAt: date,
-          updatedAt: date,
-          encrypted,
-        },
-      });
-
-    if (!newFile && !existingFile) {
-      throw "Failed to create content";
-    }
-
-    (existingFile || newFile)!.content = streamContent;
-
-    const contentObject = {
-      content: (existingFile || newFile)!,
-      contentId: streamId,
-    };
-
-    console.log(contentObject);
-    return contentObject;
-  };
-
-  const createPrivatePostStream = async () => {
-    const date = new Date().toISOString();
-
-    const encrypted = JSON.stringify({
-      text: true,
-      images: true,
       videos: false,
     });
 
@@ -353,44 +300,273 @@ function App() {
       },
     });
 
+    setStreamId(res.streamId);
     console.log(res);
   };
 
-  const createDatatokenPostStream = async () => {
-    const pkh = await runtimeConnector.createCapibility({ app, wallet });
-
-    const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
-
+  const updateStream = async () => {
     const date = new Date().toISOString();
 
-    const res2 = await createPublicPostStream();
-
-    res2.content.content = {
-      appVersion: postVersion,
-      text: "metaverse",
-      images: [
-        "https://bafkreidhjbco3nh4uc7wwt5c7auirotd76ch6hlzpps7bwdvgckflp7zmi.ipfs.w3s.link/",
-      ],
-      videos: [],
-      createdAt: date,
-      updatedAt: date,
-    };
-
-    return monetizeContent({
-      pkh,
-      lensNickName: "hello", //Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length
-      contentId: res2.contentId,
-      mirrorFile: res2.content,
-      profileId,
-      encrypted: {
-        text: true,
-        images: true,
-        videos: false,
-      },
-      currency: Currency.WMATIC,
-      amount: 0.0001,
-      collectLimit: 1000,
+    const encrypted = JSON.stringify({
+      text: true,
+      images: true,
+      videos: false,
     });
+
+    const res = await runtimeConnector.updateStream({
+      streamId,
+      streamContent: {
+        appVersion: postVersion,
+        text: "hello",
+        images: [
+          "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+        ],
+        videos: [],
+        createdAt: date,
+        updatedAt: date,
+        encrypted,
+      },
+    });
+    console.log(res);
+  };
+
+  const loadStream = async () => {
+    const stream = await runtimeConnector.loadStream(streamId);
+
+    console.log(stream);
+  };
+
+  const loadStreamsBy = async () => {
+    const streams = await runtimeConnector.loadStreamsBy({
+      modelId,
+      pkh,
+    });
+    console.log(streams);
+    // const res = Object.values(streams).filter(
+    //   (el) => el.controller !== pkh && el.fileType === FileType.Datatoken
+    // );
+    // console.log(res);
+  };
+  /*** Stream ***/
+
+  /*** Folders ***/
+  const readFolders = async () => {
+    const folders = await runtimeConnector.readFolders();
+    setFolders(folders);
+    console.log({ folders });
+    return folders;
+  };
+
+  const createFolder = async () => {
+    const res = await runtimeConnector.createFolder({
+      folderType: FolderType.Private,
+      folderName: "Private",
+    });
+    console.log(res);
+    setFolderId(res.newFolder.folderId);
+    console.log(res.newFolder.folderId);
+  };
+
+  const updateFolderBaseInfo = async () => {
+    const res = await runtimeConnector.updateFolderBaseInfo({
+      folderId,
+      newFolderName: new Date().toISOString(),
+      newFolderDescription: new Date().toISOString(),
+    });
+    console.log(res);
+  };
+
+  const changeFolderType = async () => {
+    const res = await runtimeConnector.changeFolderType({
+      folderId,
+      targetFolderType: FolderType.Public,
+    });
+    console.log(res);
+  };
+
+  const monetizeFolder = async () => {
+    const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
+
+    const res = await runtimeConnector.monetizeFolder({
+      folderId,
+      folderDescription: "This is a payable folder.",
+      datatokenVars: {
+        profileId,
+        collectLimit: 100,
+        amount: 0.0001,
+        currency: Currency.WMATIC,
+      },
+    });
+    console.log(res);
+    return res;
+  };
+
+  const readFolderById = async () => {
+    const folder = await runtimeConnector.readFolderById(folderId);
+    console.log({ folder });
+    return folder;
+  };
+
+  const deleteFolder = async () => {
+    const res = await runtimeConnector.deleteFolder({
+      folderId,
+    });
+    console.log(res);
+  };
+
+  const deleteAllFolder = async () => {
+    if (!folders) {
+      throw "Please call readFolders first";
+    }
+    await Promise.all(
+      Object.keys(folders).map((folderId) =>
+        runtimeConnector.deleteFolder({
+          folderId,
+        })
+      )
+    );
+  };
+
+  const getDefaultFolderId = async () => {
+    if (!folders) {
+      throw "Please call readFolders first";
+    }
+    const { defaultFolderName } = await getDAppInfo();
+    const folder = Object.values(folders).find(
+      (folder) => folder.options.folderName === defaultFolderName
+    );
+    return folder!.folderId;
+  };
+  /*** Folders ***/
+
+  /*** Files ***/
+  const uploadFile = async (event: any) => {
+    try {
+      const file = event.target.files[0];
+      console.log(file);
+      const fileName = file.name;
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      const fileBase64: string = await new Promise((resolve) => {
+        reader.addEventListener("load", async (e: any) => {
+          resolve(e.target.result);
+        });
+      });
+
+      console.log(fileBase64);
+      // var binaryString = atob(fileBase64.split(",")[1]);
+      // console.log(binaryString);
+      // var bytes = new Uint8Array(binaryString.length);
+      // for (var i = 0; i < binaryString.length; i++) {
+      //   bytes[i] = binaryString.charCodeAt(i);
+      // }
+      // console.log(bytes);
+      // console.log(bytes.buffer);
+      const res = await runtimeConnector.uploadFile({
+        folderId,
+        fileBase64,
+        fileName,
+        encrypted: false,
+        storageProvider,
+      });
+      setIndexFileId(res.newFile.indexFileId);
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const updateFileBaseInfo = async () => {
+    const res = await runtimeConnector.updateFileBaseInfo({
+      indexFileId,
+      fileInfo: {
+        mirrorName: "aaa",
+      },
+    });
+    console.log(res);
+  };
+
+  const moveFiles = async () => {
+    const res = await runtimeConnector.moveFiles({
+      targetFolderId: folderId || (await getDefaultFolderId()),
+      sourceIndexFileIds: [indexFileId],
+    });
+    console.log(res);
+  };
+
+  const monetizeFile = async () => {
+    try {
+      if (!pkh) {
+        throw "You must connect capability";
+      }
+      const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
+
+      const res = await runtimeConnector.monetizeFile({
+        ...(indexFileId ? { indexFileId } : { streamId }),
+        datatokenVars: {
+          profileId,
+          collectLimit: 100,
+          amount: 0.0001,
+          currency: Currency.WMATIC,
+        },
+        // decryptionConditions: [
+        //   [
+        //     {
+        //       conditionType: "evmBasic",
+        //       contractAddress: "",
+        //       standardContractType: "",
+        //       chain: "filecoin",
+        //       method: "",
+        //       parameters: [":userAddress"],
+        //       returnValueTest: {
+        //         comparator: "=",
+        //         value: "0xd10d5b408A290a5FD0C2B15074995e899E944444",
+        //       },
+        //     },
+        //     { operator: "or" },
+        //     {
+        //       conditionType: "evmBasic",
+        //       contractAddress: "",
+        //       standardContractType: "",
+        //       chain: "filecoin",
+        //       method: "",
+        //       parameters: [":userAddress"],
+        //       returnValueTest: {
+        //         comparator: "=",
+        //         value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
+        //       },
+        //     },
+        //   ] as any,
+        // ], // Only sell to specific users
+      });
+      console.log(res);
+      return res;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const removeFiles = async () => {
+    const res = await runtimeConnector.removeFiles({
+      indexFileIds: [indexFileId],
+    });
+    console.log(res);
+  };
+  /*** Files ***/
+
+  /*** Monetize ***/
+  const createProfile = async () => {
+    await runtimeConnector.switchNetwork(80001);
+    const res = await runtimeConnector.createProfile("test6");
+    console.log(res);
+  };
+
+  const getProfiles = async () => {
+    const res = await runtimeConnector.getProfiles(
+      "0xA48077Ef4680334dc573B3A9322d350d7a27709d"
+    );
+    console.log(res);
   };
 
   const getProfileId = async ({
@@ -420,369 +596,20 @@ function App() {
     return profileId;
   };
 
-  const monetizePost = async () => {
-    const contentId =
-      "kjzl6kcym7w8y9oulzcg8vwtqk0wmqt2ry7u7oludzixy5f110bzxx5cbmuoffn";
-
-    const pkh = await runtimeConnector.createCapibility({ app, wallet });
-
-    const res = await monetizeContent({
-      pkh,
-      contentId,
-      lensNickName: "hello", //Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length
-      currency: Currency.WMATIC,
-      amount: 0.0001,
-      collectLimit: 1000,
-      encrypted: {
-        text: true,
-        images: true,
-        videos: false,
-      },
-    });
-    console.log(res);
-  };
-
-  const monetizeContent = async ({
-    pkh,
-    contentId,
-    lensNickName,
-    profileId,
-    mirrorFile,
-    encrypted,
-    currency,
-    amount,
-    collectLimit,
-  }: {
-    pkh: string;
-    contentId: string;
-    lensNickName?: string;
-    mirrorFile?: MirrorFile;
-    profileId?: string;
-    encrypted: object;
-    currency: Currency;
-    amount: number;
-    collectLimit: number;
-  }) => {
-    if (!profileId) {
-      profileId = await getProfileId({ pkh, lensNickName });
-    }
-    if (!mirrorFile) {
-      const res = await runtimeConnector.loadStream({
-        app,
-        streamId: contentId,
-      });
-      mirrorFile = res.streamContent;
-    }
-
+  const unlock = async () => {
     try {
-      await runtimeConnector.switchNetwork(80001);
-      await runtimeConnector.monetizeFile({
-        app,
-        indexFileId: mirrorFile!.indexFileId,
-        datatokenVars: {
-          profileId,
-          currency,
-          amount,
-          collectLimit,
-        },
+      // const indexFileId =
+      //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
+      const res = await runtimeConnector.unlock({
+        ...(indexFileId ? { indexFileId } : { streamId }),
       });
-    } catch (error: any) {
-      console.log(error);
-      if (
-        error !==
-        "networkConfigurationId undefined does not match a configured networkConfiguration"
-      ) {
-        await deletePost({ pkh, content: mirrorFile! });
-      }
-      throw error;
+      console.log(res);
+    } catch (error) {
+      console.error(error);
     }
-
-    (mirrorFile!.content as { encrypted: string }).encrypted =
-      JSON.stringify(encrypted);
-    (mirrorFile!.content as { updatedAt: string }).updatedAt =
-      new Date().toISOString();
-
-    const res = await runtimeConnector.updateStream({
-      app,
-      streamId: contentId,
-      streamContent: mirrorFile!.content,
-      syncImmediately: true,
-    });
-
-    return res;
-  };
-
-  const updatePostFromPublicToPrivate = async () => {
-    const contentId =
-      "kjzl6kcym7w8y5ieh12ywk2d248xjn2tke5si45s6xeg8ka7uibrav53przbffp";
-
-    const encrypted = JSON.stringify({
-      text: true,
-      images: true,
-      videos: false,
-    });
-
-    const res = await runtimeConnector.updateStream({
-      app,
-      streamId: contentId,
-      streamContent: {
-        encrypted,
-      },
-      syncImmediately: true,
-    });
-
-    console.log(res);
-  };
-
-  const updatePublicContent = async () => {
-    const contentId =
-      "kjzl6kcym7w8y69ar71y7owfizordoq3g4ancmlqmjg9x6q3cff9nqdjizsy4rt";
-
-    const encrypted = JSON.stringify({
-      text: false,
-      images: false,
-      videos: false,
-    });
-
-    const res = await runtimeConnector.updateStream({
-      app,
-      streamId: contentId,
-      streamContent: {
-        text: "update my post -- " + new Date().toISOString(),
-        images: [
-          "https://bafkreidhjbco3nh4uc7wwt5c7auirotd76ch6hlzpps7bwdvgckflp7zmi.ipfs.w3s.link",
-        ],
-        encrypted,
-      },
-      syncImmediately: true,
-    });
-
-    console.log(res);
-  };
-
-  const updatePrivateOrDatatokenContent = async () => {
-    const contentId =
-      "kjzl6kcym7w8y6qray87uwcsc68vpq5omefq5ydfv4rpxzafdtykkbag1jnet27";
-
-    const encrypted = JSON.stringify({
-      text: true,
-      images: true,
-      videos: false,
-    });
-
-    const res = await runtimeConnector.updateStream({
-      app,
-      streamId: contentId,
-      streamContent: {
-        text: "update my post -- " + new Date().toISOString(),
-        images: [
-          "https://bafkreidhjbco3nh4uc7wwt5c7auirotd76ch6hlzpps7bwdvgckflp7zmi.ipfs.w3s.link",
-        ],
-        encrypted,
-      },
-      syncImmediately: true,
-    });
-
-    console.log(res);
-  };
-
-  const deletePost = async ({
-    content,
-  }: {
-    pkh: string;
-    content: MirrorFile;
-  }) => {
-    const res = await runtimeConnector.removeFiles({
-      app,
-      indexFileIds: [content.indexFileId],
-    });
-    return res;
-  };
-
-  /*** Post ***/
-
-  /*** Folders ***/
-  const readFolders = async () => {
-    const folders = await runtimeConnector.readFolders(app);
-    console.log({ folders });
-    return folders;
-  };
-
-  const createFolder = async () => {
-    const res = await runtimeConnector.createFolder({
-      app,
-      folderType: FolderType.Private,
-      folderName: "Private",
-    });
-    console.log(res);
-    setFolderId(res.newFolder.folderId);
-    console.log(res.newFolder.folderId);
-  };
-
-  const updateFolderBaseInfo = async () => {
-    const res = await runtimeConnector.updateFolderBaseInfo({
-      app,
-      folderId:
-        "kjzl6kcym7w8y9k8byiqo3p1ydrpgopncdamqp9yanzus7duyxj1x07ms1cc6wi",
-      newFolderName: new Date().toISOString(),
-      newFolderDescription: new Date().toISOString(),
-      // syncImmediately: true,
-    });
-    console.log(res);
-  };
-
-  const changeFolderType = async () => {
-    const res = await runtimeConnector.changeFolderType({
-      app,
-      folderId,
-      targetFolderType: FolderType.Public,
-      // syncImmediately: true,
-    });
-    console.log(res);
-  };
-
-  const deleteFolder = async () => {
-    const res = await runtimeConnector.deleteFolder({
-      app,
-      folderId:
-        "kjzl6kcym7w8y6pjw6yjnr9hbkeh025jrwe4hoqfscrwmpn6bx064rywv8qxavl",
-      syncImmediately: true,
-    });
-    console.log(res);
-  };
-
-  const deleteAllFolder = async () => {
-    const folders = await runtimeConnector.readFolders(app);
-    await Promise.all(
-      Object.keys(folders).map((folderId) =>
-        runtimeConnector.deleteFolder({
-          app,
-          folderId,
-          syncImmediately: true,
-        })
-      )
-    );
-    readFolders();
-  };
-
-  const monetizeFolder = async () => {
-    const res = await runtimeConnector.monetizeFolder({
-      app,
-      folderId:
-        "kjzl6kcym7w8y7k2u3s9euekveiao5u386qxnpe51g6zpqds1kdsn6kdoivu6sh",
-      folderDescription: "This is a datatoken folder.",
-      datatokenVars: {
-        profileId: "0x0219",
-        collectLimit: 100,
-        amount: 0.0001,
-        currency: Currency.WMATIC,
-      },
-    });
-    console.log(res);
-    return res;
-  };
-  /*** Folders ***/
-
-  /*** Mirrors ***/
-  const uploadFile = async () => {
-    const res = await runtimeConnector.uploadFile({
-      app,
-      folderId:
-        "kjzl6kcym7w8y7k2u3s9euekveiao5u386qxnpe51g6zpqds1kdsn6kdoivu6sh",
-      // contentId: "bafybeibsels6lnv7pcoyh4v3diezwm5v7lmp2yezkzczk3hl22hvmhgmwq",
-      // contentType: IndexFileContentType.CID,
-      // fileType: FileType.Private,
-      // mirrorName: "BSC_logo.png",
-      // originDate: new Date().toISOString(),
-      // originType: OriginType.upload,
-      // originURL: "https://dataverse-os.com",
-
-      syncImmediately: true,
-    });
-    console.log(res);
-  };
-
-  const updateFileBaseInfo = async () => {
-    const res = await runtimeConnector.updateFileBaseInfo({
-      app,
-      indexFileId:
-        "kjzl6kcym7w8y6obo38hb8k543zk04vsm55mqq2wgcg0wkhqz895b585tw3vuo9",
-      fileInfo: {
-        fileType: FileType.Public,
-      },
-      syncImmediately: true,
-    });
-    console.log(res);
-  };
-
-  const moveFiles = async () => {
-    const res = await runtimeConnector.moveFiles({
-      app,
-      targetFolderId:
-        "kjzl6kcym7w8y94clt1zso1lov99lhu14q0fr2vl8i1nn55slrz47dvqix0it6o",
-      sourceIndexFileIds: [
-        "kjzl6kcym7w8y6obo38hb8k543zk04vsm55mqq2wgcg0wkhqz895b585tw3vuo9",
-      ],
-      syncImmediately: true,
-    });
-    console.log(res);
-  };
-
-  const removeFiles = async () => {
-    const res = await runtimeConnector.removeFiles({
-      app,
-      indexFileIds: [
-        "kjzl6kcym7w8y62b7739cc4tz98zrva0se6z3qyins6a8cxfaepgek5zskg0iiq",
-        "kjzl6kcym7w8y5gwiglq0ic82705yzb4yve3741b6pnekno8ntsvh7hejxhy7c4",
-      ],
-      syncImmediately: true,
-    });
-    console.log(res);
-  };
-
-  const monetizeFile = async () => {
-    const res = await runtimeConnector.monetizeFile({
-      app,
-      indexFileId:
-        "kjzl6kcym7w8y8chugqcvqoox6nnxaf0hhofv587ba99kioz9089ofjnsrgtvyr",
-      datatokenVars: {
-        profileId: "0x0219",
-        collectLimit: 100,
-        amount: 0.0001,
-        currency: Currency.WMATIC,
-      },
-    });
-    console.log(res);
-    return res;
-  };
-  /*** Mirrors ***/
-
-  /*** Data Monetize ***/
-  const createProfile = async () => {
-    await runtimeConnector.switchNetwork(80001);
-    const res = await runtimeConnector.createProfile("test6");
-    console.log(res);
-  };
-
-  const getProfiles = async () => {
-    const res = await runtimeConnector.getProfiles(
-      "0xA48077Ef4680334dc573B3A9322d350d7a27709d"
-    );
-    console.log(res);
-  };
-
-  const collect = async () => {
-    await runtimeConnector.switchNetwork(80001);
-    const res = await runtimeConnector.collect({
-      app,
-      indexFileId:
-        "kjzl6kcym7w8y65io6cihifwm4yqx9ochcaoq0934yeivmmbkht7cj780fxq7zo",
-    });
-    console.log(res);
   };
 
   const isCollected = async () => {
-    await runtimeConnector.switchNetwork(80001);
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
     const res = await runtimeConnector.isCollected({
@@ -792,67 +619,40 @@ function App() {
     console.log(res);
   };
 
-  const getDatatokenMetadata = async () => {
-    await runtimeConnector.switchNetwork(80001);
+  const getDatatokenBaseInfo = async () => {
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
-    const res = await runtimeConnector.getDatatokenMetadata(datatokenId);
+    const res = await runtimeConnector.getDatatokenBaseInfo(datatokenId);
     console.log(res);
   };
-
-  const unlock = async () => {
-    const indexFileId =
-      "kjzl6kcym7w8yaz13rj23ehtiudufl5aauuzypob3159vv7q1qmkgrd214n64hv";
-    const res = await runtimeConnector.unlock({ app, indexFileId });
-    console.log(res);
-  };
-  /*** Data Monetize ***/
+  /*** Monetize ***/
 
   return (
     <div className="App">
-      <button onClick={selectWallet}>selectWallet</button>
-      <div className="blackText">
-        {!walletChanged && "default: "}
-        {wallet?.name}
-      </div>
-      <hr />
       <button onClick={connectWallet}>connectWallet</button>
       <div className="blackText">{address}</div>
       <hr />
-      <button onClick={getCurrentWallet}>getCurrentWallet</button>
-      <hr />
       <button onClick={switchNetwork}>switchNetwork</button>
       <hr />
-      <button onClick={sign}>sign</button>
+      <button onClick={signOrSignTypedData}>signOrSignTypedData</button>
+      <hr />
+      <button onClick={sendTransaction}>sendTransaction</button>
       <hr />
       <button onClick={contractCall}>contractCall</button>
-      <hr />
-      <button onClick={createCapibility}>createCapibility</button>
-      <div className="blackText">{pkh}</div>
-      <hr />
-      <button onClick={checkCapibility}>checkCapibility</button>
-      <div className="blackText">
-        {isCurrentPkhValid !== undefined && String(isCurrentPkhValid)}
-      </div>
-      <hr />
-      <button onClick={getChainFromPkh}>getChainFromPkh</button>
-      <div className="blackText">{chain}</div>
-      <hr />
-      <button onClick={getPkhList}>getPkhList</button>
-      {pkhList.map((pkh) => (
-        <div className="blackText" key={pkh}>
-          {pkh}
-        </div>
-      ))}
       <hr />
       <button onClick={getCurrentPkh}>getCurrentPkh</button>
       <div className="blackText">{currentPkh}</div>
       <hr />
-      <button onClick={getWalletByPkh}>getWalletByPkh</button>
+      <button onClick={getPKP}>getPKP</button>
+      {pkpWallet.address && (
+        <div className="blackText">
+          address: {pkpWallet.address} <br />
+          publicKey: {pkpWallet.publicKey}
+        </div>
+      )}
       <hr />
-      <button onClick={createNewPkh}>createNewPkh</button>
-      <div className="blackText">{newPkh}</div>
+      <button onClick={executeLitAction}>executeLitAction</button>
+      <div className="blackText json">{litActionResponse}</div>
       <hr />
-      <button onClick={switchPkh}>switchPkh</button>
       <br />
       <br />
       <button onClick={getDAppTable}>getDAppTable</button>
@@ -867,52 +667,51 @@ function App() {
       <button onClick={getModelBaseInfo}>getModelBaseInfo</button>
       <br />
       <br />
+      <button onClick={createCapability}>createCapability</button>
+      <div className="blackText">{pkh}</div>
+      <hr />
+      <button onClick={checkCapability}>checkCapability</button>
+      <div className="blackText">
+        {isCurrentPkhValid !== undefined && String(isCurrentPkhValid)}
+      </div>
+      <hr />
+      <button onClick={createStream}>createStream</button>
+      <button onClick={updateStream}>updateStream</button>
       <button onClick={loadStream}>loadStream</button>
-      {/* <button onClick={loadOthersProfileStreamsByModel}>
-        loadOthersProfileStreamsByModel
-      </button>
-      <button onClick={loadMyProfileStreamsByModel}>
-        loadMyProfileStreamsByModel
-      </button>
-      <button onClick={createProfileStream}>createProfileStream</button>
-      <button onClick={updateProfileStreams}>updateProfileStreams</button> */}
       <button onClick={loadStreamsBy}>loadStreamsBy</button>
-      <button onClick={createPublicPostStream}>createPublicPostStream</button>
-      <button onClick={createPrivatePostStream}>createPrivatePostStream</button>
-      <button onClick={createDatatokenPostStream}>
-        createDatatokenPostStream
-      </button>
-      <button onClick={monetizePost}>monetizePost</button>
-      <button onClick={updatePostFromPublicToPrivate}>
-        updatePostFromPublicToPrivate
-      </button>
-      <button onClick={updatePublicContent}>updatePublicContent</button>
-      <button onClick={updatePrivateOrDatatokenContent}>
-        updatePrivateOrDatatokenContent
-      </button>
       <br />
       <br />
       <button onClick={readFolders}>readFolders</button>
       <button onClick={createFolder}>createFolder</button>
       <button onClick={updateFolderBaseInfo}>updateFolderBaseInfo</button>
       <button onClick={changeFolderType}>changeFolderType</button>
+      <button onClick={monetizeFolder}>monetizeFolder</button>
+      <button onClick={readFolderById}>readFolderById</button>
       <button onClick={deleteFolder}>deleteFolder</button>
       <button onClick={deleteAllFolder}>deleteAllFolder</button>
-      <button onClick={monetizeFolder}>monetizeFolder</button>
+      <br />
+      <br />
+      <button>
+        <span>uploadFile</span>
+        <input
+          type="file"
+          onChange={uploadFile}
+          name="uploadFile"
+          style={{ width: "168px", marginLeft: "10px" }}
+        />
+      </button>
 
-      <button onClick={uploadFile}>uploadFile</button>
       <button onClick={updateFileBaseInfo}>updateFileBaseInfo</button>
       <button onClick={moveFiles}>moveFiles</button>
-      <button onClick={removeFiles}>removeFiles</button>
       <button onClick={monetizeFile}>monetizeFile</button>
+      <button onClick={removeFiles}>removeFiles</button>
       <br />
       <br />
       <button onClick={createProfile}>createProfile</button>
       <button onClick={getProfiles}>getProfiles</button>
-      <button onClick={collect}>collect</button>
-      <button onClick={isCollected}>isCollected</button>
-      <button onClick={getDatatokenMetadata}>getDatatokenMetadata</button>
       <button onClick={unlock}>unlock</button>
+      <button onClick={isCollected}>isCollected</button>
+      <button onClick={getDatatokenBaseInfo}>getDatatokenBaseInfo</button>
       <br />
       <br />
     </div>

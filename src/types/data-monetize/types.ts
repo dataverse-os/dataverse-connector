@@ -38,29 +38,30 @@ export interface DatatokenMetadata {
 }
 
 export interface AccessControlCondition {
-  contractAddress: string;
-  chain: string;
-  standardContractType: string;
-  method: string;
-  parameters: string[];
-  returnValueTest: ReturnValueTest;
+  conditionType?: string;
+  contractAddress?: string;
+  chain?: string;
+  standardContractType?: string;
+  method?: string;
+  parameters?: string[];
+  returnValueTest?: ReturnValueTest;
 }
 
 export interface UnifiedAccessControlCondition {
-  contractAddress: string;
-  conditionType: string;
-  functionName: string;
-  functionParams: [string, string];
-  functionAbi: {
-    inputs: { internalType: string; name: string; type: string }[];
-    name: string;
-    outputs: { internalType: string; name: string; type: string };
+  contractAddress?: string;
+  conditionType?: string;
+  functionName?: string;
+  functionParams?: string[];
+  functionAbi?: {
+    inputs?: { internalType: string; name: string; type: string }[];
+    name?: string;
+    outputs?: { internalType: string; name: string; type: string };
   };
-  chain: string;
-  returnValueTest: {
-    key: string;
-    comparator: string;
-    value: string;
+  chain?: string;
+  returnValueTest?: {
+    key?: string;
+    comparator?: string;
+    value?: string;
   };
 }
 

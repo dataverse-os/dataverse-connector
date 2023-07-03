@@ -1,8 +1,10 @@
+export type StreamContent = Record<string, any>;
+
 export interface StreamsRecord {
-  [streamId: string]: any;
+  [streamId: string]: StreamContent;
 }
 
 export interface StreamObject {
   streamId: string;
-  streamContent: any;
+  streamContent: StreamContent;
 }

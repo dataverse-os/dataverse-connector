@@ -1,11 +1,15 @@
-import { Mode } from "../constants";
-import { CRYPTO_WALLET, Chain } from "../crypto-wallet";
+import { Signer as EthersSigner, providers } from "ethers";
+import { StorageProvider } from "../types";
+import { Mode, SignMethod } from "../constants";
+import { Chain, WALLET } from "../crypto-wallet";
 import { AppsInfo, DAppInfo, DAppTable } from "../dapp-verifier/types";
 import { StreamObject } from "../data-models";
+import { StreamContent } from "../data-models/types";
 import {
   CollectOutput,
   DatatokenMetadata,
   DatatokenVars,
+  DecryptionConditions,
 } from "../data-monetize/types";
 import { FileType, FolderType } from "../fs";
 import {
@@ -16,14 +20,15 @@ import {
   StructuredFolders,
 } from "../fs/types";
 import { Methods } from "./constants";
+import { RESOURCE } from "../identity/constants";
+import { Provider } from "../../provider";
+import { Signer } from "../../signer";
 
 export interface RequestType {
-  selectWallet: void;
-  connectWallet: CRYPTO_WALLET;
-  getCurrentWallet: void;
+  connectWallet?: WALLET | undefined;
   switchNetwork: number;
   sign: {
-    method: string;
+    method: SignMethod;
     params: any[];
   };
   contractCall: {
@@ -31,91 +36,80 @@ export interface RequestType {
     abi: any[];
     method: string;
     params: any[];
-    mode?: Mode;
   };
-  createCapibility: {
-    wallet?: CRYPTO_WALLET;
-    app?: string;
+  ethereumRequest: {
+    method: string;
+    params?: any;
   };
-  checkCapibility: string | undefined;
-  getChainFromPkh: string;
-  getPkhList: void;
   getCurrentPkh: void;
-  getWalletByPkh: string;
-  createNewPkh: CRYPTO_WALLET;
-  switchPkh: string;
+  getPKP: void;
+  executeLitAction: { code: string; jsParams: object };
 
   getDAppTable: void;
   getDAppInfo: string;
   getValidAppCaps: void;
+  getModelBaseInfo: string;
 
-  loadStream: { app: string; streamId: string };
+  createCapability: {
+    app: string;
+    resource?: RESOURCE;
+    wallet?: WALLET;
+  };
+  checkCapability: {
+    app: string;
+    resource?: RESOURCE;
+  };
+  loadStream: string;
   loadStreamsBy: {
     modelId: string;
     pkh?: string;
   };
-  getModelBaseInfo: string;
   createStream: {
     modelId: string;
-    streamContent: any;
+    streamContent: StreamContent;
   };
   updateStream: {
-    app?: string;
     streamId: string;
-    streamContent: any;
+    streamContent: StreamContent;
     syncImmediately?: boolean;
   };
 
-  readFolders: string | undefined;
+  readFolders: void;
+  readFolderById: string;
   createFolder: {
-    app?: string;
     folderType: FolderType;
     folderName: string;
     folderDescription?: string;
   };
   updateFolderBaseInfo: {
-    app?: string;
     folderId: string;
     newFolderName?: string;
     newFolderDescription?: string;
     syncImmediately?: boolean;
   };
   changeFolderType: {
-    app?: string;
     folderId: string;
     targetFolderType: FolderType;
     syncImmediately?: boolean;
   };
   deleteFolder: {
-    app?: string;
     folderId: string;
     syncImmediately?: boolean;
   };
   monetizeFolder: {
-    app?: string;
     folderId: string;
     folderDescription: string;
     datatokenVars: Omit<DatatokenVars, "streamId">;
   };
 
   uploadFile: {
-    app?: string;
-    folderId: string;
-    fileInfo?: Omit<
-      FileInfo,
-      | "fileType"
-      | "datatokenId"
-      | "fileKey"
-      | "encryptedSymmetricKey"
-      | "decryptionConditions"
-      | "decryptionConditionsType"
-    > & {
-      fileType: FileType;
-    };
-    syncImmediately?: boolean;
+    folderId?: string;
+    fileBase64: string;
+    fileName: string;
+    encrypted: boolean;
+    storageProvider: StorageProvider;
   };
   updateFileBaseInfo: {
-    app?: string;
     indexFileId: string;
     fileInfo?: Omit<
       FileInfo,
@@ -128,74 +122,97 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
   moveFiles: {
-    app?: string;
     targetFolderId: string;
     sourceIndexFileIds: string[];
     syncImmediately?: boolean;
   };
+  monetizeFile: {
+    streamId?: string;
+    indexFileId?: string;
+    datatokenVars: Omit<DatatokenVars, "streamId">;
+    decryptionConditions?: DecryptionConditions;
+  };
   removeFiles: {
-    app?: string;
     indexFileIds: string[];
     syncImmediately?: boolean;
-  };
-  monetizeFile: {
-    app?: string;
-    indexFileId: string;
-    datatokenVars: Omit<DatatokenVars, "streamId">;
   };
 
   createProfile: string;
   getProfiles: string;
-  collect: {
-    app?: string;
-    indexFileId: string;
-  };
+  unlock: { streamId?: string; indexFileId?: string };
   isCollected: { datatokenId: string; address: string };
-  getDatatokenMetadata: string;
-  unlock: { app?: string; indexFileId: string };
+  getDatatokenBaseInfo: string;
 }
 
 export interface ReturnType {
-  selectWallet: Promise<CRYPTO_WALLET>;
-  connectWallet: Promise<string>;
-  getCurrentWallet: Promise<{
-    wallet: CRYPTO_WALLET;
+  connectWallet: Promise<{
     address: string;
     chain: Chain;
-  } | null>;
-  switchNetwork: Promise<boolean>;
-  sign: Promise<any>;
-  contractCall: Promise<any>;
-  createCapibility: Promise<string>;
-  checkCapibility: Promise<boolean>;
-  getChainFromPkh: Promise<string>;
-  getPkhList: Promise<string[]>;
-  getCurrentPkh: Promise<string>;
-  getWalletByPkh: Promise<CRYPTO_WALLET>;
-  createNewPkh: Promise<{
-    currentPkh: string;
-    createdPkhList: string[];
+    wallet: WALLET;
+    provider: Provider;
+    signer: Signer;
   }>;
-  switchPkh: Promise<boolean>;
+  switchNetwork: Promise<{ chainId: number; chainName: string }>;
+  sign: Promise<string>;
+  contractCall: Promise<any>;
+  ethereumRequest: Promise<any>;
+  getCurrentPkh: Promise<string>;
+  getPKP: Promise<{ address: string; publicKey: string }>;
+  executeLitAction: Promise<any>;
 
   getDAppTable: Promise<DAppTable>;
   getDAppInfo: Promise<DAppInfo>;
   getValidAppCaps: Promise<AppsInfo>;
-  getModelBaseInfo: Promise<Record<string, any>>;
+  getModelBaseInfo: Promise<StreamContent>;
 
+  createCapability: Promise<string>;
+  checkCapability: Promise<boolean>;
   loadStream: Promise<{
     pkh: string;
-    app?: string;
+    app: string;
     modelId: string;
-    streamContent: any;
+    streamContent:
+      | {
+          file?: Omit<MirrorFile, "fileKey" | "content">;
+          content?: StreamContent;
+        }
+      | StreamContent;
   }>;
-  loadStreamsBy: Promise<Record<string, any>>;
-  createStream: Promise<
-    StreamObject & { newFile?: MirrorFile; existingFile?: MirrorFile }
+  loadStreamsBy: Promise<
+    Record<
+      string,
+      {
+        app: string;
+        modelId: string;
+        pkh: string;
+        streamContent:
+          | {
+              file?: Omit<MirrorFile, "fileKey" | "content">;
+              content?: StreamContent;
+            }
+          | StreamContent;
+      }
+    >
   >;
-  updateStream: Promise<boolean>;
+  createStream: Promise<{
+    pkh: string;
+    app: string;
+    modelId: string;
+    streamId: string;
+    streamContent: {
+      file: Omit<MirrorFile, "fileKey" | "content">;
+      content: StreamContent;
+    };
+  }>;
+  updateStream: Promise<{
+    streamContent: {
+      file: Omit<MirrorFile, "fileKey" | "content">;
+      content: StreamContent;
+    };
+  }>;
 
   readFolders: Promise<StructuredFolders>;
+  readFolderById: Promise<StructuredFolder>;
   createFolder: Promise<{
     newFolder: StructuredFolder;
     allFolders: StructuredFolders;
@@ -219,8 +236,6 @@ export interface ReturnType {
 
   uploadFile: Promise<{
     newFile: MirrorFile;
-    isCurated: boolean;
-    existingFile?: MirrorFile;
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
@@ -235,31 +250,28 @@ export interface ReturnType {
     movedFiles: MirrorFiles;
     allFolders: StructuredFolders;
   }>;
+  monetizeFile: Promise<{
+    streamContent: {
+      file: Omit<MirrorFile, "fileKey" | "content">;
+      content: StreamContent | string;
+    };
+  }>;
   removeFiles: Promise<{
     sourceFolders: StructuredFolders;
     removedFiles: MirrorFiles;
     allFolders: StructuredFolders;
   }>;
-  monetizeFile: Promise<{
-    currentFile: MirrorFile;
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
-  }>;
 
   createProfile: Promise<string>;
   getProfiles: Promise<{ id: string }[]>;
-  collect: Promise<
-    CollectOutput &
-      Partial<{
-        newFile: MirrorFile;
-        isCurated: boolean;
-        currentFolder: StructuredFolder;
-        allFolders: StructuredFolders;
-      }>
-  >;
+  unlock: Promise<{
+    streamContent: {
+      file: Omit<MirrorFile, "fileKey" | "content">;
+      content: StreamContent | string;
+    };
+  }>;
   isCollected: Promise<boolean>;
-  getDatatokenMetadata: Promise<DatatokenMetadata>;
-  unlock: Promise<object>;
+  getDatatokenBaseInfo: Promise<object>;
 }
 export interface RequestInputs {
   method: Methods;

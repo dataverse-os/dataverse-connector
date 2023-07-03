@@ -1,118 +1,76 @@
 import { Communicator, PostMessageTo } from "@dataverse/communicator";
 import { RequestType, Methods, ReturnType } from "./types/event";
-
-export class Wallet {
-  communicator: Communicator;
-
-  constructor(communicator: Communicator) {
-    this.communicator = communicator;
-  }
-
-  getChainFromPkh(
-    params: RequestType[Methods.getChainFromPkh]
-  ): ReturnType[Methods.getChainFromPkh] {
-    return this.communicator.sendRequest({
-      method: Methods.getChainFromPkh,
-      params,
-    }) as ReturnType[Methods.getChainFromPkh];
-  }
-
-  getPkhList(
-    params: RequestType[Methods.getPkhList]
-  ): ReturnType[Methods.getPkhList] {
-    return this.communicator.sendRequest({
-      method: Methods.getPkhList,
-      params,
-    }) as ReturnType[Methods.getPkhList];
-  }
-
-  getCurrentPkh(
-    params: RequestType[Methods.getCurrentPkh]
-  ): ReturnType[Methods.getCurrentPkh] {
-    return this.communicator.sendRequest({
-      method: Methods.getCurrentPkh,
-      params,
-    }) as ReturnType[Methods.getCurrentPkh];
-  }
-
-  getWalletByPkh(
-    params: RequestType[Methods.getWalletByPkh]
-  ): ReturnType[Methods.getWalletByPkh] {
-    return this.communicator.sendRequest({
-      method: Methods.getWalletByPkh,
-      params,
-    }) as ReturnType[Methods.getWalletByPkh];
-  }
-
-  createNewPkh(
-    params: RequestType[Methods.createNewPkh]
-  ): ReturnType[Methods.createNewPkh] {
-    return this.communicator.sendRequest({
-      method: Methods.createNewPkh,
-      params,
-    }) as ReturnType[Methods.createNewPkh];
-  }
-
-  switchPkh(
-    params: RequestType[Methods.switchPkh]
-  ): ReturnType[Methods.switchPkh] {
-    return this.communicator.sendRequest({
-      method: Methods.switchPkh,
-      params,
-    }) as ReturnType[Methods.switchPkh];
-  }
-}
+import { Signer } from "./signer";
+import { Provider } from "./provider";
+import { BigNumber, ethers, Signer as EthersSigner, providers } from "ethers";
+import { Chain, WALLET } from "./types/crypto-wallet";
+import { detectDataverseExtension } from "./utils/extensionDetector";
+import { formatSendTransactionData } from "./utils/formatSendTransactionData";
 
 export class RuntimeConnector {
   communicator: Communicator;
-  wallet: Wallet;
+  isConnected = false;
+  wallet?: WALLET;
+  address?: string;
+  chain?: Chain;
+  provider?: Provider;
+  signer?: Signer;
+  app?: string;
+
   constructor(postMessageTo: PostMessageTo) {
     this.communicator = new Communicator({
       source: window,
       target: window.top,
       postMessageTo,
     });
-    this.wallet = new Wallet(this.communicator);
   }
 
   setPostMessageTo(postMessageTo: PostMessageTo) {
     this.communicator.setPostMessageTo(postMessageTo);
   }
 
-  selectWallet(
-    params: RequestType[Methods.selectWallet]
-  ): ReturnType[Methods.selectWallet] {
-    return this.communicator.sendRequest({
-      method: Methods.selectWallet,
-      params,
-    }) as ReturnType[Methods.selectWallet];
-  }
-
-  connectWallet(
-    params: RequestType[Methods.connectWallet]
-  ): ReturnType[Methods.connectWallet] {
-    return this.communicator.sendRequest({
+  async connectWallet(
+    wallet?: RequestType[Methods.connectWallet]
+  ): Promise<ReturnType[Methods.connectWallet]> {
+    if (!(await detectDataverseExtension())) {
+      throw "The plugin has not been loaded yet. Please check the plugin status or go to https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead to install plugins";
+    }
+    const res = await (this.communicator.sendRequest({
       method: Methods.connectWallet,
-      params,
-    }) as ReturnType[Methods.connectWallet];
+      params: wallet,
+    }) as ReturnType[Methods.connectWallet]);
+
+    this.isConnected = true;
+    this.wallet = res.wallet;
+    this.address = res.address;
+    this.chain = res.chain;
+    if (!this.provider) {
+      this.provider = new Provider(this);
+      this.signer = new Signer(this);
+    }
+
+    // this.ethersProvider = new ethers.providers.Web3Provider(this.provider);
+    // this.ethersSigner = this.ethersProvider.getSigner();
+
+    return {
+      ...res,
+      provider: this.provider,
+      signer: this.signer,
+      // ethersProvider: this.ethersProvider,
+      // ethersSigner: this.ethersSigner,
+    } as Awaited<ReturnType[Methods.connectWallet]>;
   }
 
-  getCurrentWallet(
-    params: RequestType[Methods.getCurrentWallet]
-  ): ReturnType[Methods.getCurrentWallet] {
-    return this.communicator.sendRequest({
-      method: Methods.getCurrentWallet,
-      params,
-    }) as ReturnType[Methods.getCurrentWallet];
-  }
-
-  switchNetwork(
-    params: RequestType[Methods.switchNetwork]
+  async switchNetwork(
+    chainId: RequestType[Methods.switchNetwork]
   ): ReturnType[Methods.switchNetwork] {
-    return this.communicator.sendRequest({
+    const res = await (this.communicator.sendRequest({
       method: Methods.switchNetwork,
-      params,
-    }) as ReturnType[Methods.switchNetwork];
+      params: chainId,
+    }) as ReturnType[Methods.switchNetwork]);
+    this.chain = res;
+    this.provider.emit("chainChanged", chainId);
+    return res;
   }
 
   sign(params: RequestType[Methods.sign]): ReturnType[Methods.sign] {
@@ -131,67 +89,55 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.contractCall];
   }
 
-  createCapibility(
-    params: RequestType[Methods.createCapibility]
-  ): ReturnType[Methods.createCapibility] {
-    return this.communicator.sendRequest({
-      method: Methods.createCapibility,
+  async ethereumRequest(
+    params: RequestType[Methods.ethereumRequest]
+  ): ReturnType[Methods.ethereumRequest] {
+    if (params.method === "eth_sendTransaction") {
+      if (!params?.params?.[0]?.from) {
+        params.params[0].from = this.address;
+      }
+      if (params?.params?.[0]) {
+        Object.entries(params?.params?.[0]).forEach(([key, value]) => {
+          params.params[0][key] = formatSendTransactionData(value);
+        });
+      }
+    }
+
+    const res = await (this.communicator.sendRequest({
+      method: Methods.ethereumRequest,
       params,
-    }) as ReturnType[Methods.createCapibility];
+    }) as ReturnType[Methods.ethereumRequest]);
+
+    if (params.method === "wallet_switchEthereumChain") {
+      await this.switchNetwork(Number(params.params[0].chainId));
+      this.provider.emit("chainChanged", Number(params.params[0].chainId));
+    }
+
+    return res;
   }
 
-  checkCapibility(
-    params: RequestType[Methods.checkCapibility]
-  ): ReturnType[Methods.checkCapibility] {
+  getPKP(): ReturnType[Methods.getPKP] {
     return this.communicator.sendRequest({
-      method: Methods.checkCapibility,
-      params,
-    }) as ReturnType[Methods.checkCapibility];
+      method: Methods.getPKP,
+    }) as ReturnType[Methods.getPKP];
   }
 
-  loadStream(
-    params: RequestType[Methods.loadStream]
-  ): ReturnType[Methods.loadStream] {
+  getCurrentPkh(
+    params: RequestType[Methods.getCurrentPkh]
+  ): ReturnType[Methods.getCurrentPkh] {
     return this.communicator.sendRequest({
-      method: Methods.loadStream,
+      method: Methods.getCurrentPkh,
       params,
-    }) as ReturnType[Methods.loadStream];
+    }) as ReturnType[Methods.getCurrentPkh];
   }
 
-  loadStreamsBy(
-    params: RequestType[Methods.loadStreamsBy]
-  ): ReturnType[Methods.loadStreamsBy] {
+  executeLitAction(
+    params: RequestType[Methods.executeLitAction]
+  ): ReturnType[Methods.executeLitAction] {
     return this.communicator.sendRequest({
-      method: Methods.loadStreamsBy,
+      method: Methods.executeLitAction,
       params,
-    }) as ReturnType[Methods.loadStreamsBy];
-  }
-
-  getModelBaseInfo(
-    params: RequestType[Methods.getModelBaseInfo]
-  ): ReturnType[Methods.getModelBaseInfo] {
-    return this.communicator.sendRequest({
-      method: Methods.getModelBaseInfo,
-      params,
-    }) as ReturnType[Methods.getModelBaseInfo];
-  }
-
-  createStream(
-    params: RequestType[Methods.createStream]
-  ): ReturnType[Methods.createStream] {
-    return this.communicator.sendRequest({
-      method: Methods.createStream,
-      params,
-    }) as ReturnType[Methods.createStream];
-  }
-
-  updateStream(
-    params: RequestType[Methods.updateStream]
-  ): ReturnType[Methods.updateStream] {
-    return this.communicator.sendRequest({
-      method: Methods.updateStream,
-      params,
-    }) as ReturnType[Methods.updateStream];
+    }) as ReturnType[Methods.executeLitAction];
   }
 
   getDAppTable(
@@ -221,13 +167,83 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.getValidAppCaps];
   }
 
-  readFolders(
-    params: RequestType[Methods.readFolders]
-  ): ReturnType[Methods.readFolders] {
+  getModelBaseInfo(
+    modelId: RequestType[Methods.getModelBaseInfo]
+  ): ReturnType[Methods.getModelBaseInfo] {
+    return this.communicator.sendRequest({
+      method: Methods.getModelBaseInfo,
+      params: modelId,
+    }) as ReturnType[Methods.getModelBaseInfo];
+  }
+
+  createCapability(
+    params: RequestType[Methods.createCapability]
+  ): ReturnType[Methods.createCapability] {
+    this.app = params.app;
+    return this.communicator.sendRequest({
+      method: Methods.createCapability,
+      params,
+    }) as ReturnType[Methods.createCapability];
+  }
+
+  checkCapability(
+    params?: RequestType[Methods.checkCapability]
+  ): ReturnType[Methods.checkCapability] {
+    return this.communicator.sendRequest({
+      method: Methods.checkCapability,
+      params,
+    }) as ReturnType[Methods.checkCapability];
+  }
+
+  createStream(
+    params: RequestType[Methods.createStream]
+  ): ReturnType[Methods.createStream] {
+    return this.communicator.sendRequest({
+      method: Methods.createStream,
+      params,
+    }) as ReturnType[Methods.createStream];
+  }
+
+  updateStream(
+    params: RequestType[Methods.updateStream]
+  ): ReturnType[Methods.updateStream] {
+    return this.communicator.sendRequest({
+      method: Methods.updateStream,
+      params,
+    }) as ReturnType[Methods.updateStream];
+  }
+
+  loadStream(
+    streamId: RequestType[Methods.loadStream]
+  ): ReturnType[Methods.loadStream] {
+    return this.communicator.sendRequest({
+      method: Methods.loadStream,
+      params: streamId,
+    }) as ReturnType[Methods.loadStream];
+  }
+
+  loadStreamsBy(
+    params: RequestType[Methods.loadStreamsBy]
+  ): ReturnType[Methods.loadStreamsBy] {
+    return this.communicator.sendRequest({
+      method: Methods.loadStreamsBy,
+      params,
+    }) as ReturnType[Methods.loadStreamsBy];
+  }
+
+  readFolders(): ReturnType[Methods.readFolders] {
     return this.communicator.sendRequest({
       method: Methods.readFolders,
-      params,
     }) as ReturnType[Methods.readFolders];
+  }
+
+  readFolderById(
+    folderId: RequestType[Methods.readFolderById]
+  ): ReturnType[Methods.readFolderById] {
+    return this.communicator.sendRequest({
+      method: Methods.readFolderById,
+      params: folderId,
+    }) as ReturnType[Methods.readFolderById];
   }
 
   createFolder(
@@ -258,11 +274,11 @@ export class RuntimeConnector {
   }
 
   deleteFolder(
-    params: RequestType[Methods.deleteFolder]
+    folderId: RequestType[Methods.deleteFolder]
   ): ReturnType[Methods.deleteFolder] {
     return this.communicator.sendRequest({
       method: Methods.deleteFolder,
-      params,
+      params: folderId,
     }) as ReturnType[Methods.deleteFolder];
   }
 
@@ -321,28 +337,28 @@ export class RuntimeConnector {
   }
 
   createProfile(
-    params: RequestType[Methods.createProfile]
+    handle: RequestType[Methods.createProfile]
   ): ReturnType[Methods.createProfile] {
     return this.communicator.sendRequest({
       method: Methods.createProfile,
-      params,
+      params: handle,
     }) as ReturnType[Methods.createProfile];
   }
 
   getProfiles(
-    params: RequestType[Methods.getProfiles]
+    address: RequestType[Methods.getProfiles]
   ): ReturnType[Methods.getProfiles] {
     return this.communicator.sendRequest({
       method: Methods.getProfiles,
-      params,
+      params: address,
     }) as ReturnType[Methods.getProfiles];
   }
 
-  collect(params: RequestType[Methods.collect]): ReturnType[Methods.collect] {
+  unlock(params: RequestType[Methods.unlock]): ReturnType[Methods.unlock] {
     return this.communicator.sendRequest({
-      method: Methods.collect,
+      method: Methods.unlock,
       params,
-    }) as ReturnType[Methods.collect];
+    }) as ReturnType[Methods.unlock];
   }
 
   isCollected(
@@ -354,19 +370,12 @@ export class RuntimeConnector {
     }) as ReturnType[Methods.isCollected];
   }
 
-  getDatatokenMetadata(
-    params: RequestType[Methods.getDatatokenMetadata]
-  ): ReturnType[Methods.getDatatokenMetadata] {
+  getDatatokenBaseInfo(
+    datatokenId: RequestType[Methods.getDatatokenBaseInfo]
+  ): ReturnType[Methods.getDatatokenBaseInfo] {
     return this.communicator.sendRequest({
-      method: Methods.getDatatokenMetadata,
-      params,
-    }) as ReturnType[Methods.getDatatokenMetadata];
-  }
-
-  unlock(params: RequestType[Methods.unlock]): ReturnType[Methods.unlock] {
-    return this.communicator.sendRequest({
-      method: Methods.unlock,
-      params,
-    }) as ReturnType[Methods.unlock];
+      method: Methods.getDatatokenBaseInfo,
+      params: datatokenId,
+    }) as ReturnType[Methods.getDatatokenBaseInfo];
   }
 }
