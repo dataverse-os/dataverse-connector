@@ -44,7 +44,7 @@ export class Provider extends BaseProvider implements ExternalProvider {
       this.emit(args.method, args.params);
       this.runtimeConnector.address = args.params[0];
     } else {
-      this.emit(args.method, ...args.params);
+      this.emit(args.method, args.params);
     }
   }
 

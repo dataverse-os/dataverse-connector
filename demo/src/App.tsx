@@ -1,5 +1,5 @@
 import "./App.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   RuntimeConnector,
   Extension,
@@ -9,6 +9,7 @@ import {
   StorageProviderName,
   WALLET,
   RESOURCE,
+  Chain,
 } from "@dataverse/runtime-connector";
 import { getAddressFromPkh } from "./utils/addressAndPkh";
 import { Contract, ethers } from "ethers";
@@ -53,6 +54,13 @@ function App() {
     console.log(res);
     setWallet(res.wallet);
     setAddress(res.address);
+    res.provider!.on("chainChanged", (chain: Chain) => {
+      console.log(chain);
+    });
+    res.provider!.on("accountsChanged", (accounts: Array<string>) => {
+      console.log(accounts);
+      setAddress(accounts[0]);
+    });
     return res;
   };
 
