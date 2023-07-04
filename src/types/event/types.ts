@@ -288,3 +288,12 @@ export interface ResponseArguments {
   type: "response";
   result: object;
 }
+
+export interface EventInput{
+  method: string;
+  params?: any;
+}
+
+export interface EventArguments {
+  type: "request";
+}

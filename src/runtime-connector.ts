@@ -6,6 +6,7 @@ import { BigNumber, ethers, Signer as EthersSigner, providers } from "ethers";
 import { Chain, WALLET } from "./types/crypto-wallet";
 import { detectDataverseExtension } from "./utils/extensionDetector";
 import { formatSendTransactionData } from "./utils/formatSendTransactionData";
+import { RequestArguments, RequestInputs } from "./types/event/types";
 
 export class RuntimeConnector {
   communicator: Communicator;
@@ -49,15 +50,10 @@ export class RuntimeConnector {
       this.signer = new Signer(this);
     }
 
-    // this.ethersProvider = new ethers.providers.Web3Provider(this.provider);
-    // this.ethersSigner = this.ethersProvider.getSigner();
-
     return {
       ...res,
       provider: this.provider,
       signer: this.signer,
-      // ethersProvider: this.ethersProvider,
-      // ethersSigner: this.ethersSigner,
     } as Awaited<ReturnType[Methods.connectWallet]>;
   }
 
@@ -69,7 +65,6 @@ export class RuntimeConnector {
       params: chainId,
     }) as ReturnType[Methods.switchNetwork]);
     this.chain = res;
-    this.provider.emit("chainChanged", chainId);
     return res;
   }
 
@@ -107,11 +102,6 @@ export class RuntimeConnector {
       method: Methods.ethereumRequest,
       params,
     }) as ReturnType[Methods.ethereumRequest]);
-
-    if (params.method === "wallet_switchEthereumChain") {
-      await this.switchNetwork(Number(params.params[0].chainId));
-      this.provider.emit("chainChanged", Number(params.params[0].chainId));
-    }
 
     return res;
   }
