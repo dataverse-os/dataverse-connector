@@ -43,10 +43,8 @@ export class Provider extends BaseProvider implements ExternalProvider {
         this.runtimeConnector.chain = args.params;
       }
     } else if (event.data.method === "accountsChanged") {
-      if (this.runtimeConnector.wallet === args.params.wallet) {
-        this.emit(args.method, args.params);
-        this.runtimeConnector.address = args.params[0];
-      }
+      this.emit(args.method, args.params);
+      this.runtimeConnector.address = args.params[0];
     } else {
       this.emit(args.method, args.params);
     }
