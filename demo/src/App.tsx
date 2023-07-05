@@ -47,6 +47,16 @@ function App() {
   const [folderId, setFolderId] = useState("");
   const [indexFileId, setIndexFileId] = useState("");
   const [folders, setFolders] = useState<StructuredFolders>();
+  const [hasAddListener, setHasAddListener] = useState<boolean>();
+
+  const onChainChanged = (chain: Chain) => {
+    console.log(chain);
+  };
+
+  const onAccountsChanged = (accounts: Array<string>) => {
+    console.log(accounts);
+    setAddress(accounts[0]);
+  };
 
   /*** Wallet ***/
   const connectWallet = async () => {
@@ -54,13 +64,11 @@ function App() {
     console.log(res);
     setWallet(res.wallet);
     setAddress(res.address);
-    res.provider!.on("chainChanged", (chain: Chain) => {
-      console.log(chain);
-    });
-    res.provider!.on("accountsChanged", (accounts: Array<string>) => {
-      console.log(accounts);
-      setAddress(accounts[0]);
-    });
+    if (!hasAddListener) {
+      res.provider!.on("chainChanged", onChainChanged);
+      res.provider!.on("accountsChanged", onAccountsChanged);
+      setHasAddListener(true);
+    }
     return res;
   };
 
