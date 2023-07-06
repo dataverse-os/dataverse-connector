@@ -22,7 +22,6 @@ import {
 import { Methods } from "./constants";
 import { RESOURCE } from "../identity/constants";
 import { Provider } from "../../provider";
-import { Signer } from "../../signer";
 
 export interface RequestType {
   connectWallet?: WALLET | undefined;
@@ -150,7 +149,6 @@ export interface ReturnType {
     chain: Chain;
     wallet: WALLET;
     provider: Provider;
-    signer: Signer;
   }>;
   switchNetwork: Promise<{ chainId: number; chainName: string }>;
   sign: Promise<string>;

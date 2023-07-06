@@ -1,22 +1,12 @@
 import { Communicator, PostMessageTo } from "@dataverse/communicator";
 import { RequestType, Methods, ReturnType } from "./types/event";
-import { Signer } from "./signer";
 import { Provider } from "./provider";
-import { BigNumber, ethers, Signer as EthersSigner, providers } from "ethers";
-import { Chain, WALLET } from "./types/crypto-wallet";
 import { detectDataverseExtension } from "./utils/extensionDetector";
 import { formatSendTransactionData } from "./utils/formatSendTransactionData";
-import { RequestArguments, RequestInputs } from "./types/event/types";
 
-export class RuntimeConnector {
+export class DataverseConnector {
   communicator: Communicator;
-  isConnected = false;
-  wallet?: WALLET;
-  address?: string;
-  chain?: Chain;
-  provider?: Provider;
-  signer?: Signer;
-  app?: string;
+  private provider?: Provider;
 
   constructor(postMessageTo: PostMessageTo) {
     this.communicator = new Communicator({
@@ -30,6 +20,10 @@ export class RuntimeConnector {
     this.communicator.setPostMessageTo(postMessageTo);
   }
 
+  getProvider() {
+    return this.provider;
+  }
+
   async connectWallet(
     wallet?: RequestType[Methods.connectWallet]
   ): Promise<ReturnType[Methods.connectWallet]> {
@@ -41,19 +35,17 @@ export class RuntimeConnector {
       params: wallet,
     }) as ReturnType[Methods.connectWallet]);
 
-    this.isConnected = true;
-    this.wallet = res.wallet;
-    this.address = res.address;
-    this.chain = res.chain;
     if (!this.provider) {
       this.provider = new Provider(this);
-      this.signer = new Signer(this);
+      this.provider.isConnected = true;
+      this.provider.wallet = res.wallet;
+      this.provider.address = res.address;
+      this.provider.chain = res.chain;
     }
 
     return {
       ...res,
       provider: this.provider,
-      signer: this.signer,
     } as Awaited<ReturnType[Methods.connectWallet]>;
   }
 
@@ -64,7 +56,7 @@ export class RuntimeConnector {
       method: Methods.switchNetwork,
       params: chainId,
     }) as ReturnType[Methods.switchNetwork]);
-    this.chain = res;
+    this.provider.chain = res;
     return res;
   }
 
@@ -89,7 +81,7 @@ export class RuntimeConnector {
   ): ReturnType[Methods.ethereumRequest] {
     if (params.method === "eth_sendTransaction") {
       if (!params?.params?.[0]?.from) {
-        params.params[0].from = this.address;
+        params.params[0].from =  this.provider.address;
       }
       if (params?.params?.[0]) {
         Object.entries(params?.params?.[0]).forEach(([key, value]) => {
@@ -169,7 +161,7 @@ export class RuntimeConnector {
   createCapability(
     params: RequestType[Methods.createCapability]
   ): ReturnType[Methods.createCapability] {
-    this.app = params.app;
+    this.provider.app = params.app;
     return this.communicator.sendRequest({
       method: Methods.createCapability,
       params,

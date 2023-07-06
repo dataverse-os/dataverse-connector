@@ -41,7 +41,6 @@ export {
   type StructuredFolders,
 } from "./types/fs";
 export { Provider } from "./provider";
-export { Signer } from "./signer";
-export { RuntimeConnector } from "./runtime-connector";
+export { DataverseConnector } from "./dataverse-connector";
 export { type PostMessageTo } from "@dataverse/communicator";
 export { type RequestType, type ReturnType, type Methods } from "./types/event";

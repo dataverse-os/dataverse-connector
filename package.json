@@ -1,6 +1,6 @@
 {
-  "name": "@dataverse/runtime-connector",
-  "version": "1.0.59",
+  "name": "@dataverse/dataverse-connector",
+  "version": "1.0.0",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "files": [
@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dataverse-os/runtime-connector.git"
+    "url": "git+https://github.com/dataverse-os/dataverse-connector.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/dataverse-os/runtime-connector/issues"
+    "url": "https://github.com/dataverse-os/dataverse-connector/issues"
   },
-  "homepage": "https://github.com/dataverse-os/runtime-connector#readme",
+  "homepage": "https://github.com/dataverse-os/dataverse-connector#readme",
   "dependencies": {
     "@dataverse/communicator": "1.0.26",
     "@ethersproject/providers": "^5.7.0",

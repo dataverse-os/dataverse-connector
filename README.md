@@ -6,18 +6,18 @@
 </p >
 <br/>
 
-# runtime-connector
+# dataverse-connector
 
-[![npm version](https://img.shields.io/npm/v/@dataverse/runtime-connector.svg)](https://www.npmjs.com/package/@dataverse/runtime-connector)
-![npm](https://img.shields.io/npm/dw/@dataverse/runtime-connector)
-[![License](https://img.shields.io/npm/l/@dataverse/runtime-connector.svg)](https://github.com/dataverse-os/runtime-connector/blob/main/LICENSE.md)
+[![npm version](https://img.shields.io/npm/v/@dataverse/dataverse-connector.svg)](https://www.npmjs.com/package/@dataverse/dataverse-connector)
+![npm](https://img.shields.io/npm/dw/@dataverse/dataverse-connector)
+[![License](https://img.shields.io/npm/l/@dataverse/dataverse-connector.svg)](https://github.com/dataverse-os/dataverse-connector/blob/main/LICENSE.md)
 
 The system calls exposed by Dataverse Kernel
 
 ## Installation
 
 ```bash
-pnpm install @dataverse/runtime-connector
+pnpm install @dataverse/dataverse-connector
 ```
 
 ## Run demo
@@ -47,7 +47,7 @@ the demo will be running on http://localhost:5173/.
 ## Usage
 
 ```typescript
-import { RuntimeConnector, Extension } from "@dataverse/runtime-connector";
+import { RuntimeConnector, Extension } from "@dataverse/dataverse-connector";
 
 const runtimeConnector = new RuntimeConnector(Extension);
 ```
