@@ -82,7 +82,7 @@ export class DataverseConnector {
   ): ReturnType[Methods.ethereumRequest] {
     if (params.method === "eth_sendTransaction") {
       if (!params?.params?.[0]?.from) {
-        params.params[0].from =  this.provider.address;
+        params.params[0].from = this.provider.address;
       }
       if (params?.params?.[0]) {
         Object.entries(params?.params?.[0]).forEach(([key, value]) => {
@@ -159,14 +159,16 @@ export class DataverseConnector {
     }) as ReturnType[Methods.getModelBaseInfo];
   }
 
-  createCapability(
+  async createCapability(
     params: RequestType[Methods.createCapability]
-  ): ReturnType[Methods.createCapability] {
-    this.provider.app = params.app;
-    return this.communicator.sendRequest({
+  ): Promise<ReturnType[Methods.createCapability]> {
+    await this.connectWallet(params.wallet)
+    const res = (await this.communicator.sendRequest({
       method: Methods.createCapability,
       params,
-    }) as ReturnType[Methods.createCapability];
+    })) as ReturnType[Methods.createCapability];
+    this.provider.app = params.app;
+    return res;
   }
 
   checkCapability(
