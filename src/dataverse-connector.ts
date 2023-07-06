@@ -162,7 +162,9 @@ export class DataverseConnector {
   async createCapability(
     params: RequestType[Methods.createCapability]
   ): Promise<ReturnType[Methods.createCapability]> {
-    await this.connectWallet(params.wallet)
+    if(!this.provider?.isConnected){
+      await this.connectWallet(params.wallet)
+    }
     const res = (await this.communicator.sendRequest({
       method: Methods.createCapability,
       params,
