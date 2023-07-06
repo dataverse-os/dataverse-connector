@@ -47,14 +47,14 @@ the demo will be running on http://localhost:5173/.
 ## Usage
 
 ```typescript
-import { RuntimeConnector, Extension } from "@dataverse/dataverse-connector";
+import { DataverseConnector, Extension } from "@dataverse/dataverse-connector";
 
-const runtimeConnector = new RuntimeConnector(Extension);
+const dataverseConnector = new DataverseConnector(Extension);
 ```
 
 ## Functions
 
-**`runtimeConnector.connectWallet(WALLET.METAMASK)`**
+**`dataverseConnector.connectWallet(WALLET.METAMASK)`**
 
 Connect with user wallet.
 pass in which wallet you want to connect with, currently support MetaMask and Particle Network.
@@ -80,7 +80,7 @@ pass in which wallet you want to connect with, currently support MetaMask and Pa
 ```
 <br>
 
-**`runtimeConnector.createCapability({app: string, resource: RESOURCE, wallet: WALLET})`**
+**`dataverseConnector.createCapability({app: string, resource: RESOURCE, wallet: WALLET})`**
 
 Create a capability for the application to access the data resources.
 - `app`: `string` - which app is requesting the capability.

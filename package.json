@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/dataverse-connector",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "files": [
@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/dataverse-os/dataverse-connector#readme",
   "dependencies": {
-    "@dataverse/communicator": "1.0.26",
+    "@dataverse/communicator": "1.0.28",
     "@ethersproject/providers": "^5.7.0",
     "@ethersproject/abstract-signer": "^5.7.0",
     "@ethersproject/abstract-provider": "^5.7.0",

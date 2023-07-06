@@ -37,11 +37,12 @@ export class DataverseConnector {
 
     if (!this.provider) {
       this.provider = new Provider(this);
-      this.provider.isConnected = true;
-      this.provider.wallet = res.wallet;
-      this.provider.address = res.address;
-      this.provider.chain = res.chain;
     }
+
+    this.provider.isConnected = true;
+    this.provider.wallet = res.wallet;
+    this.provider.address = res.address;
+    this.provider.chain = res.chain;
 
     return {
       ...res,
