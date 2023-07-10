@@ -1,0 +1,48 @@
+{
+  "name": "@dataverse/core-connector",
+  "version": "1.0.0",
+  "description": "",
+  "types": "dist/esm/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./types": {
+      "types": "./dist/esm/types/index.d.ts",
+      "import": "./dist/esm/types/index.js",
+      "require": "./dist/cjs/types/index.js"
+    },
+    "./utils": {
+      "types": "./dist/esm/utils/index.d.ts",
+      "import": "./dist/esm/utils/index.js",
+      "require": "./dist/cjs/utils/index.js"
+    }
+  },
+  "files": [
+    "/types",
+    "/utils",
+    "/dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dataverse-os/dataverse-connector.git",
+    "directory": "packages/core-connector"
+  },
+  "scripts": {
+    "test": "cd test && pnpm dev",
+    "build:esm": "tsc -p tsconfig.json",
+    "build:cjs": "tsc -p tsconfig-cjs.json",
+    "build": "pnpm build:esm && pnpm build:cjs"
+  },
+  "dependencies": {
+    "@dataverse/communicator": "workspace:*",
+    "@dataverse/wallet-provider": "workspace:*"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

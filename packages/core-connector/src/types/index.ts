@@ -4,24 +4,24 @@ export {
   Mode,
   StorageProviderName,
   SignMethod,
-} from "./types/constants";
-export type { StorageProvider } from "./types/types";
-export { WALLET, type Chain } from "./types/crypto-wallet";
-export { RESOURCE } from "./types/identity";
+} from "./constants";
+export type { StorageProvider } from "./types";
+export { WALLET, type Chain } from "./crypto-wallet";
+export { RESOURCE } from "./identity";
 export {
   Apps,
   ModelNames,
   type Models,
   type DAppInfo,
   type DAppTable,
-} from "./types/dapp-verifier";
-export type { StreamObject, StreamContent } from "./types/data-models";
+} from "./dapp-verifier";
+export type { StreamObject, StreamContent } from "./data-models";
 export {
   Currency,
   DecryptionConditionsTypes,
   type DatatokenVars,
   type DecryptionConditions,
-} from "./types/data-monetize";
+} from "./data-monetize";
 export {
   FolderType,
   FileType,
@@ -39,8 +39,6 @@ export {
   type StructuredFiles,
   type StructuredFolder,
   type StructuredFolders,
-} from "./types/fs";
-export { Provider } from "./provider";
-export { DataverseConnector } from "./dataverse-connector";
-export { type PostMessageTo } from "@dataverse/communicator";
-export { type RequestType, type ReturnType, type Methods } from "./types/event";
+} from "./fs";
+export { CoreConnector } from "../";
+export { type RequestType, type ReturnType, Methods } from "./event";

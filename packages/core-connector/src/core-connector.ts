@@ -1,12 +1,11 @@
 import { Communicator, PostMessageTo } from "@dataverse/communicator";
-import { RequestType, Methods, ReturnType } from "./types/event";
-import { Provider } from "./provider";
-import { detectDataverseExtension } from "./utils/extensionDetector";
-import { formatSendTransactionData } from "./utils/formatSendTransactionData";
+import { WalletProvider } from "@dataverse/wallet-provider";
+import { RequestType, Methods, ReturnType } from "./types";
+import { detectDataverseExtension, formatSendTransactionData } from "./utils";
 
-export class DataverseConnector {
+export class CoreConnector {
   communicator: Communicator;
-  private provider?: Provider;
+  private provider?: WalletProvider;
 
   constructor(postMessageTo: PostMessageTo) {
     this.communicator = new Communicator({
@@ -35,14 +34,14 @@ export class DataverseConnector {
       params: wallet,
     }) as ReturnType[Methods.connectWallet]);
 
-    if (!this.provider) {
-      this.provider = new Provider(this);
-    }
+    // if (!this.provider) {
+    //   this.provider = new WalletProvider(this);
+    // }
 
-    this.provider.isConnected = true;
-    this.provider.wallet = res.wallet;
-    this.provider.address = res.address;
-    this.provider.chain = res.chain;
+    // this.provider.isConnected = true;
+    // this.provider.wallet = res.wallet;
+    // this.provider.address = res.address;
+    // this.provider.chain = res.chain;
 
     return {
       ...res,
@@ -57,7 +56,7 @@ export class DataverseConnector {
       method: Methods.switchNetwork,
       params: chainId,
     }) as ReturnType[Methods.switchNetwork]);
-    this.provider.chain = res;
+    // this.provider.chain = res;
     return res;
   }
 
@@ -82,7 +81,7 @@ export class DataverseConnector {
   ): ReturnType[Methods.ethereumRequest] {
     if (params.method === "eth_sendTransaction") {
       if (!params?.params?.[0]?.from) {
-        params.params[0].from = this.provider.address;
+        // params.params[0].from = this.provider.address;
       }
       if (params?.params?.[0]) {
         Object.entries(params?.params?.[0]).forEach(([key, value]) => {
@@ -162,14 +161,14 @@ export class DataverseConnector {
   async createCapability(
     params: RequestType[Methods.createCapability]
   ): Promise<ReturnType[Methods.createCapability]> {
-    if(!this.provider?.isConnected){
-      await this.connectWallet(params.wallet)
-    }
+    // if (!this.provider?.isConnected) {
+    //   await this.connectWallet(params.wallet);
+    // }
     const res = (await this.communicator.sendRequest({
       method: Methods.createCapability,
       params,
     })) as ReturnType[Methods.createCapability];
-    this.provider.app = params.app;
+    // this.provider.app = params.app;
     return res;
   }
 

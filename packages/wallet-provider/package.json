@@ -1,0 +1,25 @@
+{
+  "name": "@dataverse/wallet-provider",
+  "version": "1.0.0",
+  "description": "",
+  "types": "dist/esm/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "files": [
+    "/dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dataverse-os/dataverse-connector.git",
+    "directory": "packages/wallet-provider"
+  },
+  "scripts": {
+    "test": "cd test && pnpm dev",
+    "build:esm": "tsc -p tsconfig.json",
+    "build:cjs": "tsc -p tsconfig-cjs.json",
+    "build": "pnpm build:esm && pnpm build:cjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

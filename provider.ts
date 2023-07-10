@@ -16,21 +16,18 @@ import {
   Filter,
   Log,
 } from "@ethersproject/abstract-provider";
-
-import { DataverseConnector } from "./dataverse-connector";
-import { BigNumber, BigNumberish, Signer, ethers } from "ethers";
-import { Bytes, Deferrable } from "ethers/lib/utils";
-import { EventArguments, EventInput } from "./types/event/types";
 import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
-import { SignMethod } from "./types/constants";
-import { formatSendTransactionData } from "./utils/formatSendTransactionData";
-import { Chain, WALLET } from "./types/crypto-wallet";
+import { CoreConnector } from "./packages/core-connector/src/core-connector";
+import { BigNumber, BigNumberish, Signer, ethers } from "ethers";
+import { Bytes, Deferrable } from "ethers/lib/utils";
+import { EventArguments, EventInput, SignMethod, Chain, WALLET } from "./packages/core-connector/src/types";
+import { formatSendTransactionData } from "./packages/core-connector/src/utils";
 
 export class Provider extends BaseProvider implements ExternalProvider {
-  dataverseConnector: DataverseConnector;
+  coreConnector: CoreConnector;
   ethersProvider: ethers.providers.Web3Provider;
   isConnected?: boolean;
   wallet?: WALLET;
@@ -38,11 +35,11 @@ export class Provider extends BaseProvider implements ExternalProvider {
   chain?: Chain;
   app?: string;
 
-  constructor(dataverseConnector: DataverseConnector) {
+  constructor(coreConnector: CoreConnector) {
     super("any");
-    this.dataverseConnector = dataverseConnector;
+    this.coreConnector = coreConnector;
     this.ethersProvider = new ethers.providers.Web3Provider(this, "any");
-    dataverseConnector.communicator.onRequestMessage(
+    coreConnector.communicator.onRequestMessage(
       this.eventListener.bind(this)
     );
   }
@@ -64,7 +61,7 @@ export class Provider extends BaseProvider implements ExternalProvider {
 
   // Network
   getNetwork(): Promise<Network> {
-    return this.dataverseConnector.ethereumRequest({
+    return this.coreConnector.ethereumRequest({
       method: "eth_chainId",
       params: [],
     });
@@ -72,21 +69,21 @@ export class Provider extends BaseProvider implements ExternalProvider {
 
   // Latest State
   getBlockNumber(): Promise<number> {
-    return this.dataverseConnector.ethereumRequest({
+    return this.coreConnector.ethereumRequest({
       method: "eth_blockNumber",
       params: [],
     });
   }
 
   getGasPrice(): Promise<BigNumber> {
-    return this.dataverseConnector.ethereumRequest({
+    return this.coreConnector.ethereumRequest({
       method: "eth_gasPrice",
       params: [],
     });
   }
 
   getChainId(): Promise<number> {
-    return this.dataverseConnector.ethereumRequest({
+    return this.coreConnector.ethereumRequest({
       method: "eth_chainId",
       params: [],
     });
@@ -97,7 +94,7 @@ export class Provider extends BaseProvider implements ExternalProvider {
     addressOrName: string | Promise<string>,
     blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<BigNumber> {
-    return this.dataverseConnector.ethereumRequest({
+    return this.coreConnector.ethereumRequest({
       method: "eth_getBalance",
       params: [await addressOrName, await blockTag],
     });
@@ -107,7 +104,7 @@ export class Provider extends BaseProvider implements ExternalProvider {
     addressOrName: string | Promise<string>,
     blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<number> {
-    return this.dataverseConnector.ethereumRequest({
+    return this.coreConnector.ethereumRequest({
       method: "eth_getTransactionCount",
       params: [await addressOrName, await blockTag],
     });
@@ -117,7 +114,7 @@ export class Provider extends BaseProvider implements ExternalProvider {
     addressOrName: string | Promise<string>,
     blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<string> {
-    return this.dataverseConnector.ethereumRequest({
+    return this.coreConnector.ethereumRequest({
       method: "eth_getCode",
       params: [await addressOrName, await blockTag],
     });
@@ -128,7 +125,7 @@ export class Provider extends BaseProvider implements ExternalProvider {
     position: BigNumberish | Promise<BigNumberish>,
     blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<string> {
-    return this.dataverseConnector.ethereumRequest({
+    return this.coreConnector.ethereumRequest({
       method: "eth_getStorageAt",
       params: [await addressOrName, await position, await blockTag],
     });
@@ -136,14 +133,14 @@ export class Provider extends BaseProvider implements ExternalProvider {
 
   // Execution
   async getAddress(): Promise<string> {
-    const res = await this.dataverseConnector.ethereumRequest({
+    const res = await this.coreConnector.ethereumRequest({
       method: "eth_accounts",
     });
     return res[0];
   }
 
   signMessage(message: Bytes | string): Promise<string> {
-    return this.dataverseConnector.sign({
+    return this.coreConnector.sign({
       method: SignMethod.signMessage,
       params: [message],
     });
@@ -154,7 +151,7 @@ export class Provider extends BaseProvider implements ExternalProvider {
     types: Record<string, Array<TypedDataField>>,
     message: Record<string, Array<TypedDataField> | string>
   ): Promise<string> {
-    return this.dataverseConnector.sign({
+    return this.coreConnector.sign({
       method: SignMethod._signTypedData,
       params: [domain, types, message],
     });
@@ -182,7 +179,7 @@ export class Provider extends BaseProvider implements ExternalProvider {
       const signer = this.ethersProvider.getSigner();
       return signer.sendTransaction(transaction);
     } else {
-      return this.dataverseConnector.ethereumRequest({
+      return this.coreConnector.ethereumRequest({
         method: "eth_sendTransaction",
         params: [transaction],
       });
@@ -193,14 +190,14 @@ export class Provider extends BaseProvider implements ExternalProvider {
     transaction: Deferrable<TransactionRequest>,
     blockTag?: BlockTag | Promise<BlockTag>
   ): Promise<string> {
-    return this.dataverseConnector.ethereumRequest({
+    return this.coreConnector.ethereumRequest({
       method: "eth_call",
       params: [transaction, await blockTag],
     });
   }
 
   estimateGas(transaction: Deferrable<TransactionRequest>): Promise<BigNumber> {
-    return this.dataverseConnector.ethereumRequest({
+    return this.coreConnector.ethereumRequest({
       method: "eth_estimateGas",
       params: [transaction],
     });
@@ -222,7 +219,7 @@ export class Provider extends BaseProvider implements ExternalProvider {
   }
 
   getTransactionReceipt(transactionHash: string): Promise<TransactionReceipt> {
-    return this.dataverseConnector.ethereumRequest({
+    return this.coreConnector.ethereumRequest({
       method: "eth_getTransactionReceipt",
       params: [transactionHash],
     });
@@ -230,7 +227,7 @@ export class Provider extends BaseProvider implements ExternalProvider {
 
   // Bloom-filter Queries
   getLogs(filter: Filter): Promise<Array<Log>> {
-    return this.dataverseConnector.ethereumRequest({
+    return this.coreConnector.ethereumRequest({
       method: "eth_getLogs",
       params: [filter],
     });
@@ -253,7 +250,7 @@ export class Provider extends BaseProvider implements ExternalProvider {
     { method, params }: { method: string; params?: Array<any> },
     callback: Function
   ) {
-    this.dataverseConnector
+    this.coreConnector
       .ethereumRequest({ method, params })
       .then((res) => {
         callback(res);
@@ -267,7 +264,7 @@ export class Provider extends BaseProvider implements ExternalProvider {
     { method, params }: { method: string; params?: Array<any> },
     callback: Function
   ) {
-    this.dataverseConnector
+    this.coreConnector
       .ethereumRequest({ method, params })
       .then((res) => {
         callback(res);
@@ -278,6 +275,6 @@ export class Provider extends BaseProvider implements ExternalProvider {
   }
 
   request({ method, params }: { method: string; params?: Array<any> }) {
-    return this.dataverseConnector.ethereumRequest({ method, params });
+    return this.coreConnector.ethereumRequest({ method, params });
   }
 }
