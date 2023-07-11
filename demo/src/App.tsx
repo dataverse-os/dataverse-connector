@@ -10,8 +10,10 @@ import {
   WALLET,
   RESOURCE,
   Chain,
-  // Provider,
+  SignMethod,
 } from "@dataverse/core-connector/types";
+
+import { WalletProvider } from "@dataverse/wallet-provider";
 
 import { getAddressFromPkh } from "./utils/addressAndPkh";
 import { Contract, ethers } from "ethers";
@@ -50,160 +52,159 @@ function App() {
   const [indexFileId, setIndexFileId] = useState("");
   const [folders, setFolders] = useState<StructuredFolders>();
   const [hasAddListener, setHasAddListener] = useState<boolean>();
-  // const [provider, setProvider] = useState<Provider>();
-
-  const onChainChanged = (chain: Chain) => {
-    console.log(chain);
-  };
-
-  const onAccountsChanged = (accounts: Array<string>) => {
-    console.log(accounts);
-    setAddress(accounts[0]);
-  };
+  const [provider, setProvider] = useState<WalletProvider>();
 
   /*** Wallet ***/
   const connectWallet = async () => {
     const res = await coreConnector.connectWallet(wallet);
     console.log(res);
-    // setProvider(coreConnector.getProvider());
+    const provider = coreConnector.getProvider();
+    console.log(provider);
+    setProvider(provider);
     setWallet(res.wallet);
     setAddress(res.address);
     if (!hasAddListener) {
-      // res.provider.on("chainChanged", onChainChanged);
-      // res.provider.on("accountsChanged", onAccountsChanged);
+      provider.on("chainChanged", (chainId: number) => {
+        console.log(chainId);
+      });
+      provider.on("chainNameChanged", (chainName: string) => {
+        console.log(chainName);
+      });
+      provider.on("accountsChanged", (accounts: Array<string>) => {
+        console.log(accounts);
+        setAddress(accounts[0]);
+      });
       setHasAddListener(true);
     }
     return res;
   };
 
   const switchNetwork = async () => {
-    // if (!provider?.isConnected) {
-    //   console.error("please connect wallet first");
-    //   return;
-    // }
+    if (!coreConnector?.isConnected) {
+      console.error("please connect wallet first");
+      return;
+    }
 
-    // await provider.request({
-    //   method: "wallet_switchEthereumChain",
-    //   params: [{ chainId: "0x89" }],
-    // });
+    await provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x89" }],
+    });
 
     // const res = await coreConnector.switchNetwork(137);
   };
 
   const signOrSignTypedData = async () => {
-    // if (!provider?.isConnected) {
-    //   console.error("please connect wallet first");
-    //   return;
-    // }
+    if (!coreConnector?.isConnected) {
+      console.error("please connect wallet first");
+      return;
+    }
+    const res = await provider?.signMessage("test");
 
-    // const res = await provider.signMessage("test");
+    console.log(res);
 
-    // console.log(res);
+    await provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
+    });
+    const res2 = await provider?._signTypedData(
+      {
+        name: "EPNS COMM V1",
+        chainId: 80001,
+        verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
+      },
+      {
+        Data: [
+          {
+            name: "data",
+            type: "string",
+          },
+        ],
+      },
+      {
+        data: '2+{"notification":{"title":"Push Title Hello","body":"Good to see you bodies"},"data":{"acta":"","aimg":"","amsg":"Payload Push Title Hello Body","asub":"Payload Push Title Hello","type":"1"},"recipients":"eip155:5:0x6ed14ee482d3C4764C533f56B90360b767d21D5E"}',
+      }
+    );
 
-    // await provider.request({
-    //   method: "wallet_switchEthereumChain",
-    //   params: [{ chainId: "0x13881" }],
-    // });
-
-    // const res2 = await provider._signTypedData(
-    //   {
-    //     name: "EPNS COMM V1",
-    //     chainId: 80001,
-    //     verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
-    //   },
-    //   {
-    //     Data: [
-    //       {
-    //         name: "data",
-    //         type: "string",
-    //       },
-    //     ],
-    //   },
-    //   {
-    //     data: '2+{"notification":{"title":"Push Title Hello","body":"Good to see you bodies"},"data":{"acta":"","aimg":"","amsg":"Payload Push Title Hello Body","asub":"Payload Push Title Hello","type":"1"},"recipients":"eip155:5:0x6ed14ee482d3C4764C533f56B90360b767d21D5E"}',
-    //   }
-    // );
-
-    // console.log(res2);
+    console.log(res2);
   };
 
   const sendTransaction = async () => {
-    // if (!provider?.isConnected) {
-    //   console.error("please connect wallet first");
-    //   return;
-    // }
+    if (!coreConnector?.isConnected) {
+      console.error("please connect wallet first");
+      return;
+    }
 
-    // const res = await provider.sendTransaction({
-    //   from: provider.address, // The user's active address.
-    //   to: provider.address, // Required except during contract publications.
-    //   value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
-    //   // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
-    //   // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
-    // });
+    const res = await provider?.sendTransaction({
+      from: coreConnector.address, // The user's active address.
+      to: coreConnector.address, // Required except during contract publications.
+      value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
+      // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
+      // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
+    });
 
-    // console.log(res);
+    console.log(res);
   };
 
   const contractCall = async () => {
-    // if (!provider?.isConnected) {
-    //   console.error("please connect wallet first");
-    //   return;
-    // }
+    if (!coreConnector?.isConnected) {
+      console.error("please connect wallet first");
+      return;
+    }
 
-    // await coreConnector.switchNetwork(80001);
+    await coreConnector.switchNetwork(80001);
 
-    // const contractAddress = "0x2e43c080B56c644F548610f45998399d42e3d400";
+    const contractAddress = "0x2e43c080B56c644F548610f45998399d42e3d400";
 
-    // const abi = [
-    //   {
-    //     inputs: [],
-    //     stateMutability: "nonpayable",
-    //     type: "constructor",
-    //   },
-    //   {
-    //     inputs: [
-    //       {
-    //         internalType: "uint256",
-    //         name: "value_",
-    //         type: "uint256",
-    //       },
-    //     ],
-    //     name: "setValue",
-    //     outputs: [],
-    //     stateMutability: "nonpayable",
-    //     type: "function",
-    //   },
-    //   {
-    //     inputs: [],
-    //     name: "value",
-    //     outputs: [
-    //       {
-    //         internalType: "uint256",
-    //         name: "",
-    //         type: "uint256",
-    //       },
-    //     ],
-    //     stateMutability: "view",
-    //     type: "function",
-    //   },
-    // ];
+    const abi = [
+      {
+        inputs: [],
+        stateMutability: "nonpayable",
+        type: "constructor",
+      },
+      {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "value_",
+            type: "uint256",
+          },
+        ],
+        name: "setValue",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "value",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+    ];
 
-    // const ethersProvider = new ethers.providers.Web3Provider(provider);
+    const ethersProvider = new ethers.providers.Web3Provider(provider!);
 
-    // const ethersSigner = ethersProvider.getSigner();
+    const ethersSigner = ethersProvider.getSigner();
 
-    // const contract = new Contract(contractAddress, abi, ethersSigner);
+    const contract = new Contract(contractAddress, abi, ethersSigner);
 
-    // const res = await contract.setValue(12345);
-    // console.log(res);
+    const res = await contract.setValue(12345);
+    console.log(res);
 
-    // const tx = await res.wait();
-    // console.log(tx);
+    const tx = await res.wait();
+    console.log(tx);
 
-    // const value = await contract.value();
-    // console.log(value);
+    const value = await contract.value();
+    console.log(value);
 
-    // return tx;
+    return tx;
   };
 
   const getCurrentPkh = async () => {

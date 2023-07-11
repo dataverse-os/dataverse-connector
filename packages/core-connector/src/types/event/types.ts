@@ -37,7 +37,7 @@ export interface RequestType {
   };
   ethereumRequest: {
     method: string;
-    params?: any;
+    params?: Array<any>;
   };
   getCurrentPkh: void;
   getPKP: void;

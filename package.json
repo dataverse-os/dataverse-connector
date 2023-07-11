@@ -5,13 +5,14 @@
   ],
   "scripts": {
     "build": "lerna run build",
+    "build:communicator": "lerna run build --scope=@dataverse/communicator",
+    "build:wallet-provider": "lerna run build --scope=@dataverse/wallet-provider",
     "build:core-connector": "lerna run build --scope=@dataverse/core-connector",
     "test": "pnpm --filter 'demo' dev",
     "publish": "lerna publish --no-private"
   },
   "dependencies": {
-    "lerna": "^7.0.1",
-    "ethers": "5.6.9"
+    "lerna": "^7.0.1"
   },
   "devDependencies": {
     "@types/node": "^18.11.18",

@@ -1,11 +1,16 @@
 import { Communicator, PostMessageTo } from "@dataverse/communicator";
 import { WalletProvider } from "@dataverse/wallet-provider";
-import { RequestType, Methods, ReturnType } from "./types";
+import { RequestType, Methods, ReturnType, Chain, WALLET } from "./types";
 import { detectDataverseExtension, formatSendTransactionData } from "./utils";
 
 export class CoreConnector {
-  communicator: Communicator;
+  private communicator: Communicator;
   private provider?: WalletProvider;
+  isConnected?: boolean;
+  wallet?: WALLET;
+  address?: string;
+  chain?: Chain;
+  app?: string;
 
   constructor(postMessageTo: PostMessageTo) {
     this.communicator = new Communicator({
@@ -29,19 +34,24 @@ export class CoreConnector {
     if (!(await detectDataverseExtension())) {
       throw "The plugin has not been loaded yet. Please check the plugin status or go to https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead to install plugins";
     }
-    const res = await (this.communicator.sendRequest({
-      method: Methods.connectWallet,
-      params: wallet,
-    }) as ReturnType[Methods.connectWallet]);
+    const res = await window.dataverse.connectWallet(wallet);
+    if (!this.provider) {
+      this.provider = new WalletProvider();
+      this.provider.on("chainChanged", (chainId: number) => {
+        this.chain.chainId = chainId;
+      });
+      this.provider.on("chainNameChanged", (chainName: string) => {
+        this.chain.chainName = chainName;
+      });
+      this.provider.on("accountsChanged", (accounts: string[]) => {
+        this.address = accounts[0];
+      });
+    }
 
-    // if (!this.provider) {
-    //   this.provider = new WalletProvider(this);
-    // }
-
-    // this.provider.isConnected = true;
-    // this.provider.wallet = res.wallet;
-    // this.provider.address = res.address;
-    // this.provider.chain = res.chain;
+    this.isConnected = true;
+    this.wallet = res.wallet;
+    this.address = res.address;
+    this.chain = res.chain;
 
     return {
       ...res,
@@ -81,7 +91,7 @@ export class CoreConnector {
   ): ReturnType[Methods.ethereumRequest] {
     if (params.method === "eth_sendTransaction") {
       if (!params?.params?.[0]?.from) {
-        // params.params[0].from = this.provider.address;
+        params.params[0].from = this.address;
       }
       if (params?.params?.[0]) {
         Object.entries(params?.params?.[0]).forEach(([key, value]) => {
@@ -161,14 +171,14 @@ export class CoreConnector {
   async createCapability(
     params: RequestType[Methods.createCapability]
   ): Promise<ReturnType[Methods.createCapability]> {
-    // if (!this.provider?.isConnected) {
-    //   await this.connectWallet(params.wallet);
-    // }
+    if (!this?.isConnected) {
+      await this.connectWallet(params.wallet);
+    }
     const res = (await this.communicator.sendRequest({
       method: Methods.createCapability,
       params,
     })) as ReturnType[Methods.createCapability];
-    // this.provider.app = params.app;
+    this.app = params.app;
     return res;
   }
 
