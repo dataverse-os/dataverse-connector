@@ -1,7 +1,6 @@
 export {
   Extension,
   Browser,
-  Mode,
   StorageProviderName,
   SignMethod,
 } from "./constants";
@@ -40,5 +39,4 @@ export {
   type StructuredFolder,
   type StructuredFolders,
 } from "./fs";
-export { CoreConnector } from "../";
 export { type RequestType, type ReturnType, Methods } from "./event";

@@ -1,8 +1,7 @@
 import "./App.css";
 import React, { useEffect, useState } from "react";
-import { CoreConnector } from "@dataverse/core-connector";
 import {
-  Extension,
+  CoreConnector,
   FolderType,
   StructuredFolders,
   Currency,
@@ -11,14 +10,15 @@ import {
   RESOURCE,
   Chain,
   SignMethod,
-} from "@dataverse/core-connector/types";
+  Methods,
+} from "@dataverse/core-connector";
 
 import { WalletProvider } from "@dataverse/wallet-provider";
 
 import { getAddressFromPkh } from "./utils/addressAndPkh";
 import { Contract, ethers } from "ethers";
 
-const coreConnector = new CoreConnector(Extension);
+const coreConnector = new CoreConnector();
 
 const app = "mainnet002"; //mainnet002 (mainnet)   test001 (testnet)
 const slug = "mainnet002";
@@ -151,7 +151,7 @@ function App() {
       return;
     }
 
-    await coreConnector.switchNetwork(80001);
+    await coreConnector.runOS({ method: Methods.switchNetwork, params: 80001 });
 
     const contractAddress = "0x2e43c080B56c644F548610f45998399d42e3d400";
 
@@ -208,13 +208,13 @@ function App() {
   };
 
   const getCurrentPkh = async () => {
-    const res = await coreConnector.getCurrentPkh();
+    const res = await coreConnector.runOS({ method: Methods.getCurrentPkh });
     console.log(res);
     setCurrentPkh(res);
   };
 
   const getPKP = async () => {
-    const res = await coreConnector.getPKP();
+    const res = await coreConnector.runOS({ method: Methods.getPKP });
     console.log(res);
     setPKPWallet(res);
   };
@@ -247,7 +247,10 @@ function App() {
         sigName: "sig1",
       },
     };
-    const res = await coreConnector.executeLitAction(executeJsArgs);
+    const res = await coreConnector.runOS({
+      method: Methods.executeLitAction,
+      params: executeJsArgs,
+    });
     console.log(res);
     setLitActionResponse(JSON.stringify(res));
   };
@@ -255,34 +258,47 @@ function App() {
 
   /*** DApp ***/
   const getDAppTable = async () => {
-    const appsInfo = await coreConnector.getDAppTable();
+    const appsInfo = await coreConnector.runOS({
+      method: Methods.getDAppTable,
+    });
     console.log(appsInfo);
     setAppList(Object.keys(appsInfo));
   };
 
   const getDAppInfo = async () => {
-    const appsInfo = await coreConnector.getDAppInfo(app);
+    const appsInfo = await coreConnector.runOS({
+      method: Methods.getDAppInfo,
+      params: app,
+    });
     console.log(appsInfo);
     return appsInfo;
   };
 
   const getValidAppCaps = async () => {
-    const appsInfo = await coreConnector.getValidAppCaps();
+    const appsInfo = await coreConnector.runOS({
+      method: Methods.getValidAppCaps,
+    });
     console.log(appsInfo);
   };
 
   const getModelBaseInfo = async () => {
-    const res = await coreConnector.getModelBaseInfo(modelId);
+    const res = await coreConnector.runOS({
+      method: Methods.getModelBaseInfo,
+      params: modelId,
+    });
     console.log(res);
   };
   /*** DApp ***/
 
   /*** Stream ***/
   const createCapability = async () => {
-    const pkh = await coreConnector.createCapability({
-      app,
-      resource: RESOURCE.CERAMIC,
-      wallet,
+    const pkh = await coreConnector.runOS({
+      method: Methods.createCapability,
+      params: {
+        app,
+        resource: RESOURCE.CERAMIC,
+        wallet,
+      },
     });
     setPkh(pkh);
     console.log(pkh);
@@ -290,7 +306,12 @@ function App() {
   };
 
   const checkCapability = async () => {
-    const isCurrentPkhValid = await coreConnector.checkCapability({ app });
+    const isCurrentPkhValid = await coreConnector.runOS({
+      method: Methods.checkCapability,
+      params: {
+        app,
+      },
+    });
     console.log(isCurrentPkhValid);
     setIsCurrentPkhValid(isCurrentPkhValid);
   };
@@ -304,18 +325,21 @@ function App() {
       videos: false,
     });
 
-    const res = await coreConnector.createStream({
-      modelId,
-      streamContent: {
-        appVersion: postVersion,
-        text: "hello",
-        images: [
-          "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
-        ],
-        videos: [],
-        createdAt: date,
-        updatedAt: date,
-        encrypted,
+    const res = await coreConnector.runOS({
+      method: Methods.createStream,
+      params: {
+        modelId,
+        streamContent: {
+          appVersion: postVersion,
+          text: "hello",
+          images: [
+            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+          ],
+          videos: [],
+          createdAt: date,
+          updatedAt: date,
+          encrypted,
+        },
       },
     });
 
@@ -332,33 +356,41 @@ function App() {
       videos: false,
     });
 
-    const res = await coreConnector.updateStream({
-      streamId,
-      streamContent: {
-        appVersion: postVersion,
-        text: "hello",
-        images: [
-          "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
-        ],
-        videos: [],
-        createdAt: date,
-        updatedAt: date,
-        encrypted,
+    const res = await coreConnector.runOS({
+      method: Methods.updateStream,
+      params: {
+        streamId,
+        streamContent: {
+          appVersion: postVersion,
+          text: "hello",
+          images: [
+            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+          ],
+          videos: [],
+          createdAt: date,
+          updatedAt: date,
+          encrypted,
+        },
       },
     });
     console.log(res);
   };
 
   const loadStream = async () => {
-    const stream = await coreConnector.loadStream(streamId);
-
+    const stream = await coreConnector.runOS({
+      method: Methods.loadStream,
+      params: streamId,
+    });
     console.log(stream);
   };
 
   const loadStreamsBy = async () => {
-    const streams = await coreConnector.loadStreamsBy({
-      modelId,
-      pkh,
+    const streams = await coreConnector.runOS({
+      method: Methods.loadStreamsBy,
+      params: {
+        modelId,
+        pkh,
+      },
     });
     console.log(streams);
     // const res = Object.values(streams).filter(
@@ -370,16 +402,21 @@ function App() {
 
   /*** Folders ***/
   const readFolders = async () => {
-    const folders = await coreConnector.readFolders();
+    const folders = await coreConnector.runOS({
+      method: Methods.readFolders,
+    });
     setFolders(folders);
     console.log({ folders });
     return folders;
   };
 
   const createFolder = async () => {
-    const res = await coreConnector.createFolder({
-      folderType: FolderType.Private,
-      folderName: "Private",
+    const res = await coreConnector.runOS({
+      method: Methods.createFolder,
+      params: {
+        folderType: FolderType.Private,
+        folderName: "Private",
+      },
     });
     console.log(res);
     setFolderId(res.newFolder.folderId);
@@ -387,18 +424,24 @@ function App() {
   };
 
   const updateFolderBaseInfo = async () => {
-    const res = await coreConnector.updateFolderBaseInfo({
-      folderId,
-      newFolderName: new Date().toISOString(),
-      newFolderDescription: new Date().toISOString(),
+    const res = await coreConnector.runOS({
+      method: Methods.updateFolderBaseInfo,
+      params: {
+        folderId,
+        newFolderName: new Date().toISOString(),
+        newFolderDescription: new Date().toISOString(),
+      },
     });
     console.log(res);
   };
 
   const changeFolderType = async () => {
-    const res = await coreConnector.changeFolderType({
-      folderId,
-      targetFolderType: FolderType.Public,
+    const res = await coreConnector.runOS({
+      method: Methods.changeFolderType,
+      params: {
+        folderId,
+        targetFolderType: FolderType.Public,
+      },
     });
     console.log(res);
   };
@@ -406,14 +449,17 @@ function App() {
   const monetizeFolder = async () => {
     const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
 
-    const res = await coreConnector.monetizeFolder({
-      folderId,
-      folderDescription: "This is a payable folder.",
-      datatokenVars: {
-        profileId,
-        collectLimit: 100,
-        amount: 0.0001,
-        currency: Currency.WMATIC,
+    const res = await coreConnector.runOS({
+      method: Methods.monetizeFolder,
+      params: {
+        folderId,
+        folderDescription: "This is a payable folder.",
+        datatokenVars: {
+          profileId,
+          collectLimit: 100,
+          amount: 0.0001,
+          currency: Currency.WMATIC,
+        },
       },
     });
     console.log(res);
@@ -421,14 +467,18 @@ function App() {
   };
 
   const readFolderById = async () => {
-    const folder = await coreConnector.readFolderById(folderId);
+    const folder = await coreConnector.runOS({
+      method: Methods.readFolderById,
+      params: folderId,
+    });
     console.log({ folder });
     return folder;
   };
 
   const deleteFolder = async () => {
-    const res = await coreConnector.deleteFolder({
-      folderId,
+    const res = await coreConnector.runOS({
+      method: Methods.deleteFolder,
+      params: { folderId },
     });
     console.log(res);
   };
@@ -439,8 +489,9 @@ function App() {
     }
     await Promise.all(
       Object.keys(folders).map((folderId) =>
-        coreConnector.deleteFolder({
-          folderId,
+        coreConnector.runOS({
+          method: Methods.deleteFolder,
+          params: { folderId },
         })
       )
     );
@@ -482,12 +533,15 @@ function App() {
       // }
       // console.log(bytes);
       // console.log(bytes.buffer);
-      const res = await coreConnector.uploadFile({
-        folderId,
-        fileBase64,
-        fileName,
-        encrypted: false,
-        storageProvider,
+      const res = await coreConnector.runOS({
+        method: Methods.uploadFile,
+        params: {
+          folderId,
+          fileBase64,
+          fileName,
+          encrypted: false,
+          storageProvider,
+        },
       });
       setIndexFileId(res.newFile.indexFileId);
       console.log(res);
@@ -497,19 +551,25 @@ function App() {
   };
 
   const updateFileBaseInfo = async () => {
-    const res = await coreConnector.updateFileBaseInfo({
-      indexFileId,
-      fileInfo: {
-        mirrorName: "aaa",
+    const res = await coreConnector.runOS({
+      method: Methods.updateFileBaseInfo,
+      params: {
+        indexFileId,
+        fileInfo: {
+          mirrorName: "aaa",
+        },
       },
     });
     console.log(res);
   };
 
   const moveFiles = async () => {
-    const res = await coreConnector.moveFiles({
-      targetFolderId: folderId || (await getDefaultFolderId()),
-      sourceIndexFileIds: [indexFileId],
+    const res = await coreConnector.runOS({
+      method: Methods.moveFiles,
+      params: {
+        targetFolderId: folderId || (await getDefaultFolderId()),
+        sourceIndexFileIds: [indexFileId],
+      },
     });
     console.log(res);
   };
@@ -521,44 +581,48 @@ function App() {
       }
       const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
 
-      const res = await coreConnector.monetizeFile({
-        ...(indexFileId ? { indexFileId } : { streamId }),
-        datatokenVars: {
-          profileId,
-          collectLimit: 100,
-          amount: 0.0001,
-          currency: Currency.WMATIC,
+      const res = await coreConnector.runOS({
+        method: Methods.monetizeFile,
+        params: {
+          ...(indexFileId ? { indexFileId } : { streamId }),
+          datatokenVars: {
+            profileId,
+            collectLimit: 100,
+            amount: 0.0001,
+            currency: Currency.WMATIC,
+          },
+          // decryptionConditions: [
+          //   [
+          //     {
+          //       conditionType: "evmBasic",
+          //       contractAddress: "",
+          //       standardContractType: "",
+          //       chain: "filecoin",
+          //       method: "",
+          //       parameters: [":userAddress"],
+          //       returnValueTest: {
+          //         comparator: "=",
+          //         value: "0xd10d5b408A290a5FD0C2B15074995e899E944444",
+          //       },
+          //     },
+          //     { operator: "or" },
+          //     {
+          //       conditionType: "evmBasic",
+          //       contractAddress: "",
+          //       standardContractType: "",
+          //       chain: "filecoin",
+          //       method: "",
+          //       parameters: [":userAddress"],
+          //       returnValueTest: {
+          //         comparator: "=",
+          //         value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
+          //       },
+          //     },
+          //   ] as any,
+          // ], // Only sell to specific users
         },
-        // decryptionConditions: [
-        //   [
-        //     {
-        //       conditionType: "evmBasic",
-        //       contractAddress: "",
-        //       standardContractType: "",
-        //       chain: "filecoin",
-        //       method: "",
-        //       parameters: [":userAddress"],
-        //       returnValueTest: {
-        //         comparator: "=",
-        //         value: "0xd10d5b408A290a5FD0C2B15074995e899E944444",
-        //       },
-        //     },
-        //     { operator: "or" },
-        //     {
-        //       conditionType: "evmBasic",
-        //       contractAddress: "",
-        //       standardContractType: "",
-        //       chain: "filecoin",
-        //       method: "",
-        //       parameters: [":userAddress"],
-        //       returnValueTest: {
-        //         comparator: "=",
-        //         value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
-        //       },
-        //     },
-        //   ] as any,
-        // ], // Only sell to specific users
       });
+
       console.log(res);
       return res;
     } catch (error) {
@@ -567,8 +631,11 @@ function App() {
   };
 
   const removeFiles = async () => {
-    const res = await coreConnector.removeFiles({
-      indexFileIds: [indexFileId],
+    const res = await coreConnector.runOS({
+      method: Methods.removeFiles,
+      params: {
+        indexFileIds: [indexFileId],
+      },
     });
     console.log(res);
   };
@@ -576,15 +643,22 @@ function App() {
 
   /*** Monetize ***/
   const createProfile = async () => {
-    await coreConnector.switchNetwork(80001);
-    const res = await coreConnector.createProfile("test6");
+    await coreConnector.runOS({
+      method: Methods.switchNetwork,
+      params: 80001,
+    });
+    const res = await coreConnector.runOS({
+      method: Methods.createProfile,
+      params: "test6",
+    });
     console.log(res);
   };
 
   const getProfiles = async () => {
-    const res = await coreConnector.getProfiles(
-      "0xA48077Ef4680334dc573B3A9322d350d7a27709d"
-    );
+    const res = await coreConnector.runOS({
+      method: Methods.getProfiles,
+      params: address,
+    });
     console.log(res);
   };
 
@@ -595,9 +669,10 @@ function App() {
     pkh: string;
     lensNickName?: string;
   }) => {
-    const lensProfiles = await coreConnector.getProfiles(
-      getAddressFromPkh(pkh)
-    );
+    const lensProfiles = await coreConnector.runOS({
+      method: Methods.getProfiles,
+      params: getAddressFromPkh(pkh),
+    });
 
     let profileId;
     if (lensProfiles?.[0]?.id) {
@@ -609,7 +684,10 @@ function App() {
       if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
         throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
       }
-      profileId = await coreConnector.createProfile(lensNickName);
+      profileId = await coreConnector.runOS({
+        method: Methods.createProfile,
+        params: lensNickName,
+      });
     }
 
     return profileId;
@@ -619,8 +697,11 @@ function App() {
     try {
       // const indexFileId =
       //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
-      const res = await coreConnector.unlock({
-        ...(indexFileId ? { indexFileId } : { streamId }),
+      const res = await coreConnector.runOS({
+        method: Methods.unlock,
+        params: {
+          ...(indexFileId ? { indexFileId } : { streamId }),
+        },
       });
       console.log(res);
     } catch (error) {
@@ -631,16 +712,22 @@ function App() {
   const isCollected = async () => {
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
-    const res = await coreConnector.isCollected({
-      datatokenId,
-      address,
+    const res = await coreConnector.runOS({
+      method: Methods.isCollected,
+      params: {
+        datatokenId,
+        address,
+      },
     });
     console.log(res);
   };
 
   const getDatatokenBaseInfo = async () => {
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
-    const res = await coreConnector.getDatatokenBaseInfo(datatokenId);
+    const res = await coreConnector.runOS({
+      method: Methods.getDatatokenBaseInfo,
+      params: datatokenId,
+    });
     console.log(res);
   };
   /*** Monetize ***/

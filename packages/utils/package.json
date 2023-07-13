@@ -1,6 +1,6 @@
 {
-  "name": "@dataverse/wallet-provider",
-  "version": "1.0.1",
+  "name": "@dataverse/utils",
+  "version": "1.0.0",
   "description": "",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",
@@ -11,7 +11,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dataverse-os/dataverse-connector.git",
-    "directory": "packages/wallet-provider"
+    "directory": "packages/utils"
   },
   "scripts": {
     "test": "cd test && pnpm dev",
@@ -20,11 +20,7 @@
     "build": "pnpm build:esm && pnpm build:cjs"
   },
   "dependencies": {
-    "@dataverse/utils": "workspace:*",
-    "@ethersproject/abstract-signer": "^5.7.0",
-    "@ethersproject/providers": "^5.7.0",
-    "ethers": "5.6.9",
-    "eventemitter3": "^5.0.1"
+    "ethers": "5.6.9"
   },
   "keywords": [],
   "author": "",

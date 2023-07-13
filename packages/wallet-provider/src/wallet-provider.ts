@@ -10,7 +10,7 @@ import {
   TransactionRequest,
   TransactionResponse,
 } from "@ethersproject/providers";
-import { formatSendTransactionData } from "./utils";
+import { formatSendTransactionData } from "@dataverse/utils";
 
 export class WalletProvider extends EventEmitter<ConnecterEvents> {
   ethersProvider: ethers.providers.Web3Provider;

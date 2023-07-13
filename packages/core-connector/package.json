@@ -1,30 +1,11 @@
 {
   "name": "@dataverse/core-connector",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
-  "exports": {
-    ".": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
-    },
-    "./types": {
-      "types": "./dist/esm/types/index.d.ts",
-      "import": "./dist/esm/types/index.js",
-      "require": "./dist/cjs/types/index.js"
-    },
-    "./utils": {
-      "types": "./dist/esm/utils/index.d.ts",
-      "import": "./dist/esm/utils/index.js",
-      "require": "./dist/cjs/utils/index.js"
-    }
-  },
   "files": [
-    "/types",
-    "/utils",
     "/dist"
   ],
   "repository": {
@@ -40,7 +21,8 @@
   },
   "dependencies": {
     "@dataverse/communicator": "1.0.28",
-    "@dataverse/wallet-provider": "workspace:*",
+    "@dataverse/utils": "1.0.0",
+    "@dataverse/wallet-provider": "1.0.1",
     "ethers": "5.6.9"
   },
   "keywords": [],

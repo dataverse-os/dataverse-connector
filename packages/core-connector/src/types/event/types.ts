@@ -1,6 +1,6 @@
 import { Signer as EthersSigner, providers } from "ethers";
 import { StorageProvider } from "../types";
-import { Mode, SignMethod } from "../constants";
+import { SignMethod } from "../constants";
 import { Chain, WALLET } from "../crypto-wallet";
 import { AppsInfo, DAppInfo, DAppTable } from "../dapp-verifier/types";
 import { StreamObject } from "../data-models";
@@ -285,7 +285,7 @@ export interface ResponseArguments {
   result: object;
 }
 
-export interface EventInput{
+export interface EventInput {
   method: string;
   params?: any;
 }
