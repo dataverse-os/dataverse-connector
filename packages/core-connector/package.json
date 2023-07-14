@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/core-connector",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",
@@ -20,9 +20,9 @@
     "build": "pnpm build:esm && pnpm build:cjs"
   },
   "dependencies": {
-    "@dataverse/communicator": "1.0.28",
-    "@dataverse/utils": "1.0.0",
-    "@dataverse/wallet-provider": "1.0.1",
+    "@dataverse/communicator": "latest",
+    "@dataverse/utils": "latest",
+    "@dataverse/wallet-provider": "latest",
     "ethers": "5.6.9"
   },
   "keywords": [],

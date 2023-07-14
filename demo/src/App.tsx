@@ -20,13 +20,11 @@ import { Contract, ethers } from "ethers";
 
 const coreConnector = new CoreConnector();
 
-const app = "mainnet002"; //mainnet002 (mainnet)   test001 (testnet)
-const slug = "mainnet002";
+const app = "toolkits_test011"; //toolkits_test011 (testnet)
 const postVersion = "0.0.1";
 
 const modelId =
-  "kjzl6hvfrbw6c7zy79iqdnav50bustri0cnubdgshp4562iin3zdpkuivk0bqrq"; // (mainnet)
-//kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo // (testnet)
+  "kjzl6hvfrbw6c6ow3w4p4nmebboionqx4mhgk0t6aqjwtmlvi8s19tnth5edoj1"; // (testnet)
 
 const storageProvider = {
   name: StorageProviderName.Lighthouse,
@@ -35,7 +33,7 @@ const storageProvider = {
 
 function App() {
   const [address, setAddress] = useState("");
-  const [wallet, setWallet] = useState<WALLET>(WALLET.METAMASK);
+  const [wallet, setWallet] = useState<WALLET>();
   const [pkh, setPkh] = useState("");
   const [currentPkh, setCurrentPkh] = useState("");
   const [pkpWallet, setPKPWallet] = useState({
@@ -87,7 +85,7 @@ function App() {
 
     await provider?.request({
       method: "wallet_switchEthereumChain",
-      params: [{ chainId: "0x89" }],
+      params: [{ chainId: "0x13881" }],
     });
 
     // const res = await coreConnector.switchNetwork(137);
@@ -579,7 +577,7 @@ function App() {
       if (!pkh) {
         throw "You must connect capability";
       }
-      const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
+      const profileId = await getProfileId({ pkh, lensNickName: "hello123456" });
 
       const res = await coreConnector.runOS({
         method: Methods.monetizeFile,

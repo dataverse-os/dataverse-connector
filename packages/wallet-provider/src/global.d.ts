@@ -8,6 +8,7 @@ interface Window {
       params: Array<any>;
     }) => Promise<any>;
     on: (event: string, listener: Function) => void;
+    off: (event: string, listener?: Function) => void;
     sign: ({
       method,
       params,
