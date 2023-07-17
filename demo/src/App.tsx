@@ -12,11 +12,11 @@ import {
   SignMethod,
   Methods,
 } from "@dataverse/core-connector";
-
+import { Contract, ethers } from "ethers";
+import web3 from "web3";
 import { WalletProvider } from "@dataverse/wallet-provider";
 
 import { getAddressFromPkh } from "./utils/addressAndPkh";
-import { Contract, ethers } from "ethers";
 
 const coreConnector = new CoreConnector();
 
@@ -55,11 +55,14 @@ function App() {
   const [provider, setProvider] = useState<WalletProvider>();
 
   /*** Wallet ***/
-  const connectWallet = async () => {
-    const res = await coreConnector.connectWallet(wallet);
-    console.log(res);
-    const provider = coreConnector.getProvider();
+  const connectWalletWithDataverseProvider = async () => {
+    const provider = new WalletProvider();
     console.log(provider);
+    const res = await coreConnector.connectWallet({
+      wallet,
+      provider,
+    });
+    console.log(res);
     setProvider(provider);
     setWallet(res.wallet);
     setAddress(res.address);
@@ -79,6 +82,30 @@ function App() {
     return res;
   };
 
+  const connectWalletWithMetamaskProvider = async () => {
+    const provider = window.ethereum;
+    console.log(provider);
+    const res = await coreConnector.connectWallet({
+      wallet,
+      provider,
+    });
+    console.log(res);
+    setProvider(provider);
+    setWallet(WALLET.METAMASK);
+    setAddress(res.address);
+    if (!hasAddListener) {
+      provider.on("chainChanged", (networkId: string) => {
+        console.log(Number(networkId));
+      });
+      provider.on("accountsChanged", (accounts: Array<string>) => {
+        console.log(accounts);
+        setAddress(web3.utils.toChecksumAddress(accounts[0]));
+      });
+      setHasAddListener(true);
+    }
+    return res;
+  };
+
   const switchNetwork = async () => {
     if (!coreConnector?.isConnected) {
       console.error("please connect wallet first");
@@ -89,8 +116,6 @@ function App() {
       method: "wallet_switchEthereumChain",
       params: [{ chainId: "0x13881" }],
     });
-
-    // const res = await coreConnector.switchNetwork(137);
   };
 
   const signOrSignTypedData = async () => {
@@ -98,34 +123,90 @@ function App() {
       console.error("please connect wallet first");
       return;
     }
-    const res = await provider?.signMessage("test");
+    if (provider?.isDataverse) {
+      const res = await provider?.signMessage("test");
 
-    console.log(res);
+      console.log(res);
 
-    await provider?.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: "0x13881" }],
-    });
-    const res2 = await provider?._signTypedData(
-      {
-        name: "EPNS COMM V1",
-        chainId: 80001,
-        verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
-      },
-      {
-        Data: [
-          {
-            name: "data",
-            type: "string",
-          },
+      await provider?.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x13881" }],
+      });
+      const res2 = await provider?._signTypedData(
+        {
+          name: "EPNS COMM V1",
+          chainId: 80001,
+          verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
+        },
+        {
+          Data: [
+            {
+              name: "data",
+              type: "string",
+            },
+          ],
+        },
+        {
+          data: '2+{"notification":{"title":"Push Title Hello","body":"Good to see you bodies"},"data":{"acta":"","aimg":"","amsg":"Payload Push Title Hello Body","asub":"Payload Push Title Hello","type":"1"},"recipients":"eip155:5:0x6ed14ee482d3C4764C533f56B90360b767d21D5E"}',
+        }
+      );
+
+      console.log(res2);
+    } else {
+      const res = await provider?.request({
+        method: "personal_sign",
+        params: [address, "test"],
+      });
+
+      console.log(res);
+
+      await provider?.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x13881" }],
+      });
+
+      const res2 = await provider?.request({
+        method: "eth_signTypedData_v4",
+        params: [
+          address,
+          JSON.stringify({
+            domain: {
+              name: "EPNS COMM V1",
+              chainId: 80001,
+              verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
+            },
+            primaryType: "Data",
+            types: {
+              Data: [
+                {
+                  name: "data",
+                  type: "string",
+                },
+              ],
+              EIP712Domain: [
+                {
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  name: "chainId",
+                  type: "uint256",
+                },
+                {
+                  name: "verifyingContract",
+                  type: "address",
+                },
+              ],
+            },
+            message: {
+              data: '2+{"notification":{"title":"Push Title Hello","body":"Good to see you bodies"},"data":{"acta":"","aimg":"","amsg":"Payload Push Title Hello Body","asub":"Payload Push Title Hello","type":"1"},"recipients":"eip155:5:0x6ed14ee482d3C4764C533f56B90360b767d21D5E"}',
+            },
+          }),
         ],
-      },
-      {
-        data: '2+{"notification":{"title":"Push Title Hello","body":"Good to see you bodies"},"data":{"acta":"","aimg":"","amsg":"Payload Push Title Hello Body","asub":"Payload Push Title Hello","type":"1"},"recipients":"eip155:5:0x6ed14ee482d3C4764C533f56B90360b767d21D5E"}',
-      }
-    );
+      });
 
-    console.log(res2);
+      console.log(res2);
+    }
   };
 
   const sendTransaction = async () => {
@@ -733,7 +814,12 @@ function App() {
 
   return (
     <div className="App">
-      <button onClick={connectWallet}>connectWallet</button>
+      <button onClick={connectWalletWithDataverseProvider}>
+        connectWalletWithDataverseProvider
+      </button>
+      <button onClick={connectWalletWithMetamaskProvider}>
+        connectWalletWithMetamaskProvider
+      </button>
       <div className="blackText">{address}</div>
       <hr />
       <button onClick={switchNetwork}>switchNetwork</button>

@@ -13,7 +13,8 @@ import {
 import { formatSendTransactionData } from "@dataverse/utils";
 
 export class WalletProvider extends EventEmitter<ConnecterEvents> {
-  ethersProvider: ethers.providers.Web3Provider;
+  private ethersProvider: ethers.providers.Web3Provider;
+  isDataverse = true;
 
   constructor() {
     super();
