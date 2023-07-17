@@ -1,27 +1,31 @@
 import "./App.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  RuntimeConnector,
-  Extension,
+  CoreConnector,
   FolderType,
   StructuredFolders,
   Currency,
   StorageProviderName,
   WALLET,
   RESOURCE,
-} from "@dataverse/runtime-connector";
+  Chain,
+  SignMethod,
+  Methods,
+} from "@dataverse/core-connector";
+
+import { WalletProvider } from "@dataverse/wallet-provider";
+
 import { getAddressFromPkh } from "./utils/addressAndPkh";
 import { Contract, ethers } from "ethers";
 
-const runtimeConnector = new RuntimeConnector(Extension);
+const coreConnector = new CoreConnector();
 
-const app = "mainnet002"; //mainnet002 (mainnet)   test001 (testnet)
-const slug = "mainnet002";
+const app = "toolkits_test011"; //toolkits_test011 (testnet)
+const dappId = "74d47474-89b0-45eb-940b-73d7f31ca41c";
 const postVersion = "0.0.1";
 
 const modelId =
-  "kjzl6hvfrbw6c7zy79iqdnav50bustri0cnubdgshp4562iin3zdpkuivk0bqrq"; // (mainnet)
-//kjzl6hvfrbw6c9k5a5v8gph1asovcygtq10fhuhp96q527ss6czmy95eclkdhxo // (testnet)
+  "kjzl6hvfrbw6c6ow3w4p4nmebboionqx4mhgk0t6aqjwtmlvi8s19tnth5edoj1"; // (testnet)
 
 const storageProvider = {
   name: StorageProviderName.Lighthouse,
@@ -30,7 +34,7 @@ const storageProvider = {
 
 function App() {
   const [address, setAddress] = useState("");
-  const [wallet, setWallet] = useState<WALLET>(WALLET.METAMASK);
+  const [wallet, setWallet] = useState<WALLET>();
   const [pkh, setPkh] = useState("");
   const [currentPkh, setCurrentPkh] = useState("");
   const [pkpWallet, setPKPWallet] = useState({
@@ -40,52 +44,69 @@ function App() {
   const [litActionResponse, setLitActionResponse] = useState("");
 
   const [isCurrentPkhValid, setIsCurrentPkhValid] = useState<boolean>();
-  const [appList, setAppList] = useState<string[]>([]);
+  const [appListInfo, setAppListInfo] = useState<string>("");
+  const [appInfo, setAppInfo] = useState<string>("");
 
   const [streamId, setStreamId] = useState("");
   const [folderId, setFolderId] = useState("");
   const [indexFileId, setIndexFileId] = useState("");
   const [folders, setFolders] = useState<StructuredFolders>();
+  const [hasAddListener, setHasAddListener] = useState<boolean>();
+  const [provider, setProvider] = useState<WalletProvider>();
 
   /*** Wallet ***/
   const connectWallet = async () => {
-    const res = await runtimeConnector.connectWallet(wallet);
+    const res = await coreConnector.connectWallet(wallet);
     console.log(res);
+    const provider = coreConnector.getProvider();
+    console.log(provider);
+    setProvider(provider);
     setWallet(res.wallet);
     setAddress(res.address);
+    if (!hasAddListener) {
+      provider.on("chainChanged", (chainId: number) => {
+        console.log(chainId);
+      });
+      provider.on("chainNameChanged", (chainName: string) => {
+        console.log(chainName);
+      });
+      provider.on("accountsChanged", (accounts: Array<string>) => {
+        console.log(accounts);
+        setAddress(accounts[0]);
+      });
+      setHasAddListener(true);
+    }
     return res;
   };
 
   const switchNetwork = async () => {
-    if (!runtimeConnector.isConnected) {
+    if (!coreConnector?.isConnected) {
       console.error("please connect wallet first");
       return;
     }
 
-    await runtimeConnector.provider?.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: "0x89" }],
-    });
-
-    // const res = await runtimeConnector.switchNetwork(137);
-  };
-
-  const signOrSignTypedData = async () => {
-    if (!runtimeConnector.isConnected) {
-      console.error("please connect wallet first");
-      return;
-    }
-
-    const res = await runtimeConnector.signer!.signMessage("test");
-
-    console.log(res);
-
-    await runtimeConnector.provider?.request({
+    await provider?.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: "0x13881" }],
     });
 
-    const res2 = await runtimeConnector.signer!._signTypedData(
+    // const res = await coreConnector.switchNetwork(137);
+  };
+
+  const signOrSignTypedData = async () => {
+    if (!coreConnector?.isConnected) {
+      console.error("please connect wallet first");
+      return;
+    }
+    const res = await provider?.signMessage("test");
+
+    console.log(res);
+
+    await provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
+    });
+    const res2 = await provider?._signTypedData(
       {
         name: "EPNS COMM V1",
         chainId: 80001,
@@ -108,14 +129,14 @@ function App() {
   };
 
   const sendTransaction = async () => {
-    if (!runtimeConnector.isConnected) {
+    if (!coreConnector?.isConnected) {
       console.error("please connect wallet first");
       return;
     }
 
-    const res = await runtimeConnector.signer!.sendTransaction({
-      from: runtimeConnector.address, // The user's active address.
-      to: runtimeConnector.address, // Required except during contract publications.
+    const res = await provider?.sendTransaction({
+      from: coreConnector.address, // The user's active address.
+      to: coreConnector.address, // Required except during contract publications.
       value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
       // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
       // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
@@ -125,12 +146,12 @@ function App() {
   };
 
   const contractCall = async () => {
-    if (!runtimeConnector.isConnected) {
+    if (!coreConnector?.isConnected) {
       console.error("please connect wallet first");
       return;
     }
 
-    await runtimeConnector.switchNetwork(80001);
+    await coreConnector.runOS({ method: Methods.switchNetwork, params: 80001 });
 
     const contractAddress = "0x2e43c080B56c644F548610f45998399d42e3d400";
 
@@ -168,9 +189,7 @@ function App() {
       },
     ];
 
-    const ethersProvider = new ethers.providers.Web3Provider(
-      runtimeConnector.provider!
-    );
+    const ethersProvider = new ethers.providers.Web3Provider(provider!);
 
     const ethersSigner = ethersProvider.getSigner();
 
@@ -189,13 +208,13 @@ function App() {
   };
 
   const getCurrentPkh = async () => {
-    const res = await runtimeConnector.getCurrentPkh();
+    const res = await coreConnector.runOS({ method: Methods.getCurrentPkh });
     console.log(res);
     setCurrentPkh(res);
   };
 
   const getPKP = async () => {
-    const res = await runtimeConnector.getPKP();
+    const res = await coreConnector.runOS({ method: Methods.getPKP });
     console.log(res);
     setPKPWallet(res);
   };
@@ -212,7 +231,7 @@ function App() {
     //       chain: "mumbai",
     //     },
     //   };
-    //   const res = await runtimeConnector.executeLitAction(executeJsArgs);
+    //   const res = await coreConnector.executeLitAction(executeJsArgs);
     //   console.log(res);
     //   setLitActionResponse(JSON.stringify(res));
 
@@ -228,7 +247,10 @@ function App() {
         sigName: "sig1",
       },
     };
-    const res = await runtimeConnector.executeLitAction(executeJsArgs);
+    const res = await coreConnector.runOS({
+      method: Methods.executeLitAction,
+      params: executeJsArgs,
+    });
     console.log(res);
     setLitActionResponse(JSON.stringify(res));
   };
@@ -236,34 +258,43 @@ function App() {
 
   /*** DApp ***/
   const getDAppTable = async () => {
-    const appsInfo = await runtimeConnector.getDAppTable();
+    const appsInfo = await coreConnector.getDAppTable();
     console.log(appsInfo);
-    setAppList(Object.keys(appsInfo));
+    setAppListInfo(`${appsInfo.length} results show in console.`);
   };
 
   const getDAppInfo = async () => {
-    const appsInfo = await runtimeConnector.getDAppInfo(app);
-    console.log(appsInfo);
-    return appsInfo;
+    const appInfo = await coreConnector.getDAppInfo(dappId);
+    console.log(appInfo);
+    setAppInfo(JSON.stringify(appInfo));
+    return appInfo;
   };
 
   const getValidAppCaps = async () => {
-    const appsInfo = await runtimeConnector.getValidAppCaps();
+    const appsInfo = await coreConnector.runOS({
+      method: Methods.getValidAppCaps,
+    });
     console.log(appsInfo);
   };
 
   const getModelBaseInfo = async () => {
-    const res = await runtimeConnector.getModelBaseInfo(modelId);
+    const res = await coreConnector.runOS({
+      method: Methods.getModelBaseInfo,
+      params: modelId,
+    });
     console.log(res);
   };
   /*** DApp ***/
 
   /*** Stream ***/
   const createCapability = async () => {
-    const pkh = await runtimeConnector.createCapability({
-      app,
-      resource: RESOURCE.CERAMIC,
-      wallet,
+    const pkh = await coreConnector.runOS({
+      method: Methods.createCapability,
+      params: {
+        app,
+        resource: RESOURCE.CERAMIC,
+        wallet,
+      },
     });
     setPkh(pkh);
     console.log(pkh);
@@ -271,7 +302,12 @@ function App() {
   };
 
   const checkCapability = async () => {
-    const isCurrentPkhValid = await runtimeConnector.checkCapability({ app });
+    const isCurrentPkhValid = await coreConnector.runOS({
+      method: Methods.checkCapability,
+      params: {
+        app,
+      },
+    });
     console.log(isCurrentPkhValid);
     setIsCurrentPkhValid(isCurrentPkhValid);
   };
@@ -285,18 +321,21 @@ function App() {
       videos: false,
     });
 
-    const res = await runtimeConnector.createStream({
-      modelId,
-      streamContent: {
-        appVersion: postVersion,
-        text: "hello",
-        images: [
-          "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
-        ],
-        videos: [],
-        createdAt: date,
-        updatedAt: date,
-        encrypted,
+    const res = await coreConnector.runOS({
+      method: Methods.createStream,
+      params: {
+        modelId,
+        streamContent: {
+          appVersion: postVersion,
+          text: "hello",
+          images: [
+            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+          ],
+          videos: [],
+          createdAt: date,
+          updatedAt: date,
+          encrypted,
+        },
       },
     });
 
@@ -313,33 +352,41 @@ function App() {
       videos: false,
     });
 
-    const res = await runtimeConnector.updateStream({
-      streamId,
-      streamContent: {
-        appVersion: postVersion,
-        text: "hello",
-        images: [
-          "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
-        ],
-        videos: [],
-        createdAt: date,
-        updatedAt: date,
-        encrypted,
+    const res = await coreConnector.runOS({
+      method: Methods.updateStream,
+      params: {
+        streamId,
+        streamContent: {
+          appVersion: postVersion,
+          text: "hello",
+          images: [
+            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+          ],
+          videos: [],
+          createdAt: date,
+          updatedAt: date,
+          encrypted,
+        },
       },
     });
     console.log(res);
   };
 
   const loadStream = async () => {
-    const stream = await runtimeConnector.loadStream(streamId);
-
+    const stream = await coreConnector.runOS({
+      method: Methods.loadStream,
+      params: streamId,
+    });
     console.log(stream);
   };
 
   const loadStreamsBy = async () => {
-    const streams = await runtimeConnector.loadStreamsBy({
-      modelId,
-      pkh,
+    const streams = await coreConnector.runOS({
+      method: Methods.loadStreamsBy,
+      params: {
+        modelId,
+        pkh,
+      },
     });
     console.log(streams);
     // const res = Object.values(streams).filter(
@@ -351,16 +398,21 @@ function App() {
 
   /*** Folders ***/
   const readFolders = async () => {
-    const folders = await runtimeConnector.readFolders();
+    const folders = await coreConnector.runOS({
+      method: Methods.readFolders,
+    });
     setFolders(folders);
     console.log({ folders });
     return folders;
   };
 
   const createFolder = async () => {
-    const res = await runtimeConnector.createFolder({
-      folderType: FolderType.Private,
-      folderName: "Private",
+    const res = await coreConnector.runOS({
+      method: Methods.createFolder,
+      params: {
+        folderType: FolderType.Private,
+        folderName: "Private",
+      },
     });
     console.log(res);
     setFolderId(res.newFolder.folderId);
@@ -368,18 +420,24 @@ function App() {
   };
 
   const updateFolderBaseInfo = async () => {
-    const res = await runtimeConnector.updateFolderBaseInfo({
-      folderId,
-      newFolderName: new Date().toISOString(),
-      newFolderDescription: new Date().toISOString(),
+    const res = await coreConnector.runOS({
+      method: Methods.updateFolderBaseInfo,
+      params: {
+        folderId,
+        newFolderName: new Date().toISOString(),
+        newFolderDescription: new Date().toISOString(),
+      },
     });
     console.log(res);
   };
 
   const changeFolderType = async () => {
-    const res = await runtimeConnector.changeFolderType({
-      folderId,
-      targetFolderType: FolderType.Public,
+    const res = await coreConnector.runOS({
+      method: Methods.changeFolderType,
+      params: {
+        folderId,
+        targetFolderType: FolderType.Public,
+      },
     });
     console.log(res);
   };
@@ -387,14 +445,17 @@ function App() {
   const monetizeFolder = async () => {
     const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
 
-    const res = await runtimeConnector.monetizeFolder({
-      folderId,
-      folderDescription: "This is a payable folder.",
-      datatokenVars: {
-        profileId,
-        collectLimit: 100,
-        amount: 0.0001,
-        currency: Currency.WMATIC,
+    const res = await coreConnector.runOS({
+      method: Methods.monetizeFolder,
+      params: {
+        folderId,
+        folderDescription: "This is a payable folder.",
+        datatokenVars: {
+          profileId,
+          collectLimit: 100,
+          amount: 0.0001,
+          currency: Currency.WMATIC,
+        },
       },
     });
     console.log(res);
@@ -402,14 +463,18 @@ function App() {
   };
 
   const readFolderById = async () => {
-    const folder = await runtimeConnector.readFolderById(folderId);
+    const folder = await coreConnector.runOS({
+      method: Methods.readFolderById,
+      params: folderId,
+    });
     console.log({ folder });
     return folder;
   };
 
   const deleteFolder = async () => {
-    const res = await runtimeConnector.deleteFolder({
-      folderId,
+    const res = await coreConnector.runOS({
+      method: Methods.deleteFolder,
+      params: { folderId },
     });
     console.log(res);
   };
@@ -420,8 +485,9 @@ function App() {
     }
     await Promise.all(
       Object.keys(folders).map((folderId) =>
-        runtimeConnector.deleteFolder({
-          folderId,
+        coreConnector.runOS({
+          method: Methods.deleteFolder,
+          params: { folderId },
         })
       )
     );
@@ -463,12 +529,15 @@ function App() {
       // }
       // console.log(bytes);
       // console.log(bytes.buffer);
-      const res = await runtimeConnector.uploadFile({
-        folderId,
-        fileBase64,
-        fileName,
-        encrypted: false,
-        storageProvider,
+      const res = await coreConnector.runOS({
+        method: Methods.uploadFile,
+        params: {
+          folderId,
+          fileBase64,
+          fileName,
+          encrypted: false,
+          storageProvider,
+        },
       });
       setIndexFileId(res.newFile.indexFileId);
       console.log(res);
@@ -478,19 +547,25 @@ function App() {
   };
 
   const updateFileBaseInfo = async () => {
-    const res = await runtimeConnector.updateFileBaseInfo({
-      indexFileId,
-      fileInfo: {
-        mirrorName: "aaa",
+    const res = await coreConnector.runOS({
+      method: Methods.updateFileBaseInfo,
+      params: {
+        indexFileId,
+        fileInfo: {
+          mirrorName: "aaa",
+        },
       },
     });
     console.log(res);
   };
 
   const moveFiles = async () => {
-    const res = await runtimeConnector.moveFiles({
-      targetFolderId: folderId || (await getDefaultFolderId()),
-      sourceIndexFileIds: [indexFileId],
+    const res = await coreConnector.runOS({
+      method: Methods.moveFiles,
+      params: {
+        targetFolderId: folderId || (await getDefaultFolderId()),
+        sourceIndexFileIds: [indexFileId],
+      },
     });
     console.log(res);
   };
@@ -500,46 +575,53 @@ function App() {
       if (!pkh) {
         throw "You must connect capability";
       }
-      const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
-
-      const res = await runtimeConnector.monetizeFile({
-        ...(indexFileId ? { indexFileId } : { streamId }),
-        datatokenVars: {
-          profileId,
-          collectLimit: 100,
-          amount: 0.0001,
-          currency: Currency.WMATIC,
-        },
-        // decryptionConditions: [
-        //   [
-        //     {
-        //       conditionType: "evmBasic",
-        //       contractAddress: "",
-        //       standardContractType: "",
-        //       chain: "filecoin",
-        //       method: "",
-        //       parameters: [":userAddress"],
-        //       returnValueTest: {
-        //         comparator: "=",
-        //         value: "0xd10d5b408A290a5FD0C2B15074995e899E944444",
-        //       },
-        //     },
-        //     { operator: "or" },
-        //     {
-        //       conditionType: "evmBasic",
-        //       contractAddress: "",
-        //       standardContractType: "",
-        //       chain: "filecoin",
-        //       method: "",
-        //       parameters: [":userAddress"],
-        //       returnValueTest: {
-        //         comparator: "=",
-        //         value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
-        //       },
-        //     },
-        //   ] as any,
-        // ], // Only sell to specific users
+      const profileId = await getProfileId({
+        pkh,
+        lensNickName: "hello123456",
       });
+
+      const res = await coreConnector.runOS({
+        method: Methods.monetizeFile,
+        params: {
+          ...(indexFileId ? { indexFileId } : { streamId }),
+          datatokenVars: {
+            profileId,
+            collectLimit: 100,
+            amount: 0.0001,
+            currency: Currency.WMATIC,
+          },
+          // decryptionConditions: [
+          //   [
+          //     {
+          //       conditionType: "evmBasic",
+          //       contractAddress: "",
+          //       standardContractType: "",
+          //       chain: "filecoin",
+          //       method: "",
+          //       parameters: [":userAddress"],
+          //       returnValueTest: {
+          //         comparator: "=",
+          //         value: "0xd10d5b408A290a5FD0C2B15074995e899E944444",
+          //       },
+          //     },
+          //     { operator: "or" },
+          //     {
+          //       conditionType: "evmBasic",
+          //       contractAddress: "",
+          //       standardContractType: "",
+          //       chain: "filecoin",
+          //       method: "",
+          //       parameters: [":userAddress"],
+          //       returnValueTest: {
+          //         comparator: "=",
+          //         value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
+          //       },
+          //     },
+          //   ] as any,
+          // ], // Only sell to specific users
+        },
+      });
+
       console.log(res);
       return res;
     } catch (error) {
@@ -548,8 +630,11 @@ function App() {
   };
 
   const removeFiles = async () => {
-    const res = await runtimeConnector.removeFiles({
-      indexFileIds: [indexFileId],
+    const res = await coreConnector.runOS({
+      method: Methods.removeFiles,
+      params: {
+        indexFileIds: [indexFileId],
+      },
     });
     console.log(res);
   };
@@ -557,15 +642,22 @@ function App() {
 
   /*** Monetize ***/
   const createProfile = async () => {
-    await runtimeConnector.switchNetwork(80001);
-    const res = await runtimeConnector.createProfile("test6");
+    await coreConnector.runOS({
+      method: Methods.switchNetwork,
+      params: 80001,
+    });
+    const res = await coreConnector.runOS({
+      method: Methods.createProfile,
+      params: "test6",
+    });
     console.log(res);
   };
 
   const getProfiles = async () => {
-    const res = await runtimeConnector.getProfiles(
-      "0xA48077Ef4680334dc573B3A9322d350d7a27709d"
-    );
+    const res = await coreConnector.runOS({
+      method: Methods.getProfiles,
+      params: address,
+    });
     console.log(res);
   };
 
@@ -576,9 +668,10 @@ function App() {
     pkh: string;
     lensNickName?: string;
   }) => {
-    const lensProfiles = await runtimeConnector.getProfiles(
-      getAddressFromPkh(pkh)
-    );
+    const lensProfiles = await coreConnector.runOS({
+      method: Methods.getProfiles,
+      params: getAddressFromPkh(pkh),
+    });
 
     let profileId;
     if (lensProfiles?.[0]?.id) {
@@ -590,7 +683,10 @@ function App() {
       if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
         throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
       }
-      profileId = await runtimeConnector.createProfile(lensNickName);
+      profileId = await coreConnector.runOS({
+        method: Methods.createProfile,
+        params: lensNickName,
+      });
     }
 
     return profileId;
@@ -600,8 +696,11 @@ function App() {
     try {
       // const indexFileId =
       //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
-      const res = await runtimeConnector.unlock({
-        ...(indexFileId ? { indexFileId } : { streamId }),
+      const res = await coreConnector.runOS({
+        method: Methods.unlock,
+        params: {
+          ...(indexFileId ? { indexFileId } : { streamId }),
+        },
       });
       console.log(res);
     } catch (error) {
@@ -612,16 +711,22 @@ function App() {
   const isCollected = async () => {
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
-    const res = await runtimeConnector.isCollected({
-      datatokenId,
-      address,
+    const res = await coreConnector.runOS({
+      method: Methods.isCollected,
+      params: {
+        datatokenId,
+        address,
+      },
     });
     console.log(res);
   };
 
   const getDatatokenBaseInfo = async () => {
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
-    const res = await runtimeConnector.getDatatokenBaseInfo(datatokenId);
+    const res = await coreConnector.runOS({
+      method: Methods.getDatatokenBaseInfo,
+      params: datatokenId,
+    });
     console.log(res);
   };
   /*** Monetize ***/
@@ -656,13 +761,10 @@ function App() {
       <br />
       <br />
       <button onClick={getDAppTable}>getDAppTable</button>
-      {appList.map((app) => (
-        <div className="blackText" key={app}>
-          {app}
-        </div>
-      ))}
+      {appListInfo}
       <hr />
       <button onClick={getDAppInfo}>getDAppInfo</button>
+      {appInfo}
       <button onClick={getValidAppCaps}>getValidAppCaps</button>
       <button onClick={getModelBaseInfo}>getModelBaseInfo</button>
       <br />

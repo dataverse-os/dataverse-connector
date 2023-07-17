@@ -1,0 +1,28 @@
+{
+  "name": "@dataverse/communicator",
+  "version": "1.0.0",
+  "description": "",
+  "types": "dist/esm/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "files": [
+    "/dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dataverse-os/dataverse-connector.git",
+    "directory": "packages/communicator"
+  },
+  "scripts": {
+    "test": "cd test && pnpm dev",
+    "build:esm": "tsc -p tsconfig.json",
+    "build:cjs": "tsc -p tsconfig-cjs.json",
+    "build": "pnpm build:esm && pnpm build:cjs"
+  },
+  "dependencies": {
+    "nanoid": "4.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
