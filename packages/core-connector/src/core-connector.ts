@@ -12,6 +12,7 @@ import {
   detectDataverseExtension,
   formatSendTransactionData,
 } from "@dataverse/utils";
+import { getDapp, getDapps } from "@dataverse/dapp-table-client";
 
 export class CoreConnector {
   private communicator: Communicator;
@@ -113,5 +114,13 @@ export class CoreConnector {
     }
 
     return res;
+  }
+
+  getDAppTable() {
+    return getDapps();
+  }
+
+  getDAppInfo(dappId: string) {
+    return getDapp(dappId);
   }
 }

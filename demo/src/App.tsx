@@ -21,6 +21,7 @@ import { Contract, ethers } from "ethers";
 const coreConnector = new CoreConnector();
 
 const app = "toolkits_test011"; //toolkits_test011 (testnet)
+const dappId = "74d47474-89b0-45eb-940b-73d7f31ca41c";
 const postVersion = "0.0.1";
 
 const modelId =
@@ -43,7 +44,8 @@ function App() {
   const [litActionResponse, setLitActionResponse] = useState("");
 
   const [isCurrentPkhValid, setIsCurrentPkhValid] = useState<boolean>();
-  const [appList, setAppList] = useState<string[]>([]);
+  const [appListInfo, setAppListInfo] = useState<string>("");
+  const [appInfo, setAppInfo] = useState<string>("");
 
   const [streamId, setStreamId] = useState("");
   const [folderId, setFolderId] = useState("");
@@ -256,20 +258,16 @@ function App() {
 
   /*** DApp ***/
   const getDAppTable = async () => {
-    const appsInfo = await coreConnector.runOS({
-      method: Methods.getDAppTable,
-    });
+    const appsInfo = await coreConnector.getDAppTable();
     console.log(appsInfo);
-    setAppList(Object.keys(appsInfo));
+    setAppListInfo(`${appsInfo.length} results show in console.`);
   };
 
   const getDAppInfo = async () => {
-    const appsInfo = await coreConnector.runOS({
-      method: Methods.getDAppInfo,
-      params: app,
-    });
-    console.log(appsInfo);
-    return appsInfo;
+    const appInfo = await coreConnector.getDAppInfo(dappId);
+    console.log(appInfo);
+    setAppInfo(JSON.stringify(appInfo));
+    return appInfo;
   };
 
   const getValidAppCaps = async () => {
@@ -577,7 +575,10 @@ function App() {
       if (!pkh) {
         throw "You must connect capability";
       }
-      const profileId = await getProfileId({ pkh, lensNickName: "hello123456" });
+      const profileId = await getProfileId({
+        pkh,
+        lensNickName: "hello123456",
+      });
 
       const res = await coreConnector.runOS({
         method: Methods.monetizeFile,
@@ -760,13 +761,10 @@ function App() {
       <br />
       <br />
       <button onClick={getDAppTable}>getDAppTable</button>
-      {appList.map((app) => (
-        <div className="blackText" key={app}>
-          {app}
-        </div>
-      ))}
+      {appListInfo}
       <hr />
       <button onClick={getDAppInfo}>getDAppInfo</button>
+      {appInfo}
       <button onClick={getValidAppCaps}>getValidAppCaps</button>
       <button onClick={getModelBaseInfo}>getModelBaseInfo</button>
       <br />
