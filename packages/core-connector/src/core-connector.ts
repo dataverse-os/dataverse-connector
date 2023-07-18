@@ -11,13 +11,17 @@ import {
 import {
   detectDataverseExtension,
   formatSendTransactionData,
+  convertTxData,
 } from "@dataverse/utils";
 import { getDapp, getDapps } from "@dataverse/dapp-table-client";
 import web3 from "web3";
+import { Contract, ethers } from "ethers";
+import { MethodClass } from "./method-class";
 
 export class CoreConnector {
   private communicator: Communicator;
   private provider?: Window["dataverse"] | WalletProvider | any;
+  private methodClass: MethodClass;
   isConnected?: boolean;
   wallet?: WALLET | "Unknown";
   address?: string;
@@ -25,9 +29,11 @@ export class CoreConnector {
   app?: string;
 
   constructor(postMessageTo: PostMessageTo = Extension) {
+    const methodClass = new MethodClass();
     this.communicator = new Communicator({
       source: window,
       target: window.top,
+      methodClass,
       postMessageTo,
     });
   }
@@ -44,7 +50,7 @@ export class CoreConnector {
     wallet,
     provider = window.dataverse,
   }: {
-    wallet?: RequestType[Methods.connectWallet];
+    wallet?: WALLET | undefined;
     provider?: Window["dataverse"] | WalletProvider | any;
   }): Promise<ReturnType[Methods.connectWallet]> {
     if (provider.isDataverse) {
@@ -52,7 +58,10 @@ export class CoreConnector {
         throw "The plugin has not been loaded yet. Please check the plugin status or go to https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead to install plugins";
       }
 
-      const res = await window.dataverse.connectWallet(wallet);
+      const res = await window.dataverse.connectWallet({
+        wallet,
+        isDataverseProvider: true,
+      });
 
       this.provider = new WalletProvider();
       this.provider.off("chainChanged");
@@ -79,7 +88,11 @@ export class CoreConnector {
       } as Awaited<ReturnType[Methods.connectWallet]>;
     }
 
+    this.methodClass.setProvider(provider);
     this.provider = provider;
+    const res = await window.dataverse.connectWallet({
+      isDataverseProvider: false,
+    });
     this.provider.removeAllListeners("chainChanged");
     this.provider.removeAllListeners("accountsChanged");
     this.provider.on("chainChanged", (networkId: string) => {
@@ -91,28 +104,12 @@ export class CoreConnector {
     this.provider.on("accountsChanged", (accounts: string[]) => {
       this.address = web3.utils.toChecksumAddress(accounts[0]);
     });
-    this.isConnected = true;
-    this.wallet = this.provider.isMetaMask ? WALLET.METAMASK : "Unknown";
 
-    this.address = web3.utils.toChecksumAddress(
-      (
-        await this.provider.request({
-          method: "eth_accounts",
-          params: [],
-        })
-      )?.[0]
-    );
-    const chainId = Number(
-      await this.provider.request({
-        method: "eth_chainId",
-        params: [],
-      })
-    );
-    this.chain = {
-      chainId,
-      chainName:
-        chainId === 80001 ? "mumbai" : chainId === 1 ? "ethereum" : "Unknown",
-    };
+    this.isConnected = true;
+    this.wallet = res.wallet;
+    this.address = res.address;
+    this.chain = res.chain;
+
     return {
       wallet: this.wallet,
       address: this.address,

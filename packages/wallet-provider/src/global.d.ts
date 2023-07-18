@@ -5,7 +5,7 @@ interface Window {
       params,
     }: {
       method: string;
-      params: Array<any>;
+      params?: Array<any>;
     }) => Promise<any>;
     on: (event: string, listener: Function) => void;
     off: (event: string, listener?: Function) => void;

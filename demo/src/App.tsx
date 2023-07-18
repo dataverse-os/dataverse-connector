@@ -20,12 +20,12 @@ import { getAddressFromPkh } from "./utils/addressAndPkh";
 
 const coreConnector = new CoreConnector();
 
-const app = "toolkits_test011"; //toolkits_test011 (testnet)
+const app = "dataverse_app_example"; //toolkits_test011 (testnet)
 const dappId = "74d47474-89b0-45eb-940b-73d7f31ca41c";
 const postVersion = "0.0.1";
 
 const modelId =
-  "kjzl6hvfrbw6c6ow3w4p4nmebboionqx4mhgk0t6aqjwtmlvi8s19tnth5edoj1"; // (testnet)
+  "kjzl6hvfrbw6c94o6sx69w7ugqes9145aaloeo0i1z4pmltyr2vlok9zlv5g9b3"; // (testnet)
 
 const storageProvider = {
   name: StorageProviderName.Lighthouse,
@@ -123,90 +123,60 @@ function App() {
       console.error("please connect wallet first");
       return;
     }
-    if (provider?.isDataverse) {
-      const res = await provider?.signMessage("test");
 
-      console.log(res);
+    const res = await provider?.request({
+      method: "personal_sign",
+      params: [address, "test"],
+    });
 
-      await provider?.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x13881" }],
-      });
-      const res2 = await provider?._signTypedData(
-        {
-          name: "EPNS COMM V1",
-          chainId: 80001,
-          verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
-        },
-        {
-          Data: [
-            {
-              name: "data",
-              type: "string",
-            },
-          ],
-        },
-        {
-          data: '2+{"notification":{"title":"Push Title Hello","body":"Good to see you bodies"},"data":{"acta":"","aimg":"","amsg":"Payload Push Title Hello Body","asub":"Payload Push Title Hello","type":"1"},"recipients":"eip155:5:0x6ed14ee482d3C4764C533f56B90360b767d21D5E"}',
-        }
-      );
+    console.log(res);
 
-      console.log(res2);
-    } else {
-      const res = await provider?.request({
-        method: "personal_sign",
-        params: [address, "test"],
-      });
+    await provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
+    });
 
-      console.log(res);
+    const res2 = await provider?.request({
+      method: "eth_signTypedData_v4",
+      params: [
+        address,
+        JSON.stringify({
+          domain: {
+            name: "EPNS COMM V1",
+            chainId: 80001,
+            verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
+          },
+          primaryType: "Data",
+          types: {
+            Data: [
+              {
+                name: "data",
+                type: "string",
+              },
+            ],
+            EIP712Domain: [
+              {
+                name: "name",
+                type: "string",
+              },
+              {
+                name: "chainId",
+                type: "uint256",
+              },
+              {
+                name: "verifyingContract",
+                type: "address",
+              },
+            ],
+          },
+          message: {
+            data: '2+{"notification":{"title":"Push Title Hello","body":"Good to see you bodies"},"data":{"acta":"","aimg":"","amsg":"Payload Push Title Hello Body","asub":"Payload Push Title Hello","type":"1"},"recipients":"eip155:5:0x6ed14ee482d3C4764C533f56B90360b767d21D5E"}',
+          },
+        }),
+      ],
+    });
 
-      await provider?.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x13881" }],
-      });
-
-      const res2 = await provider?.request({
-        method: "eth_signTypedData_v4",
-        params: [
-          address,
-          JSON.stringify({
-            domain: {
-              name: "EPNS COMM V1",
-              chainId: 80001,
-              verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
-            },
-            primaryType: "Data",
-            types: {
-              Data: [
-                {
-                  name: "data",
-                  type: "string",
-                },
-              ],
-              EIP712Domain: [
-                {
-                  name: "name",
-                  type: "string",
-                },
-                {
-                  name: "chainId",
-                  type: "uint256",
-                },
-                {
-                  name: "verifyingContract",
-                  type: "address",
-                },
-              ],
-            },
-            message: {
-              data: '2+{"notification":{"title":"Push Title Hello","body":"Good to see you bodies"},"data":{"acta":"","aimg":"","amsg":"Payload Push Title Hello Body","asub":"Payload Push Title Hello","type":"1"},"recipients":"eip155:5:0x6ed14ee482d3C4764C533f56B90360b767d21D5E"}',
-            },
-          }),
-        ],
-      });
-
-      console.log(res2);
-    }
+    console.log(res2);
   };
 
   const sendTransaction = async () => {
@@ -214,15 +184,18 @@ function App() {
       console.error("please connect wallet first");
       return;
     }
-
-    const res = await provider?.sendTransaction({
-      from: coreConnector.address, // The user's active address.
-      to: coreConnector.address, // Required except during contract publications.
-      value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
-      // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
-      // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
+    const res = await provider?.request({
+      method: "eth_sendTransaction",
+      params: [
+        {
+          from: coreConnector.address, // The user's active address.
+          to: coreConnector.address, // Required except during contract publications.
+          value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
+          // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
+          // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
+        },
+      ],
     });
-
     console.log(res);
   };
 
@@ -232,7 +205,10 @@ function App() {
       return;
     }
 
-    await coreConnector.runOS({ method: Methods.switchNetwork, params: 80001 });
+    await provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
+    });
 
     const contractAddress = "0x2e43c080B56c644F548610f45998399d42e3d400";
 

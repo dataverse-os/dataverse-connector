@@ -21,9 +21,13 @@ import {
 } from "../fs/types";
 import { Methods } from "./constants";
 import { RESOURCE } from "../identity/constants";
+import { WalletProvider } from "@dataverse/wallet-provider";
 
 export interface RequestType {
-  connectWallet?: WALLET | undefined;
+  connectWallet?: {
+    wallet?: WALLET | undefined;
+    isDataverseProvider?: boolean;
+  };
   switchNetwork: number;
   sign: {
     method: SignMethod;

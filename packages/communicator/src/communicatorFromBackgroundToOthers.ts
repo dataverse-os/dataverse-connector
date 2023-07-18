@@ -1,3 +1,4 @@
+import { CORRECT_CODE } from "./constants";
 import { EventMessage } from "./types";
 
 interface Chrome {
@@ -19,9 +20,13 @@ export class CommunicatorFromBackgroundToOthers {
     const tabIds = await this.getAllTabIds();
     return Promise.all(
       tabIds.map((tabId) => {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
           chrome.tabs.sendMessage(tabId || 0, message, (result) => {
-            resolve(result);
+            if (result.code === CORRECT_CODE) {
+              resolve(result.result);
+            } else {
+              reject(result.error);
+            }
           });
         });
       })

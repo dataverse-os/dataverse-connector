@@ -5,14 +5,14 @@ declare global {
     dataverse: {
       isDataverse: boolean;
       connectWallet: (
-        params: RequestType[Methods.connectWallet]
+        params?: RequestType[Methods.connectWallet]
       ) => ReturnType[Methods.connectWallet];
       request: ({
         method,
         params,
       }: {
         method: string;
-        params: Array<any>;
+        params?: Array<any>;
       }) => Promise<any>;
       on: (event: string, listener: Function) => void;
       sign: ({
@@ -23,5 +23,6 @@ declare global {
         params: Array<any>;
       }) => Promise<string>;
     };
+    provider: any;
   }
 }
