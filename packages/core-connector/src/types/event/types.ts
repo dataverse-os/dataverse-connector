@@ -24,10 +24,7 @@ import { RESOURCE } from "../identity/constants";
 import { WalletProvider } from "@dataverse/wallet-provider";
 
 export interface RequestType {
-  connectWallet?: {
-    wallet?: WALLET | undefined;
-    isDataverseProvider?: boolean;
-  };
+  connectWallet?: WALLET | undefined;
   switchNetwork: number;
   sign: {
     method: SignMethod;

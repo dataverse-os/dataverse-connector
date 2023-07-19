@@ -29,11 +29,11 @@ export class CoreConnector {
   app?: string;
 
   constructor(postMessageTo: PostMessageTo = Extension) {
-    const methodClass = new MethodClass();
+    this.methodClass = new MethodClass();
     this.communicator = new Communicator({
       source: window,
       target: window.top,
-      methodClass,
+      methodClass: this.methodClass,
       postMessageTo,
     });
   }
@@ -57,11 +57,10 @@ export class CoreConnector {
       if (!(await detectDataverseExtension())) {
         throw "The plugin has not been loaded yet. Please check the plugin status or go to https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead to install plugins";
       }
-
-      const res = await window.dataverse.connectWallet({
-        wallet,
-        isDataverseProvider: true,
-      });
+      if (wallet === WALLET.EXTERNAL_WALLET) {
+        throw "Conflict between wallet and provider";
+      }
+      const res = await window.dataverse.connectWallet(wallet);
 
       this.provider = new WalletProvider();
       this.provider.off("chainChanged");
@@ -90,9 +89,7 @@ export class CoreConnector {
 
     this.methodClass.setProvider(provider);
     this.provider = provider;
-    const res = await window.dataverse.connectWallet({
-      isDataverseProvider: false,
-    });
+    const res = await window.dataverse.connectWallet(WALLET.EXTERNAL_WALLET);
     this.provider.removeAllListeners("chainChanged");
     this.provider.removeAllListeners("accountsChanged");
     this.provider.on("chainChanged", (networkId: string) => {
@@ -123,7 +120,7 @@ export class CoreConnector {
     params,
   }: {
     method: T;
-    params?: RequestType[T];
+    params: RequestType[T];
   }): Promise<Awaited<ReturnType[T]>> {
     if (method === Methods.createCapability && !this?.isConnected) {
       await this.connectWallet({

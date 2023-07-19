@@ -20,12 +20,12 @@ import { getAddressFromPkh } from "./utils/addressAndPkh";
 
 const coreConnector = new CoreConnector();
 
-const app = "dataverse_app_example"; //toolkits_test011 (testnet)
-const dappId = "74d47474-89b0-45eb-940b-73d7f31ca41c";
+const app = "lens-toolkit-demo";
+const dappId = "00d21b01-5166-4e22-acc2-10fc2c6be6a8";
 const postVersion = "0.0.1";
 
 const modelId =
-  "kjzl6hvfrbw6c94o6sx69w7ugqes9145aaloeo0i1z4pmltyr2vlok9zlv5g9b3"; // (testnet)
+  "kjzl6hvfrbw6c5i43r5xvl4d8zm8m0leukn08075kzkssvwt1znt59ci3fro2tk";
 
 const storageProvider = {
   name: StorageProviderName.Lighthouse,

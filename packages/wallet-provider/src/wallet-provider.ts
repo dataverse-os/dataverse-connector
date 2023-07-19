@@ -1,6 +1,6 @@
 import EventEmitter from "eventemitter3";
 import { ConnecterEvents } from "./types";
-import { ethers, Bytes } from "ethers";
+import { ethers, Bytes, Signer } from "ethers";
 import { Deferrable } from "ethers/lib/utils";
 import {
   TypedDataDomain,
@@ -13,13 +13,8 @@ import {
 import { formatSendTransactionData } from "@dataverse/utils";
 
 export class WalletProvider extends EventEmitter<ConnecterEvents> {
-  private ethersProvider: ethers.providers.Web3Provider;
+  private signer: Signer;
   isDataverse = true;
-
-  constructor() {
-    super();
-    this.ethersProvider = new ethers.providers.Web3Provider(this, "any");
-  }
 
   signMessage(message: Bytes | string): Promise<string> {
     return window.dataverse.sign({
@@ -64,8 +59,11 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
           }
         }
       });
-      const signer = this.ethersProvider.getSigner();
-      return signer.sendTransaction(transaction);
+      if (!this.signer) {
+        const ethersProvider = new ethers.providers.Web3Provider(this, "any");
+        this.signer = ethersProvider.getSigner();
+      }
+      return this.signer.sendTransaction(transaction);
     } else {
       return window.dataverse.request({
         method: "eth_sendTransaction",

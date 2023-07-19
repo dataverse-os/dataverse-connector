@@ -20,7 +20,7 @@
     "build": "pnpm build:esm && pnpm build:cjs"
   },
   "dependencies": {
-    "@dataverse/communicator": "^1.0.28",
+    "@dataverse/communicator": "workspace:*",
     "@dataverse/dapp-table-client": "^1.0.5",
     "@dataverse/utils": "^1.0.0",
     "@dataverse/wallet-provider": "^1.0.3",

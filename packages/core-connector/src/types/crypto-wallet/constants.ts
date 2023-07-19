@@ -3,4 +3,5 @@ export enum WALLET {
   WALLETCONNECT = "WalletConnect",
   COINBASE = "Coinbase",
   PARTICLE = "Particle",
+  EXTERNAL_WALLET = "ExternalWallet",
 }

@@ -91,7 +91,6 @@ export class Communicator {
     if (this.destroyed) return;
     if (event.data.type === RESPONSE) {
       const args = event.data as ResponseArguments;
-
       // When this class sends a response, it does not need to return data when this class listens to it
       if (this.responseSequenceIds[args.sequenceId]) {
         return;
@@ -106,7 +105,6 @@ export class Communicator {
       }
     } else if (event.data.type === REQUEST) {
       const args = event.data as RequestArguments & RequestInputs;
-
       // When this class sends a request, it does not need to return data when this class listens to it
       if (this.callbackFunctions[args.sequenceId]) {
         return;
@@ -118,10 +116,14 @@ export class Communicator {
       }
 
       // if code running env is different from postMessageTo, it will return and do nothing
-      if (process.env.ENV !== args.postMessageTo) {
+      if (
+        args.postMessageTo === "Extension" ||
+        (args.postMessageTo === "Browser" &&
+          process.env.ENV &&
+          process.env.ENV !== "Browser")
+      ) {
         return;
       }
-
       let result: { code: string; result?: any; error?: string };
       if (!this.methodClass) {
         result = {
