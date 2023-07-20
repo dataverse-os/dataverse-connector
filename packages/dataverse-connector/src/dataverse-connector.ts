@@ -2,7 +2,7 @@ import { Communicator, PostMessageTo } from "@dataverse/communicator";
 import { WalletProvider } from "@dataverse/wallet-provider";
 import {
   RequestType,
-  Methods,
+  SYSTEM_CALL,
   ReturnType,
   Chain,
   WALLET,
@@ -18,7 +18,7 @@ import web3 from "web3";
 import { Contract, ethers } from "ethers";
 import { MethodClass } from "./method-class";
 
-export class CoreConnector {
+export class DataverseConnector {
   private communicator: Communicator;
   private provider?: Window["dataverse"] | WalletProvider | any;
   private methodClass: MethodClass;
@@ -26,7 +26,7 @@ export class CoreConnector {
   wallet?: WALLET | "Unknown";
   address?: string;
   chain?: Chain;
-  app?: string;
+  appId?: string;
 
   constructor(postMessageTo: PostMessageTo = Extension) {
     this.methodClass = new MethodClass();
@@ -52,7 +52,7 @@ export class CoreConnector {
   }: {
     wallet?: WALLET | undefined;
     provider?: Window["dataverse"] | WalletProvider | any;
-  }): Promise<ReturnType[Methods.connectWallet]> {
+  }): Promise<ReturnType[SYSTEM_CALL.connectWallet]> {
     if (provider.isDataverse) {
       if (!(await detectDataverseExtension())) {
         throw "The plugin has not been loaded yet. Please check the plugin status or go to https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead to install plugins";
@@ -84,7 +84,7 @@ export class CoreConnector {
       return {
         ...res,
         provider: this.provider,
-      } as Awaited<ReturnType[Methods.connectWallet]>;
+      } as Awaited<ReturnType[SYSTEM_CALL.connectWallet]>;
     }
 
     this.methodClass.setProvider(provider);
@@ -112,37 +112,37 @@ export class CoreConnector {
       address: this.address,
       chain: this.chain,
       provider: this.provider,
-    } as Awaited<ReturnType[Methods.connectWallet]>;
+    } as Awaited<ReturnType[SYSTEM_CALL.connectWallet]>;
   }
 
-  async runOS<T extends Methods>({
+  async runOS<T extends SYSTEM_CALL>({
     method,
     params,
   }: {
     method: T;
-    params: RequestType[T];
+    params?: RequestType[T];
   }): Promise<Awaited<ReturnType[T]>> {
-    if (method === Methods.createCapability && !this?.isConnected) {
+    if (method === SYSTEM_CALL.createCapability && !this?.isConnected) {
       await this.connectWallet({
-        wallet: (params as RequestType[Methods.createCapability]).wallet,
+        wallet: (params as RequestType[SYSTEM_CALL.createCapability]).wallet,
       });
-    } else if (method === Methods.ethereumRequest) {
-      // params = params as RequestType[Methods.ethereumRequest];
+    } else if (method === SYSTEM_CALL.ethereumRequest) {
+      // params = params as RequestType[SYSTEM_CALL.ethereumRequest];
       if (
-        (params as RequestType[Methods.ethereumRequest]).method ===
+        (params as RequestType[SYSTEM_CALL.ethereumRequest]).method ===
         "eth_sendTransaction"
       ) {
         if (
-          !(params as RequestType[Methods.ethereumRequest])?.params?.[0]?.from
+          !(params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]?.from
         ) {
-          (params as RequestType[Methods.ethereumRequest]).params[0].from =
+          (params as RequestType[SYSTEM_CALL.ethereumRequest]).params[0].from =
             this.address;
         }
-        if ((params as RequestType[Methods.ethereumRequest])?.params?.[0]) {
+        if ((params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]) {
           Object.entries(
-            (params as RequestType[Methods.ethereumRequest])?.params?.[0]
+            (params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]
           ).forEach(([key, value]) => {
-            (params as RequestType[Methods.ethereumRequest]).params[0][key] =
+            (params as RequestType[SYSTEM_CALL.ethereumRequest]).params[0][key] =
               formatSendTransactionData(value);
           });
         }
@@ -152,10 +152,10 @@ export class CoreConnector {
     const res = (await this.communicator.sendRequest({
       method,
       params,
-    })) as ReturnType[Methods];
+    })) as ReturnType[SYSTEM_CALL];
 
-    if (method === Methods.createCapability) {
-      this.app = (params as RequestType[Methods.createCapability]).app;
+    if (method === SYSTEM_CALL.createCapability) {
+      this.appId = (params as RequestType[SYSTEM_CALL.createCapability]).appId;
     }
 
     return res;

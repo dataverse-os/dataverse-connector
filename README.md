@@ -80,10 +80,10 @@ pass in which wallet you want to connect with, currently support MetaMask and Pa
 ```
 <br>
 
-**`dataverseConnector.createCapability({app: string, resource: RESOURCE, wallet: WALLET})`**
+**`dataverseConnector.createCapability({appId: string, resource: RESOURCE, wallet: WALLET})`**
 
 Create a capability for the application to access the data resources.
-- `app`: `string` - which app is requesting the capability.
+- `appId`: `string` - which appId is requesting the capability.
 - `resource`: `RESOURCE` - Resource to give access to the capability.
   ```js
   enum RESOURCE {

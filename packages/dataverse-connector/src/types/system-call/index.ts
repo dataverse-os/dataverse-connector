@@ -1,2 +1,2 @@
-export { Methods } from "./constants";
+export { SYSTEM_CALL } from "./constants";
 export type { RequestType, ReturnType } from "./types";

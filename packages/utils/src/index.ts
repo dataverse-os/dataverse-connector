@@ -1,3 +1,3 @@
-export * from "./extensionDetector";
-export * from "./formatSendTransactionData";
-export * from "./convertTxData";
+export { detectDataverseExtension } from "./extensionDetector";
+export { formatSendTransactionData } from "./formatSendTransactionData";
+export { convertTxData } from "./convertTxData";

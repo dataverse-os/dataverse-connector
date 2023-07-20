@@ -1,7 +1,7 @@
 import "./App.css";
 import React, { useEffect, useState } from "react";
 import {
-  CoreConnector,
+  DataverseConnector,
   FolderType,
   StructuredFolders,
   Currency,
@@ -10,22 +10,22 @@ import {
   RESOURCE,
   Chain,
   SignMethod,
-  Methods,
-} from "@dataverse/core-connector";
+  SYSTEM_CALL,
+} from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
 import web3 from "web3";
 import { WalletProvider } from "@dataverse/wallet-provider";
 
 import { getAddressFromPkh } from "./utils/addressAndPkh";
 
-const coreConnector = new CoreConnector();
+const dataverseConnector = new DataverseConnector();
 
-const app = "lens-toolkit-demo";
-const dappId = "00d21b01-5166-4e22-acc2-10fc2c6be6a8";
-const postVersion = "0.0.1";
+const appId = "4f500f45-e6cf-4f96-84cb-237a2a5e3604";
 
 const modelId =
-  "kjzl6hvfrbw6c5i43r5xvl4d8zm8m0leukn08075kzkssvwt1znt59ci3fro2tk";
+  "kjzl6hvfrbw6c55rqk7euiintucs8zwy71gpbo1wciq28i4uikmha2qb1dizyic";
+
+const postVersion = "0.0.1";
 
 const storageProvider = {
   name: StorageProviderName.Lighthouse,
@@ -58,7 +58,7 @@ function App() {
   const connectWalletWithDataverseProvider = async () => {
     const provider = new WalletProvider();
     console.log(provider);
-    const res = await coreConnector.connectWallet({
+    const res = await dataverseConnector.connectWallet({
       wallet,
       provider,
     });
@@ -85,7 +85,7 @@ function App() {
   const connectWalletWithMetamaskProvider = async () => {
     const provider = window.ethereum;
     console.log(provider);
-    const res = await coreConnector.connectWallet({
+    const res = await dataverseConnector.connectWallet({
       wallet,
       provider,
     });
@@ -107,7 +107,7 @@ function App() {
   };
 
   const switchNetwork = async () => {
-    if (!coreConnector?.isConnected) {
+    if (!dataverseConnector?.isConnected) {
       console.error("please connect wallet first");
       return;
     }
@@ -119,7 +119,7 @@ function App() {
   };
 
   const signOrSignTypedData = async () => {
-    if (!coreConnector?.isConnected) {
+    if (!dataverseConnector?.isConnected) {
       console.error("please connect wallet first");
       return;
     }
@@ -180,7 +180,7 @@ function App() {
   };
 
   const sendTransaction = async () => {
-    if (!coreConnector?.isConnected) {
+    if (!dataverseConnector?.isConnected) {
       console.error("please connect wallet first");
       return;
     }
@@ -188,8 +188,8 @@ function App() {
       method: "eth_sendTransaction",
       params: [
         {
-          from: coreConnector.address, // The user's active address.
-          to: coreConnector.address, // Required except during contract publications.
+          from: dataverseConnector.address, // The user's active address.
+          to: dataverseConnector.address, // Required except during contract publications.
           value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
           // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
           // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
@@ -200,7 +200,7 @@ function App() {
   };
 
   const contractCall = async () => {
-    if (!coreConnector?.isConnected) {
+    if (!dataverseConnector?.isConnected) {
       console.error("please connect wallet first");
       return;
     }
@@ -265,13 +265,15 @@ function App() {
   };
 
   const getCurrentPkh = async () => {
-    const res = await coreConnector.runOS({ method: Methods.getCurrentPkh });
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.getCurrentPkh,
+    });
     console.log(res);
     setCurrentPkh(res);
   };
 
   const getPKP = async () => {
-    const res = await coreConnector.runOS({ method: Methods.getPKP });
+    const res = await dataverseConnector.runOS({ method: SYSTEM_CALL.getPKP });
     console.log(res);
     setPKPWallet(res);
   };
@@ -288,7 +290,7 @@ function App() {
     //       chain: "mumbai",
     //     },
     //   };
-    //   const res = await coreConnector.executeLitAction(executeJsArgs);
+    //   const res = await dataverseConnector.executeLitAction(executeJsArgs);
     //   console.log(res);
     //   setLitActionResponse(JSON.stringify(res));
 
@@ -304,8 +306,8 @@ function App() {
         sigName: "sig1",
       },
     };
-    const res = await coreConnector.runOS({
-      method: Methods.executeLitAction,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.executeLitAction,
       params: executeJsArgs,
     });
     console.log(res);
@@ -315,28 +317,28 @@ function App() {
 
   /*** DApp ***/
   const getDAppTable = async () => {
-    const appsInfo = await coreConnector.getDAppTable();
+    const appsInfo = await dataverseConnector.getDAppTable();
     console.log(appsInfo);
     setAppListInfo(`${appsInfo.length} results show in console.`);
   };
 
   const getDAppInfo = async () => {
-    const appInfo = await coreConnector.getDAppInfo(dappId);
+    const appInfo = await dataverseConnector.getDAppInfo(appId);
     console.log(appInfo);
-    setAppInfo(JSON.stringify(appInfo));
+    setAppInfo(`1 result show in console.`);
     return appInfo;
   };
 
   const getValidAppCaps = async () => {
-    const appsInfo = await coreConnector.runOS({
-      method: Methods.getValidAppCaps,
+    const appsInfo = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.getValidAppCaps,
     });
     console.log(appsInfo);
   };
 
   const getModelBaseInfo = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.getModelBaseInfo,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.getModelBaseInfo,
       params: modelId,
     });
     console.log(res);
@@ -345,10 +347,10 @@ function App() {
 
   /*** Stream ***/
   const createCapability = async () => {
-    const pkh = await coreConnector.runOS({
-      method: Methods.createCapability,
+    const pkh = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createCapability,
       params: {
-        app,
+        appId,
         resource: RESOURCE.CERAMIC,
         wallet,
       },
@@ -359,10 +361,10 @@ function App() {
   };
 
   const checkCapability = async () => {
-    const isCurrentPkhValid = await coreConnector.runOS({
-      method: Methods.checkCapability,
+    const isCurrentPkhValid = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.checkCapability,
       params: {
-        app,
+        appId,
       },
     });
     console.log(isCurrentPkhValid);
@@ -378,8 +380,8 @@ function App() {
       videos: false,
     });
 
-    const res = await coreConnector.runOS({
-      method: Methods.createStream,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createStream,
       params: {
         modelId,
         streamContent: {
@@ -409,8 +411,8 @@ function App() {
       videos: false,
     });
 
-    const res = await coreConnector.runOS({
-      method: Methods.updateStream,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.updateStream,
       params: {
         streamId,
         streamContent: {
@@ -430,16 +432,16 @@ function App() {
   };
 
   const loadStream = async () => {
-    const stream = await coreConnector.runOS({
-      method: Methods.loadStream,
+    const stream = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadStream,
       params: streamId,
     });
     console.log(stream);
   };
 
   const loadStreamsBy = async () => {
-    const streams = await coreConnector.runOS({
-      method: Methods.loadStreamsBy,
+    const streams = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadStreamsBy,
       params: {
         modelId,
         pkh,
@@ -455,8 +457,8 @@ function App() {
 
   /*** Folders ***/
   const readFolders = async () => {
-    const folders = await coreConnector.runOS({
-      method: Methods.readFolders,
+    const folders = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.readFolders,
     });
     setFolders(folders);
     console.log({ folders });
@@ -464,8 +466,8 @@ function App() {
   };
 
   const createFolder = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.createFolder,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createFolder,
       params: {
         folderType: FolderType.Private,
         folderName: "Private",
@@ -477,8 +479,8 @@ function App() {
   };
 
   const updateFolderBaseInfo = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.updateFolderBaseInfo,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.updateFolderBaseInfo,
       params: {
         folderId,
         newFolderName: new Date().toISOString(),
@@ -489,8 +491,8 @@ function App() {
   };
 
   const changeFolderType = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.changeFolderType,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.changeFolderType,
       params: {
         folderId,
         targetFolderType: FolderType.Public,
@@ -502,8 +504,8 @@ function App() {
   const monetizeFolder = async () => {
     const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
 
-    const res = await coreConnector.runOS({
-      method: Methods.monetizeFolder,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.monetizeFolder,
       params: {
         folderId,
         folderDescription: "This is a payable folder.",
@@ -520,8 +522,8 @@ function App() {
   };
 
   const readFolderById = async () => {
-    const folder = await coreConnector.runOS({
-      method: Methods.readFolderById,
+    const folder = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.readFolderById,
       params: folderId,
     });
     console.log({ folder });
@@ -529,8 +531,8 @@ function App() {
   };
 
   const deleteFolder = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.deleteFolder,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.deleteFolder,
       params: { folderId },
     });
     console.log(res);
@@ -542,8 +544,8 @@ function App() {
     }
     await Promise.all(
       Object.keys(folders).map((folderId) =>
-        coreConnector.runOS({
-          method: Methods.deleteFolder,
+        dataverseConnector.runOS({
+          method: SYSTEM_CALL.deleteFolder,
           params: { folderId },
         })
       )
@@ -586,8 +588,8 @@ function App() {
       // }
       // console.log(bytes);
       // console.log(bytes.buffer);
-      const res = await coreConnector.runOS({
-        method: Methods.uploadFile,
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.uploadFile,
         params: {
           folderId,
           fileBase64,
@@ -604,8 +606,8 @@ function App() {
   };
 
   const updateFileBaseInfo = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.updateFileBaseInfo,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.updateFileBaseInfo,
       params: {
         indexFileId,
         fileInfo: {
@@ -617,8 +619,8 @@ function App() {
   };
 
   const moveFiles = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.moveFiles,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.moveFiles,
       params: {
         targetFolderId: folderId || (await getDefaultFolderId()),
         sourceIndexFileIds: [indexFileId],
@@ -637,8 +639,8 @@ function App() {
         lensNickName: "hello123456",
       });
 
-      const res = await coreConnector.runOS({
-        method: Methods.monetizeFile,
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.monetizeFile,
         params: {
           ...(indexFileId ? { indexFileId } : { streamId }),
           datatokenVars: {
@@ -687,8 +689,8 @@ function App() {
   };
 
   const removeFiles = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.removeFiles,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.removeFiles,
       params: {
         indexFileIds: [indexFileId],
       },
@@ -699,20 +701,20 @@ function App() {
 
   /*** Monetize ***/
   const createProfile = async () => {
-    await coreConnector.runOS({
-      method: Methods.switchNetwork,
+    await dataverseConnector.runOS({
+      method: SYSTEM_CALL.switchNetwork,
       params: 80001,
     });
-    const res = await coreConnector.runOS({
-      method: Methods.createProfile,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createProfile,
       params: "test6",
     });
     console.log(res);
   };
 
   const getProfiles = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.getProfiles,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.getProfiles,
       params: address,
     });
     console.log(res);
@@ -725,8 +727,8 @@ function App() {
     pkh: string;
     lensNickName?: string;
   }) => {
-    const lensProfiles = await coreConnector.runOS({
-      method: Methods.getProfiles,
+    const lensProfiles = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.getProfiles,
       params: getAddressFromPkh(pkh),
     });
 
@@ -740,8 +742,8 @@ function App() {
       if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
         throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
       }
-      profileId = await coreConnector.runOS({
-        method: Methods.createProfile,
+      profileId = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.createProfile,
         params: lensNickName,
       });
     }
@@ -753,8 +755,8 @@ function App() {
     try {
       // const indexFileId =
       //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
-      const res = await coreConnector.runOS({
-        method: Methods.unlock,
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.unlock,
         params: {
           ...(indexFileId ? { indexFileId } : { streamId }),
         },
@@ -768,8 +770,8 @@ function App() {
   const isCollected = async () => {
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
-    const res = await coreConnector.runOS({
-      method: Methods.isCollected,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.isCollected,
       params: {
         datatokenId,
         address,
@@ -780,8 +782,8 @@ function App() {
 
   const getDatatokenBaseInfo = async () => {
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
-    const res = await coreConnector.runOS({
-      method: Methods.getDatatokenBaseInfo,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.getDatatokenBaseInfo,
       params: datatokenId,
     });
     console.log(res);
@@ -827,6 +829,7 @@ function App() {
       <hr />
       <button onClick={getDAppInfo}>getDAppInfo</button>
       {appInfo}
+      <hr />
       <button onClick={getValidAppCaps}>getValidAppCaps</button>
       <button onClick={getModelBaseInfo}>getModelBaseInfo</button>
       <br />

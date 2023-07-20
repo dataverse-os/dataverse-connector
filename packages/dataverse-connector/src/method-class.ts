@@ -1,4 +1,4 @@
-import { RequestType, Methods } from "./types";
+import { RequestType, SYSTEM_CALL } from "./types";
 import { convertTxData } from "@dataverse/utils";
 import { Contract, ethers } from "ethers";
 
@@ -24,7 +24,7 @@ export class MethodClass {
     };
   }
 
-  async sign({ method, params }: RequestType[Methods.sign]) {
+  async sign({ method, params }: RequestType[SYSTEM_CALL.sign]) {
     const provider = new ethers.providers.Web3Provider(this.provider!, "any");
     const signer = provider.getSigner();
     const res = await signer[method as string](...params);
@@ -34,7 +34,7 @@ export class MethodClass {
   async ethereumRequest({
     method,
     params,
-  }: RequestType[Methods.ethereumRequest]) {
+  }: RequestType[SYSTEM_CALL.ethereumRequest]) {
     const res = await this.provider.request({
       method,
       params,
@@ -47,7 +47,7 @@ export class MethodClass {
     abi,
     method,
     params,
-  }: RequestType[Methods.contractCall]) {
+  }: RequestType[SYSTEM_CALL.contractCall]) {
     const provider = new ethers.providers.Web3Provider(this.provider!, "any");
     const signer = provider.getSigner();
     const contract = new Contract(contractAddress, abi, signer);

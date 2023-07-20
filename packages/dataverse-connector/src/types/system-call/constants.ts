@@ -1,4 +1,4 @@
-export enum Methods {
+export enum SYSTEM_CALL {
   connectWallet = "connectWallet",
   switchNetwork = "switchNetwork",
   sign = "sign",
@@ -8,8 +8,6 @@ export enum Methods {
   getPKP = "getPKP",
   executeLitAction = "executeLitAction",
 
-  getDAppTable = "getDAppTable",
-  getDAppInfo = "getDAppInfo",
   getValidAppCaps = "getValidAppCaps",
   getModelBaseInfo = "getModelBaseInfo",
 

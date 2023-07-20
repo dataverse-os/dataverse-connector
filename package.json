@@ -8,7 +8,7 @@
     "build:utils": "lerna run build --scope=@dataverse/utils",
     "build:communicator": "lerna run build --scope=@dataverse/communicator",
     "build:wallet-provider": "lerna run build --scope=@dataverse/wallet-provider",
-    "build:core-connector": "lerna run build --scope=@dataverse/core-connector",
+    "build:dataverse-connector": "lerna run build --scope=@dataverse/dataverse-connector",
     "test": "pnpm --filter 'demo' dev",
     "publish": "lerna publish --no-private"
   },

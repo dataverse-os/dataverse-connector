@@ -1,12 +1,12 @@
-import { RequestType, ReturnType, Methods } from "./event";
+import { RequestType, ReturnType, SYSTEM_CALL } from "./system-call";
 
 declare global {
   interface Window {
     dataverse: {
       isDataverse: boolean;
       connectWallet: (
-        params?: RequestType[Methods.connectWallet]
-      ) => ReturnType[Methods.connectWallet];
+        params?: RequestType[SYSTEM_CALL.connectWallet]
+      ) => ReturnType[SYSTEM_CALL.connectWallet];
       request: ({
         method,
         params,

@@ -1,5 +1,5 @@
 {
-  "name": "@dataverse/core-connector",
+  "name": "@dataverse/dataverse-connector",
   "version": "1.0.4",
   "description": "",
   "types": "dist/esm/index.d.ts",
@@ -11,7 +11,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dataverse-os/dataverse-connector.git",
-    "directory": "packages/core-connector"
+    "directory": "packages/dataverse-connector"
   },
   "scripts": {
     "test": "cd test && pnpm dev",

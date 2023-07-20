@@ -1,17 +1,10 @@
-import { Signer as EthersSigner, providers } from "ethers";
 import { StorageProvider } from "../types";
 import { SignMethod } from "../constants";
-import { Chain, WALLET } from "../crypto-wallet";
-import { AppsInfo, DAppInfo, DAppTable } from "../dapp-verifier/types";
-import { StreamObject } from "../data-models";
-import { StreamContent } from "../data-models/types";
-import {
-  CollectOutput,
-  DatatokenMetadata,
-  DatatokenVars,
-  DecryptionConditions,
-} from "../data-monetize/types";
-import { FileType, FolderType } from "../fs";
+import { Chain, WALLET } from "../wallet";
+import { ValidAppCaps } from "../app/types";
+import { StreamContent } from "../app";
+import { DatatokenVars, DecryptionConditions } from "../data-monetize/types";
+import { FolderType } from "../fs";
 import {
   FileInfo,
   MirrorFile,
@@ -19,9 +12,8 @@ import {
   StructuredFolder,
   StructuredFolders,
 } from "../fs/types";
-import { Methods } from "./constants";
-import { RESOURCE } from "../identity/constants";
-import { WalletProvider } from "@dataverse/wallet-provider";
+import { SYSTEM_CALL } from "./constants";
+import { RESOURCE } from "../wallet";
 
 export interface RequestType {
   connectWallet?: WALLET | undefined;
@@ -44,18 +36,16 @@ export interface RequestType {
   getPKP: void;
   executeLitAction: { code: string; jsParams: object };
 
-  getDAppTable: void;
-  getDAppInfo: string;
   getValidAppCaps: void;
   getModelBaseInfo: string;
 
   createCapability: {
-    app: string;
+    appId: string;
     resource?: RESOURCE;
     wallet?: WALLET;
   };
   checkCapability: {
-    app: string;
+    appId: string;
     resource?: RESOURCE;
   };
   loadStream: string;
@@ -157,16 +147,14 @@ export interface ReturnType {
   getPKP: Promise<{ address: string; publicKey: string }>;
   executeLitAction: Promise<any>;
 
-  getDAppTable: Promise<DAppTable>;
-  getDAppInfo: Promise<DAppInfo>;
-  getValidAppCaps: Promise<AppsInfo>;
+  getValidAppCaps: Promise<ValidAppCaps>;
   getModelBaseInfo: Promise<StreamContent>;
 
   createCapability: Promise<string>;
   checkCapability: Promise<boolean>;
   loadStream: Promise<{
     pkh: string;
-    app: string;
+    appId: string;
     modelId: string;
     streamContent:
       | {
@@ -179,7 +167,7 @@ export interface ReturnType {
     Record<
       string,
       {
-        app: string;
+        appId: string;
         modelId: string;
         pkh: string;
         streamContent:
@@ -193,7 +181,7 @@ export interface ReturnType {
   >;
   createStream: Promise<{
     pkh: string;
-    app: string;
+    appId: string;
     modelId: string;
     streamId: string;
     streamContent: {
@@ -270,9 +258,10 @@ export interface ReturnType {
   isCollected: Promise<boolean>;
   getDatatokenBaseInfo: Promise<object>;
 }
+
 export interface RequestInputs {
-  method: Methods;
-  params?: RequestType[Methods];
+  method: SYSTEM_CALL;
+  params?: RequestType[SYSTEM_CALL];
 }
 
 export interface RequestArguments {

@@ -5,3 +5,7 @@ export enum WALLET {
   PARTICLE = "Particle",
   EXTERNAL_WALLET = "ExternalWallet",
 }
+
+export enum RESOURCE {
+  CERAMIC,
+}
