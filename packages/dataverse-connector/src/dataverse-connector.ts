@@ -14,7 +14,7 @@ import {
   convertTxData,
 } from "@dataverse/utils";
 import { getDapp, getDapps } from "@dataverse/dapp-table-client";
-import web3 from "web3";
+import { getAddress } from "viem";
 import { Contract, ethers } from "ethers";
 import { MethodClass } from "./method-class";
 
@@ -42,16 +42,14 @@ export class DataverseConnector {
     this.communicator.setPostMessageTo(postMessageTo);
   }
 
-  getProvider() {
+  getProvider(): Window["dataverse"] | WalletProvider | any {
     return this.provider;
   }
 
-  async connectWallet(
-    params?: {
-      wallet?: WALLET | undefined;
-      provider?: Window["dataverse"] | WalletProvider | any;
-    }
-  ): Promise<ReturnType[SYSTEM_CALL.connectWallet]> {
+  async connectWallet(params?: {
+    wallet?: WALLET | undefined;
+    provider?: Window["dataverse"] | WalletProvider | any;
+  }): Promise<ReturnType[SYSTEM_CALL.connectWallet]> {
     let wallet: WALLET;
     let provider: Window["dataverse"] | WalletProvider | any;
     if (params) {
@@ -107,7 +105,7 @@ export class DataverseConnector {
         chainId === 80001 ? "mumbai" : chainId === 1 ? "ethereum" : "Unknown";
     });
     this.provider.on("accountsChanged", (accounts: string[]) => {
-      this.address = web3.utils.toChecksumAddress(accounts[0]);
+      this.address = getAddress(accounts[0]);
     });
 
     this.isConnected = true;

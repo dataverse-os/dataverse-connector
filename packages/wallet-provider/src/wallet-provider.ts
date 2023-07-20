@@ -13,34 +13,40 @@ import {
 import { formatSendTransactionData } from "@dataverse/utils";
 
 export class WalletProvider extends EventEmitter<ConnecterEvents> {
-  private signer: Signer;
+  private signer: ethers.providers.JsonRpcSigner;
   isDataverse = true;
 
-  signMessage(message: Bytes | string): Promise<string> {
-    return window.dataverse.sign({
-      method: "signMessage",
-      params: [message],
-    });
+  async connectWallet(wallet?: string) {
+    const res = await window.dataverse.connectWallet(wallet);
+    const provider = new ethers.providers.Web3Provider(this, "any");
+    this.signer = provider.getSigner();
+    return res;
   }
 
-  _signTypedData(
+  async signMessage(message: Bytes | string): Promise<string> {
+    if (!this.signer) {
+      await this.connectWallet();
+    }
+    return this.signer.signMessage(message);
+  }
+
+  async _signTypedData(
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
     message: Record<string, Array<TypedDataField> | string>
   ): Promise<string> {
-    return window.dataverse.sign({
-      method: "_signTypedData",
-      params: [domain, types, message],
-    });
-  }
-
-  signTransaction(): Promise<string> {
-    throw new Error("'signTransaction' is unsupported !");
+    if (!this.signer) {
+      await this.connectWallet();
+    }
+    return this.signer._signTypedData(domain, types, message);
   }
 
   async sendTransaction(
     transaction: Deferrable<TransactionRequest> | (string | Promise<string>)
   ): Promise<TransactionResponse> {
+    if (!this.signer) {
+      await this.connectWallet();
+    }
     if (transaction && typeof transaction === "object") {
       transaction = transaction as TransactionRequest;
       if (!transaction?.from) {
@@ -59,10 +65,6 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
           }
         }
       });
-      if (!this.signer) {
-        const ethersProvider = new ethers.providers.Web3Provider(this, "any");
-        this.signer = ethersProvider.getSigner();
-      }
       return this.signer.sendTransaction(transaction);
     } else {
       return window.dataverse.request({

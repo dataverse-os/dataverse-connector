@@ -1,7 +1,5 @@
 export enum SYSTEM_CALL {
   connectWallet = "connectWallet",
-  switchNetwork = "switchNetwork",
-  sign = "sign",
   contractCall = "contractCall",
   ethereumRequest = "ethereumRequest",
   getCurrentPkh = "getCurrentPkh",

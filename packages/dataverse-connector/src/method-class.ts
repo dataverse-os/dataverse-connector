@@ -24,7 +24,7 @@ export class MethodClass {
     };
   }
 
-  async sign({ method, params }: RequestType[SYSTEM_CALL.sign]) {
+  async sign({ method, params }: { method: string; params: any[] }) {
     const provider = new ethers.providers.Web3Provider(this.provider!, "any");
     const signer = provider.getSigner();
     const res = await signer[method as string](...params);
