@@ -36,7 +36,7 @@ export type ValidAppCaps = (DAppInfo & {
   isIdentityValid: boolean;
 })[];
 
-export type StreamContent = Record<string, unknown>;
+export type StreamContent = Record<string, any>;
 
 export interface StreamsRecord {
   [streamId: string]: StreamContent;
