@@ -11,11 +11,9 @@ import {
 import {
   detectDataverseExtension,
   formatSendTransactionData,
-  convertTxData,
 } from "@dataverse/utils";
 import { getDapp, getDapps } from "@dataverse/dapp-table-client";
 import { getAddress } from "viem";
-import { Contract, ethers } from "ethers";
 import { MethodClass } from "./method-class";
 
 export class DataverseConnector {

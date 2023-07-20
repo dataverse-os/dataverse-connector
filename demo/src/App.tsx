@@ -98,7 +98,7 @@ function App() {
       });
       provider.on("accountsChanged", (accounts: Array<string>) => {
         console.log(accounts);
-        setAddress(web3.utils.toChecksumAddress(accounts[0]));
+        setAddress(getAddress(accounts[0]));
       });
       setHasAddListener(true);
     }

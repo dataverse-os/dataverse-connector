@@ -1,4 +1,4 @@
-export const checkIsExtensionInjected = (): Promise<boolean> => {
+export function checkIsExtensionInjected(): Promise<boolean> {
   return new Promise((resolve) => {
     let flag = false;
     const interval = setInterval(() => {
@@ -18,7 +18,7 @@ export const checkIsExtensionInjected = (): Promise<boolean> => {
       }
     }, 1000);
   });
-};
+}
 
 export function detectExtension(extensionId: string): Promise<boolean> {
   const img = new Image();
