@@ -46,13 +46,21 @@ export class DataverseConnector {
     return this.provider;
   }
 
-  async connectWallet({
-    wallet,
-    provider = window.dataverse,
-  }: {
-    wallet?: WALLET | undefined;
-    provider?: Window["dataverse"] | WalletProvider | any;
-  }): Promise<ReturnType[SYSTEM_CALL.connectWallet]> {
+  async connectWallet(
+    params?: {
+      wallet?: WALLET | undefined;
+      provider?: Window["dataverse"] | WalletProvider | any;
+    }
+  ): Promise<ReturnType[SYSTEM_CALL.connectWallet]> {
+    let wallet: WALLET;
+    let provider: Window["dataverse"] | WalletProvider | any;
+    if (params) {
+      wallet = params.wallet;
+      provider = params.provider || window.dataverse;
+    } else {
+      provider = window.dataverse;
+    }
+
     if (provider.isDataverse) {
       if (!(await detectDataverseExtension())) {
         throw "The plugin has not been loaded yet. Please check the plugin status or go to https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead to install plugins";
@@ -133,7 +141,8 @@ export class DataverseConnector {
         "eth_sendTransaction"
       ) {
         if (
-          !(params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]?.from
+          !(params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]
+            ?.from
         ) {
           (params as RequestType[SYSTEM_CALL.ethereumRequest]).params[0].from =
             this.address;
@@ -142,8 +151,9 @@ export class DataverseConnector {
           Object.entries(
             (params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]
           ).forEach(([key, value]) => {
-            (params as RequestType[SYSTEM_CALL.ethereumRequest]).params[0][key] =
-              formatSendTransactionData(value);
+            (params as RequestType[SYSTEM_CALL.ethereumRequest]).params[0][
+              key
+            ] = formatSendTransactionData(value);
           });
         }
       }
