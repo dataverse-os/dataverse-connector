@@ -5,17 +5,17 @@ export interface RequestInputs {
 
 export interface RequestArguments {
   sequenceId: string;
-  type: "request";
+  type: 'request';
   postMessageTo: PostMessageTo;
 }
 
 export interface ResponseArguments {
   sequenceId: string;
-  type: "response";
+  type: 'response';
   result: object;
 }
 
-export type PostMessageTo = "Extension" | "Browser";
+export type PostMessageTo = 'Extension' | 'Browser';
 
 export type Any = Record<string, any>;
 

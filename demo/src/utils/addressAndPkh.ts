@@ -1,3 +1,3 @@
 export function getAddressFromPkh(pkh: string) {
-  return pkh.slice(pkh.lastIndexOf(":") + 1);
+  return pkh.slice(pkh.lastIndexOf(':') + 1);
 }

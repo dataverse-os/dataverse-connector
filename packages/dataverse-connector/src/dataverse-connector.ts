@@ -1,5 +1,5 @@
-import { Communicator, PostMessageTo } from "@dataverse/communicator";
-import { WalletProvider } from "@dataverse/wallet-provider";
+import { Communicator, PostMessageTo } from '@dataverse/communicator';
+import { WalletProvider } from '@dataverse/wallet-provider';
 import {
   RequestType,
   SYSTEM_CALL,
@@ -7,23 +7,21 @@ import {
   Chain,
   WALLET,
   Extension,
-} from "./types";
+} from './types';
 import {
   detectDataverseExtension,
   formatSendTransactionData,
-  convertTxData,
-} from "@dataverse/utils";
-import { getDapp, getDapps } from "@dataverse/dapp-table-client";
-import web3 from "web3";
-import { Contract, ethers } from "ethers";
-import { MethodClass } from "./method-class";
+} from '@dataverse/utils';
+import { getDapp, getDapps } from '@dataverse/dapp-table-client';
+import web3 from 'web3';
+import { MethodClass } from './method-class';
 
 export class DataverseConnector {
   private communicator: Communicator;
-  private provider?: Window["dataverse"] | WalletProvider | any;
+  private provider?: Window['dataverse'] | WalletProvider | any;
   private methodClass: MethodClass;
   isConnected?: boolean;
-  wallet?: WALLET | "Unknown";
+  wallet?: WALLET | 'Unknown';
   address?: string;
   chain?: Chain;
   appId?: string;
@@ -46,14 +44,12 @@ export class DataverseConnector {
     return this.provider;
   }
 
-  async connectWallet(
-    params?: {
-      wallet?: WALLET | undefined;
-      provider?: Window["dataverse"] | WalletProvider | any;
-    }
-  ): Promise<ReturnType[SYSTEM_CALL.connectWallet]> {
+  async connectWallet(params?: {
+    wallet?: WALLET | undefined;
+    provider?: Window['dataverse'] | WalletProvider | any;
+  }): Promise<ReturnType[SYSTEM_CALL.connectWallet]> {
     let wallet: WALLET;
-    let provider: Window["dataverse"] | WalletProvider | any;
+    let provider: Window['dataverse'] | WalletProvider | any;
     if (params) {
       wallet = params.wallet;
       provider = params.provider || window.dataverse;
@@ -63,24 +59,24 @@ export class DataverseConnector {
 
     if (provider.isDataverse) {
       if (!(await detectDataverseExtension())) {
-        throw "The plugin has not been loaded yet. Please check the plugin status or go to https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead to install plugins";
+        throw 'The plugin has not been loaded yet. Please check the plugin status or go to https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead to install plugins';
       }
       if (wallet === WALLET.EXTERNAL_WALLET) {
-        throw "Conflict between wallet and provider";
+        throw 'Conflict between wallet and provider';
       }
       const res = await window.dataverse.connectWallet(wallet);
 
       this.provider = new WalletProvider();
-      this.provider.off("chainChanged");
-      this.provider.off("chainNameChanged");
-      this.provider.off("accountsChanged");
-      this.provider.on("chainChanged", (chainId: number) => {
+      this.provider.off('chainChanged');
+      this.provider.off('chainNameChanged');
+      this.provider.off('accountsChanged');
+      this.provider.on('chainChanged', (chainId: number) => {
         this.chain.chainId = chainId;
       });
-      this.provider.on("chainNameChanged", (chainName: string) => {
+      this.provider.on('chainNameChanged', (chainName: string) => {
         this.chain.chainName = chainName;
       });
-      this.provider.on("accountsChanged", (accounts: string[]) => {
+      this.provider.on('accountsChanged', (accounts: string[]) => {
         this.address = accounts[0];
       });
 
@@ -98,15 +94,15 @@ export class DataverseConnector {
     this.methodClass.setProvider(provider);
     this.provider = provider;
     const res = await window.dataverse.connectWallet(WALLET.EXTERNAL_WALLET);
-    this.provider.removeAllListeners("chainChanged");
-    this.provider.removeAllListeners("accountsChanged");
-    this.provider.on("chainChanged", (networkId: string) => {
+    this.provider.removeAllListeners('chainChanged');
+    this.provider.removeAllListeners('accountsChanged');
+    this.provider.on('chainChanged', (networkId: string) => {
       const chainId = Number(networkId);
       this.chain.chainId = chainId;
       this.chain.chainName =
-        chainId === 80001 ? "mumbai" : chainId === 1 ? "ethereum" : "Unknown";
+        chainId === 80001 ? 'mumbai' : chainId === 1 ? 'ethereum' : 'Unknown';
     });
-    this.provider.on("accountsChanged", (accounts: string[]) => {
+    this.provider.on('accountsChanged', (accounts: string[]) => {
       this.address = web3.utils.toChecksumAddress(accounts[0]);
     });
 
@@ -138,7 +134,7 @@ export class DataverseConnector {
       // params = params as RequestType[SYSTEM_CALL.ethereumRequest];
       if (
         (params as RequestType[SYSTEM_CALL.ethereumRequest]).method ===
-        "eth_sendTransaction"
+        'eth_sendTransaction'
       ) {
         if (
           !(params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]
@@ -149,7 +145,7 @@ export class DataverseConnector {
         }
         if ((params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]) {
           Object.entries(
-            (params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]
+            (params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0],
           ).forEach(([key, value]) => {
             (params as RequestType[SYSTEM_CALL.ethereumRequest]).params[0][
               key

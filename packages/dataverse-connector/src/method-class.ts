@@ -1,6 +1,6 @@
-import { RequestType, SYSTEM_CALL } from "./types";
-import { convertTxData } from "@dataverse/utils";
-import { Contract, ethers } from "ethers";
+import { RequestType, SYSTEM_CALL } from './types';
+import { convertTxData } from '@dataverse/utils';
+import { Contract, ethers } from 'ethers';
 
 export class MethodClass {
   provider: any;
@@ -10,12 +10,12 @@ export class MethodClass {
   }
 
   async connectWallet() {
-    const provider = new ethers.providers.Web3Provider(this.provider, "any");
-    await provider.send("eth_requestAccounts", []);
+    const provider = new ethers.providers.Web3Provider(this.provider, 'any');
+    await provider.send('eth_requestAccounts', []);
     const signer = provider.getSigner();
     const address = await signer.getAddress();
     const { chainId } = await provider.getNetwork();
-    const namespace = "eip155";
+    const namespace = 'eip155';
     const reference = String(chainId);
     return {
       address,
@@ -25,7 +25,7 @@ export class MethodClass {
   }
 
   async sign({ method, params }: RequestType[SYSTEM_CALL.sign]) {
-    const provider = new ethers.providers.Web3Provider(this.provider!, "any");
+    const provider = new ethers.providers.Web3Provider(this.provider!, 'any');
     const signer = provider.getSigner();
     const res = await signer[method as string](...params);
     return res;
@@ -48,11 +48,11 @@ export class MethodClass {
     method,
     params,
   }: RequestType[SYSTEM_CALL.contractCall]) {
-    const provider = new ethers.providers.Web3Provider(this.provider!, "any");
+    const provider = new ethers.providers.Web3Provider(this.provider!, 'any');
     const signer = provider.getSigner();
     const contract = new Contract(contractAddress, abi, signer);
     const tx = await contract[method](...params);
-    if (tx && typeof tx === "object" && tx.wait) {
+    if (tx && typeof tx === 'object' && tx.wait) {
       let res = await tx.wait();
       res = convertTxData(res);
       return res;

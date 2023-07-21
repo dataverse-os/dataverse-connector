@@ -1,11 +1,15 @@
-import { RequestType, ReturnType, SYSTEM_CALL } from "@dataverse/dataverse-connector";
+import {
+  RequestType,
+  ReturnType,
+  SYSTEM_CALL,
+} from '@dataverse/dataverse-connector';
 
 declare global {
   interface Window {
     dataverse: {
       isDataverse: boolean;
       connectWallet: (
-        params?: RequestType[SYSTEM_CALL.connectWallet]
+        params?: RequestType[SYSTEM_CALL.connectWallet],
       ) => ReturnType[SYSTEM_CALL.connectWallet];
       request: ({
         method,

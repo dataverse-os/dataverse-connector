@@ -1,5 +1,5 @@
-import { ethers } from "ethers";
-import { WALLET } from ".";
+import { ethers } from 'ethers';
+import { WALLET } from '.';
 
 export type PROVIDER =
   | ethers.providers.Web3Provider
