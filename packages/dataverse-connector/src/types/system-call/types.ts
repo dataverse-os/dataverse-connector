@@ -1,19 +1,18 @@
-import { StorageProvider } from "../types";
-import { SignMethod } from "../constants";
-import { Chain, WALLET } from "../wallet";
-import { ValidAppCaps } from "../app/types";
-import { StreamContent } from "../app";
-import { DatatokenVars, DecryptionConditions } from "../data-monetize/types";
-import { FolderType } from "../fs";
+import { StorageProvider } from '../types';
+import { Chain, WALLET } from '../wallet';
+import { ValidAppCaps } from '../app/types';
+import { StreamContent } from '../app';
+import { DatatokenVars, DecryptionConditions } from '../data-monetize/types';
+import { FolderType } from '../fs';
 import {
   FileInfo,
   MirrorFile,
   MirrorFiles,
   StructuredFolder,
   StructuredFolders,
-} from "../fs/types";
-import { SYSTEM_CALL } from "./constants";
-import { RESOURCE } from "../wallet";
+} from '../fs/types';
+import { SYSTEM_CALL } from './constants';
+import { RESOURCE } from '../wallet';
 
 export interface RequestType {
   connectWallet?: WALLET | undefined;
@@ -73,7 +72,7 @@ export interface RequestType {
   monetizeFolder: {
     folderId: string;
     folderDescription: string;
-    datatokenVars: Omit<DatatokenVars, "streamId">;
+    datatokenVars: Omit<DatatokenVars, 'streamId'>;
   };
 
   uploadFile: {
@@ -87,11 +86,11 @@ export interface RequestType {
     indexFileId: string;
     fileInfo?: Omit<
       FileInfo,
-      | "datatokenId"
-      | "fileKey"
-      | "encryptedSymmetricKey"
-      | "decryptionConditions"
-      | "decryptionConditionsType"
+      | 'datatokenId'
+      | 'fileKey'
+      | 'encryptedSymmetricKey'
+      | 'decryptionConditions'
+      | 'decryptionConditionsType'
     >;
     syncImmediately?: boolean;
   };
@@ -103,7 +102,7 @@ export interface RequestType {
   monetizeFile: {
     streamId?: string;
     indexFileId?: string;
-    datatokenVars: Omit<DatatokenVars, "streamId">;
+    datatokenVars: Omit<DatatokenVars, 'streamId'>;
     decryptionConditions?: DecryptionConditions;
   };
   removeFiles: {
@@ -135,7 +134,7 @@ export interface ReturnType {
     modelId: string;
     streamContent:
       | {
-          file?: Omit<MirrorFile, "fileKey" | "content">;
+          file?: Omit<MirrorFile, 'fileKey' | 'content'>;
           content?: StreamContent;
         }
       | StreamContent;
@@ -149,7 +148,7 @@ export interface ReturnType {
         pkh: string;
         streamContent:
           | {
-              file?: Omit<MirrorFile, "fileKey" | "content">;
+              file?: Omit<MirrorFile, 'fileKey' | 'content'>;
               content?: StreamContent;
             }
           | StreamContent;
@@ -162,13 +161,13 @@ export interface ReturnType {
     modelId: string;
     streamId: string;
     streamContent: {
-      file: Omit<MirrorFile, "fileKey" | "content">;
+      file: Omit<MirrorFile, 'fileKey' | 'content'>;
       content: StreamContent;
     };
   }>;
   updateStream: Promise<{
     streamContent: {
-      file: Omit<MirrorFile, "fileKey" | "content">;
+      file: Omit<MirrorFile, 'fileKey' | 'content'>;
       content: StreamContent;
     };
   }>;
@@ -214,7 +213,7 @@ export interface ReturnType {
   }>;
   monetizeFile: Promise<{
     streamContent: {
-      file: Omit<MirrorFile, "fileKey" | "content">;
+      file: Omit<MirrorFile, 'fileKey' | 'content'>;
       content: StreamContent | string;
     };
   }>;
@@ -226,7 +225,7 @@ export interface ReturnType {
 
   unlock: Promise<{
     streamContent: {
-      file: Omit<MirrorFile, "fileKey" | "content">;
+      file: Omit<MirrorFile, 'fileKey' | 'content'>;
       content: StreamContent | string;
     };
   }>;
@@ -239,12 +238,12 @@ export interface RequestInputs {
 
 export interface RequestArguments {
   sequenceId: number;
-  type: "request";
+  type: 'request';
 }
 
 export interface ResponseArguments {
   sequenceId: number;
-  type: "response";
+  type: 'response';
   result: object;
 }
 
@@ -254,5 +253,5 @@ export interface EventInput {
 }
 
 export interface EventArguments {
-  type: "request";
+  type: 'request';
 }

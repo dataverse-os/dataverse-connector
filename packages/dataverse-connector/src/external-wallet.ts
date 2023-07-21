@@ -1,5 +1,5 @@
-import { convertTxData } from "@dataverse/utils";
-import { Contract, ethers } from "ethers";
+import { convertTxData } from '@dataverse/utils';
+import { Contract, ethers } from 'ethers';
 
 export class ExternalWallet {
   externalProvider: any;
@@ -17,13 +17,13 @@ export class ExternalWallet {
   }> {
     const provider = new ethers.providers.Web3Provider(
       this.externalProvider,
-      "any"
+      'any',
     );
-    await provider.send("eth_requestAccounts", []);
+    await provider.send('eth_requestAccounts', []);
     const signer = provider.getSigner();
     const address = await signer.getAddress();
     const { chainId } = await provider.getNetwork();
-    const namespace = "eip155";
+    const namespace = 'eip155';
     const reference = String(chainId);
     this.provider = provider;
     this.signer = signer;
@@ -74,7 +74,7 @@ export class ExternalWallet {
     const tx = await (params
       ? contract[method](...params)
       : contract[method]());
-    if (tx && typeof tx === "object" && tx.wait) {
+    if (tx && typeof tx === 'object' && tx.wait) {
       let res = await tx.wait();
       res = convertTxData(res);
       return res;

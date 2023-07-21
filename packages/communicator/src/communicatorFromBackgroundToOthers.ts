@@ -1,17 +1,17 @@
-import { CORRECT_CODE } from "./constants";
-import { EventMessage } from "./types";
+import { CORRECT_CODE } from './constants';
+import { EventMessage } from './types';
 
 interface Chrome {
   tabs: {
     sendMessage: (tabId: number, message: EventMessage, fn?: Function) => void;
     query: (
       { active, currentWindow }: { active?: boolean; currentWindow?: boolean },
-      fn?: Function
+      fn?: Function,
     ) => void;
   };
 }
 
-declare var chrome: Chrome;
+declare let chrome: Chrome;
 
 export class CommunicatorFromBackgroundToOthers {
   constructor() {}
@@ -32,7 +32,7 @@ export class CommunicatorFromBackgroundToOthers {
 
   async sendMessageToAllTabs(message: EventMessage) {
     const tabIds = await this.getAllTabIds();
-    return tabIds.map((tabId) => {
+    return tabIds.map(tabId => {
       chrome.tabs.sendMessage(tabId || 0, message);
     });
   }
@@ -48,7 +48,7 @@ export class CommunicatorFromBackgroundToOthers {
           },
           (tabs: any) => {
             resolve(tabs[0]?.id);
-          }
+          },
         );
       } catch (error) {
         reject(error);
@@ -61,7 +61,7 @@ export class CommunicatorFromBackgroundToOthers {
     return new Promise((resolve, reject) => {
       try {
         chrome.tabs.query({}, (tabs: any) => {
-          resolve(tabs.map((tab) => tab.id));
+          resolve(tabs.map(tab => tab.id));
         });
       } catch (error) {
         reject(error);

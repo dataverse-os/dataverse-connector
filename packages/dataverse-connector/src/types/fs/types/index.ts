@@ -9,7 +9,7 @@ export type {
   PrivateFolderOptions,
   PublicFolderOptions,
   DatatokenFolderOptions,
-} from "./folder";
+} from './folder';
 
 export type {
   IndexFile,
@@ -20,6 +20,6 @@ export type {
   Comment,
   Relation,
   Additional,
-} from "./index-file";
+} from './index-file';
 
-export type { Mirror, Mirrors, MirrorFile, MirrorFiles } from "./mirrors";
+export type { Mirror, Mirrors, MirrorFile, MirrorFiles } from './mirrors';
