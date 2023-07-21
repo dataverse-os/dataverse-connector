@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/wallet-provider",
-  "version": "1.0.6",
+  "version": "1.0.9",
   "description": "",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",
@@ -20,7 +20,7 @@
     "build": "pnpm build:esm && pnpm build:cjs"
   },
   "dependencies": {
-    "@dataverse/utils": "1.0.2",
+    "@dataverse/utils": "1.0.7",
     "@ethersproject/abstract-signer": "^5.7.0",
     "@ethersproject/providers": "^5.7.0",
     "ethers": "5.6.9",

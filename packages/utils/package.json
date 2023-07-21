@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/utils",
-  "version": "1.0.2",
+  "version": "1.0.7",
   "description": "",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",
@@ -21,7 +21,8 @@
   },
   "dependencies": {
     "ethers": "5.6.9",
-    "graphql-request": "^6.1.0"
+    "graphql-request": "^6.1.0",
+    "graphql": "16.6.0"
   },
   "keywords": [],
   "author": "",
