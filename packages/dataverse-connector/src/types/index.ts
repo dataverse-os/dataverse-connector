@@ -14,7 +14,7 @@ export {
   type DAppInfo,
   type DAppTable,
 } from "./app";
-export type { StreamObject, StreamContent } from "./app";
+export type { StreamRecord } from "./app";
 export {
   Currency,
   DecryptionConditionsTypes,

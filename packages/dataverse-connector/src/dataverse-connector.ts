@@ -8,7 +8,15 @@ import {
   WALLET,
   Extension,
 } from "./types";
-import { detectDataverseExtension } from "@dataverse/utils";
+import {
+  createLensProfile,
+  getLensProfileIdByHandle,
+  getLensProfiles,
+  detectDataverseExtension,
+  getDatatokenBaseInfo,
+  isCollected,
+} from "@dataverse/utils";
+import { ethers } from "ethers";
 import { getDapp, getDapps } from "@dataverse/dapp-table-client";
 import { getAddress } from "viem";
 import { ExternalWallet } from "./external-wallet";
@@ -128,31 +136,6 @@ export class DataverseConnector {
       });
     }
 
-    // else if (method === SYSTEM_CALL.ethereumRequest) {
-    //   // params = params as RequestType[SYSTEM_CALL.ethereumRequest];
-    //   if (
-    //     (params as RequestType[SYSTEM_CALL.ethereumRequest]).method ===
-    //     "eth_sendTransaction"
-    //   ) {
-    //     if (
-    //       !(params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]
-    //         ?.from
-    //     ) {
-    //       (params as RequestType[SYSTEM_CALL.ethereumRequest]).params[0].from =
-    //         this.address;
-    //     }
-    //     if ((params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]) {
-    //       Object.entries(
-    //         (params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]
-    //       ).forEach(([key, value]) => {
-    //         (params as RequestType[SYSTEM_CALL.ethereumRequest]).params[0][
-    //           key
-    //         ] = formatSendTransactionData(value);
-    //       });
-    //     }
-    //   }
-    // }
-
     const res = (await this.communicator.sendRequest({
       method,
       params,
@@ -171,5 +154,31 @@ export class DataverseConnector {
 
   getDAppInfo(dappId: string) {
     return getDapp(dappId);
+  }
+
+  async createProfile(handle: string): Promise<string> {
+    const provider = new ethers.providers.Web3Provider(this.provider, "any");
+    const signer = provider.getSigner();
+    const id = await getLensProfileIdByHandle({ handle, signer });
+    if (id != 0) throw new Error("Handle is taken, try a new handle.");
+    return createLensProfile({ handle, signer });
+  }
+
+  async getProfiles(address: string): Promise<{ id: string }[]> {
+    return getLensProfiles(address);
+  }
+
+  async isCollected({
+    datatokenId,
+    address,
+  }: {
+    datatokenId: string;
+    address: string;
+  }): Promise<boolean> {
+    return isCollected({ datatokenId, address });
+  }
+
+  async getDatatokenBaseInfo(datatokenId: string): Promise<object> {
+    return getDatatokenBaseInfo(datatokenId);
   }
 }

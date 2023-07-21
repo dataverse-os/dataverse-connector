@@ -111,11 +111,7 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
 
-  createProfile: string;
-  getProfiles: string;
   unlock: { streamId?: string; indexFileId?: string };
-  isCollected: { datatokenId: string; address: string };
-  getDatatokenBaseInfo: string;
 }
 
 export interface ReturnType {
@@ -228,16 +224,12 @@ export interface ReturnType {
     allFolders: StructuredFolders;
   }>;
 
-  createProfile: Promise<string>;
-  getProfiles: Promise<{ id: string }[]>;
   unlock: Promise<{
     streamContent: {
       file: Omit<MirrorFile, "fileKey" | "content">;
       content: StreamContent | string;
     };
   }>;
-  isCollected: Promise<boolean>;
-  getDatatokenBaseInfo: Promise<object>;
 }
 
 export interface RequestInputs {

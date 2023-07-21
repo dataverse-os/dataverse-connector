@@ -28,9 +28,5 @@ export enum SYSTEM_CALL {
   removeFiles = "removeFiles",
   monetizeFile = "monetizeFile",
 
-  createProfile = "createProfile",
-  getProfiles = "getProfiles",
   unlock = "unlock",
-  isCollected = "isCollected",
-  getDatatokenBaseInfo = "getDatatokenBaseInfo",
 }

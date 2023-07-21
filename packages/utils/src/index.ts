@@ -1,3 +1,8 @@
-export { detectDataverseExtension } from "./extensionDetector";
-export { formatSendTransactionData } from "./formatSendTransactionData";
-export { convertTxData } from "./convertTxData";
+export { detectDataverseExtension } from "./extension-detector";
+export { convertTxData, formatSendTransactionData } from "./formatter";
+export {
+  createLensProfile,
+  getLensProfileIdByHandle,
+  getLensProfiles,
+} from "./lens-profile";
+export { isCollected, getDatatokenBaseInfo } from "./datatoken";

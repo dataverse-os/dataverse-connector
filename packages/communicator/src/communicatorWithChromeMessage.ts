@@ -39,7 +39,7 @@ export class CommunicatorWithChromeMessage {
     this.methodClass = methodClass;
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const onmessage = this._onmessage.bind(this);
-      onmessage(message, sender, sendResponse).then((res) => {
+      onmessage(message, sender).then((res) => {
         sendResponse(res);
       });
       return true;
@@ -84,7 +84,7 @@ export class CommunicatorWithChromeMessage {
     this.responseSequenceIds[args.sequenceId] = true;
   }
 
-  private async _onmessage(message, sender, _sendResponse) {
+  private async _onmessage(message, sender) {
     if (this.destroyed) return null;
     if (message.type === RESPONSE) {
       const args = message.data as ResponseArguments;

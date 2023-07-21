@@ -15,7 +15,6 @@ import {
 import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
 import { WalletProvider } from "@dataverse/wallet-provider";
-import { getAddressFromPkh } from "./utils/addressAndPkh";
 
 const dataverseConnector = new DataverseConnector();
 
@@ -704,18 +703,12 @@ function App() {
       method: "wallet_switchEthereumChain",
       params: [{ chainId: "0x13881" }],
     });
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.createProfile,
-      params: "test6",
-    });
+    const res = await dataverseConnector.createProfile("test01");
     console.log(res);
   };
 
   const getProfiles = async () => {
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.getProfiles,
-      params: address,
-    });
+    const res = await dataverseConnector.getProfiles(address);
     console.log(res);
   };
 
@@ -726,10 +719,9 @@ function App() {
     pkh: string;
     lensNickName?: string;
   }) => {
-    const lensProfiles = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.getProfiles,
-      params: getAddressFromPkh(pkh),
-    });
+    const lensProfiles = await dataverseConnector.getProfiles(
+      pkh.slice(pkh.lastIndexOf(":") + 1)
+    );
 
     let profileId;
     if (lensProfiles?.[0]?.id) {
@@ -741,10 +733,7 @@ function App() {
       if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
         throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
       }
-      profileId = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.createProfile,
-        params: lensNickName,
-      });
+      profileId = await dataverseConnector.createProfile(lensNickName);
     }
 
     return profileId;
@@ -769,22 +758,16 @@ function App() {
   const isCollected = async () => {
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.isCollected,
-      params: {
-        datatokenId,
-        address,
-      },
+    const res = await dataverseConnector.isCollected({
+      datatokenId,
+      address,
     });
     console.log(res);
   };
 
   const getDatatokenBaseInfo = async () => {
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.getDatatokenBaseInfo,
-      params: datatokenId,
-    });
+    const res = await dataverseConnector.getDatatokenBaseInfo(datatokenId);
     console.log(res);
   };
   /*** Monetize ***/
