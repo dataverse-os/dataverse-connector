@@ -4,7 +4,7 @@
     "demo"
   ],
   "scripts": {
-    "build": "lerna run build",
+    "build": "npm run format && npm run lint:fix && lerna run build",
     "build:utils": "lerna run build --scope=@dataverse/utils",
     "build:communicator": "lerna run build --scope=@dataverse/communicator",
     "build:wallet-provider": "lerna run build --scope=@dataverse/wallet-provider",
