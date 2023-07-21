@@ -1,6 +1,6 @@
-export { Currency } from './constants';
+export { Currency } from "./constants";
 
-export { DecryptionConditionsTypes } from './constants';
+export { DecryptionConditionsTypes } from "./constants";
 
 export type {
   DatatokenVars,
@@ -8,4 +8,4 @@ export type {
   AccessControlCondition,
   BooleanCondition,
   UnifiedAccessControlCondition,
-} from './types';
+} from "./types";

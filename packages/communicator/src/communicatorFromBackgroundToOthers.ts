@@ -1,5 +1,5 @@
-import { CORRECT_CODE } from './constants';
-import { EventMessage } from './types';
+import { CORRECT_CODE } from "./constants";
+import { EventMessage } from "./types";
 
 interface Chrome {
   tabs: {

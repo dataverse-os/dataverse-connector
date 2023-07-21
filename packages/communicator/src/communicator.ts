@@ -4,14 +4,14 @@ import {
   REQUEST,
   RESPONSE,
   UNKNOWN_CODE,
-} from './constants';
+} from "./constants";
 import {
   RequestInputs,
   ResponseArguments,
   RequestArguments,
   PostMessageTo,
-} from './types';
-import { generateNanoid } from './utils';
+} from "./types";
+import { generateNanoid } from "./utils";
 /**
  * use to communicate between browser (runtime-connector) and extension (dataverse-kernel)
  */
@@ -20,7 +20,7 @@ export class Communicator {
   protected sourceOrigin: Window;
   protected methodClass: any;
   protected postMessageTo: PostMessageTo;
-  protected allowOrigins = '*';
+  protected allowOrigins = "*";
   protected destroyed: boolean = false;
   protected sequenceId: string = generateNanoid();
   protected callbackFunctions: Record<string, Function> = {};
@@ -100,7 +100,7 @@ export class Communicator {
         this.handleRequestMessage(event);
       } else {
         const callbackFunc = this.callbackFunctions[args.sequenceId];
-        if (callbackFunc !== undefined && typeof callbackFunc === 'function')
+        if (callbackFunc !== undefined && typeof callbackFunc === "function")
           callbackFunc(args.result);
       }
     } else if (event.data.type === REQUEST) {
@@ -117,10 +117,10 @@ export class Communicator {
 
       // if code running env is different from postMessageTo, it will return and do nothing
       if (
-        args.postMessageTo === 'Extension' ||
-        (args.postMessageTo === 'Browser' &&
+        args.postMessageTo === "Extension" ||
+        (args.postMessageTo === "Browser" &&
           process.env.ENV &&
-          process.env.ENV !== 'Browser')
+          process.env.ENV !== "Browser")
       ) {
         return;
       }
@@ -129,7 +129,7 @@ export class Communicator {
         result = {
           code: UNKNOWN_CODE,
           error:
-            'Please pass in the methodClass, in order to call methods in the class',
+            "Please pass in the methodClass, in order to call methods in the class",
         };
       } else {
         try {

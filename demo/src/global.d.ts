@@ -2,7 +2,7 @@ import {
   RequestType,
   ReturnType,
   SYSTEM_CALL,
-} from '@dataverse/dataverse-connector';
+} from "@dataverse/dataverse-connector";
 
 declare global {
   interface Window {

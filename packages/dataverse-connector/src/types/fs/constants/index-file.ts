@@ -1,9 +1,9 @@
 export enum IndexFileContentType {
-  NFT = 'NFT',
-  CID = 'CID',
-  MIRROR = 'MIRROR',
-  VIDEO = 'VIDEO',
-  WEBSITE = 'WEBSITE',
+  NFT = "NFT",
+  CID = "CID",
+  MIRROR = "MIRROR",
+  VIDEO = "VIDEO",
+  WEBSITE = "WEBSITE",
 }
 
 export enum OriginType {

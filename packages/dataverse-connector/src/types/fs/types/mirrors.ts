@@ -1,11 +1,11 @@
-import { DecryptionConditionsTypes } from '../../data-monetize';
-import { FileType } from '../constants/index-file';
+import { DecryptionConditionsTypes } from "../../data-monetize";
+import { FileType } from "../constants/index-file";
 import {
   Comment,
   Relation,
   Additional,
   IndexFileContentType,
-} from './index-file';
+} from "./index-file";
 
 export interface MirrorFile {
   appVersion?: string;

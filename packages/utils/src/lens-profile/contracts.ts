@@ -57,7 +57,7 @@ export function getProfileCreationProxyContract(signer?: Signer): Contract {
         type: "function",
       },
     ],
-    signer
+    signer,
   );
 }
 
@@ -85,6 +85,6 @@ export function getProfileIdGetterContract(signer?: Signer): Contract {
         type: "function",
       },
     ],
-    signer
+    signer,
   );
 }

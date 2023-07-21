@@ -1,4 +1,4 @@
-import { Contract, Signer, ethers } from "ethers";
+import { Contract, ethers } from "ethers";
 
 export function getIsCollectedContract({
   datatokenId,
@@ -30,6 +30,6 @@ export function getIsCollectedContract({
         type: "function",
       },
     ],
-    provider
+    provider,
   );
 }

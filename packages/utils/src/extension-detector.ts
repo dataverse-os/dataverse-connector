@@ -26,10 +26,10 @@ export function detectExtension(extensionId: string): Promise<boolean> {
   const img = new Image();
   img.src = `chrome-extension://${extensionId}/icons/icon-16x16.png`;
   return new Promise(resolve => {
-    img.addEventListener('load', () => {
+    img.addEventListener("load", () => {
       resolve(true);
     });
-    img.addEventListener('error', () => {
+    img.addEventListener("error", () => {
       resolve(false);
     });
   });
@@ -40,7 +40,7 @@ export async function detectDataverseExtension(): Promise<boolean> {
     return true;
   }
   const res =
-    (await detectExtension('kcigpjcafekokoclamfendmaapcljead')) ||
+    (await detectExtension("kcigpjcafekokoclamfendmaapcljead")) ||
     (await checkIsExtensionInjected());
   return res;
 }

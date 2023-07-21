@@ -1,4 +1,4 @@
-import { RequestType, ReturnType, SYSTEM_CALL } from './system-call';
+import { RequestType, ReturnType, SYSTEM_CALL } from "./system-call";
 
 declare global {
   interface Window {

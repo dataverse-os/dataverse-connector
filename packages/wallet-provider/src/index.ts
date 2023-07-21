@@ -1,1 +1,1 @@
-export { WalletProvider } from './wallet-provider';
+export { WalletProvider } from "./wallet-provider";

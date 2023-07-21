@@ -1,5 +1,5 @@
-import { BigNumber, BigNumberish } from 'ethers';
-import { Currency } from './constants';
+import { BigNumber, BigNumberish } from "ethers";
+import { Currency } from "./constants";
 
 export interface DatatokenVars {
   streamId: string;
@@ -70,7 +70,7 @@ export type DecryptionConditions =
   | (UnifiedAccessControlCondition | BooleanCondition)[];
 
 export interface BooleanCondition {
-  operator: 'and' | 'or';
+  operator: "and" | "or";
 }
 
 export interface ReturnValueTest {

@@ -23,8 +23,8 @@ export interface NativeFolders {
   contentFolders: ContentFoldersRecord;
 }
 
-import { FolderType } from '../constants/folders';
-import { Mirrors } from './mirrors';
+import { FolderType } from "../constants/folders";
+import { Mirrors } from "./mirrors";
 
 export interface CommonFolderOptions {
   folderName: string;

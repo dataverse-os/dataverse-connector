@@ -1,16 +1,16 @@
-import EventEmitter from 'eventemitter3';
-import { ConnecterEvents } from './types';
-import { ethers, Bytes, Contract } from 'ethers';
-import { Deferrable } from 'ethers/lib/utils';
+import EventEmitter from "eventemitter3";
+import { ConnecterEvents } from "./types";
+import { ethers, Bytes, Contract } from "ethers";
+import { Deferrable } from "ethers/lib/utils";
 import {
   TypedDataDomain,
   TypedDataField,
-} from '@ethersproject/abstract-signer';
+} from "@ethersproject/abstract-signer";
 import {
   TransactionRequest,
   TransactionResponse,
-} from '@ethersproject/providers';
-import { convertTxData, formatSendTransactionData } from '@dataverse/utils';
+} from "@ethersproject/providers";
+import { convertTxData, formatSendTransactionData } from "@dataverse/utils";
 
 export class WalletProvider extends EventEmitter<ConnecterEvents> {
   private signer: ethers.providers.JsonRpcSigner;
@@ -18,7 +18,7 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
 
   async connectWallet(wallet?: string) {
     const res = await window.dataverse.connectWallet(wallet);
-    const provider = new ethers.providers.Web3Provider(this, 'any');
+    const provider = new ethers.providers.Web3Provider(this, "any");
     this.signer = provider.getSigner();
     return res;
   }
@@ -47,17 +47,17 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
     if (!this.signer) {
       await this.connectWallet();
     }
-    if (transaction && typeof transaction === 'object') {
+    if (transaction && typeof transaction === "object") {
       transaction = transaction as TransactionRequest;
       if (!transaction?.from) {
         const res = await window.dataverse.request({
-          method: 'eth_accounts',
+          method: "eth_accounts",
           params: [],
         });
         transaction.from = res[0];
       }
       Object.entries(transaction).forEach(([key, value]) => {
-        if (key !== 'from' && key !== 'to') {
+        if (key !== "from" && key !== "to") {
           if (formatSendTransactionData(value)) {
             transaction[key] = formatSendTransactionData(value);
           } else {
@@ -68,7 +68,7 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
       return this.signer.sendTransaction(transaction);
     } else {
       return window.dataverse.request({
-        method: 'eth_sendTransaction',
+        method: "eth_sendTransaction",
         params: [transaction],
       });
     }
@@ -92,7 +92,7 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
     const tx = await (params
       ? contract[method](...params)
       : contract[method]());
-    if (tx && typeof tx === 'object' && tx.wait) {
+    if (tx && typeof tx === "object" && tx.wait) {
       let res = await tx.wait();
       res = convertTxData(res);
       return res;

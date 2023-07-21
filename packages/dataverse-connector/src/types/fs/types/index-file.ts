@@ -1,6 +1,6 @@
-import { DecryptionConditionsTypes } from '../../data-monetize';
-import { IndexFileContentType as _IndexFileContentType } from '../constants';
-import { FileType, OriginType } from '../constants/index-file';
+import { DecryptionConditionsTypes } from "../../data-monetize";
+import { IndexFileContentType as _IndexFileContentType } from "../constants";
+import { FileType, OriginType } from "../constants/index-file";
 
 export interface IndexFile {
   appVersion: string;

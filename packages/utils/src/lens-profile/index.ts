@@ -37,7 +37,7 @@ export async function createLensProfile(vars: {
   const profileCreationProxy = getProfileCreationProxyContract(signer);
 
   const estimateGas = await profileCreationProxy.estimateGas.proxyCreateProfile(
-    input
+    input,
   );
 
   const tx = await profileCreationProxy.proxyCreateProfile(input, {
@@ -69,7 +69,7 @@ export async function getLensProfileIdByHandle({
 }) {
   const profileIdGetter = getProfileIdGetterContract(signer);
   const profileId = await profileIdGetter.getProfileIdByHandle(
-    `${handle}.test`
+    `${handle}.test`,
   );
   console.log("Handle => profileId: ", profileId);
   return profileId;

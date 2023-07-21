@@ -1,6 +1,6 @@
-import { generateNanoid } from './utils';
-import { CORRECT_CODE, REQUEST, RESPONSE, UNKNOWN_CODE } from './constants';
-import { RequestInputs, ResponseArguments, RequestArguments } from './types';
+import { generateNanoid } from "./utils";
+import { CORRECT_CODE, REQUEST, RESPONSE, UNKNOWN_CODE } from "./constants";
+import { RequestInputs, ResponseArguments, RequestArguments } from "./types";
 
 interface Chrome {
   runtime: {
@@ -28,7 +28,7 @@ export class CommunicatorWithChromeMessage {
     this.methodClass = methodClass;
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const onmessage = this._onmessage.bind(this);
-      onmessage(message, sender).then((res) => {
+      onmessage(message, sender).then(res => {
         sendResponse(res);
       });
       return true;
@@ -87,7 +87,7 @@ export class CommunicatorWithChromeMessage {
         return this.handleRequestMessage(message);
       } else {
         const callbackFunc = this.callbackFunctions[args.sequenceId];
-        if (callbackFunc !== undefined && typeof callbackFunc === 'function')
+        if (callbackFunc !== undefined && typeof callbackFunc === "function")
           callbackFunc(args.result);
       }
     } else if (message.type === REQUEST) {
@@ -108,7 +108,7 @@ export class CommunicatorWithChromeMessage {
           result = {
             code: UNKNOWN_CODE,
             error:
-              'Please pass in the methodClass, in order to call methods in the class',
+              "Please pass in the methodClass, in order to call methods in the class",
           };
         } else {
           try {

@@ -1,5 +1,5 @@
-import { CALLBACK } from './constants';
-import { Message } from './types';
+import { CALLBACK } from "./constants";
+import { Message } from "./types";
 
 export class CommunicatorFromBackgroundToBackground {
   constructor() {}

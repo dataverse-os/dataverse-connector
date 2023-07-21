@@ -1,5 +1,5 @@
-import './App.css';
-import React, { useState } from 'react';
+import "./App.css";
+import React, { useState } from "react";
 import {
   DataverseConnector,
   FolderType,
@@ -16,36 +16,36 @@ import { WalletProvider } from "@dataverse/wallet-provider";
 
 const dataverseConnector = new DataverseConnector();
 
-const appId = '4f500f45-e6cf-4f96-84cb-237a2a5e3604';
+const appId = "4f500f45-e6cf-4f96-84cb-237a2a5e3604";
 
 const modelId =
-  'kjzl6hvfrbw6c55rqk7euiintucs8zwy71gpbo1wciq28i4uikmha2qb1dizyic';
+  "kjzl6hvfrbw6c55rqk7euiintucs8zwy71gpbo1wciq28i4uikmha2qb1dizyic";
 
-const postVersion = '0.0.1';
+const postVersion = "0.0.1";
 
 const storageProvider = {
   name: StorageProviderName.Lighthouse,
-  apiKey: '9d632fe6.e756cc9797c345dc85595a688017b226', // input your api key to call uploadFile successfully
+  apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call uploadFile successfully
 };
 
 function App() {
-  const [address, setAddress] = useState('');
+  const [address, setAddress] = useState("");
   const [wallet, setWallet] = useState<WALLET>();
-  const [pkh, setPkh] = useState('');
-  const [currentPkh, setCurrentPkh] = useState('');
+  const [pkh, setPkh] = useState("");
+  const [currentPkh, setCurrentPkh] = useState("");
   const [pkpWallet, setPKPWallet] = useState({
-    address: '',
-    publicKey: '',
+    address: "",
+    publicKey: "",
   });
-  const [litActionResponse, setLitActionResponse] = useState('');
+  const [litActionResponse, setLitActionResponse] = useState("");
 
   const [isCurrentPkhValid, setIsCurrentPkhValid] = useState<boolean>();
-  const [appListInfo, setAppListInfo] = useState<string>('');
-  const [appInfo, setAppInfo] = useState<string>('');
+  const [appListInfo, setAppListInfo] = useState<string>("");
+  const [appInfo, setAppInfo] = useState<string>("");
 
-  const [streamId, setStreamId] = useState('');
-  const [folderId, setFolderId] = useState('');
-  const [indexFileId, setIndexFileId] = useState('');
+  const [streamId, setStreamId] = useState("");
+  const [folderId, setFolderId] = useState("");
+  const [indexFileId, setIndexFileId] = useState("");
   const [folders, setFolders] = useState<StructuredFolders>();
   const [hasAddListener, setHasAddListener] = useState<boolean>();
   const [provider, setProvider] = useState<WalletProvider>();
@@ -63,13 +63,13 @@ function App() {
     setWallet(res.wallet);
     setAddress(res.address);
     if (!hasAddListener) {
-      provider.on('chainChanged', (chainId: number) => {
+      provider.on("chainChanged", (chainId: number) => {
         console.log(chainId);
       });
-      provider.on('chainNameChanged', (chainName: string) => {
+      provider.on("chainNameChanged", (chainName: string) => {
         console.log(chainName);
       });
-      provider.on('accountsChanged', (accounts: Array<string>) => {
+      provider.on("accountsChanged", (accounts: Array<string>) => {
         console.log(accounts);
         setAddress(accounts[0]);
       });
@@ -90,10 +90,10 @@ function App() {
     setWallet(WALLET.METAMASK);
     setAddress(res.address);
     if (!hasAddListener) {
-      provider.on('chainChanged', (networkId: string) => {
+      provider.on("chainChanged", (networkId: string) => {
         console.log(Number(networkId));
       });
-      provider.on('accountsChanged', (accounts: Array<string>) => {
+      provider.on("accountsChanged", (accounts: Array<string>) => {
         console.log(accounts);
         setAddress(getAddress(accounts[0]));
       });
@@ -104,64 +104,64 @@ function App() {
 
   const switchNetwork = async () => {
     if (!dataverseConnector?.isConnected) {
-      console.error('please connect wallet first');
+      console.error("please connect wallet first");
       return;
     }
 
     await provider?.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: '0x13881' }],
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
     });
   };
 
   const signOrSignTypedData = async () => {
     if (!dataverseConnector?.isConnected) {
-      console.error('please connect wallet first');
+      console.error("please connect wallet first");
       return;
     }
 
     const res = await provider?.request({
-      method: 'personal_sign',
-      params: [address, 'test'],
+      method: "personal_sign",
+      params: [address, "test"],
     });
 
     console.log(res);
 
     await provider?.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: '0x13881' }],
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
     });
 
     const res2 = await provider?.request({
-      method: 'eth_signTypedData_v4',
+      method: "eth_signTypedData_v4",
       params: [
         address,
         JSON.stringify({
           domain: {
-            name: 'EPNS COMM V1',
+            name: "EPNS COMM V1",
             chainId: 80001,
-            verifyingContract: '0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa',
+            verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
           },
-          primaryType: 'Data',
+          primaryType: "Data",
           types: {
             Data: [
               {
-                name: 'data',
-                type: 'string',
+                name: "data",
+                type: "string",
               },
             ],
             EIP712Domain: [
               {
-                name: 'name',
-                type: 'string',
+                name: "name",
+                type: "string",
               },
               {
-                name: 'chainId',
-                type: 'uint256',
+                name: "chainId",
+                type: "uint256",
               },
               {
-                name: 'verifyingContract',
-                type: 'address',
+                name: "verifyingContract",
+                type: "address",
               },
             ],
           },
@@ -177,16 +177,16 @@ function App() {
 
   const sendTransaction = async () => {
     if (!dataverseConnector?.isConnected) {
-      console.error('please connect wallet first');
+      console.error("please connect wallet first");
       return;
     }
     const res = await provider?.request({
-      method: 'eth_sendTransaction',
+      method: "eth_sendTransaction",
       params: [
         {
           from: dataverseConnector.address, // The user's active address.
           to: dataverseConnector.address, // Required except during contract publications.
-          value: '0xE8D4A50FFD41E', // Only required to send ether to the recipient from the initiating external account.
+          value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
           // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
           // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
         },
@@ -197,48 +197,48 @@ function App() {
 
   const contractCall = async () => {
     if (!dataverseConnector?.isConnected) {
-      console.error('please connect wallet first');
+      console.error("please connect wallet first");
       return;
     }
 
     await provider?.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: '0x13881' }],
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
     });
 
-    const contractAddress = '0x2e43c080B56c644F548610f45998399d42e3d400';
+    const contractAddress = "0x2e43c080B56c644F548610f45998399d42e3d400";
 
     const abi = [
       {
         inputs: [],
-        stateMutability: 'nonpayable',
-        type: 'constructor',
+        stateMutability: "nonpayable",
+        type: "constructor",
       },
       {
         inputs: [
           {
-            internalType: 'uint256',
-            name: 'value_',
-            type: 'uint256',
+            internalType: "uint256",
+            name: "value_",
+            type: "uint256",
           },
         ],
-        name: 'setValue',
+        name: "setValue",
         outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
+        stateMutability: "nonpayable",
+        type: "function",
       },
       {
         inputs: [],
-        name: 'value',
+        name: "value",
         outputs: [
           {
-            internalType: 'uint256',
-            name: '',
-            type: 'uint256',
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
           },
         ],
-        stateMutability: 'view',
-        type: 'function',
+        stateMutability: "view",
+        type: "function",
       },
     ];
 
@@ -299,7 +299,7 @@ function App() {
       jsParams: {
         toSign: [72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100],
         publicKey: pkpWallet.publicKey,
-        sigName: 'sig1',
+        sigName: "sig1",
       },
     };
     const res = await dataverseConnector.runOS({
@@ -382,9 +382,9 @@ function App() {
         modelId,
         streamContent: {
           appVersion: postVersion,
-          text: 'hello',
+          text: "hello",
           images: [
-            'https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link',
+            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
           ],
           videos: [],
           createdAt: date,
@@ -413,9 +413,9 @@ function App() {
         streamId,
         streamContent: {
           appVersion: postVersion,
-          text: 'hello',
+          text: "hello",
           images: [
-            'https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link',
+            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
           ],
           videos: [],
           createdAt: date,
@@ -466,7 +466,7 @@ function App() {
       method: SYSTEM_CALL.createFolder,
       params: {
         folderType: FolderType.Private,
-        folderName: 'Private',
+        folderName: "Private",
       },
     });
     console.log(res);
@@ -498,13 +498,13 @@ function App() {
   };
 
   const monetizeFolder = async () => {
-    const profileId = await getProfileId({ pkh, lensNickName: 'hello123' });
+    const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
 
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.monetizeFolder,
       params: {
         folderId,
-        folderDescription: 'This is a payable folder.',
+        folderDescription: "This is a payable folder.",
         datatokenVars: {
           profileId,
           collectLimit: 100,
@@ -536,7 +536,7 @@ function App() {
 
   const deleteAllFolder = async () => {
     if (!folders) {
-      throw 'Please call readFolders first';
+      throw "Please call readFolders first";
     }
     await Promise.all(
       Object.keys(folders).map(folderId =>
@@ -550,7 +550,7 @@ function App() {
 
   const getDefaultFolderId = async () => {
     if (!folders) {
-      throw 'Please call readFolders first';
+      throw "Please call readFolders first";
     }
     const { defaultFolderName } = await getDAppInfo();
     const folder = Object.values(folders).find(
@@ -570,7 +570,7 @@ function App() {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       const fileBase64: string = await new Promise(resolve => {
-        reader.addEventListener('load', async (e: any) => {
+        reader.addEventListener("load", async (e: any) => {
           resolve(e.target.result);
         });
       });
@@ -607,7 +607,7 @@ function App() {
       params: {
         indexFileId,
         fileInfo: {
-          mirrorName: 'aaa',
+          mirrorName: "aaa",
         },
       },
     });
@@ -628,11 +628,11 @@ function App() {
   const monetizeFile = async () => {
     try {
       if (!pkh) {
-        throw 'You must connect capability';
+        throw "You must connect capability";
       }
       const profileId = await getProfileId({
         pkh,
-        lensNickName: 'hello123456',
+        lensNickName: "hello123456",
       });
 
       const res = await dataverseConnector.runOS({
@@ -698,8 +698,8 @@ function App() {
   /*** Monetize ***/
   const createProfile = async () => {
     await provider?.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: '0x13881' }],
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
     });
     const res = await dataverseConnector.createProfile("test01");
     console.log(res);
@@ -718,7 +718,7 @@ function App() {
     lensNickName?: string;
   }) => {
     const lensProfiles = await dataverseConnector.getProfiles(
-      pkh.slice(pkh.lastIndexOf(":") + 1)
+      pkh.slice(pkh.lastIndexOf(":") + 1),
     );
 
     let profileId;
@@ -726,10 +726,10 @@ function App() {
       profileId = lensProfiles?.[0]?.id;
     } else {
       if (!lensNickName) {
-        throw 'Please pass in lensNickName';
+        throw "Please pass in lensNickName";
       }
       if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
-        throw 'Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length';
+        throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
       }
       profileId = await dataverseConnector.createProfile(lensNickName);
     }
@@ -844,7 +844,7 @@ function App() {
           type='file'
           onChange={uploadFile}
           name='uploadFile'
-          style={{ width: '168px', marginLeft: '10px' }}
+          style={{ width: "168px", marginLeft: "10px" }}
         />
       </button>
 
