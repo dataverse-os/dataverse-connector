@@ -1,6 +1,6 @@
 import EventEmitter from "eventemitter3";
 import { ConnecterEvents } from "./types";
-import { ethers, Bytes, Signer } from "ethers";
+import { ethers, Bytes, Signer, Contract } from "ethers";
 import { Deferrable } from "ethers/lib/utils";
 import {
   TypedDataDomain,
@@ -10,7 +10,7 @@ import {
   TransactionRequest,
   TransactionResponse,
 } from "@ethersproject/providers";
-import { formatSendTransactionData } from "@dataverse/utils";
+import { convertTxData, formatSendTransactionData } from "@dataverse/utils";
 
 export class WalletProvider extends EventEmitter<ConnecterEvents> {
   private signer: ethers.providers.JsonRpcSigner;
@@ -72,6 +72,32 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
         params: [transaction],
       });
     }
+  }
+
+  async contractCall({
+    contractAddress,
+    abi,
+    method,
+    params,
+  }: {
+    contractAddress: string;
+    abi: any[];
+    method: string;
+    params?: any[];
+  }): Promise<any> {
+    if (!this.signer) {
+      await this.connectWallet();
+    }
+    const contract = new Contract(contractAddress, abi, this.signer);
+    const tx = await (params
+      ? contract[method](...params)
+      : contract[method]());
+    if (tx && typeof tx === "object" && tx.wait) {
+      let res = await tx.wait();
+      res = convertTxData(res);
+      return res;
+    }
+    return tx;
   }
 
   on(event: string, listener: Function) {

@@ -8,18 +8,15 @@ import {
   WALLET,
   Extension,
 } from "./types";
-import {
-  detectDataverseExtension,
-  formatSendTransactionData,
-} from "@dataverse/utils";
+import { detectDataverseExtension } from "@dataverse/utils";
 import { getDapp, getDapps } from "@dataverse/dapp-table-client";
 import { getAddress } from "viem";
-import { MethodClass } from "./method-class";
+import { ExternalWallet } from "./external-wallet";
 
 export class DataverseConnector {
   private communicator: Communicator;
   private provider?: Window["dataverse"] | WalletProvider | any;
-  private methodClass: MethodClass;
+  private externalWallet: ExternalWallet;
   isConnected?: boolean;
   wallet?: WALLET | "Unknown";
   address?: string;
@@ -27,11 +24,11 @@ export class DataverseConnector {
   appId?: string;
 
   constructor(postMessageTo: PostMessageTo = Extension) {
-    this.methodClass = new MethodClass();
+    this.externalWallet = new ExternalWallet();
     this.communicator = new Communicator({
       source: window,
       target: window.top,
-      methodClass: this.methodClass,
+      methodClass: this.externalWallet,
       postMessageTo,
     });
   }
@@ -66,19 +63,18 @@ export class DataverseConnector {
       }
       const res = await window.dataverse.connectWallet(wallet);
 
-      this.provider = new WalletProvider();
-      this.provider.off("chainChanged");
-      this.provider.off("chainNameChanged");
-      this.provider.off("accountsChanged");
-      this.provider.on("chainChanged", (chainId: number) => {
-        this.chain.chainId = chainId;
-      });
-      this.provider.on("chainNameChanged", (chainName: string) => {
-        this.chain.chainName = chainName;
-      });
-      this.provider.on("accountsChanged", (accounts: string[]) => {
-        this.address = accounts[0];
-      });
+      if (!this.provider) {
+        this.provider = new WalletProvider();
+        this.provider.on("chainChanged", (chainId: number) => {
+          this.chain.chainId = chainId;
+        });
+        this.provider.on("chainNameChanged", (chainName: string) => {
+          this.chain.chainName = chainName;
+        });
+        this.provider.on("accountsChanged", (accounts: string[]) => {
+          this.address = accounts[0];
+        });
+      }
 
       this.isConnected = true;
       this.wallet = res.wallet;
@@ -91,7 +87,7 @@ export class DataverseConnector {
       } as Awaited<ReturnType[SYSTEM_CALL.connectWallet]>;
     }
 
-    this.methodClass.setProvider(provider);
+    this.externalWallet.setProvider(provider);
     this.provider = provider;
     const res = await window.dataverse.connectWallet(WALLET.EXTERNAL_WALLET);
     this.provider.removeAllListeners("chainChanged");
@@ -130,30 +126,32 @@ export class DataverseConnector {
       await this.connectWallet({
         wallet: (params as RequestType[SYSTEM_CALL.createCapability]).wallet,
       });
-    } else if (method === SYSTEM_CALL.ethereumRequest) {
-      // params = params as RequestType[SYSTEM_CALL.ethereumRequest];
-      if (
-        (params as RequestType[SYSTEM_CALL.ethereumRequest]).method ===
-        "eth_sendTransaction"
-      ) {
-        if (
-          !(params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]
-            ?.from
-        ) {
-          (params as RequestType[SYSTEM_CALL.ethereumRequest]).params[0].from =
-            this.address;
-        }
-        if ((params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]) {
-          Object.entries(
-            (params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]
-          ).forEach(([key, value]) => {
-            (params as RequestType[SYSTEM_CALL.ethereumRequest]).params[0][
-              key
-            ] = formatSendTransactionData(value);
-          });
-        }
-      }
     }
+
+    // else if (method === SYSTEM_CALL.ethereumRequest) {
+    //   // params = params as RequestType[SYSTEM_CALL.ethereumRequest];
+    //   if (
+    //     (params as RequestType[SYSTEM_CALL.ethereumRequest]).method ===
+    //     "eth_sendTransaction"
+    //   ) {
+    //     if (
+    //       !(params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]
+    //         ?.from
+    //     ) {
+    //       (params as RequestType[SYSTEM_CALL.ethereumRequest]).params[0].from =
+    //         this.address;
+    //     }
+    //     if ((params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]) {
+    //       Object.entries(
+    //         (params as RequestType[SYSTEM_CALL.ethereumRequest])?.params?.[0]
+    //       ).forEach(([key, value]) => {
+    //         (params as RequestType[SYSTEM_CALL.ethereumRequest]).params[0][
+    //           key
+    //         ] = formatSendTransactionData(value);
+    //       });
+    //     }
+    //   }
+    // }
 
     const res = (await this.communicator.sendRequest({
       method,
