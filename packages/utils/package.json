@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",

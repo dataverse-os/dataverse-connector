@@ -17,21 +17,6 @@ import { RESOURCE } from '../wallet';
 
 export interface RequestType {
   connectWallet?: WALLET | undefined;
-  switchNetwork: number;
-  sign: {
-    method: SignMethod;
-    params: any[];
-  };
-  contractCall: {
-    contractAddress: string;
-    abi: any[];
-    method: string;
-    params: any[];
-  };
-  ethereumRequest: {
-    method: string;
-    params?: Array<any>;
-  };
   getCurrentPkh: void;
   getPKP: void;
   executeLitAction: { code: string; jsParams: object };
@@ -139,10 +124,6 @@ export interface ReturnType {
     chain: Chain;
     wallet: WALLET;
   }>;
-  switchNetwork: Promise<{ chainId: number; chainName: string }>;
-  sign: Promise<string>;
-  contractCall: Promise<any>;
-  ethereumRequest: Promise<any>;
   getCurrentPkh: Promise<string>;
   getPKP: Promise<{ address: string; publicKey: string }>;
   executeLitAction: Promise<any>;

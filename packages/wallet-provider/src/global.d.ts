@@ -1,5 +1,10 @@
 interface Window {
   dataverse: {
+    connectWallet: (wallet: string) => Promise<{
+      address: string;
+      chain: { chainId: number; chainName: string };
+      wallet: string;
+    }>;
     request: ({
       method,
       params,

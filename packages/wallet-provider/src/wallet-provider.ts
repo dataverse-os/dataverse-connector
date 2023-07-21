@@ -1,57 +1,63 @@
-import EventEmitter from 'eventemitter3';
-import { ConnecterEvents } from './types';
-import { ethers, Bytes, Signer } from 'ethers';
-import { Deferrable } from 'ethers/lib/utils';
+import EventEmitter from "eventemitter3";
+import { ConnecterEvents } from "./types";
+import { ethers, Bytes, Signer, Contract } from "ethers";
+import { Deferrable } from "ethers/lib/utils";
 import {
   TypedDataDomain,
   TypedDataField,
-} from '@ethersproject/abstract-signer';
+} from "@ethersproject/abstract-signer";
 import {
   TransactionRequest,
   TransactionResponse,
-} from '@ethersproject/providers';
-import { formatSendTransactionData } from '@dataverse/utils';
+} from "@ethersproject/providers";
+import { convertTxData, formatSendTransactionData } from "@dataverse/utils";
 
 export class WalletProvider extends EventEmitter<ConnecterEvents> {
-  private signer: Signer;
+  private signer: ethers.providers.JsonRpcSigner;
   isDataverse = true;
 
-  signMessage(message: Bytes | string): Promise<string> {
-    return window.dataverse.sign({
-      method: 'signMessage',
-      params: [message],
-    });
+  async connectWallet(wallet?: string) {
+    const res = await window.dataverse.connectWallet(wallet);
+    const provider = new ethers.providers.Web3Provider(this, "any");
+    this.signer = provider.getSigner();
+    return res;
   }
 
-  _signTypedData(
+  async signMessage(message: Bytes | string): Promise<string> {
+    if (!this.signer) {
+      await this.connectWallet();
+    }
+    return this.signer.signMessage(message);
+  }
+
+  async _signTypedData(
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
-    message: Record<string, Array<TypedDataField> | string>,
+    message: Record<string, Array<TypedDataField> | string>
   ): Promise<string> {
-    return window.dataverse.sign({
-      method: '_signTypedData',
-      params: [domain, types, message],
-    });
-  }
-
-  signTransaction(): Promise<string> {
-    throw new Error("'signTransaction' is unsupported !");
+    if (!this.signer) {
+      await this.connectWallet();
+    }
+    return this.signer._signTypedData(domain, types, message);
   }
 
   async sendTransaction(
-    transaction: Deferrable<TransactionRequest> | (string | Promise<string>),
+    transaction: Deferrable<TransactionRequest> | (string | Promise<string>)
   ): Promise<TransactionResponse> {
-    if (transaction && typeof transaction === 'object') {
+    if (!this.signer) {
+      await this.connectWallet();
+    }
+    if (transaction && typeof transaction === "object") {
       transaction = transaction as TransactionRequest;
       if (!transaction?.from) {
         const res = await window.dataverse.request({
-          method: 'eth_accounts',
+          method: "eth_accounts",
           params: [],
         });
         transaction.from = res[0];
       }
       Object.entries(transaction).forEach(([key, value]) => {
-        if (key !== 'from' && key !== 'to') {
+        if (key !== "from" && key !== "to") {
           if (formatSendTransactionData(value)) {
             transaction[key] = formatSendTransactionData(value);
           } else {
@@ -59,17 +65,39 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
           }
         }
       });
-      if (!this.signer) {
-        const ethersProvider = new ethers.providers.Web3Provider(this, 'any');
-        this.signer = ethersProvider.getSigner();
-      }
       return this.signer.sendTransaction(transaction);
     } else {
       return window.dataverse.request({
-        method: 'eth_sendTransaction',
+        method: "eth_sendTransaction",
         params: [transaction],
       });
     }
+  }
+
+  async contractCall({
+    contractAddress,
+    abi,
+    method,
+    params,
+  }: {
+    contractAddress: string;
+    abi: any[];
+    method: string;
+    params?: any[];
+  }): Promise<any> {
+    if (!this.signer) {
+      await this.connectWallet();
+    }
+    const contract = new Contract(contractAddress, abi, this.signer);
+    const tx = await (params
+      ? contract[method](...params)
+      : contract[method]());
+    if (tx && typeof tx === "object" && tx.wait) {
+      let res = await tx.wait();
+      res = convertTxData(res);
+      return res;
+    }
+    return tx;
   }
 
   on(event: string, listener: Function) {

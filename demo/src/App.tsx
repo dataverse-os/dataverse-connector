@@ -9,12 +9,11 @@ import {
   WALLET,
   RESOURCE,
   SYSTEM_CALL,
-} from '@dataverse/dataverse-connector';
-import { Contract, ethers } from 'ethers';
-import web3 from 'web3';
-import { WalletProvider } from '@dataverse/wallet-provider';
-
-import { getAddressFromPkh } from './utils/addressAndPkh';
+} from "@dataverse/dataverse-connector";
+import { Contract, ethers } from "ethers";
+import { getAddress } from "viem";
+import { WalletProvider } from "@dataverse/wallet-provider";
+import { getAddressFromPkh } from "./utils/addressAndPkh";
 
 const dataverseConnector = new DataverseConnector();
 
@@ -97,7 +96,7 @@ function App() {
       });
       provider.on('accountsChanged', (accounts: Array<string>) => {
         console.log(accounts);
-        setAddress(web3.utils.toChecksumAddress(accounts[0]));
+        setAddress(getAddress(accounts[0]));
       });
       setHasAddListener(true);
     }
@@ -699,9 +698,9 @@ function App() {
 
   /*** Monetize ***/
   const createProfile = async () => {
-    await dataverseConnector.runOS({
-      method: SYSTEM_CALL.switchNetwork,
-      params: 80001,
+    await provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
     });
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.createProfile,
