@@ -16,7 +16,6 @@ import { RESOURCE } from "../wallet";
 
 export interface RequestType {
   connectWallet?: WALLET | undefined;
-  getCurrentPkh: void;
   getPKP: void;
   executeLitAction: { code: string; jsParams: object };
 
@@ -119,7 +118,6 @@ export interface ReturnType {
     chain: Chain;
     wallet: WALLET;
   }>;
-  getCurrentPkh: Promise<string>;
   getPKP: Promise<{ address: string; publicKey: string }>;
   executeLitAction: Promise<any>;
 

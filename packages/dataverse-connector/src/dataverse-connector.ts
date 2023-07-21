@@ -156,6 +156,13 @@ export class DataverseConnector {
     return getDapp(dappId);
   }
 
+  getCurrentPkh(): string {
+    if (!this.address) {
+      throw new Error("Please connect wallet first");
+    }
+    return `did:pkh:eip155:1:${this.address}`;
+  }
+
   async createProfile(handle: string): Promise<string> {
     const provider = new ethers.providers.Web3Provider(this.provider, "any");
     const signer = provider.getSigner();

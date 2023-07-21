@@ -1,6 +1,5 @@
 export enum SYSTEM_CALL {
   connectWallet = "connectWallet",
-  getCurrentPkh = "getCurrentPkh",
   getPKP = "getPKP",
   executeLitAction = "executeLitAction",
 

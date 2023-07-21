@@ -16,7 +16,7 @@ import { WalletProvider } from "@dataverse/wallet-provider";
 
 const dataverseConnector = new DataverseConnector();
 
-const appId = "4f500f45-e6cf-4f96-84cb-237a2a5e3604";
+const appId = "c949b803-7f2f-40b9-acba-e9913288f9f2"; //'4f500f45-e6cf-4f96-84cb-237a2a5e3604'
 
 const modelId =
   "kjzl6hvfrbw6c55rqk7euiintucs8zwy71gpbo1wciq28i4uikmha2qb1dizyic";
@@ -261,9 +261,7 @@ function App() {
   };
 
   const getCurrentPkh = async () => {
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.getCurrentPkh,
-    });
+    const res = dataverseConnector.getCurrentPkh();
     console.log(res);
     setCurrentPkh(res);
   };
