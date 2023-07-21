@@ -12,7 +12,7 @@
 ![npm](https://img.shields.io/npm/dw/@dataverse/dataverse-connector)
 [![License](https://img.shields.io/npm/l/@dataverse/dataverse-connector.svg)](https://github.com/dataverse-os/dataverse-connector/blob/main/LICENSE.md)
 
-The system calls exposed by Dataverse Kernel
+The system calls exposed by Dataverse Kernel.
 
 ## Installation
 
@@ -31,11 +31,10 @@ pnpm install @dataverse/dataverse-connector
 - [Node.js](https://nodejs.org/en/) version >= 16.
 - [pnpm](https://pnpm.io/) version >= 7.
 
-```typescript
+```bash
 pnpm install // install dependencies
 pnpm build  // build the package
-cd demo
-pnpm dev  // run the demo
+pnpm test
 ```
 
 the demo will be running on http://localhost:5173/.
@@ -58,15 +57,18 @@ const dataverseConnector = new DataverseConnector(Extension);
 
 ## Functions
 
-**`dataverseConnector.connectWallet(WALLET.METAMASK)`**
+**`dataverseConnector.connectWallet({wallet: WALLET.METAMASK})`**
 
 Connect with user wallet. pass in which wallet you want to connect with,
 currently support MetaMask and Particle Network.
 
-```js
+```ts
 enum WALLET {
   METAMASK = "MetaMask",
-  PARTICLE = "Particle"
+  WALLETCONNECT = "WalletConnect",
+  COINBASE = "Coinbase",
+  PARTICLE = "Particle",
+  EXTERNAL_WALLET = "ExternalWallet",
 }
 ```
 
