@@ -1,5 +1,5 @@
 export function checkIsExtensionInjected(): Promise<boolean> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     let flag = false;
     const interval = setInterval(() => {
       try {
@@ -9,7 +9,9 @@ export function checkIsExtensionInjected(): Promise<boolean> {
           flag = true;
           resolve(true);
         }
-      } catch (error) {}
+      } catch (error) {
+        //do nothing
+      }
     }, 100);
     setTimeout(() => {
       if (!flag) {
@@ -23,11 +25,11 @@ export function checkIsExtensionInjected(): Promise<boolean> {
 export function detectExtension(extensionId: string): Promise<boolean> {
   const img = new Image();
   img.src = `chrome-extension://${extensionId}/icons/icon-16x16.png`;
-  return new Promise((resolve) => {
-    img.addEventListener("load", () => {
+  return new Promise(resolve => {
+    img.addEventListener('load', () => {
       resolve(true);
     });
-    img.addEventListener("error", () => {
+    img.addEventListener('error', () => {
       resolve(false);
     });
   });
@@ -38,7 +40,7 @@ export async function detectDataverseExtension(): Promise<boolean> {
     return true;
   }
   const res =
-    (await detectExtension("kcigpjcafekokoclamfendmaapcljead")) ||
+    (await detectExtension('kcigpjcafekokoclamfendmaapcljead')) ||
     (await checkIsExtensionInjected());
   return res;
 }

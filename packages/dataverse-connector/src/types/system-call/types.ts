@@ -1,5 +1,4 @@
 import { StorageProvider } from '../types';
-import { SignMethod } from '../constants';
 import { Chain, WALLET } from '../wallet';
 import { ValidAppCaps } from '../app/types';
 import { StreamContent } from '../app';
