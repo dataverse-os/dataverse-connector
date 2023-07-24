@@ -15,9 +15,19 @@ import { convertTxData, formatSendTransactionData } from "@dataverse/utils";
 export class WalletProvider extends EventEmitter<ConnecterEvents> {
   private signer: ethers.providers.JsonRpcSigner;
   isDataverse = true;
+  isConnected?: boolean;
+  address?: string;
+  chain?: {
+    chainId: number;
+    chainName: string;
+  };
+  wallet?: string;
 
   async connectWallet(wallet?: string) {
     const res = await window.dataverse.connectWallet(wallet);
+    this.address = res.address;
+    this.chain = res.chain;
+    this.wallet = res.wallet;
     const provider = new ethers.providers.Web3Provider(this, "any");
     this.signer = provider.getSigner();
     return res;

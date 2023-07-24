@@ -69,7 +69,9 @@ export class DataverseConnector {
       if (wallet === WALLET.EXTERNAL_WALLET) {
         throw "Conflict between wallet and provider";
       }
-      const res = await window.dataverse.connectWallet(wallet);
+      const res = await window.dataverse.connectWallet(
+        wallet || provider.wallet,
+      );
 
       if (!this.provider) {
         this.provider = new WalletProvider();
