@@ -32,22 +32,15 @@ export class Communicator {
     source,
     target,
     methodClass,
-    postMessageTo,
   }: {
     source: Window;
     target: Window;
     methodClass?: any;
-    postMessageTo: PostMessageTo;
   }) {
     this.targetOrigin = target;
     this.sourceOrigin = source;
     this.methodClass = methodClass;
-    this.postMessageTo = postMessageTo;
     this.sourceOrigin.addEventListener(MESSAGE, this._onmessage.bind(this));
-  }
-
-  setPostMessageTo(postMessageTo: PostMessageTo) {
-    this.postMessageTo = postMessageTo;
   }
 
   async sendRequest(args: RequestInputs) {
@@ -59,7 +52,7 @@ export class Communicator {
           type: REQUEST,
           method: args.method,
           params: args.params,
-          postMessageTo: this.postMessageTo,
+          postMessageTo: args.postMessageTo,
         },
         this.allowOrigins,
       );

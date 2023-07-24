@@ -1,4 +1,4 @@
-import { Communicator, PostMessageTo } from "@dataverse/communicator";
+import { Communicator } from "@dataverse/communicator";
 import { WalletProvider } from "@dataverse/wallet-provider";
 import {
   RequestType,
@@ -7,6 +7,7 @@ import {
   Chain,
   WALLET,
   Extension,
+  Provider,
 } from "./types";
 import {
   createLensProfile,
@@ -23,38 +24,37 @@ import { ExternalWallet } from "./external-wallet";
 
 export class DataverseConnector {
   private communicator: Communicator;
-  private provider?: Window["dataverse"] | WalletProvider | any;
+  private provider?: Provider;
   private externalWallet: ExternalWallet;
   isConnected?: boolean;
-  wallet?: WALLET | "Unknown";
+  wallet?: WALLET;
   address?: string;
   chain?: Chain;
   appId?: string;
 
-  constructor(postMessageTo: PostMessageTo = Extension) {
+  constructor() {
     this.externalWallet = new ExternalWallet();
     this.communicator = new Communicator({
       source: window,
       target: window.top,
       methodClass: this.externalWallet,
-      postMessageTo,
     });
   }
 
-  setPostMessageTo(postMessageTo: PostMessageTo) {
-    this.communicator.setPostMessageTo(postMessageTo);
-  }
-
-  getProvider(): Window["dataverse"] | WalletProvider | any {
+  getProvider(): Provider {
     return this.provider;
   }
 
   async connectWallet(params?: {
     wallet?: WALLET | undefined;
-    provider?: Window["dataverse"] | WalletProvider | any;
-  }): Promise<ReturnType[SYSTEM_CALL.connectWallet]> {
+    provider?: Provider;
+  }): Promise<{
+    address: string;
+    chain: Chain;
+    wallet: WALLET;
+  }> {
     let wallet: WALLET;
-    let provider: Window["dataverse"] | WalletProvider | any;
+    let provider: Provider;
     if (params) {
       wallet = params.wallet;
       provider = params.provider || window.dataverse;
@@ -89,10 +89,7 @@ export class DataverseConnector {
       this.address = res.address;
       this.chain = res.chain;
 
-      return {
-        ...res,
-        provider: this.provider,
-      } as Awaited<ReturnType[SYSTEM_CALL.connectWallet]>;
+      return res;
     }
 
     this.externalWallet.setProvider(provider);
@@ -119,8 +116,7 @@ export class DataverseConnector {
       wallet: this.wallet,
       address: this.address,
       chain: this.chain,
-      provider: this.provider,
-    } as Awaited<ReturnType[SYSTEM_CALL.connectWallet]>;
+    };
   }
 
   async runOS<T extends SYSTEM_CALL>({
@@ -130,15 +126,14 @@ export class DataverseConnector {
     method: T;
     params?: RequestType[T];
   }): Promise<Awaited<ReturnType[T]>> {
-    if (method === SYSTEM_CALL.createCapability && !this?.isConnected) {
-      await this.connectWallet({
-        wallet: (params as RequestType[SYSTEM_CALL.createCapability]).wallet,
-      });
+    if (!this?.isConnected) {
+      throw new Error("Please connect wallet first");
     }
 
     const res = (await this.communicator.sendRequest({
       method,
       params,
+      postMessageTo: Extension,
     })) as ReturnType[SYSTEM_CALL];
 
     if (method === SYSTEM_CALL.createCapability) {

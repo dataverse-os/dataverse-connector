@@ -33,7 +33,7 @@ class DataverseInjectedConnector extends InjectedConnector {
 
   async connect() {
     const provider = await this.getProvider();
-    let _provider = provider as WindowProvider & {
+    const _provider = provider as WindowProvider & {
       connectWallet: (connectWallet?: string) => Promise<{
         address: Address;
         chain: { chainId: number; chainName: string };
@@ -42,7 +42,7 @@ class DataverseInjectedConnector extends InjectedConnector {
     };
     if (this.storage?.getItem("DataverseConnector_isConnected")) {
       const res = await _provider.connectWallet(
-        this.storage?.getItem("DataverseConnector_wallet")!
+        this.storage?.getItem("DataverseConnector_wallet"),
       );
       if (provider?.on) {
         provider.on("accountsChanged", this.onAccountsChanged);
@@ -88,7 +88,7 @@ class DataverseInjectedConnector extends InjectedConnector {
           if (typeof chainId === "string")
             return Number.parseInt(
               chainId,
-              chainId.trim().substring(0, 2) === "0x" ? 16 : 10
+              chainId.trim().substring(0, 2) === "0x" ? 16 : 10,
             );
           if (typeof chainId === "bigint") return Number(chainId);
           return chainId;

@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/dataverse-connector",
-  "version": "1.0.11",
+  "version": "1.0.13",
   "description": "",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",
@@ -20,7 +20,7 @@
     "build": "pnpm build:esm && pnpm build:cjs"
   },
   "dependencies": {
-    "@dataverse/communicator": "^1.0.29",
+    "@dataverse/communicator": "^1.0.30",
     "@dataverse/dapp-table-client": "^1.0.5",
     "@dataverse/utils": "^1.0.7",
     "@dataverse/wallet-provider": "^1.0.9",

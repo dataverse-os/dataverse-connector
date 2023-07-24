@@ -4,7 +4,7 @@ export {
   StorageProviderName,
   SignMethod,
 } from "./constants";
-export type { StorageProvider } from "./types";
+export type { StorageProvider, Provider } from "./types";
 export { WALLET, type Chain } from "./wallet";
 export { RESOURCE } from "./wallet";
 export {

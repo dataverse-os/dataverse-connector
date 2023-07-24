@@ -16,10 +16,13 @@ import { WalletProvider } from "@dataverse/wallet-provider";
 
 const dataverseConnector = new DataverseConnector();
 
-const appId = "c949b803-7f2f-40b9-acba-e9913288f9f2"; //'4f500f45-e6cf-4f96-84cb-237a2a5e3604'
+const appId = "89e8203c-4567-43c8-8e75-e75f6546bacd";
+// const appId = "b5dbf620-087f-478f-8703-ff9d0c567f13";
 
 const modelId =
-  "kjzl6hvfrbw6c55rqk7euiintucs8zwy71gpbo1wciq28i4uikmha2qb1dizyic";
+  "kjzl6hvfrbw6c7zeoa35fjzbxxc2f05p40il48n8qdeoxwr4dq6ogym5v2xjavf";
+// const modelId =
+//   "kjzl6hvfrbw6c85bbocrm07dfk3c3hzkff8pnfobbs497a5mdaiudyfmoocixpq";
 
 const postVersion = "0.0.1";
 
@@ -346,7 +349,6 @@ function App() {
       params: {
         appId,
         resource: RESOURCE.CERAMIC,
-        wallet,
       },
     });
     setPkh(pkh);

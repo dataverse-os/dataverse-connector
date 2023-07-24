@@ -1,5 +1,4 @@
 import { StorageProvider } from "../types";
-import { Chain, WALLET } from "../wallet";
 import { ValidAppCaps } from "../app/types";
 import { StreamContent } from "../app";
 import { DatatokenVars, DecryptionConditions } from "../data-monetize/types";
@@ -15,7 +14,6 @@ import { SYSTEM_CALL } from "./constants";
 import { RESOURCE } from "../wallet";
 
 export interface RequestType {
-  connectWallet?: WALLET | undefined;
   getPKP: void;
   executeLitAction: { code: string; jsParams: object };
 
@@ -25,7 +23,6 @@ export interface RequestType {
   createCapability: {
     appId: string;
     resource?: RESOURCE;
-    wallet?: WALLET;
   };
   checkCapability: {
     appId: string;
@@ -113,11 +110,6 @@ export interface RequestType {
 }
 
 export interface ReturnType {
-  connectWallet: Promise<{
-    address: string;
-    chain: Chain;
-    wallet: WALLET;
-  }>;
   getPKP: Promise<{ address: string; publicKey: string }>;
   executeLitAction: Promise<any>;
 

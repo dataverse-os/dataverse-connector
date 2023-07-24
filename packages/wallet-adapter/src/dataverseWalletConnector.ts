@@ -31,7 +31,7 @@ export class DataverseWalletConnector extends Connector {
     if (!provider) throw new ConnectorNotFoundError();
     if (this.storage?.getItem("DataverseConnector_isConnected")) {
       const res = await provider.connectWallet(
-        this.storage?.getItem("DataverseConnector_wallet") as string
+        this.storage?.getItem("DataverseConnector_wallet") as string,
       );
 
       provider.on("accountsChanged", this.onAccountsChanged);
@@ -80,7 +80,7 @@ export class DataverseWalletConnector extends Connector {
       params: [{ chainId: `0x${chainId.toString(16)}` }],
     });
     return (
-      this.chains.find((x) => x.id === chainId) ?? {
+      this.chains.find(x => x.id === chainId) ?? {
         id: chainId,
         name: `Chain ${chainId}`,
         network: `${chainId}`,
@@ -97,7 +97,7 @@ export class DataverseWalletConnector extends Connector {
       this.getProvider(),
       this.getAccount(),
     ]);
-    const chain = this.chains.find((x) => x.id === chainId);
+    const chain = this.chains.find(x => x.id === chainId);
     if (!provider) throw new ConnectorNotFoundError();
     return createWalletClient({
       account,

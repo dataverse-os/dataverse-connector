@@ -1,6 +1,7 @@
 export interface RequestInputs {
   method: string;
   params?: any;
+  postMessageTo: PostMessageTo;
 }
 
 export interface RequestArguments {
