@@ -1,5 +1,5 @@
-import "./App.css";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   DataverseConnector,
   FolderType,
@@ -13,6 +13,7 @@ import {
 import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
 import { WalletProvider } from "@dataverse/wallet-provider";
+import "./App.scss";
 
 const dataverseConnector = new DataverseConnector();
 
@@ -53,6 +54,8 @@ function App() {
   const [hasAddListener, setHasAddListener] = useState<boolean>();
   const [provider, setProvider] = useState<WalletProvider>();
 
+  const navigate = useNavigate();
+
   /*** Wallet ***/
   const connectWalletWithDataverseProvider = async () => {
     const provider = new WalletProvider();
@@ -82,7 +85,7 @@ function App() {
   };
 
   const connectWalletWithMetamaskProvider = async () => {
-    const provider = window.ethereum;
+    const provider = (window as any).ethereum;
     console.log(provider);
     const res = await dataverseConnector.connectWallet({
       wallet,
@@ -772,6 +775,7 @@ function App() {
 
   return (
     <div className='App'>
+      <button onClick={() => navigate("/wagmi")}>go to wagmi demo page</button>
       <button onClick={connectWalletWithDataverseProvider}>
         connectWalletWithDataverseProvider
       </button>
