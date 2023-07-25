@@ -14,7 +14,7 @@ export const dataverseWallet = ({ chains }: DataverseWalletOptions): Wallet => {
     downloadUrls: {
       chrome:
         "https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead",
-      browserExtension: "https://dataverse-os.com/",
+      browserExtension: "https://dataverse-os.com",
     },
     createConnector: () => ({
       connector: new DataverseWalletConnector({

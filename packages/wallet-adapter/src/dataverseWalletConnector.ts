@@ -1,7 +1,7 @@
 import { Connector, Chain, Address, WalletClient } from "wagmi";
 import { WalletProvider } from "@dataverse/wallet-provider";
 
-import { createWalletClient, custom, getAddress } from "viem";
+import { createWalletClient, custom, getAddress, numberToHex } from "viem";
 import { ConnectorNotFoundError, normalizeChainId } from "@wagmi/connectors";
 
 export class DataverseWalletConnector extends Connector {
@@ -75,16 +75,17 @@ export class DataverseWalletConnector extends Connector {
   async switchChain(chainId: number): Promise<Chain> {
     const provider = await this.getProvider();
     if (!provider) throw new ConnectorNotFoundError();
+    const id = numberToHex(chainId);
     await provider.request({
       method: "wallet_switchEthereumChain",
-      params: [{ chainId: `0x${chainId.toString(16)}` }],
+      params: [{ chainId: id }],
     });
     return (
       this.chains.find(x => x.id === chainId) ?? {
         id: chainId,
-        name: `Chain ${chainId}`,
-        network: `${chainId}`,
-        nativeCurrency: { name: "", decimals: 18, symbol: "" },
+        name: `Chain ${id}`,
+        network: `${id}`,
+        nativeCurrency: { name: "Ether", decimals: 18, symbol: "ETH" },
         rpcUrls: { default: { http: [""] }, public: { http: [""] } },
       }
     );
