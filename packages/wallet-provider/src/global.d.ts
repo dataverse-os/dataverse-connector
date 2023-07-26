@@ -1,6 +1,12 @@
 interface Window {
   dataverse: {
+    isDataverse: boolean;
     connectWallet: (wallet: string) => Promise<{
+      address: string;
+      chain: { chainId: number; chainName: string };
+      wallet: string;
+    }>;
+    getCurrentWallet: () => Promise<{
       address: string;
       chain: { chainId: number; chainName: string };
       wallet: string;

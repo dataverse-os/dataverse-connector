@@ -33,6 +33,10 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
     return res;
   }
 
+  async getCurrentWallet() {
+    return window.dataverse.getCurrentWallet();
+  }
+
   async signMessage(message: Bytes | string): Promise<string> {
     if (!this.signer) {
       await this.connectWallet();
