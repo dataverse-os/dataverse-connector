@@ -15,7 +15,7 @@
     "build": "pnpm build:esm && pnpm build:cjs"
   },
   "dependencies": {
-    "@dataverse/wallet-provider": "^1.0.6",
+    "@dataverse/wallet-provider": "^1.0.9",
     "@ethersproject/providers": "^5.7.0",
     "@rainbow-me/rainbowkit": "^1.0.4",
     "@wagmi/connectors": "2.5.0",

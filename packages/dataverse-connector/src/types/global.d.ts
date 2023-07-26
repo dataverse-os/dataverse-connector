@@ -6,6 +6,11 @@ interface Window {
       chain: Chain;
       wallet: WALLET;
     }>;
+    getCurrentWallet: () => Promise<{
+      address: string;
+      chain: Chain;
+      wallet: WALLET;
+    }>;
     request: ({
       method,
       params,

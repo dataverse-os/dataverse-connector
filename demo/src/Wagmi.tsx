@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   configureChains,
   createConfig,
@@ -59,17 +59,22 @@ const dataverseConnector = new DataverseWalletConnector({ chains });
 
 // const _dataverseConnector = new _DataverseConnector();
 
-const config = createConfig({
-  autoConnect: true,
-  connectors: [dataverseConnector],
-  publicClient,
-});
-
 function Wagmi() {
+  const ref = useRef<any>(
+    createConfig({
+      autoConnect: true,
+      connectors: [dataverseConnector],
+      publicClient,
+    }),
+  );
   return (
-    <WagmiConfig config={config}>
-      <Profile />
-    </WagmiConfig>
+    <>
+      {ref.current && (
+        <WagmiConfig config={ref.current}>
+          <Profile />
+        </WagmiConfig>
+      )}
+    </>
   );
 }
 

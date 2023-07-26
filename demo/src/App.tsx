@@ -51,24 +51,28 @@ function App() {
   const [folderId, setFolderId] = useState("");
   const [indexFileId, setIndexFileId] = useState("");
   const [folders, setFolders] = useState<StructuredFolders>();
-  const [hasAddListener, setHasAddListener] = useState<boolean>();
+  const [
+    dataverseProviderHasAddedListener,
+    setDataverseProviderHasAddedListener,
+  ] = useState<boolean>();
+
   const [provider, setProvider] = useState<WalletProvider>();
 
   const navigate = useNavigate();
 
   /*** Wallet ***/
-  const connectWalletWithDataverseProvider = async () => {
+  const connectWalletWithDataverseProvider = async (_wallet = wallet) => {
     const provider = new WalletProvider();
     console.log(provider);
     const res = await dataverseConnector.connectWallet({
-      wallet,
+      ...(_wallet !== WALLET.EXTERNAL_WALLET && { wallet: _wallet }),
       provider,
     });
     console.log(res);
     setProvider(provider);
     setWallet(res.wallet);
     setAddress(res.address);
-    if (!hasAddListener) {
+    if (!dataverseProviderHasAddedListener) {
       provider.on("chainChanged", (chainId: number) => {
         console.log(chainId);
       });
@@ -79,31 +83,40 @@ function App() {
         console.log(accounts);
         setAddress(accounts[0]);
       });
-      setHasAddListener(true);
+      setDataverseProviderHasAddedListener(true);
     }
     return res;
   };
 
-  const connectWalletWithMetamaskProvider = async () => {
+  const connectWalletWithMetamaskProvider = async (_wallet = wallet) => {
     const provider = (window as any).ethereum;
     console.log(provider);
     const res = await dataverseConnector.connectWallet({
-      wallet,
+      wallet: _wallet,
       provider,
     });
     console.log(res);
     setProvider(provider);
-    setWallet(WALLET.METAMASK);
+    setWallet(WALLET.EXTERNAL_WALLET);
     setAddress(res.address);
-    if (!hasAddListener) {
-      provider.on("chainChanged", (networkId: string) => {
-        console.log(Number(networkId));
-      });
-      provider.on("accountsChanged", (accounts: Array<string>) => {
-        console.log(accounts);
-        setAddress(getAddress(accounts[0]));
-      });
-      setHasAddListener(true);
+    provider.on("chainChanged", (networkId: string) => {
+      console.log(Number(networkId));
+    });
+    provider.on("accountsChanged", (accounts: Array<string>) => {
+      console.log(accounts);
+      setAddress(getAddress(accounts[0]));
+    });
+    return res;
+  };
+
+  const getCurrentWallet = async () => {
+    const res = await dataverseConnector.getCurrentWallet();
+    if (res) {
+      if (res.wallet !== WALLET.EXTERNAL_WALLET) {
+        await connectWalletWithDataverseProvider(res.wallet);
+      } else {
+        await connectWalletWithMetamaskProvider(res.wallet);
+      }
     }
     return res;
   };
@@ -776,13 +789,15 @@ function App() {
   return (
     <div className='App'>
       <button onClick={() => navigate("/wagmi")}>go to wagmi demo page</button>
-      <button onClick={connectWalletWithDataverseProvider}>
+      <button onClick={() => connectWalletWithDataverseProvider()}>
         connectWalletWithDataverseProvider
       </button>
-      <button onClick={connectWalletWithMetamaskProvider}>
+      <button onClick={() => connectWalletWithMetamaskProvider()}>
         connectWalletWithMetamaskProvider
       </button>
       <div className='blackText'>{address}</div>
+      <hr />
+      <button onClick={getCurrentWallet}>getCurrentWallet</button>
       <hr />
       <button onClick={switchNetwork}>switchNetwork</button>
       <hr />

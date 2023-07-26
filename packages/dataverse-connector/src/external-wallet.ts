@@ -1,7 +1,9 @@
 import { convertTxData } from "@dataverse/utils";
 import { Contract, ethers } from "ethers";
+import { WALLET } from "./types";
 
 export class ExternalWallet {
+  wallet = WALLET.EXTERNAL_WALLET;
   externalProvider: any;
   provider: ethers.providers.Web3Provider;
   signer: ethers.providers.JsonRpcSigner;
