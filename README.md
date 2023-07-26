@@ -6,32 +6,35 @@
 </p >
 <br/>
 
-# runtime-connector
+# dataverse-connector
 
-[![npm version](https://img.shields.io/npm/v/@dataverse/runtime-connector.svg)](https://www.npmjs.com/package/@dataverse/runtime-connector)
-![npm](https://img.shields.io/npm/dw/@dataverse/runtime-connector)
-[![License](https://img.shields.io/npm/l/@dataverse/runtime-connector.svg)](https://github.com/dataverse-os/runtime-connector/blob/main/LICENSE.md)
+[![npm version](https://img.shields.io/npm/v/@dataverse/dataverse-connector.svg)](https://www.npmjs.com/package/@dataverse/dataverse-connector)
+![npm](https://img.shields.io/npm/dw/@dataverse/dataverse-connector)
+[![License](https://img.shields.io/npm/l/@dataverse/dataverse-connector.svg)](https://github.com/dataverse-os/dataverse-connector/blob/main/LICENSE.md)
 
-The system calls exposed by Dataverse Kernel
+The system calls exposed by Dataverse Kernel.
 
 ## Installation
 
 ```bash
-pnpm install @dataverse/runtime-connector
+pnpm install @dataverse/dataverse-connector
 ```
 
 ## Run demo
+
 ### requirements
-- [Data Wallet](https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead) - A secure data wallet to protect your identity and data assets.
-- [MetaMask](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn) - A cryptocurrency wallet browser extension.
+
+- [Data Wallet](https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead) -
+  A secure data wallet to protect your identity and data assets.
+- [MetaMask](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn) -
+  A cryptocurrency wallet browser extension.
 - [Node.js](https://nodejs.org/en/) version >= 16.
 - [pnpm](https://pnpm.io/) version >= 7.
 
-```typescript
+```bash
 pnpm install // install dependencies
 pnpm build  // build the package
-cd demo
-pnpm dev  // run the demo
+pnpm test
 ```
 
 the demo will be running on http://localhost:5173/.
@@ -47,50 +50,62 @@ the demo will be running on http://localhost:5173/.
 ## Usage
 
 ```typescript
-import { RuntimeConnector, Extension } from "@dataverse/runtime-connector";
+import { DataverseConnector, Extension } from "@dataverse/dataverse-connector";
 
-const runtimeConnector = new RuntimeConnector(Extension);
+const dataverseConnector = new DataverseConnector(Extension);
 ```
 
 ## Functions
 
-**`runtimeConnector.connectWallet(WALLET.METAMASK)`**
+**`dataverseConnector.connectWallet({wallet: WALLET.METAMASK})`**
 
-Connect with user wallet.
-pass in which wallet you want to connect with, currently support MetaMask and Particle Network.
+Connect with user wallet. pass in which wallet you want to connect with,
+currently support MetaMask and Particle Network.
 
-  ```js
-  enum WALLET {
-    METAMASK = "MetaMask",
-    PARTICLE = "Particle"
-  }
-  ```
-- Returns:
-  - If the wallet is not connected, a pop-up will appear for the user to select a wallet address. After the user selects an address, the address will be returned to indicate that the wallet is connected.
-  - If the wallet is already connected, will return wallet address and other info, example:
-```json
-{
-    "address": "0x312eA852726E3A9f633A0377c0ea882086d66666",
-    "chain": {
-        "chainId": 80001,
-        "chainName": "mumbai"
-    },
-    "wallet": "MetaMask"
+```ts
+enum WALLET {
+  METAMASK = "MetaMask",
+  WALLETCONNECT = "WalletConnect",
+  COINBASE = "Coinbase",
+  PARTICLE = "Particle",
+  EXTERNAL_WALLET = "ExternalWallet",
 }
 ```
+
+- Returns:
+  - If the wallet is not connected, a pop-up will appear for the user to select
+    a wallet address. After the user selects an address, the address will be
+    returned to indicate that the wallet is connected.
+  - If the wallet is already connected, will return wallet address and other
+    info, example:
+
+```json
+{
+  "address": "0x312eA852726E3A9f633A0377c0ea882086d66666",
+  "chain": {
+    "chainId": 80001,
+    "chainName": "mumbai"
+  },
+  "wallet": "MetaMask"
+}
+```
+
 <br>
 
-**`runtimeConnector.createCapability({app: string, resource: RESOURCE, wallet: WALLET})`**
+**`dataverseConnector.createCapability({appId: string, resource: RESOURCE, wallet: WALLET})`**
 
 Create a capability for the application to access the data resources.
-- `app`: `string` - which app is requesting the capability.
+
+- `appId`: `string` - which appId is requesting the capability.
 - `resource`: `RESOURCE` - Resource to give access to the capability.
   ```js
   enum RESOURCE {
     CERAMIC,
   }
   ```
-This method will open a popup and ask the user to sign a message to create a capability. The message will be like this.
+  This method will open a popup and ask the user to sign a message to create a
+  capability. The message will be like this.
+
 ```yaml
 Message:
 Give this application access to some of your data
@@ -121,11 +136,12 @@ ceramic://*?model=kjzl6hvfrbw6c6ad7ydn0hi4vtamx2v620hdgu6llq49h28rfd6cs02g3cmn9z
 ```
 
 - Returns:
-  - `pkh`: `string` - a pkh did you may use to interact with the data resources later.
+  - `pkh`: `string` - a pkh did you may use to interact with the data resources
+    later.
+
 ```js
 did:pkh:eip155:137:0x29761660d6Cb26a08e9A9c7de12E0038eE9cb623
 ```
-
 
 <br>
 
@@ -133,7 +149,8 @@ check all functions in [docs](https://docs.dataverse-os.com/sdk/apis).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.md)
+file for details.
 
 ## Documentation
 
@@ -141,7 +158,8 @@ View [Docs](https://docs.dataverse-os.com/).
 
 ## Contributing
 
-Contributions to this project are welcome. To contribute, please follow these steps:
+Contributions to this project are welcome. To contribute, please follow these
+steps:
 
 1. Fork the repository and create a new branch.
 2. Make your changes and test them thoroughly.

@@ -1,0 +1,52 @@
+.container {
+  color: black;
+  > div {
+    display: flex;
+    align-items: center;
+  }
+  button {
+    display: block;
+    margin: 10px;
+  }
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+      monospace;
+  }
+
+  .contract-read {
+    display: flex;
+    align-items: flex-start;
+    > span {
+      margin-left: 10px;
+    }
+    > button {
+      margin: 0 10px !important;
+    }
+  }
+
+  .ens-avatar {
+    display: flex;
+    align-items: flex-start;
+    > img {
+      width: 60px;
+      margin-left: 10px;
+    }
+    > button {
+      margin: 0 10px !important;
+    }
+  }
+
+  .fee-data {
+    display: flex;
+    > text {
+      margin-top: 14px !important;
+    }
+    > span {
+      display: flex;
+      > button {
+        height: fit-content;
+        margin-top: 14px !important;
+      }
+    }
+  }
+}
