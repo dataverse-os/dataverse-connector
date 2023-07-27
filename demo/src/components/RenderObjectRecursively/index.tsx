@@ -17,7 +17,7 @@ export function RenderObjectRecursively({
       {Object.entries(object).map(([key, value]) => {
         if (layout === Layout.verticle) {
           return (
-            <ul>
+            <ul key={key}>
               {key}:{" "}
               {
                 (() => {
@@ -32,7 +32,7 @@ export function RenderObjectRecursively({
           );
         } else {
           return (
-            <span>
+            <span key={key}>
               {" "}
               {key}:{" "}
               {

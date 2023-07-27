@@ -16,11 +16,11 @@ import {
   detectDataverseExtension,
   getDatatokenBaseInfo,
   isCollected,
+  ExternalWallet,
 } from "@dataverse/utils";
 import { ethers } from "ethers";
 import { getDapp, getDapps } from "@dataverse/dapp-table-client";
 import { getAddress } from "viem";
-import { ExternalWallet } from "./external-wallet";
 
 export class DataverseConnector {
   private communicator: Communicator;
@@ -35,12 +35,21 @@ export class DataverseConnector {
   appId?: string;
 
   constructor() {
-    this.externalWallet = new ExternalWallet();
-    this.communicator = new Communicator({
-      source: window,
-      target: window.top,
-      methodClass: this.externalWallet,
-    });
+    if (!window.externalWallet) {
+      window.externalWallet = new ExternalWallet();
+    }
+    this.externalWallet = window.externalWallet;
+    if (!window.dataverseCommunicator) {
+      this.communicator = new Communicator({
+        source: window,
+        target: window.top,
+        methodClass: this.externalWallet,
+      });
+      window.dataverseCommunicator = this.communicator;
+    } else {
+      this.communicator = window.dataverseCommunicator;
+    }
+    this.communicator.onRequestMessage(() => {});
   }
 
   getProvider(): Provider {
@@ -72,6 +81,8 @@ export class DataverseConnector {
         throw "Conflict between wallet and provider";
       }
 
+      this.communicator.onRequestMessage(() => {});
+
       const res = await window.dataverse.connectWallet(
         wallet || provider.wallet,
       );
@@ -97,9 +108,10 @@ export class DataverseConnector {
 
       return res;
     }
-
     this.externalProvider = provider;
+    window.dataverseExternalProvider = provider;
     this.externalWallet.setProvider(provider);
+    this.communicator.onRequestMessage(undefined);
 
     const res = await window.dataverse.connectWallet(WALLET.EXTERNAL_WALLET);
 

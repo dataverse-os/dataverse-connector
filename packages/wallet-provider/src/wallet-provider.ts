@@ -1,4 +1,5 @@
 import EventEmitter from "eventemitter3";
+import { Communicator } from "@dataverse/communicator";
 import { ConnecterEvents } from "./types";
 import { ethers, Bytes, Contract } from "ethers";
 import { Deferrable } from "ethers/lib/utils";
@@ -10,7 +11,11 @@ import {
   TransactionRequest,
   TransactionResponse,
 } from "@ethersproject/providers";
-import { convertTxData, formatSendTransactionData } from "@dataverse/utils";
+import {
+  convertTxData,
+  formatSendTransactionData,
+  ExternalWallet,
+} from "@dataverse/utils";
 
 export class WalletProvider extends EventEmitter<ConnecterEvents> {
   private signer: ethers.providers.JsonRpcSigner;
@@ -22,6 +27,22 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
     chainName: string;
   };
   wallet?: string;
+
+  constructor() {
+    super();
+    if (!window.externalWallet) {
+      window.externalWallet = new ExternalWallet();
+    }
+    window.externalWallet.setProvider(window.dataverseExternalProvider);
+
+    if (!window.dataverseCommunicator) {
+      window.dataverseCommunicator = new Communicator({
+        source: window,
+        target: window.top,
+        methodClass: window.externalWallet,
+      });
+    }
+  }
 
   async connectWallet(wallet?: string) {
     const res = await window.dataverse.connectWallet(wallet);

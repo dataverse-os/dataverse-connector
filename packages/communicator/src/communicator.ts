@@ -102,7 +102,6 @@ export class Communicator {
       if (this.callbackFunctions[args.sequenceId]) {
         return;
       }
-
       if (this.handleResponseMessage) {
         this.handleResponseMessage(event);
         return;
@@ -117,7 +116,10 @@ export class Communicator {
       ) {
         return;
       }
+
       let result: { code: string; result?: any; error?: string };
+      let isMethodClassHasMethod: boolean;
+
       if (!this.methodClass) {
         result = {
           code: UNKNOWN_CODE,
@@ -125,22 +127,29 @@ export class Communicator {
             "Please pass in the methodClass, in order to call methods in the class",
         };
       } else {
-        try {
-          const res = await this.methodClass[args.method](args.params);
-          result = { code: CORRECT_CODE, result: res };
-        } catch (error) {
-          result = {
-            code: error?.code || UNKNOWN_CODE,
-            error: error?.msg || error?.message,
-          };
+        if (this.methodClass[args.method]) {
+          isMethodClassHasMethod = true;
+          try {
+            const res = await this.methodClass[args.method](args.params);
+            result = { code: CORRECT_CODE, result: res };
+          } catch (error) {
+            console.log(error);
+            result = {
+              code: error?.code || UNKNOWN_CODE,
+              error: error?.msg || error?.message,
+            };
+          }
         }
       }
-      this.sendResponse({
-        sequenceId: args.sequenceId,
-        type: RESPONSE,
-        result,
-        origin: event.origin,
-      });
+
+      if (!this.methodClass || isMethodClassHasMethod) {
+        this.sendResponse({
+          sequenceId: args.sequenceId,
+          type: RESPONSE,
+          result,
+          origin: event.origin,
+        });
+      }
     }
   }
 

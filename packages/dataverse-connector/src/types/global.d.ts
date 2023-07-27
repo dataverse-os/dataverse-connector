@@ -1,4 +1,6 @@
 import { Chain, WALLET } from ".";
+import { Communicator } from "@dataverse/communicator";
+import { ExternalWallet } from "@dataverse/utils";
 
 declare global {
   interface Window {
@@ -31,6 +33,8 @@ declare global {
         params: Array<any>;
       }) => Promise<string>;
     };
-    provider: any;
+    externalWallet: ExternalWallet;
+    dataverseExternalProvider: any;
+    dataverseCommunicator: Communicator;
   }
 }

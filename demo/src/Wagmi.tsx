@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   configureChains,
   createConfig,
@@ -23,7 +23,7 @@ import {
   usePrepareSendTransaction,
   useSignMessage,
   useSignTypedData,
-  // useConfig,
+  useConfig,
 } from "wagmi";
 import { Address, parseEther } from "viem";
 import { mainnet } from "wagmi/chains";
@@ -45,10 +45,11 @@ import {
   RenderObjectRecursively,
 } from "./components/RenderObjectRecursively";
 import "./Wagmi.scss";
-// import {
-//   SYSTEM_CALL,
-//   DataverseConnector as _DataverseConnector,
-// } from "@dataverse/dataverse-connector";
+import {
+  SYSTEM_CALL,
+  WALLET,
+  DataverseConnector as _DataverseConnector,
+} from "@dataverse/dataverse-connector";
 
 const { chains, publicClient } = configureChains(
   [mainnet, polygonMumbai],
@@ -57,7 +58,7 @@ const { chains, publicClient } = configureChains(
 
 const dataverseConnector = new DataverseWalletConnector({ chains });
 
-// const _dataverseConnector = new _DataverseConnector();
+const _dataverseConnector = new _DataverseConnector();
 
 function Wagmi() {
   const ref = useRef<any>(
@@ -79,12 +80,12 @@ function Wagmi() {
 }
 
 function Profile() {
-  const { connect } = useConnect({
+  const { connectAsync } = useConnect({
     connector: dataverseConnector,
   });
-  // const { connector } = useConfig();
+  const { connector } = useConfig();
   const { address, isConnected } = useAccount();
-  // const [pkh, setPKH] = useState("");
+  const [pkh, setPKH] = useState("");
   const { chain } = useNetwork();
   const { switchNetworkAsync, switchNetwork } = useSwitchNetwork();
 
@@ -178,11 +179,11 @@ function Profile() {
     types,
   });
 
-  // useEffect(() => {
-  //   if (!isConnected) {
-  //     setPKH("");
-  //   }
-  // }, [isConnected]);
+  useEffect(() => {
+    if (!isConnected) {
+      setPKH("");
+    }
+  }, [isConnected]);
 
   if (isConnected)
     return (
@@ -191,26 +192,31 @@ function Profile() {
           Connected to {address}
           <button onClick={() => disconnect()}>disconnect</button>
         </div>
-        {/* <div>
+        <div>
           pkh: {pkh}
           <button
             onClick={async () => {
-              const provider =await connector?.getProvider()
-              await _dataverseConnector.connectWallet({
-                provider,
-              });
-              const pkh = await _dataverseConnector.runOS({
-                method: SYSTEM_CALL.createCapability,
-                params: {
-                  appId: "89e8203c-4567-43c8-8e75-e75f6546bacd",
-                },
-              });
-              setPKH(pkh);
+              const provider = await connector?.getProvider();
+              if (provider.wallet !== WALLET.EXTERNAL_WALLET) {
+                console.log(provider);
+                const res = await _dataverseConnector.connectWallet({
+                  provider,
+                });
+                console.log(res);
+                const pkh = await _dataverseConnector.runOS({
+                  method: SYSTEM_CALL.createCapability,
+                  params: {
+                    appId: "89e8203c-4567-43c8-8e75-e75f6546bacd",
+                  },
+                });
+                console.log(pkh);
+                setPKH(pkh);
+              }
             }}
           >
             createCapability
           </button>
-        </div> */}
+        </div>
 
         <div>
           chain:{" "}
@@ -240,7 +246,7 @@ function Profile() {
           <span>
             {contractRead?.map((item, index) => {
               return (
-                <div>
+                <div key={index}>
                   {index}:{" "}
                   {typeof item.result === "bigint" &&
                     Number((item as { result: bigint }).result)}
@@ -287,7 +293,7 @@ function Profile() {
           <button onClick={() => refetchEnsResolver()}>refetch</button>
         </div>
         <div className='fee-data'>
-          <text>Fee Data:</text>
+          <div>Fee Data:</div>
           <span>
             <div>{feeData && <RenderObjectRecursively object={feeData} />}</div>
             <button
@@ -340,14 +346,35 @@ function Profile() {
   return (
     <div>
       <button
-        onClick={() =>
-          connect({
-            connector: dataverseConnector,
-          })
-        }
+        onClick={() => {
+          connectAsync();
+        }}
       >
         Connect Wallet
       </button>
+      {/* <button
+        onClick={async () => {
+          const provider = (window as any).ethereum;
+          console.log(provider);
+          const res = await _dataverseConnector.connectWallet({
+            provider,
+          });
+          console.log(res);
+          const pkh = await _dataverseConnector.runOS({
+            method: SYSTEM_CALL.createCapability,
+            params: {
+              appId: "89e8203c-4567-43c8-8e75-e75f6546bacd",
+            },
+          });
+          console.log(pkh);
+          const res2 = await connectAsync({
+            connector: dataverseConnector,
+          });
+          console.log(res2);
+        }}
+      >
+        Connect Wallet
+      </button> */}
     </div>
   );
 }

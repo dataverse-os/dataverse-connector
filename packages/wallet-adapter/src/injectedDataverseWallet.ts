@@ -41,11 +41,16 @@ class DataverseInjectedConnector extends InjectedConnector {
         chain: { chainId: number; chainName: string };
         wallet: string;
       }>;
+      getCurrentWallet: () => Promise<{
+        address: Address;
+        chain: { chainId: number; chainName: string };
+        wallet: string;
+      }>;
     };
-    if (this.storage?.getItem("DataverseConnector_isConnected")) {
-      const res = await _provider.connectWallet(
-        this.storage?.getItem("DataverseConnector_wallet"),
-      );
+
+    const currentWallet = await _provider.getCurrentWallet();
+    if (currentWallet) {
+      const res = await _provider.connectWallet(currentWallet.wallet);
       provider.on("accountsChanged", this.onAccountsChanged);
       provider.on("chainChanged", this.onChainChanged);
 
@@ -59,7 +64,6 @@ class DataverseInjectedConnector extends InjectedConnector {
     }
     this.emit("message", { type: "connecting" });
     const res = await _provider?.connectWallet();
-    this.storage?.setItem("DataverseConnector_wallet", res.wallet);
     this.storage?.setItem("DataverseConnector_isConnected", "true");
 
     provider.on("accountsChanged", this.onAccountsChanged);

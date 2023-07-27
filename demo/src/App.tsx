@@ -117,6 +117,8 @@ function App() {
       } else {
         await connectWalletWithMetamaskProvider(res.wallet);
       }
+    } else {
+      console.log(res);
     }
     return res;
   };

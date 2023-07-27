@@ -29,10 +29,11 @@ export class DataverseWalletConnector extends Connector {
   async connect() {
     const provider = await this.getProvider();
     if (!provider) throw new ConnectorNotFoundError();
-    if (this.storage?.getItem("DataverseConnector_isConnected")) {
-      const res = await provider.connectWallet(
-        this.storage?.getItem("DataverseConnector_wallet") as string,
-      );
+
+    const currentWallet = await provider.getCurrentWallet();
+    if (currentWallet) {
+      const res = await provider.connectWallet(currentWallet.wallet);
+      this.storage?.setItem("DataverseConnector_isConnected", true);
 
       provider.on("accountsChanged", this.onAccountsChanged);
       provider.on("chainChanged", this.onChainChanged);
@@ -48,7 +49,6 @@ export class DataverseWalletConnector extends Connector {
 
     this.emit("message", { type: "connecting" });
     const res = await provider.connectWallet();
-    this.storage?.setItem("DataverseConnector_wallet", res.wallet);
     this.storage?.setItem("DataverseConnector_isConnected", true);
 
     provider.on("accountsChanged", this.onAccountsChanged);
@@ -124,7 +124,13 @@ export class DataverseWalletConnector extends Connector {
   }
 
   async isAuthorized(): Promise<boolean> {
-    return !!this.storage?.getItem("DataverseConnector_isConnected");
+    const provider = await this.getProvider();
+    if (!provider) return false;
+
+    const currentWallet = await provider.getCurrentWallet();
+    return (
+      currentWallet && !!this.storage?.getItem("DataverseConnector_isConnected")
+    );
   }
 
   protected onAccountsChanged = (accounts: string[]) => {
