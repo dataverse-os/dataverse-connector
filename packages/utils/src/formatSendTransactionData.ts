@@ -5,6 +5,8 @@ export function formatSendTransactionData(data: any) {
     if (data) {
       data = BigNumber.from(data).toHexString().replace(/^0x0*/, "0x");
     }
-  } catch (error) {}
+  } catch (error) {
+    // to do
+  }
   return data;
 }

@@ -28,7 +28,7 @@
     "forceConsistentCasingInFileNames": true,
     "paths": {
       "*": ["./node_modules/"]
-    },
+    }
   },
   "include": ["packages"]
 }

@@ -9,7 +9,9 @@ export const checkIsExtensionInjected = (): Promise<boolean> => {
           flag = true;
           resolve(true);
         }
-      } catch (error) {}
+      } catch (error) {
+        // to do
+      }
     }, 100);
     setTimeout(() => {
       if (!flag) {

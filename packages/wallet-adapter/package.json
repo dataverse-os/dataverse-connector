@@ -1,0 +1,39 @@
+{
+  "name": "@dataverse/wallet-adapter",
+  "version": "1.0.3",
+  "description": "",
+  "module": "dist/esm/index.js",
+  "main": "dist/cjs/index.js",
+  "types": "dist/esm/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "test": "cd test && pnpm dev",
+    "build:esm": "node build.mjs esm && tsc -p tsconfig.json",
+    "build:cjs": "node build.mjs cjs && tsc -p tsconfig-cjs.json",
+    "build": "pnpm build:esm && pnpm build:cjs"
+  },
+  "dependencies": {
+    "@dataverse/wallet-provider": "^1.0.11",
+    "@ethersproject/providers": "^5.7.0",
+    "@rainbow-me/rainbowkit": "^1.0.4",
+    "@wagmi/connectors": "2.5.0",
+    "@wagmi/core": "1.3.0",
+    "eventemitter3": "^5.0.1",
+    "nanoid": "^4.0.2",
+    "viem": "^0.3.28",
+    "wagmi": "1.3.0"
+  },
+  "devDependencies": {
+    "@vanilla-extract/esbuild-plugin": "^2.2.0",
+    "autoprefixer": "^10.4.0",
+    "esbuild": "^0.14.39",
+    "postcss": "^8.4.6",
+    "postcss-prefix-selector": "^1.15.0",
+    "recursive-readdir-files": "^2.0.7"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

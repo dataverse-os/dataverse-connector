@@ -1,17 +1,6 @@
 import { generateNanoid } from "./utils";
-import {
-  CORRECT_CODE,
-  MESSAGE,
-  REQUEST,
-  RESPONSE,
-  UNKNOWN_CODE,
-} from "./constants";
-import {
-  RequestInputs,
-  ResponseArguments,
-  RequestArguments,
-  PostMessageTo,
-} from "./types";
+import { CORRECT_CODE, REQUEST, RESPONSE, UNKNOWN_CODE } from "./constants";
+import { RequestInputs, ResponseArguments, RequestArguments } from "./types";
 
 interface Chrome {
   runtime: {
@@ -23,7 +12,7 @@ interface Chrome {
   };
 }
 
-declare var chrome: Chrome;
+declare let chrome: Chrome;
 
 export class CommunicatorWithChromeMessage {
   protected methodClass: any;
@@ -39,7 +28,7 @@ export class CommunicatorWithChromeMessage {
     this.methodClass = methodClass;
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const onmessage = this._onmessage.bind(this);
-      onmessage(message, sender, sendResponse).then((res) => {
+      onmessage(message, sender).then(res => {
         sendResponse(res);
       });
       return true;
@@ -84,7 +73,7 @@ export class CommunicatorWithChromeMessage {
     this.responseSequenceIds[args.sequenceId] = true;
   }
 
-  private async _onmessage(message, sender, _sendResponse) {
+  private async _onmessage(message: any, sender: any) {
     if (this.destroyed) return null;
     if (message.type === RESPONSE) {
       const args = message.data as ResponseArguments;

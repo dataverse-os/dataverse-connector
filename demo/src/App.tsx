@@ -1,31 +1,31 @@
-import "./App.css";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  CoreConnector,
+  DataverseConnector,
   FolderType,
   StructuredFolders,
   Currency,
   StorageProviderName,
   WALLET,
   RESOURCE,
-  Chain,
-  SignMethod,
-  Methods,
-} from "@dataverse/core-connector";
-
-import { WalletProvider } from "@dataverse/wallet-provider";
-
-import { getAddressFromPkh } from "./utils/addressAndPkh";
+  SYSTEM_CALL,
+} from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
+import { getAddress } from "viem";
+import { WalletProvider } from "@dataverse/wallet-provider";
+import "./App.scss";
 
-const coreConnector = new CoreConnector();
+const dataverseConnector = new DataverseConnector();
 
-const app = "toolkits_test011"; //toolkits_test011 (testnet)
-const dappId = "74d47474-89b0-45eb-940b-73d7f31ca41c";
-const postVersion = "0.0.1";
+const appId = "89e8203c-4567-43c8-8e75-e75f6546bacd";
+// const appId = "b5dbf620-087f-478f-8703-ff9d0c567f13";
 
 const modelId =
-  "kjzl6hvfrbw6c6ow3w4p4nmebboionqx4mhgk0t6aqjwtmlvi8s19tnth5edoj1"; // (testnet)
+  "kjzl6hvfrbw6c7zeoa35fjzbxxc2f05p40il48n8qdeoxwr4dq6ogym5v2xjavf";
+// const modelId =
+//   "kjzl6hvfrbw6c85bbocrm07dfk3c3hzkff8pnfobbs497a5mdaiudyfmoocixpq";
+
+const postVersion = "0.0.1";
 
 const storageProvider = {
   name: StorageProviderName.Lighthouse,
@@ -51,19 +51,28 @@ function App() {
   const [folderId, setFolderId] = useState("");
   const [indexFileId, setIndexFileId] = useState("");
   const [folders, setFolders] = useState<StructuredFolders>();
-  const [hasAddListener, setHasAddListener] = useState<boolean>();
+  const [
+    dataverseProviderHasAddedListener,
+    setDataverseProviderHasAddedListener,
+  ] = useState<boolean>();
+
   const [provider, setProvider] = useState<WalletProvider>();
 
+  const navigate = useNavigate();
+
   /*** Wallet ***/
-  const connectWallet = async () => {
-    const res = await coreConnector.connectWallet(wallet);
-    console.log(res);
-    const provider = coreConnector.getProvider();
+  const connectWalletWithDataverseProvider = async (_wallet = wallet) => {
+    const provider = new WalletProvider();
     console.log(provider);
+    const res = await dataverseConnector.connectWallet({
+      ...(_wallet !== WALLET.EXTERNAL_WALLET && { wallet: _wallet }),
+      provider,
+    });
+    console.log(res);
     setProvider(provider);
     setWallet(res.wallet);
     setAddress(res.address);
-    if (!hasAddListener) {
+    if (!dataverseProviderHasAddedListener) {
       provider.on("chainChanged", (chainId: number) => {
         console.log(chainId);
       });
@@ -74,13 +83,48 @@ function App() {
         console.log(accounts);
         setAddress(accounts[0]);
       });
-      setHasAddListener(true);
+      setDataverseProviderHasAddedListener(true);
+    }
+    return res;
+  };
+
+  const connectWalletWithMetamaskProvider = async (_wallet = wallet) => {
+    const provider = (window as any).ethereum;
+    console.log(provider);
+    const res = await dataverseConnector.connectWallet({
+      wallet: _wallet,
+      provider,
+    });
+    console.log(res);
+    setProvider(provider);
+    setWallet(WALLET.EXTERNAL_WALLET);
+    setAddress(res.address);
+    provider.on("chainChanged", (networkId: string) => {
+      console.log(Number(networkId));
+    });
+    provider.on("accountsChanged", (accounts: Array<string>) => {
+      console.log(accounts);
+      setAddress(getAddress(accounts[0]));
+    });
+    return res;
+  };
+
+  const getCurrentWallet = async () => {
+    const res = await dataverseConnector.getCurrentWallet();
+    if (res) {
+      if (res.wallet !== WALLET.EXTERNAL_WALLET) {
+        await connectWalletWithDataverseProvider(res.wallet);
+      } else {
+        await connectWalletWithMetamaskProvider(res.wallet);
+      }
+    } else {
+      console.log(res);
     }
     return res;
   };
 
   const switchNetwork = async () => {
-    if (!coreConnector?.isConnected) {
+    if (!dataverseConnector?.isConnected) {
       console.error("please connect wallet first");
       return;
     }
@@ -89,16 +133,18 @@ function App() {
       method: "wallet_switchEthereumChain",
       params: [{ chainId: "0x13881" }],
     });
-
-    // const res = await coreConnector.switchNetwork(137);
   };
 
   const signOrSignTypedData = async () => {
-    if (!coreConnector?.isConnected) {
+    if (!dataverseConnector?.isConnected) {
       console.error("please connect wallet first");
       return;
     }
-    const res = await provider?.signMessage("test");
+
+    const res = await provider?.request({
+      method: "personal_sign",
+      params: [address, "test"],
+    });
 
     console.log(res);
 
@@ -106,52 +152,80 @@ function App() {
       method: "wallet_switchEthereumChain",
       params: [{ chainId: "0x13881" }],
     });
-    const res2 = await provider?._signTypedData(
-      {
-        name: "EPNS COMM V1",
-        chainId: 80001,
-        verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
-      },
-      {
-        Data: [
-          {
-            name: "data",
-            type: "string",
+
+    const res2 = await provider?.request({
+      method: "eth_signTypedData_v4",
+      params: [
+        address,
+        JSON.stringify({
+          domain: {
+            name: "EPNS COMM V1",
+            chainId: 80001,
+            verifyingContract: "0xb3971BCef2D791bc4027BbfedFb47319A4AAaaAa",
           },
-        ],
-      },
-      {
-        data: '2+{"notification":{"title":"Push Title Hello","body":"Good to see you bodies"},"data":{"acta":"","aimg":"","amsg":"Payload Push Title Hello Body","asub":"Payload Push Title Hello","type":"1"},"recipients":"eip155:5:0x6ed14ee482d3C4764C533f56B90360b767d21D5E"}',
-      }
-    );
+          primaryType: "Data",
+          types: {
+            Data: [
+              {
+                name: "data",
+                type: "string",
+              },
+            ],
+            EIP712Domain: [
+              {
+                name: "name",
+                type: "string",
+              },
+              {
+                name: "chainId",
+                type: "uint256",
+              },
+              {
+                name: "verifyingContract",
+                type: "address",
+              },
+            ],
+          },
+          message: {
+            data: '2+{"notification":{"title":"Push Title Hello","body":"Good to see you bodies"},"data":{"acta":"","aimg":"","amsg":"Payload Push Title Hello Body","asub":"Payload Push Title Hello","type":"1"},"recipients":"eip155:5:0x6ed14ee482d3C4764C533f56B90360b767d21D5E"}',
+          },
+        }),
+      ],
+    });
 
     console.log(res2);
   };
 
   const sendTransaction = async () => {
-    if (!coreConnector?.isConnected) {
+    if (!dataverseConnector?.isConnected) {
       console.error("please connect wallet first");
       return;
     }
-
-    const res = await provider?.sendTransaction({
-      from: coreConnector.address, // The user's active address.
-      to: coreConnector.address, // Required except during contract publications.
-      value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
-      // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
-      // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
+    const res = await provider?.request({
+      method: "eth_sendTransaction",
+      params: [
+        {
+          from: dataverseConnector.address, // The user's active address.
+          to: dataverseConnector.address, // Required except during contract publications.
+          value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
+          // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
+          // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
+        },
+      ],
     });
-
     console.log(res);
   };
 
   const contractCall = async () => {
-    if (!coreConnector?.isConnected) {
+    if (!dataverseConnector?.isConnected) {
       console.error("please connect wallet first");
       return;
     }
 
-    await coreConnector.runOS({ method: Methods.switchNetwork, params: 80001 });
+    await provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
+    });
 
     const contractAddress = "0x2e43c080B56c644F548610f45998399d42e3d400";
 
@@ -208,13 +282,13 @@ function App() {
   };
 
   const getCurrentPkh = async () => {
-    const res = await coreConnector.runOS({ method: Methods.getCurrentPkh });
+    const res = dataverseConnector.getCurrentPkh();
     console.log(res);
     setCurrentPkh(res);
   };
 
   const getPKP = async () => {
-    const res = await coreConnector.runOS({ method: Methods.getPKP });
+    const res = await dataverseConnector.runOS({ method: SYSTEM_CALL.getPKP });
     console.log(res);
     setPKPWallet(res);
   };
@@ -231,7 +305,7 @@ function App() {
     //       chain: "mumbai",
     //     },
     //   };
-    //   const res = await coreConnector.executeLitAction(executeJsArgs);
+    //   const res = await dataverseConnector.executeLitAction(executeJsArgs);
     //   console.log(res);
     //   setLitActionResponse(JSON.stringify(res));
 
@@ -247,8 +321,8 @@ function App() {
         sigName: "sig1",
       },
     };
-    const res = await coreConnector.runOS({
-      method: Methods.executeLitAction,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.executeLitAction,
       params: executeJsArgs,
     });
     console.log(res);
@@ -258,28 +332,28 @@ function App() {
 
   /*** DApp ***/
   const getDAppTable = async () => {
-    const appsInfo = await coreConnector.getDAppTable();
+    const appsInfo = await dataverseConnector.getDAppTable();
     console.log(appsInfo);
     setAppListInfo(`${appsInfo.length} results show in console.`);
   };
 
   const getDAppInfo = async () => {
-    const appInfo = await coreConnector.getDAppInfo(dappId);
+    const appInfo = await dataverseConnector.getDAppInfo(appId);
     console.log(appInfo);
-    setAppInfo(JSON.stringify(appInfo));
+    setAppInfo(`1 result show in console.`);
     return appInfo;
   };
 
   const getValidAppCaps = async () => {
-    const appsInfo = await coreConnector.runOS({
-      method: Methods.getValidAppCaps,
+    const appsInfo = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.getValidAppCaps,
     });
     console.log(appsInfo);
   };
 
   const getModelBaseInfo = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.getModelBaseInfo,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.getModelBaseInfo,
       params: modelId,
     });
     console.log(res);
@@ -288,12 +362,11 @@ function App() {
 
   /*** Stream ***/
   const createCapability = async () => {
-    const pkh = await coreConnector.runOS({
-      method: Methods.createCapability,
+    const pkh = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createCapability,
       params: {
-        app,
+        appId,
         resource: RESOURCE.CERAMIC,
-        wallet,
       },
     });
     setPkh(pkh);
@@ -302,10 +375,10 @@ function App() {
   };
 
   const checkCapability = async () => {
-    const isCurrentPkhValid = await coreConnector.runOS({
-      method: Methods.checkCapability,
+    const isCurrentPkhValid = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.checkCapability,
       params: {
-        app,
+        appId,
       },
     });
     console.log(isCurrentPkhValid);
@@ -321,8 +394,8 @@ function App() {
       videos: false,
     });
 
-    const res = await coreConnector.runOS({
-      method: Methods.createStream,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createStream,
       params: {
         modelId,
         streamContent: {
@@ -352,8 +425,8 @@ function App() {
       videos: false,
     });
 
-    const res = await coreConnector.runOS({
-      method: Methods.updateStream,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.updateStream,
       params: {
         streamId,
         streamContent: {
@@ -373,16 +446,16 @@ function App() {
   };
 
   const loadStream = async () => {
-    const stream = await coreConnector.runOS({
-      method: Methods.loadStream,
+    const stream = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadStream,
       params: streamId,
     });
     console.log(stream);
   };
 
   const loadStreamsBy = async () => {
-    const streams = await coreConnector.runOS({
-      method: Methods.loadStreamsBy,
+    const streams = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadStreamsBy,
       params: {
         modelId,
         pkh,
@@ -398,8 +471,8 @@ function App() {
 
   /*** Folders ***/
   const readFolders = async () => {
-    const folders = await coreConnector.runOS({
-      method: Methods.readFolders,
+    const folders = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.readFolders,
     });
     setFolders(folders);
     console.log({ folders });
@@ -407,8 +480,8 @@ function App() {
   };
 
   const createFolder = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.createFolder,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createFolder,
       params: {
         folderType: FolderType.Private,
         folderName: "Private",
@@ -420,8 +493,8 @@ function App() {
   };
 
   const updateFolderBaseInfo = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.updateFolderBaseInfo,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.updateFolderBaseInfo,
       params: {
         folderId,
         newFolderName: new Date().toISOString(),
@@ -432,8 +505,8 @@ function App() {
   };
 
   const changeFolderType = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.changeFolderType,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.changeFolderType,
       params: {
         folderId,
         targetFolderType: FolderType.Public,
@@ -445,8 +518,8 @@ function App() {
   const monetizeFolder = async () => {
     const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
 
-    const res = await coreConnector.runOS({
-      method: Methods.monetizeFolder,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.monetizeFolder,
       params: {
         folderId,
         folderDescription: "This is a payable folder.",
@@ -463,8 +536,8 @@ function App() {
   };
 
   const readFolderById = async () => {
-    const folder = await coreConnector.runOS({
-      method: Methods.readFolderById,
+    const folder = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.readFolderById,
       params: folderId,
     });
     console.log({ folder });
@@ -472,8 +545,8 @@ function App() {
   };
 
   const deleteFolder = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.deleteFolder,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.deleteFolder,
       params: { folderId },
     });
     console.log(res);
@@ -484,12 +557,12 @@ function App() {
       throw "Please call readFolders first";
     }
     await Promise.all(
-      Object.keys(folders).map((folderId) =>
-        coreConnector.runOS({
-          method: Methods.deleteFolder,
+      Object.keys(folders).map(folderId =>
+        dataverseConnector.runOS({
+          method: SYSTEM_CALL.deleteFolder,
           params: { folderId },
-        })
-      )
+        }),
+      ),
     );
   };
 
@@ -499,7 +572,7 @@ function App() {
     }
     const { defaultFolderName } = await getDAppInfo();
     const folder = Object.values(folders).find(
-      (folder) => folder.options.folderName === defaultFolderName
+      folder => folder.options.folderName === defaultFolderName,
     );
     return folder!.folderId;
   };
@@ -514,7 +587,7 @@ function App() {
 
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      const fileBase64: string = await new Promise((resolve) => {
+      const fileBase64: string = await new Promise(resolve => {
         reader.addEventListener("load", async (e: any) => {
           resolve(e.target.result);
         });
@@ -529,8 +602,8 @@ function App() {
       // }
       // console.log(bytes);
       // console.log(bytes.buffer);
-      const res = await coreConnector.runOS({
-        method: Methods.uploadFile,
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.uploadFile,
         params: {
           folderId,
           fileBase64,
@@ -547,8 +620,8 @@ function App() {
   };
 
   const updateFileBaseInfo = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.updateFileBaseInfo,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.updateFileBaseInfo,
       params: {
         indexFileId,
         fileInfo: {
@@ -560,8 +633,8 @@ function App() {
   };
 
   const moveFiles = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.moveFiles,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.moveFiles,
       params: {
         targetFolderId: folderId || (await getDefaultFolderId()),
         sourceIndexFileIds: [indexFileId],
@@ -580,8 +653,8 @@ function App() {
         lensNickName: "hello123456",
       });
 
-      const res = await coreConnector.runOS({
-        method: Methods.monetizeFile,
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.monetizeFile,
         params: {
           ...(indexFileId ? { indexFileId } : { streamId }),
           datatokenVars: {
@@ -630,8 +703,8 @@ function App() {
   };
 
   const removeFiles = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.removeFiles,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.removeFiles,
       params: {
         indexFileIds: [indexFileId],
       },
@@ -642,22 +715,16 @@ function App() {
 
   /*** Monetize ***/
   const createProfile = async () => {
-    await coreConnector.runOS({
-      method: Methods.switchNetwork,
-      params: 80001,
+    await provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
     });
-    const res = await coreConnector.runOS({
-      method: Methods.createProfile,
-      params: "test6",
-    });
+    const res = await dataverseConnector.createProfile("test01");
     console.log(res);
   };
 
   const getProfiles = async () => {
-    const res = await coreConnector.runOS({
-      method: Methods.getProfiles,
-      params: address,
-    });
+    const res = await dataverseConnector.getProfiles(address);
     console.log(res);
   };
 
@@ -668,10 +735,9 @@ function App() {
     pkh: string;
     lensNickName?: string;
   }) => {
-    const lensProfiles = await coreConnector.runOS({
-      method: Methods.getProfiles,
-      params: getAddressFromPkh(pkh),
-    });
+    const lensProfiles = await dataverseConnector.getProfiles(
+      pkh.slice(pkh.lastIndexOf(":") + 1),
+    );
 
     let profileId;
     if (lensProfiles?.[0]?.id) {
@@ -683,10 +749,7 @@ function App() {
       if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
         throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
       }
-      profileId = await coreConnector.runOS({
-        method: Methods.createProfile,
-        params: lensNickName,
-      });
+      profileId = await dataverseConnector.createProfile(lensNickName);
     }
 
     return profileId;
@@ -696,8 +759,8 @@ function App() {
     try {
       // const indexFileId =
       //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
-      const res = await coreConnector.runOS({
-        method: Methods.unlock,
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.unlock,
         params: {
           ...(indexFileId ? { indexFileId } : { streamId }),
         },
@@ -711,30 +774,32 @@ function App() {
   const isCollected = async () => {
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
     const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
-    const res = await coreConnector.runOS({
-      method: Methods.isCollected,
-      params: {
-        datatokenId,
-        address,
-      },
+    const res = await dataverseConnector.isCollected({
+      datatokenId,
+      address,
     });
     console.log(res);
   };
 
   const getDatatokenBaseInfo = async () => {
     const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
-    const res = await coreConnector.runOS({
-      method: Methods.getDatatokenBaseInfo,
-      params: datatokenId,
-    });
+    const res = await dataverseConnector.getDatatokenBaseInfo(datatokenId);
     console.log(res);
   };
   /*** Monetize ***/
 
   return (
-    <div className="App">
-      <button onClick={connectWallet}>connectWallet</button>
-      <div className="blackText">{address}</div>
+    <div className='App'>
+      <button onClick={() => navigate("/wagmi")}>go to wagmi demo page</button>
+      <button onClick={() => connectWalletWithDataverseProvider()}>
+        connectWalletWithDataverseProvider
+      </button>
+      <button onClick={() => connectWalletWithMetamaskProvider()}>
+        connectWalletWithMetamaskProvider
+      </button>
+      <div className='blackText'>{address}</div>
+      <hr />
+      <button onClick={getCurrentWallet}>getCurrentWallet</button>
       <hr />
       <button onClick={switchNetwork}>switchNetwork</button>
       <hr />
@@ -745,18 +810,18 @@ function App() {
       <button onClick={contractCall}>contractCall</button>
       <hr />
       <button onClick={getCurrentPkh}>getCurrentPkh</button>
-      <div className="blackText">{currentPkh}</div>
+      <div className='blackText'>{currentPkh}</div>
       <hr />
       <button onClick={getPKP}>getPKP</button>
       {pkpWallet.address && (
-        <div className="blackText">
+        <div className='blackText'>
           address: {pkpWallet.address} <br />
           publicKey: {pkpWallet.publicKey}
         </div>
       )}
       <hr />
       <button onClick={executeLitAction}>executeLitAction</button>
-      <div className="blackText json">{litActionResponse}</div>
+      <div className='blackText json'>{litActionResponse}</div>
       <hr />
       <br />
       <br />
@@ -765,15 +830,16 @@ function App() {
       <hr />
       <button onClick={getDAppInfo}>getDAppInfo</button>
       {appInfo}
+      <hr />
       <button onClick={getValidAppCaps}>getValidAppCaps</button>
       <button onClick={getModelBaseInfo}>getModelBaseInfo</button>
       <br />
       <br />
       <button onClick={createCapability}>createCapability</button>
-      <div className="blackText">{pkh}</div>
+      <div className='blackText'>{pkh}</div>
       <hr />
       <button onClick={checkCapability}>checkCapability</button>
-      <div className="blackText">
+      <div className='blackText'>
         {isCurrentPkhValid !== undefined && String(isCurrentPkhValid)}
       </div>
       <hr />
@@ -796,9 +862,9 @@ function App() {
       <button>
         <span>uploadFile</span>
         <input
-          type="file"
+          type='file'
           onChange={uploadFile}
-          name="uploadFile"
+          name='uploadFile'
           style={{ width: "168px", marginLeft: "10px" }}
         />
       </button>

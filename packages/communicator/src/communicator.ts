@@ -32,22 +32,15 @@ export class Communicator {
     source,
     target,
     methodClass,
-    postMessageTo,
   }: {
     source: Window;
     target: Window;
     methodClass?: any;
-    postMessageTo: PostMessageTo;
   }) {
     this.targetOrigin = target;
     this.sourceOrigin = source;
     this.methodClass = methodClass;
-    this.postMessageTo = postMessageTo;
     this.sourceOrigin.addEventListener(MESSAGE, this._onmessage.bind(this));
-  }
-
-  setPostMessageTo(postMessageTo: PostMessageTo) {
-    this.postMessageTo = postMessageTo;
   }
 
   async sendRequest(args: RequestInputs) {
@@ -59,9 +52,9 @@ export class Communicator {
           type: REQUEST,
           method: args.method,
           params: args.params,
-          postMessageTo: this.postMessageTo,
+          postMessageTo: args.postMessageTo,
         },
-        this.allowOrigins
+        this.allowOrigins,
       );
       this.callbackFunctions[this.sequenceId] = (res: any) => {
         if (res.code === CORRECT_CODE) {
@@ -82,7 +75,7 @@ export class Communicator {
         type: RESPONSE,
         result: args.result,
       },
-      args.origin
+      args.origin,
     );
     this.responseSequenceIds[args.sequenceId] = true;
   }
@@ -91,7 +84,6 @@ export class Communicator {
     if (this.destroyed) return;
     if (event.data.type === RESPONSE) {
       const args = event.data as ResponseArguments;
-
       // When this class sends a response, it does not need to return data when this class listens to it
       if (this.responseSequenceIds[args.sequenceId]) {
         return;
@@ -106,23 +98,28 @@ export class Communicator {
       }
     } else if (event.data.type === REQUEST) {
       const args = event.data as RequestArguments & RequestInputs;
-
       // When this class sends a request, it does not need to return data when this class listens to it
       if (this.callbackFunctions[args.sequenceId]) {
         return;
       }
-
       if (this.handleResponseMessage) {
         this.handleResponseMessage(event);
         return;
       }
 
       // if code running env is different from postMessageTo, it will return and do nothing
-      if (process.env.ENV !== args.postMessageTo) {
+      if (
+        args.postMessageTo === "Extension" ||
+        (args.postMessageTo === "Browser" &&
+          process.env.ENV &&
+          process.env.ENV !== "Browser")
+      ) {
         return;
       }
 
       let result: { code: string; result?: any; error?: string };
+      let isMethodClassHasMethod: boolean;
+
       if (!this.methodClass) {
         result = {
           code: UNKNOWN_CODE,
@@ -130,22 +127,29 @@ export class Communicator {
             "Please pass in the methodClass, in order to call methods in the class",
         };
       } else {
-        try {
-          const res = await this.methodClass[args.method](args.params);
-          result = { code: CORRECT_CODE, result: res };
-        } catch (error) {
-          result = {
-            code: error?.code || UNKNOWN_CODE,
-            error: error?.msg || error?.message,
-          };
+        if (this.methodClass[args.method]) {
+          isMethodClassHasMethod = true;
+          try {
+            const res = await this.methodClass[args.method](args.params);
+            result = { code: CORRECT_CODE, result: res };
+          } catch (error) {
+            console.log(error);
+            result = {
+              code: error?.code || UNKNOWN_CODE,
+              error: error?.msg || error?.message,
+            };
+          }
         }
       }
-      this.sendResponse({
-        sequenceId: args.sequenceId,
-        type: RESPONSE,
-        result,
-        origin: event.origin,
-      });
+
+      if (!this.methodClass || isMethodClassHasMethod) {
+        this.sendResponse({
+          sequenceId: args.sequenceId,
+          type: RESPONSE,
+          result,
+          origin: event.origin,
+        });
+      }
     }
   }
 

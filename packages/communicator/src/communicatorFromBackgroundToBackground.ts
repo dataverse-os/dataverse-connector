@@ -7,7 +7,7 @@ export class CommunicatorFromBackgroundToBackground {
   async sendMessage(message: Message) {
     return new Promise((resolve, reject) => {
       globalThis.emitter.emit(message.type, message);
-      globalThis.emitter.on(`${message.type}${CALLBACK}`, (response) => {
+      globalThis.emitter.on(`${message.type}${CALLBACK}`, response => {
         const { code, res, error } = response;
         if (code === 0) {
           resolve(res);

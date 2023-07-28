@@ -4,19 +4,28 @@
     "demo"
   ],
   "scripts": {
-    "build": "lerna run build",
+    "build": "npm run format && npm run lint:fix && lerna run build",
     "build:utils": "lerna run build --scope=@dataverse/utils",
     "build:communicator": "lerna run build --scope=@dataverse/communicator",
     "build:wallet-provider": "lerna run build --scope=@dataverse/wallet-provider",
-    "build:core-connector": "lerna run build --scope=@dataverse/core-connector",
+    "build:dataverse-connector": "lerna run build --scope=@dataverse/dataverse-connector",
     "test": "pnpm --filter 'demo' dev",
-    "publish": "lerna publish --no-private"
+    "publish": "lerna publish --no-private",
+    "format": "prettier --config .prettierrc . --write",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
     "lerna": "^7.0.1"
   },
   "devDependencies": {
     "@types/node": "^18.11.18",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@typescript-eslint/parser": "^6.1.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint": "^8.45.0",
+    "prettier": "^3.0.0",
     "typescript": "^5.1.6"
   }
 }
