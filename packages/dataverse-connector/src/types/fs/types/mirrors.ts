@@ -10,15 +10,15 @@ import {
 export interface MirrorFile {
   appVersion?: string;
   indexFileId: string;
-  contentId?: string; //内容唯一标识符
-  contentType?: IndexFileContentType; //内容类型
-  content?: any; //当contentType为stream时contentId指向的实际内容
+  contentId?: string;
+  contentType?: IndexFileContentType;
+  content?: any;
   comment?: Comment;
   relation?: Relation;
   additional?: Additional;
-  datatokenId?: string; //链上数据Id
+  datatokenId?: string;
   fileType?: FileType;
-  fileKey?: string; //解密indexFile对应内容的对称密钥
+  fileKey?: string;
   encryptedSymmetricKey?: string;
   decryptionConditions?: any[];
   decryptionConditionsType?: DecryptionConditionsTypes;

@@ -84,20 +84,20 @@ export interface FileInfo {
 }
 
 export interface Comment {
-  mirrorName: string; //名称
-  note?: string; //加备注
-  tags?: string[]; //打标签
+  mirrorName: string;
+  note?: string;
+  tags?: string[];
 }
 
 export interface Relation {
-  originType: OriginType; //文件来源类型
-  originURL: string; //文件来源链接
-  originDate: string; //文件来源日期
+  originType: OriginType;
+  originURL: string;
+  originDate: string;
 }
 
 export interface Additional {
-  embedURL?: string; //视频用iframe可显示的url(仅在内容类型为Video，且为Youtube视频时有值)
-  contentURL?: string; //内容原链接(仅在内容类型为NFT时有值)
+  embedURL?: string;
+  contentURL?: string;
 }
 
 export type IndexFileContentType = _IndexFileContentType | string;
