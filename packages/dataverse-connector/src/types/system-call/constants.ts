@@ -1,4 +1,6 @@
 export enum SYSTEM_CALL {
+  handshake = "handshake",
+
   getPKP = "getPKP",
   executeLitAction = "executeLitAction",
 

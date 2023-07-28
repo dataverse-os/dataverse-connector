@@ -7,8 +7,8 @@ export enum IndexFileContentType {
 }
 
 export enum OriginType {
-  curate, //用插件在其他平台收藏、去他人主页收藏、收藏链接
-  upload, //上传文件
+  curate,
+  upload,
   follow,
   click,
 }

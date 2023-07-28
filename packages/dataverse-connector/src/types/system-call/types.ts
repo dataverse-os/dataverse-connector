@@ -14,6 +14,8 @@ import { SYSTEM_CALL } from "./constants";
 import { RESOURCE } from "../wallet";
 
 export interface RequestType {
+  handshake: void;
+
   getPKP: void;
   executeLitAction: { code: string; jsParams: object };
 
@@ -110,6 +112,8 @@ export interface RequestType {
 }
 
 export interface ReturnType {
+  handshake: Promise<string>;
+
   getPKP: Promise<{ address: string; publicKey: string }>;
   executeLitAction: Promise<any>;
 
