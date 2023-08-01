@@ -158,7 +158,13 @@ export class DataverseConnector {
     method: T;
     params?: RequestType[T];
   }): Promise<Awaited<ReturnType[T]>> {
-    if (!this?.isConnected) {
+    if (
+      method !== SYSTEM_CALL.checkCapability &&
+      method !== SYSTEM_CALL.loadStream &&
+      method !== SYSTEM_CALL.loadStreamsBy &&
+      method !== SYSTEM_CALL.getModelBaseInfo &&
+      !this?.isConnected
+    ) {
       throw new Error("Please connect wallet first");
     }
 
