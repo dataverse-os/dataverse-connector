@@ -17,13 +17,10 @@ import "./App.scss";
 
 const dataverseConnector = new DataverseConnector();
 
-const appId = "89e8203c-4567-43c8-8e75-e75f6546bacd";
-// const appId = "b5dbf620-087f-478f-8703-ff9d0c567f13";
+const appId = "a3f0ac63-ff7d-4085-aade-c04888b71088";
 
 const modelId =
-  "kjzl6hvfrbw6c7zeoa35fjzbxxc2f05p40il48n8qdeoxwr4dq6ogym5v2xjavf";
-// const modelId =
-//   "kjzl6hvfrbw6c85bbocrm07dfk3c3hzkff8pnfobbs497a5mdaiudyfmoocixpq";
+  "kjzl6hvfrbw6c8sogcc438fggsunybuq6q9ecxoaozcxe8qljk8wu3uqu394ux7";
 
 const postVersion = "0.0.1";
 

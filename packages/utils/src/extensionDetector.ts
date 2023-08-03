@@ -1,5 +1,5 @@
 export const checkIsExtensionInjected = (): Promise<boolean> => {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     let flag = false;
     const interval = setInterval(() => {
       try {
@@ -25,7 +25,7 @@ export const checkIsExtensionInjected = (): Promise<boolean> => {
 export function detectExtension(extensionId: string): Promise<boolean> {
   const img = new Image();
   img.src = `chrome-extension://${extensionId}/icons/icon-16x16.png`;
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     img.addEventListener("load", () => {
       resolve(true);
     });

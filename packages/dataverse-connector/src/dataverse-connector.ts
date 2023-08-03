@@ -21,6 +21,8 @@ import {
 import { ethers } from "ethers";
 import { getDapp, getDapps } from "@dataverse/dapp-table-client";
 import { getAddress } from "viem";
+import CryptoJS from "crypto-js";
+import JSEncrypt from "jsencrypt";
 
 export class DataverseConnector {
   private communicator: Communicator;
@@ -33,6 +35,9 @@ export class DataverseConnector {
   address?: string;
   chain?: Chain;
   appId?: string;
+  publicKey?: string;
+  symmetricKey: string;
+  encryptedSymmetricKey: string;
 
   constructor() {
     if (!window.externalWallet) {
@@ -168,17 +173,84 @@ export class DataverseConnector {
       throw new Error("Please connect wallet first");
     }
 
-    const res = (await this.communicator.sendRequest({
+    params = this.encryptParams({ method, params });
+
+    let result = await (this.communicator.sendRequest({
       method,
       params,
       postMessageTo: Extension,
-    })) as ReturnType[SYSTEM_CALL];
+    }) as ReturnType[SYSTEM_CALL]);
+
+    result = this.decryptResult({ method, result });
 
     if (method === SYSTEM_CALL.createCapability) {
       this.appId = (params as RequestType[SYSTEM_CALL.createCapability]).appId;
+      // this.verifySignature(result);
+      const { publicKey, pkh } = result;
+      this.publicKey = publicKey;
+      result = pkh
     }
 
-    return res;
+    return result;
+  }
+
+  // private verifySignature(data) {
+  //   const hash = CryptoJS.SHA256(JSON.stringify(data)).toString();
+
+  //   const jsEncrypt = new JSEncrypt();
+  //   const verified = jsEncrypt.verify(hash, data.signature, CryptoJS.SHA256);
+  // }
+
+  private encryptParams({ method, params }) {
+    if (
+      method !== SYSTEM_CALL.createCapability &&
+      method !== SYSTEM_CALL.checkCapability &&
+      method !== SYSTEM_CALL.loadStream &&
+      method !== SYSTEM_CALL.loadStreamsBy &&
+      method !== SYSTEM_CALL.getModelBaseInfo
+    ) {
+      if (!this.encryptedSymmetricKey) {
+        const jsEncrypt = new JSEncrypt();
+        jsEncrypt.setPublicKey(this.publicKey);
+        this.symmetricKey = CryptoJS.enc.Hex.stringify(
+          CryptoJS.lib.WordArray.random(16),
+        );
+        this.encryptedSymmetricKey = jsEncrypt.encrypt(
+          this.symmetricKey,
+        ) as string;
+      }
+      if (params) {
+        const encryptedParams = CryptoJS.AES.encrypt(
+          JSON.stringify(params),
+          this.symmetricKey,
+        ).toString();
+        params = {
+          p: encryptedParams,
+          s: this.encryptedSymmetricKey,
+        };
+      } else {
+        params = {
+          s: this.encryptedSymmetricKey,
+        };
+      }
+    }
+    return params;
+  }
+
+  private decryptResult({ method, result }) {
+    if (
+      result &&
+      method !== SYSTEM_CALL.createCapability &&
+      method !== SYSTEM_CALL.checkCapability &&
+      method !== SYSTEM_CALL.loadStream &&
+      method !== SYSTEM_CALL.loadStreamsBy &&
+      method !== SYSTEM_CALL.getModelBaseInfo &&
+      method !== SYSTEM_CALL.getValidAppCaps
+    ) {
+      const bytes = CryptoJS.AES.decrypt(result, this.symmetricKey);
+      result = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+    }
+    return result;
   }
 
   getDAppTable() {
