@@ -17,7 +17,8 @@
     "test": "cd test && pnpm dev",
     "build:esm": "tsc -p tsconfig.json",
     "build:cjs": "tsc -p tsconfig-cjs.json",
-    "build": "pnpm build:esm && pnpm build:cjs"
+    "build": "pnpm build:esm && pnpm build:cjs",
+    "doc": "pnpm typedoc src/index.ts --out ../../docs/dataverse-connector"
   },
   "dependencies": {
     "@dataverse/communicator": "^1.0.31",
@@ -31,5 +32,10 @@
   },
   "keywords": [],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "esdoc": "^1.1.0",
+    "esdoc-standard-plugin": "^1.0.0",
+    "typedoc": "^0.24.8"
+  }
 }

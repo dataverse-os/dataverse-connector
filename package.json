@@ -8,7 +8,14 @@
     "build:utils": "lerna run build --scope=@dataverse/utils",
     "build:communicator": "lerna run build --scope=@dataverse/communicator",
     "build:wallet-provider": "lerna run build --scope=@dataverse/wallet-provider",
+    "build:wallet-adapter": "lerna run build --scope=@dataverse/wallet-adapter",
     "build:dataverse-connector": "lerna run build --scope=@dataverse/dataverse-connector",
+    "doc": "lerna run doc",
+    "doc:utils": "lerna run doc --scope=@dataverse/utils",
+    "doc:communicator": "lerna run doc --scope=@dataverse/communicator",
+    "doc:wallet-provider": "lerna run doc --scope=@dataverse/wallet-provider",
+    "doc:wallet-adapter": "lerna run doc --scope=@dataverse/wallet-adapter",
+    "doc:dataverse-connector": "lerna run doc --scope=@dataverse/dataverse-connector",
     "test": "pnpm --filter 'demo' dev",
     "publish": "lerna publish --no-private",
     "format": "prettier --config .prettierrc . --write",
@@ -22,10 +29,11 @@
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
     "@typescript-eslint/parser": "^6.1.0",
+    "eslint": "^8.45.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^5.0.0",
-    "eslint": "^8.45.0",
     "prettier": "^3.0.0",
+    "typedoc": "^0.24.8",
     "typescript": "^5.1.6"
   }
 }

@@ -17,7 +17,8 @@
     "test": "cd test && pnpm dev",
     "build:esm": "tsc -p tsconfig.json",
     "build:cjs": "tsc -p tsconfig-cjs.json",
-    "build": "pnpm build:esm && pnpm build:cjs"
+    "build": "pnpm build:esm && pnpm build:cjs",
+    "doc": "pnpm typedoc src/index.ts --out ../../docs/communicator"
   },
   "dependencies": {
     "nanoid": "4.0.0"
