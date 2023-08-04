@@ -15,93 +15,17 @@
 <div class="tsd-panel tsd-typography"><br/>
 <p align="center">
 <a href=" " target="_blank">
-<img src="./logo.svg" width="180" alt="Dataverse logo">
+<img src="../../logo.svg" width="180" alt="Dataverse logo">
 </a >
 </p >
 <br/>
 
-<a id="md:dataverse-connector" class="tsd-anchor"></a><h1><a href="#md:dataverse-connector">dataverse-connector</a></h1><p><a href="https://www.npmjs.com/package/@dataverse/dataverse-connector"><img src="https://img.shields.io/npm/v/@dataverse/dataverse-connector.svg" alt="npm version"></a>
-<img src="https://img.shields.io/npm/dw/@dataverse/dataverse-connector" alt="npm">
-<a href="https://github.com/dataverse-os/dataverse-connector/blob/main/LICENSE.md"><img src="https://img.shields.io/npm/l/@dataverse/dataverse-connector.svg" alt="License"></a></p>
-<p>The system calls exposed by Dataverse Kernel.</p>
-<a id="md:installation" class="tsd-anchor"></a><h2><a href="#md:installation">Installation</a></h2><pre><code class="language-bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">@dataverse/dataverse-connector</span>
+<a id="md:communicator" class="tsd-anchor"></a><h1><a href="#md:communicator">communicator</a></h1><p><a href="https://www.npmjs.com/package/@dataverse/communicator"><img src="https://img.shields.io/npm/v/@dataverse/communicator.svg" alt="npm version"></a>
+<img src="https://img.shields.io/npm/dw/@dataverse/communicator" alt="npm">
+<a href="https://github.com/dataverse-os/communicator/blob/main/LICENSE.md"><img src="https://img.shields.io/npm/l/@dataverse/communicator.svg" alt="License"></a></p>
+<p>The cross-domain communication and Google extension internal communication.</p>
+<a id="md:installation" class="tsd-anchor"></a><h2><a href="#md:installation">Installation</a></h2><pre><code class="language-bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">@dataverse/communicator</span>
 </code><button>Copy</button></pre>
-<a id="md:run-demo" class="tsd-anchor"></a><h2><a href="#md:run-demo">Run demo</a></h2><a id="md:requirements" class="tsd-anchor"></a><h3><a href="#md:requirements">requirements</a></h3><ul>
-<li><a href="https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead">Data Wallet</a> -
-A secure data wallet to protect your identity and data assets.</li>
-<li><a href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn">MetaMask</a> -
-A cryptocurrency wallet browser extension.</li>
-<li><a href="https://nodejs.org/en/">Node.js</a> version &gt;= 16.</li>
-<li><a href="https://pnpm.io/">pnpm</a> version &gt;= 7.</li>
-</ul>
-<pre><code class="language-bash"><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">//</span><span class="hl-1"> </span><span class="hl-2">install</span><span class="hl-1"> </span><span class="hl-2">dependencies</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">build</span><span class="hl-1">  </span><span class="hl-2">//</span><span class="hl-1"> </span><span class="hl-2">build</span><span class="hl-1"> </span><span class="hl-2">the</span><span class="hl-1"> </span><span class="hl-2">package</span><br/><span class="hl-0">pnpm</span><span class="hl-1"> </span><span class="hl-2">test</span>
-</code><button>Copy</button></pre>
-<p>the demo will be running on <a href="http://localhost:5173/">http://localhost:5173/</a>.</p>
-<br/>
-<p align="center">
-<a href=" " target="_blank">
-<img src="https://s2.loli.net/2023/08/04/tlV31FdPOujJfrY.png" width="300" alt="Dataverse logo">
-</a >
-</p >
-<br/>
-
-<a id="md:usage" class="tsd-anchor"></a><h2><a href="#md:usage">Usage</a></h2><pre><code class="language-typescript"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">DataverseConnector</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&quot;@dataverse/dataverse-connector&quot;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-6">dataverseConnector</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">DataverseConnector</span><span class="hl-1">();</span>
-</code><button>Copy</button></pre>
-<a id="md:functions" class="tsd-anchor"></a><h2><a href="#md:functions">Functions</a></h2><p><strong><code>dataverseConnector.connectWallet({ wallet: WALLET.METAMASK })</code></strong></p>
-<p>Connect with user wallet. pass in which wallet you want to connect with,
-currently support MetaMask, WalletConnect, Coinbase and Particle Network.
-You can also pass in provider from any wallet to perform operations such 
-as data reading and writing.</p>
-<pre><code class="language-ts"><span class="hl-5">enum</span><span class="hl-1"> </span><span class="hl-7">WALLET</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-6">METAMASK</span><span class="hl-1"> = </span><span class="hl-2">&quot;MetaMask&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-6">WALLETCONNECT</span><span class="hl-1"> = </span><span class="hl-2">&quot;WalletConnect&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-6">COINBASE</span><span class="hl-1"> = </span><span class="hl-2">&quot;Coinbase&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-6">PARTICLE</span><span class="hl-1"> = </span><span class="hl-2">&quot;Particle&quot;</span><br/><span class="hl-1">}</span>
-</code><button>Copy</button></pre>
-<ul>
-<li>Returns:<ul>
-<li>If the wallet is not connected, a pop-up will appear for the user to select
-a wallet address. After the user selects an address, the address will be
-returned to indicate that the wallet is connected.</li>
-<li>If the wallet is already connected, will return wallet address and other
-info, example:</li>
-</ul>
-</li>
-</ul>
-<pre><code class="language-json"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-8">&quot;address&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;0x312eA852726E3A9f633A0377c0ea882086d66666&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-8">&quot;chain&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">    </span><span class="hl-8">&quot;chainId&quot;</span><span class="hl-1">: </span><span class="hl-9">80001</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-8">&quot;chainName&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;mumbai&quot;</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">  </span><span class="hl-8">&quot;wallet&quot;</span><span class="hl-1">: </span><span class="hl-2">&quot;MetaMask&quot;</span><br/><span class="hl-1">}</span>
-</code><button>Copy</button></pre>
-<br>
-
-<p><strong><code>dataverseConnector.createCapability({ appId: string, resource: RESOURCE, wallet: WALLET })</code></strong></p>
-<p>Create a capability for the application to access the data resources.</p>
-<ul>
-<li><code>appId</code>: <code>string</code> - which appId is requesting the capability.</li>
-<li><code>resource</code>: <code>RESOURCE</code> - Resource to give access to the capability.<pre><code class="language-js"><span class="hl-5">enum</span><span class="hl-1"> </span><span class="hl-7">RESOURCE</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-6">CERAMIC</span><span class="hl-1">,</span><br/><span class="hl-1">}</span>
-</code><button>Copy</button></pre>
-This method will open a popup and ask the user to sign a message to create a
-capability. The message will be like this.</li>
-</ul>
-<pre><code class="language-yaml"><span class="hl-10">Message</span><span class="hl-1">:</span><br/><span class="hl-11">Give this application access to some of your data</span><br/><br/><span class="hl-10">URI</span><span class="hl-1">:</span><br/><span class="hl-11">did:key:z6MknFM4H7EFyBGANghNvV43uLvUKvRPU94fUcc8AZQZCq8Z</span><br/><br/><span class="hl-10">Version</span><span class="hl-1">:</span><br/><span class="hl-9">1</span><br/><br/><span class="hl-10">Chain ID</span><span class="hl-1">:</span><br/><span class="hl-9">1</span><br/><br/><span class="hl-10">Nonce</span><span class="hl-1">:</span><br/><span class="hl-11">UboH08SYfJn9N2</span><br/><br/><span class="hl-10">Issued At</span><span class="hl-1">:</span><br/><span class="hl-1">2023-06-12T06:35:19.225Z</span><br/><br/><span class="hl-10">Expires At</span><span class="hl-1">:</span><br/><span class="hl-1">2023-06-19T06:35:19.225Z</span><br/><br/><span class="hl-10">Resources</span><span class="hl-1">: </span><span class="hl-9">4</span><br/><span class="hl-11">ceramic://*?model=kjzl6hvfrbw6c763ubdhowzao0m4yp84cxzbfnlh4hdi5alqo4yrebmc0qpjdi5</span><br/><span class="hl-11">ceramic://*?model=kjzl6hvfrbw6c7cp6xafsa7ghxh1yfw4bsub1363ehrxhi999vlpxny9k69uoxz</span><br/><span class="hl-11">ceramic://*?model=kjzl6hvfrbw6c5qdzwi9esxvt1v5mtt7od7hb2947624mn4u0rmq1rh9anjcnxx</span><br/><span class="hl-11">ceramic://*?model=kjzl6hvfrbw6c6ad7ydn0hi4vtamx2v620hdgu6llq49h28rfd6cs02g3cmn9za</span>
-</code><button>Copy</button></pre>
-<ul>
-<li>Returns:<ul>
-<li><code>pkh</code>: <code>string</code> - a pkh did you may use to interact with the data resources
-later.</li>
-</ul>
-</li>
-</ul>
-<pre><code class="language-js"><span class="hl-12">did</span><span class="hl-1">:</span><span class="hl-12">pkh</span><span class="hl-1">:</span><span class="hl-12">eip155</span><span class="hl-1">:</span><span class="hl-9">1</span><span class="hl-1">:</span><span class="hl-9">0x29761660d6Cb26a08e9A9c7de12E0038eE9cb623</span>
-</code><button>Copy</button></pre>
-<br>
-
-<p>check all functions in <a href="https://docs.dataverse-os.com/sdk/apis">docs</a>.</p>
-<a id="md:license" class="tsd-anchor"></a><h2><a href="#md:license">License</a></h2><p>This project is licensed under the MIT License - see the <a href="LICENSE.md">LICENSE</a>
-file for details.</p>
-<a id="md:documentation" class="tsd-anchor"></a><h2><a href="#md:documentation">Documentation</a></h2><p>View <a href="https://docs.dataverse-os.com/">Docs</a>.  </p>
-<p>View <a href="./packages/communicator/docs/index.html">communicator API Doc</a>.<br>View <a href="./packages/dataverse-connector/docs/index.html">dataverse-connector API Doc</a>.<br>View <a href="./packages/utils/docs/index.html">utils API Doc</a>.<br>View <a href="./packages/wallet-adapter/docs/index.html">wallet-adapter API Doc</a>.<br>View <a href="./packages/wallet-provider/docs/index.html">wallet-provider API Doc</a>.</p>
-<a id="md:contributing" class="tsd-anchor"></a><h2><a href="#md:contributing">Contributing</a></h2><p>Contributions to this project are welcome. To contribute, please follow these
-steps:</p>
-<ol>
-<li>Fork the repository and create a new branch.</li>
-<li>Make your changes and test them thoroughly.</li>
-<li>Submit a pull request with a detailed description of your changes.</li>
-</ol>
 </div></div>
 <div class="col-sidebar">
 <div class="page-menu">
@@ -124,19 +48,10 @@ steps:</p>
 <ul>
 <li>
 <ul>
-<li><a href="#md:dataverse-connector"><span>dataverse-<wbr/>connector</span></a></li>
+<li><a href="#md:communicator"><span>communicator</span></a></li>
 <li>
 <ul>
-<li><a href="#md:installation"><span>Installation</span></a></li>
-<li><a href="#md:run-demo"><span>Run demo</span></a></li>
-<li>
-<ul>
-<li><a href="#md:requirements"><span>requirements</span></a></li></ul></li>
-<li><a href="#md:usage"><span>Usage</span></a></li>
-<li><a href="#md:functions"><span>Functions</span></a></li>
-<li><a href="#md:license"><span>License</span></a></li>
-<li><a href="#md:documentation"><span>Documentation</span></a></li>
-<li><a href="#md:contributing"><span>Contributing</span></a></li></ul></li></ul></li></ul></div></details></div>
+<li><a href="#md:installation"><span>Installation</span></a></li></ul></li></ul></li></ul></div></details></div>
 <div class="site-menu">
 <nav class="tsd-navigation"><a href="modules.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><g id="icon-4"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-namespace)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6"></rect><path d="M9.33 16V7.24H10.77L13.446 14.74C13.43 14.54 13.41 14.296 13.386 14.008C13.37 13.712 13.354 13.404 13.338 13.084C13.33 12.756 13.326 12.448 13.326 12.16V7.24H14.37V16H12.93L10.266 8.5C10.282 8.692 10.298 8.936 10.314 9.232C10.33 9.52 10.342 9.828 10.35 10.156C10.366 10.476 10.374 10.784 10.374 11.08V16H9.33Z" fill="var(--color-text)"></path></g></svg><span>@dataverse/communicator</span></a>
 <ul class="tsd-small-nested-navigation">
