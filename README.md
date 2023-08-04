@@ -42,7 +42,7 @@ the demo will be running on http://localhost:5173/.
 <br/>
 <p align="center">
 <a href=" " target="_blank">
-<img src="https://s2.loli.net/2023/06/12/zeyQlmbTpUEvHdu.png" width="300" alt="Dataverse logo">
+<img src="https://s2.loli.net/2023/08/04/tlV31FdPOujJfrY.png" width="300" alt="Dataverse logo">
 </a >
 </p >
 <br/>
@@ -50,25 +50,26 @@ the demo will be running on http://localhost:5173/.
 ## Usage
 
 ```typescript
-import { DataverseConnector, Extension } from "@dataverse/dataverse-connector";
+import { DataverseConnector } from "@dataverse/dataverse-connector";
 
-const dataverseConnector = new DataverseConnector(Extension);
+const dataverseConnector = new DataverseConnector();
 ```
 
 ## Functions
 
-**`dataverseConnector.connectWallet({wallet: WALLET.METAMASK})`**
+**`dataverseConnector.connectWallet({ wallet: WALLET.METAMASK })`**
 
 Connect with user wallet. pass in which wallet you want to connect with,
-currently support MetaMask and Particle Network.
+currently support MetaMask, WalletConnect, Coinbase and Particle Network.
+You can also pass in provider from any wallet to perform operations such 
+as data reading and writing.
 
 ```ts
 enum WALLET {
   METAMASK = "MetaMask",
   WALLETCONNECT = "WalletConnect",
   COINBASE = "Coinbase",
-  PARTICLE = "Particle",
-  EXTERNAL_WALLET = "ExternalWallet",
+  PARTICLE = "Particle"
 }
 ```
 
@@ -92,7 +93,7 @@ enum WALLET {
 
 <br>
 
-**`dataverseConnector.createCapability({appId: string, resource: RESOURCE, wallet: WALLET})`**
+**`dataverseConnector.createCapability({ appId: string, resource: RESOURCE, wallet: WALLET })`**
 
 Create a capability for the application to access the data resources.
 
@@ -140,7 +141,7 @@ ceramic://*?model=kjzl6hvfrbw6c6ad7ydn0hi4vtamx2v620hdgu6llq49h28rfd6cs02g3cmn9z
     later.
 
 ```js
-did:pkh:eip155:137:0x29761660d6Cb26a08e9A9c7de12E0038eE9cb623
+did:pkh:eip155:1:0x29761660d6Cb26a08e9A9c7de12E0038eE9cb623
 ```
 
 <br>
@@ -154,7 +155,13 @@ file for details.
 
 ## Documentation
 
-View [Docs](https://docs.dataverse-os.com/).
+View [Docs](https://docs.dataverse-os.com/).  
+
+View [communicator API Doc](https://dataverse-os.github.io/dataverse-connector/communicator/index.html).  
+View [dataverse-connector API Doc](https://dataverse-os.github.io/dataverse-connector/dataverse-connector/index.html).  
+View [utils API Doc](https://dataverse-os.github.io/dataverse-connector/utils/index.html).  
+View [wallet-adapter API Doc](https://dataverse-os.github.io/dataverse-connector/wallet-adapter/index.html).  
+View [wallet-provider API Doc](https://dataverse-os.github.io/dataverse-connector/wallet-provider/index.html).
 
 ## Contributing
 
