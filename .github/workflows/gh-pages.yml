@@ -52,7 +52,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          pnpm install
+          pnpm build
 
       - name: Generate docs
         run: pnpm run doc
