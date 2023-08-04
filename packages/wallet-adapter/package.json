@@ -12,7 +12,8 @@
     "test": "cd test && pnpm dev",
     "build:esm": "node build.mjs esm && tsc -p tsconfig.json",
     "build:cjs": "node build.mjs cjs && tsc -p tsconfig-cjs.json",
-    "build": "pnpm build:esm && pnpm build:cjs"
+    "build": "pnpm build:esm && pnpm build:cjs",
+    "doc": "pnpm typedoc src/index.ts --out ../../docs/wallet-adapter"
   },
   "dependencies": {
     "@dataverse/wallet-provider": "^1.0.11",
@@ -31,7 +32,8 @@
     "esbuild": "^0.14.39",
     "postcss": "^8.4.6",
     "postcss-prefix-selector": "^1.15.0",
-    "recursive-readdir-files": "^2.0.7"
+    "recursive-readdir-files": "^2.0.7",
+    "typedoc": "^0.24.8"
   },
   "keywords": [],
   "author": "",

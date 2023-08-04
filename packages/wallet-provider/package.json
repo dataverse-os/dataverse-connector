@@ -17,7 +17,8 @@
     "test": "cd test && pnpm dev",
     "build:esm": "tsc -p tsconfig.json",
     "build:cjs": "tsc -p tsconfig-cjs.json",
-    "build": "pnpm build:esm && pnpm build:cjs"
+    "build": "pnpm build:esm && pnpm build:cjs",
+    "doc": "pnpm typedoc src/index.ts --out ../../docs/wallet-provider"
   },
   "dependencies": {
     "@dataverse/communicator": "^1.0.31",
@@ -26,6 +27,9 @@
     "@ethersproject/providers": "^5.7.0",
     "ethers": "5.6.9",
     "eventemitter3": "^5.0.1"
+  },
+  "devDependencies": {
+    "typedoc": "^0.24.8"
   },
   "keywords": [],
   "author": "",
