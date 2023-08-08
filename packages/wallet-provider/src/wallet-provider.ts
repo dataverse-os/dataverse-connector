@@ -58,6 +58,10 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
     return window.dataverse.getCurrentWallet();
   }
 
+  getAddress() {
+    return this.address;
+  }
+
   async signMessage(message: Bytes | string): Promise<string> {
     if (!this.signer) {
       await this.connectWallet();

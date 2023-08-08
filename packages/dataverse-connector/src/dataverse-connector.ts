@@ -83,12 +83,11 @@ export class DataverseConnector {
 
       this.communicator.onRequestMessage(() => {});
 
-      const res = await window.dataverse.connectWallet(
-        wallet || provider.wallet,
-      );
-
       if (!this.isConnected) {
         this.dataverseProvider = new WalletProvider();
+        const res = await this.dataverseProvider.connectWallet(
+          wallet || provider.wallet,
+        );
         this.dataverseProvider.on("chainChanged", (chainId: number) => {
           this.chain.chainId = chainId;
         });
@@ -98,15 +97,19 @@ export class DataverseConnector {
         this.dataverseProvider.on("accountsChanged", (accounts: string[]) => {
           this.address = accounts[0];
         });
+
+        this.isConnected = true;
+        this.wallet = res.wallet as WALLET;
+        this.address = res.address;
+        this.chain = res.chain;
+        this.provider = this.dataverseProvider;
       }
 
-      this.isConnected = true;
-      this.wallet = res.wallet;
-      this.address = res.address;
-      this.chain = res.chain;
-      this.provider = this.dataverseProvider;
-
-      return res;
+      return {
+        wallet: this.wallet,
+        address: this.address,
+        chain: this.chain,
+      };
     }
     this.externalProvider = provider;
     window.dataverseExternalProvider = provider;
