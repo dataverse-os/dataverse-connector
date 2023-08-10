@@ -50,6 +50,7 @@ import {
   WALLET,
   DataverseConnector as _DataverseConnector,
 } from "@dataverse/dataverse-connector";
+import { appId } from "./App";
 
 const { chains, publicClient } = configureChains(
   [mainnet, polygonMumbai],
@@ -63,7 +64,7 @@ const _dataverseConnector = new _DataverseConnector();
 function Wagmi() {
   const ref = useRef<any>(
     createConfig({
-      autoConnect: true,
+      autoConnect: false,
       connectors: [dataverseConnector],
       publicClient,
     }),
@@ -192,31 +193,7 @@ function Profile() {
           Connected to {address}
           <button onClick={() => disconnect()}>disconnect</button>
         </div>
-        <div>
-          pkh: {pkh}
-          <button
-            onClick={async () => {
-              const provider = await connector?.getProvider();
-              if (provider.wallet !== WALLET.EXTERNAL_WALLET) {
-                console.log(provider);
-                const res = await _dataverseConnector.connectWallet({
-                  provider,
-                });
-                console.log(res);
-                const pkh = await _dataverseConnector.runOS({
-                  method: SYSTEM_CALL.createCapability,
-                  params: {
-                    appId: "89e8203c-4567-43c8-8e75-e75f6546bacd",
-                  },
-                });
-                console.log(pkh);
-                setPKH(pkh);
-              }
-            }}
-          >
-            createCapability
-          </button>
-        </div>
+        <div>pkh: {pkh}</div>
 
         <div>
           chain:{" "}
@@ -346,35 +323,45 @@ function Profile() {
   return (
     <div>
       <button
-        onClick={() => {
-          connectAsync();
-        }}
-      >
-        Connect Wallet
-      </button>
-      {/* <button
         onClick={async () => {
-          const provider = (window as any).ethereum;
-          console.log(provider);
-          const res = await _dataverseConnector.connectWallet({
-            provider,
-          });
-          console.log(res);
-          const pkh = await _dataverseConnector.runOS({
-            method: SYSTEM_CALL.createCapability,
-            params: {
-              appId: "89e8203c-4567-43c8-8e75-e75f6546bacd",
-            },
-          });
-          console.log(pkh);
-          const res2 = await connectAsync({
-            connector: dataverseConnector,
-          });
-          console.log(res2);
+          if (window.dataverse.wallet === WALLET.EXTERNAL_WALLET) {
+            const provider = (window as any).ethereum;
+            console.log(provider);
+            const res = await _dataverseConnector.connectWallet({
+              provider,
+            });
+            console.log(res);
+            const pkh = await _dataverseConnector.runOS({
+              method: SYSTEM_CALL.createCapability,
+              params: {
+                appId,
+              },
+            });
+            console.log(pkh);
+            setPKH(pkh);
+            const res2 = await connectAsync();
+            console.log(res2);
+          } else {
+            const provider = await connector?.getProvider();
+            console.log(provider);
+            const res = await _dataverseConnector.connectWallet({
+              provider,
+            });
+            console.log(res);
+            const pkh = await _dataverseConnector.runOS({
+              method: SYSTEM_CALL.createCapability,
+              params: {
+                appId,
+              },
+            });
+            console.log(pkh);
+            setPKH(pkh);
+            connectAsync();
+          }
         }}
       >
-        Connect Wallet
-      </button> */}
+        Connect Wallet And Capability
+      </button>
     </div>
   );
 }
