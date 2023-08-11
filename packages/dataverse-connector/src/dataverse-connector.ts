@@ -83,37 +83,47 @@ export class DataverseConnector {
 
       this.communicator.onRequestMessage(() => {});
 
-      const res = await window.dataverse.connectWallet(
+      const dataverseProvider = new WalletProvider();
+      const res = await dataverseProvider.connectWallet(
         wallet || provider.wallet,
       );
 
-      if (!this.isConnected) {
-        this.dataverseProvider = new WalletProvider();
-        this.dataverseProvider.on("chainChanged", (chainId: number) => {
+      if (
+        !this.isConnected ||
+        (this.externalProvider && !this.dataverseProvider)
+      ) {
+        dataverseProvider.on("chainChanged", (chainId: number) => {
           this.chain.chainId = chainId;
         });
-        this.dataverseProvider.on("chainNameChanged", (chainName: string) => {
+        dataverseProvider.on("chainNameChanged", (chainName: string) => {
           this.chain.chainName = chainName;
         });
-        this.dataverseProvider.on("accountsChanged", (accounts: string[]) => {
+        dataverseProvider.on("accountsChanged", (accounts: string[]) => {
           this.address = accounts[0];
         });
       }
 
       this.isConnected = true;
-      this.wallet = res.wallet;
+      this.wallet = res.wallet as WALLET;
       this.address = res.address;
       this.chain = res.chain;
-      this.provider = this.dataverseProvider;
+      this.provider = dataverseProvider;
+      this.dataverseProvider = dataverseProvider;
 
-      return res;
+      return {
+        wallet: this.wallet,
+        address: this.address,
+        chain: this.chain,
+      };
     }
+
     this.externalProvider = provider;
     window.dataverseExternalProvider = provider;
     this.externalWallet.setProvider(provider);
     this.communicator.onRequestMessage(undefined);
 
-    const res = await window.dataverse.connectWallet(WALLET.EXTERNAL_WALLET);
+    const dataverseProvider = new WalletProvider();
+    const res = await dataverseProvider.connectWallet(WALLET.EXTERNAL_WALLET);
 
     this.externalProvider.removeAllListeners("chainChanged");
     this.externalProvider.removeAllListeners("accountsChanged");
@@ -128,7 +138,7 @@ export class DataverseConnector {
     });
 
     this.isConnected = true;
-    this.wallet = res.wallet;
+    this.wallet = res.wallet as WALLET;
     this.address = res.address;
     this.chain = res.chain;
     this.provider = this.externalProvider;

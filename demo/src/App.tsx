@@ -17,10 +17,10 @@ import "./App.scss";
 
 const dataverseConnector = new DataverseConnector();
 
-const appId = "a3f0ac63-ff7d-4085-aade-c04888b71088";
+export const appId = "319e6aa6-916d-46fc-a7bf-4c4b0cb04919";
 
 const modelId =
-  "kjzl6hvfrbw6c8sogcc438fggsunybuq6q9ecxoaozcxe8qljk8wu3uqu394ux7";
+  "kjzl6hvfrbw6catndj34fzm0au0qu8dznn6wtrrdmd4va7052ffiypywqd8fjg9";
 
 const postVersion = "0.0.1";
 

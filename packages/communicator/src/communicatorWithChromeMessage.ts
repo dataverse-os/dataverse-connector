@@ -22,7 +22,6 @@ export class CommunicatorWithChromeMessage {
   protected responseSequenceIds: Record<string, boolean> = {};
   private handleRequestMessage: Function;
   private handleResponseMessage: Function;
-  private sender: any;
 
   constructor({ methodClass }: { methodClass: any }) {
     this.methodClass = methodClass;
@@ -37,10 +36,6 @@ export class CommunicatorWithChromeMessage {
     //   console.log({ message, sender, sendResponse });
     //   sendResponse({data: 'hello'});
     // });
-  }
-
-  getSender() {
-    return this.sender;
   }
 
   async sendRequest(args: RequestInputs) {
@@ -98,8 +93,6 @@ export class CommunicatorWithChromeMessage {
         return;
       }
 
-      this.sender = sender;
-
       if (this.handleResponseMessage) {
         this.handleResponseMessage(message);
       } else {
@@ -112,7 +105,10 @@ export class CommunicatorWithChromeMessage {
           };
         } else {
           try {
-            const res = await this.methodClass[args.method](args.params);
+            const res = await this.methodClass[args.method](
+              args.params,
+              sender,
+            );
             result = { code: CORRECT_CODE, result: res };
           } catch (error) {
             result = {
