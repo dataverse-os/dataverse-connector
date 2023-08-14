@@ -410,6 +410,7 @@ function App() {
     });
 
     setStreamId(res.streamId);
+    setIndexFileId(res.streamContent.file.indexFileId);
     console.log(res);
   };
 
