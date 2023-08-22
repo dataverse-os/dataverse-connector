@@ -1,34 +1,50 @@
-import { DecryptionConditionsTypes } from "../../data-monetize";
-import { FileType } from "../constants/index-file";
-import {
-  Comment,
-  Relation,
-  Additional,
-  IndexFileContentType,
-} from "./index-file";
+import { FileType } from "../constants";
+import { Action } from "./action-file";
+import { EncryptionProvider, MonetizationProvider } from "./common";
+import { ContentType } from "./index-file";
 
 export interface MirrorFile {
-  appVersion?: string;
-  indexFileId: string;
+  fsVersion?: string;
+  fileId: string;
+  controller?: string;
+  action?: Action;
+  relationId?: string;
   contentId?: string;
-  contentType?: IndexFileContentType;
+  contentType?: ContentType;
   content?: any;
-  comment?: Comment;
-  relation?: Relation;
-  additional?: Additional;
-  datatokenId?: string;
+  fileName?: string;
   fileType?: FileType;
   fileKey?: string;
-  encryptedSymmetricKey?: string;
-  decryptionConditions?: any[];
-  decryptionConditionsType?: DecryptionConditionsTypes;
+  accessControl?: {
+    encryptionProvider?: EncryptionProvider;
+    monetizationProvider?: MonetizationProvider;
+  };
   createdAt?: string;
   updatedAt?: string;
   deleted?: boolean;
+  reserved?: any;
+  external?: {
+    fileId?: string;
+    controller?: string;
+    contentId?: string;
+    contentType?: ContentType;
+    content?: any;
+    fileName?: string;
+    fileType?: FileType;
+    fileKey?: string;
+    accessControl?: {
+      encryptionProvider?: EncryptionProvider;
+      monetizationProvider?: MonetizationProvider;
+    };
+    createdAt?: string;
+    updatedAt?: string;
+    deleted?: boolean;
+    reserved?: any;
+  };
 }
 
 export interface Mirror {
-  /** the uuid of the file */
+  /** the same as index file Id */
   mirrorId: string;
   /** the mirror file of the file */
   mirrorFile: MirrorFile;
@@ -36,12 +52,10 @@ export interface Mirror {
   folderId: string;
   /** the contentFolder streamId this mirror belongs to */
   bucketId: string;
-  /** whether an open item for curation */
-  open?: boolean;
   /** whether the mirror is unsynchronized*/
   unsynchronized?: boolean;
 }
 
 export interface Mirrors extends Record<string, Mirror> {}
 
-export interface MirrorFiles extends Record<string, MirrorFiles> {}
+export interface MirrorFiles extends Record<string, MirrorFile> {}

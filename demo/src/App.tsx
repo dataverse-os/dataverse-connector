@@ -17,7 +17,7 @@ import "./App.scss";
 
 const dataverseConnector = new DataverseConnector();
 
-export const appId = "319e6aa6-916d-46fc-a7bf-4c4b0cb04919";
+export const appId = "a3f0ac63-ff7d-4085-aade-c04888b71088";
 
 const modelId =
   "kjzl6hvfrbw6catndj34fzm0au0qu8dznn6wtrrdmd4va7052ffiypywqd8fjg9";
@@ -410,7 +410,7 @@ function App() {
     });
 
     setStreamId(res.streamId);
-    setIndexFileId(res.streamContent.file.indexFileId);
+    setIndexFileId(res.streamContent.file.fileId);
     console.log(res);
   };
 
@@ -539,7 +539,7 @@ function App() {
     }
     const { defaultFolderName } = await getDAppInfo();
     const folder = Object.values(folders).find(
-      folder => folder.options.folderName === defaultFolderName,
+      folder => folder.folderName === defaultFolderName,
     );
     return folder!.folderId;
   };
@@ -579,7 +579,7 @@ function App() {
           storageProvider,
         },
       });
-      setIndexFileId(res.newFile.indexFileId);
+      setIndexFileId(res.newFile.fileId);
       console.log(res);
     } catch (error) {
       console.error(error);
@@ -590,9 +590,9 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.updateFileBaseInfo,
       params: {
-        indexFileId,
+        fileId: indexFileId,
         fileInfo: {
-          mirrorName: "aaa",
+          fileName: "aaa",
         },
       },
     });
@@ -604,7 +604,7 @@ function App() {
       method: SYSTEM_CALL.moveFiles,
       params: {
         targetFolderId: folderId || (await getDefaultFolderId()),
-        sourceIndexFileIds: [indexFileId],
+        fileIds: [indexFileId],
       },
     });
     console.log(res);
@@ -673,7 +673,7 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.removeFiles,
       params: {
-        indexFileIds: [indexFileId],
+        fileIds: [indexFileId],
       },
     });
     console.log(res);
@@ -729,7 +729,7 @@ function App() {
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.unlock,
         params: {
-          ...(indexFileId ? { indexFileId } : { streamId }),
+          ...(indexFileId ? { fileId: indexFileId } : { streamId }),
         },
       });
       console.log(res);

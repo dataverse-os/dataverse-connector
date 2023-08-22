@@ -39,38 +39,43 @@ export interface DatatokenMetadata {
 
 export interface AccessControlCondition {
   conditionType?: string;
-  contractAddress?: string;
-  chain?: string;
-  standardContractType?: string;
-  method?: string;
-  parameters?: string[];
-  returnValueTest?: ReturnValueTest;
+  contractAddress: string;
+  chain: string;
+  standardContractType: string;
+  method: string;
+  parameters: string[];
+  returnValueTest: ReturnValueTest;
 }
 
 export interface UnifiedAccessControlCondition {
-  contractAddress?: string;
-  conditionType?: string;
-  functionName?: string;
-  functionParams?: string[];
-  functionAbi?: {
-    inputs?: { internalType: string; name: string; type: string }[];
-    name?: string;
-    outputs?: { internalType: string; name: string; type: string };
+  contractAddress: string;
+  conditionType: string;
+  standardContractType?: string;
+  method?: string;
+  parameters?: string[];
+  functionName: string;
+  functionParams: string[];
+  functionAbi: {
+    inputs: { internalType: string; name: string; type: string }[];
+    name: string;
+    outputs: { internalType: string; name: string; type: string }[];
   };
-  chain?: string;
-  returnValueTest?: {
-    key?: string;
-    comparator?: string;
-    value?: string;
+  chain: string;
+  returnValueTest: {
+    key: string;
+    comparator: string;
+    value: string;
   };
 }
 
-export type DecryptionConditions =
-  | (AccessControlCondition | BooleanCondition)[]
-  | (UnifiedAccessControlCondition | BooleanCondition)[];
+export type DecryptionConditions = (
+  | AccessControlCondition
+  | BooleanCondition
+  | (UnifiedAccessControlCondition | BooleanCondition)[]
+)[];
 
 export interface BooleanCondition {
-  operator: "and" | "or";
+  operator: "and" | "or" | string;
 }
 
 export interface ReturnValueTest {

@@ -1,21 +1,32 @@
+import { FolderType } from "../constants";
+import { EncryptionProvider, MonetizationProvider } from "./common";
+import { Mirrors } from "./mirrors";
+
 export interface IndexFolder {
-  appVersion: string;
-  folderType: number;
+  fsVersion: string;
+  folderName: string;
+  folderType: FolderType;
   contentFolderIds: string[];
-  createdAt: string;
-  updatedAt: string;
-  options: string;
+  accessControl?: string;
   parentFolderId?: string;
   childFolderIds?: string[];
+  createdAt: string;
+  updatedAt: string;
   deleted?: boolean;
-}
-
-export interface ContentFolder {
-  indexFolderId: string;
-  mirrors: string;
+  options?: string;
+  reserved?: string;
 }
 
 export type IndexFoldersRecord = Record<string, IndexFolder>;
+
+export interface ContentFolder {
+  fsVersion: string;
+  indexFolderId: string;
+  mirrorFileIds: string[];
+  encryptedFileKeys: string;
+  reserved?: string;
+}
+
 export type ContentFoldersRecord = Record<string, ContentFolder>;
 
 export interface NativeFolders {
@@ -23,64 +34,38 @@ export interface NativeFolders {
   contentFolders: ContentFoldersRecord;
 }
 
-import { FolderType } from "../constants/folders";
-import { Mirrors } from "./mirrors";
-
-export interface CommonFolderOptions {
-  folderName: string;
-  folderDescription?: string;
-}
-
-export interface PublicFolderOptions extends CommonFolderOptions {}
-
-export interface PrivateFolderOptions extends CommonFolderOptions {
-  encryptedSymmetricKey: string;
-  decryptionConditions: string;
-  // chain: string;
-
-  encrypted: string;
-}
-
-export interface DatatokenFolderOptions extends CommonFolderOptions {
-  datatokenId: string;
-
-  encryptedSymmetricKey: string;
-  decryptionConditions: string;
-  // chain: string;
-
-  lockedNum: number;
-}
-
-export type FolderOptions =
-  | PublicFolderOptions
-  | PrivateFolderOptions
-  | DatatokenFolderOptions;
-
 export interface StructuredFolder {
-  appName?: string;
-  /** the ceramic indexFolder & contentFolder models of the folder */
+  appId?: string;
+  controller?: string;
   model: [string, string];
-  /** the ceramic indexFolder streamID of the folder */
+  fsVersion: string;
   folderId: string;
-  contentFolderIds?: string[];
-
-  /** the type of the folder, see {@link FolderType} */
+  contentFolderIds: string[];
+  folderName: string;
   folderType: FolderType;
-
-  /** the creation datetime of the folder */
-  createdAt: string;
-  /** the updation datetime of the folder */
-  updatedAt: string;
-
-  options: FolderOptions;
-
-  /** the ceramic parent folder streamID of the folder */
+  accessControl?: {
+    encryptionProvider?: EncryptionProvider;
+    monetizationProvider?: MonetizationProvider;
+  };
   parentFolderId?: string;
   childFolderIds?: string[];
-
-  mirrors: string | Mirrors;
-  mirrorsLocked?: boolean;
+  createdAt: string;
+  updatedAt: string;
   deleted?: boolean;
+  options?: FolderOptions;
+  reserved?: any;
+  mirrors: Mirrors;
+  mirrorsLocked?: boolean;
 }
 
 export type StructuredFolders = Record<string, StructuredFolder>;
+export type StructuredFoldersWithEncryptedFileKeys = Record<
+  string,
+  StructuredFolder & {
+    encryptedFileKeys: string;
+  }
+>;
+
+export interface FolderOptions {
+  folderDescription?: string;
+}

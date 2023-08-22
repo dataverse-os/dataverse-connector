@@ -69,7 +69,7 @@ export interface RequestType {
     storageProvider: StorageProvider;
   };
   updateFileBaseInfo: {
-    indexFileId: string;
+    fileId: string;
     fileInfo?: Omit<
       FileInfo,
       | "datatokenId"
@@ -82,21 +82,21 @@ export interface RequestType {
   };
   moveFiles: {
     targetFolderId: string;
-    sourceIndexFileIds: string[];
+    fileIds: string[];
     syncImmediately?: boolean;
   };
   monetizeFile: {
     streamId?: string;
-    indexFileId?: string;
+    fileId?: string;
     datatokenVars: Omit<DatatokenVars, "streamId">;
     decryptionConditions?: DecryptionConditions;
   };
   removeFiles: {
-    indexFileIds: string[];
+    fileIds: string[];
     syncImmediately?: boolean;
   };
 
-  unlock: { streamId?: string; indexFileId?: string };
+  unlock: { streamId?: string; fileId?: string };
 }
 
 export interface ReturnType {

@@ -1,16 +1,16 @@
 import { FileType } from "../constants";
 import { AccessControl } from "./common";
 
-export interface IndexFile {
+export interface ActionFile {
   /* The version of file system*/
   fsVersion: string;
-  /* The streamId of the content that the file points to */
-  contentId: string;
-  /* The content type of the file */
-  contentType: string;
+  /* The action of file*/
+  action: Action;
+  /* The index file that the file points to */
+  relationId: string;
   /* The name of the file */
   fileName: string;
-  /* The type of the file, includes public and private */
+  /* The type of the file, includes public, private, payable */
   fileType: FileType;
   /* The access control condition of the file */
   accessControl?: string;
@@ -24,23 +24,21 @@ export interface IndexFile {
   reserved?: string;
 }
 
-export interface IndexFilesRecord
-  extends Record<string, IndexFile & { controller: string }> {}
+export interface ActionFilesRecord extends Record<string, ActionFile> {}
 
-export interface StructuredFile
-  extends Omit<IndexFile, "accessControl" | "contentType" | "reserved"> {
+export interface StructuredActionFile
+  extends Omit<ActionFile, "accessControl" | "reserved"> {
   fileId: string;
   controller?: string;
-  contentType: ContentType;
   accessControl?: AccessControl;
   reserved?: any;
 }
 
-export type StructuredFiles = Record<string, StructuredFile>;
+export type StructuredActionFiles = Record<string, StructuredActionFile>;
 
-export interface FileInfo {
-  contentId?: string;
-  contentType?: ContentType;
+export interface ActionFileInfo {
+  action?: Action;
+  relationId?: string;
   fileName?: string;
   fileType?: FileType;
   fileKey?: string;
@@ -49,13 +47,10 @@ export interface FileInfo {
   reserved?: any;
 }
 
-export enum StorageResource {
-  CERAMIC,
-  WEAVEDB,
-  IPFS,
-}
-
-export interface ContentType {
-  resource: StorageResource;
-  resourceId?: string;
+export enum Action {
+  LIKE,
+  COMMENT,
+  SECRET_CLICK,
+  UNLOCK,
+  RECEIVE,
 }

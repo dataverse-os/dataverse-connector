@@ -1,2 +1,15 @@
-export { FolderType, TEMP, APP_VERSION } from "./folders";
-export { IndexFileContentType, OriginType, FileType } from "./index-file";
+export enum FolderType {
+  Public,
+  Private,
+  Datatoken,
+}
+
+export enum FileType {
+  Public,
+  Private,
+  Datatoken,
+}
+
+export const TEMP = "temp";
+
+export const fsVersion = "0.11";

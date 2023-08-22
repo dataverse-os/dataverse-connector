@@ -6,20 +6,34 @@ export type {
   NativeFolders,
   StructuredFolder,
   StructuredFolders,
-  PrivateFolderOptions,
-  PublicFolderOptions,
-  DatatokenFolderOptions,
 } from "./folder";
 
 export type {
+  ContentType,
+  FileInfo,
   IndexFile,
   IndexFilesRecord,
-  FileInfo,
   StructuredFile,
   StructuredFiles,
-  Comment,
-  Relation,
-  Additional,
 } from "./index-file";
 
+export { StorageResource } from "./index-file";
+
+export type {
+  Action,
+  ActionFileInfo,
+  ActionFile,
+  ActionFilesRecord,
+  StructuredActionFile,
+  StructuredActionFiles,
+} from "./action-file";
+
 export type { Mirror, Mirrors, MirrorFile, MirrorFiles } from "./mirrors";
+
+export {
+  EncryptionProtocol,
+  MonetizationProtocol,
+  type EncryptionProvider,
+  type MonetizationProvider,
+  type AccessControl,
+} from "./acl";
