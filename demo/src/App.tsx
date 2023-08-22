@@ -410,6 +410,7 @@ function App() {
     });
 
     setStreamId(res.streamId);
+    setIndexFileId(res.streamContent.file.indexFileId);
     console.log(res);
   };
 
@@ -499,37 +500,6 @@ function App() {
       },
     });
     console.log(res);
-  };
-
-  const changeFolderType = async () => {
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.changeFolderType,
-      params: {
-        folderId,
-        targetFolderType: FolderType.Public,
-      },
-    });
-    console.log(res);
-  };
-
-  const monetizeFolder = async () => {
-    const profileId = await getProfileId({ pkh, lensNickName: "hello123" });
-
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.monetizeFolder,
-      params: {
-        folderId,
-        folderDescription: "This is a payable folder.",
-        datatokenVars: {
-          profileId,
-          collectLimit: 100,
-          amount: 0.0001,
-          currency: Currency.WMATIC,
-        },
-      },
-    });
-    console.log(res);
-    return res;
   };
 
   const readFolderById = async () => {
@@ -849,8 +819,6 @@ function App() {
       <button onClick={readFolders}>readFolders</button>
       <button onClick={createFolder}>createFolder</button>
       <button onClick={updateFolderBaseInfo}>updateFolderBaseInfo</button>
-      <button onClick={changeFolderType}>changeFolderType</button>
-      <button onClick={monetizeFolder}>monetizeFolder</button>
       <button onClick={readFolderById}>readFolderById</button>
       <button onClick={deleteFolder}>deleteFolder</button>
       <button onClick={deleteAllFolder}>deleteAllFolder</button>

@@ -16,9 +16,7 @@ export enum SYSTEM_CALL {
   readFolderById = "readFolderById",
   createFolder = "createFolder",
   updateFolderBaseInfo = "updateFolderBaseInfo",
-  changeFolderType = "changeFolderType",
   deleteFolder = "deleteFolder",
-  monetizeFolder = "monetizeFolder",
 
   uploadFile = "uploadFile",
   updateFileBaseInfo = "updateFileBaseInfo",

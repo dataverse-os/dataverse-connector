@@ -16,14 +16,24 @@ declare let chrome: Chrome;
 export class CommunicatorFromBackgroundToOthers {
   constructor() {}
 
-  async sendMessageToCurrentTab(message: EventMessage) {
+  async sendMessageToCurrentTab({
+    message,
+    sendMessageTo,
+  }: {
+    message: EventMessage;
+    sendMessageTo: string;
+  }) {
     return new Promise((resolve, reject) => {
-      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, message, function (response) {
+      chrome.tabs.query({ active: true }, function (tabs) {
+        const tabId = tabs.find(tab => {
+          const url = new URL(tab.url);
+          return url.origin === sendMessageTo;
+        }).id;
+        chrome.tabs.sendMessage(tabId, message, function (response) {
           if (response?.code === CORRECT_CODE) {
             resolve(response.result);
           } else {
-            reject(response?.error);
+            reject(new Error(response?.error));
           }
         });
       });

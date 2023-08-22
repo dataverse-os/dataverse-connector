@@ -56,19 +56,9 @@ export interface RequestType {
     newFolderDescription?: string;
     syncImmediately?: boolean;
   };
-  changeFolderType: {
-    folderId: string;
-    targetFolderType: FolderType;
-    syncImmediately?: boolean;
-  };
   deleteFolder: {
     folderId: string;
     syncImmediately?: boolean;
-  };
-  monetizeFolder: {
-    folderId: string;
-    folderDescription: string;
-    datatokenVars: Omit<DatatokenVars, "streamId">;
   };
 
   uploadFile: {
@@ -172,15 +162,7 @@ export interface ReturnType {
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
-  changeFolderType: Promise<{
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
-  }>;
   deleteFolder: Promise<{
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
-  }>;
-  monetizeFolder: Promise<{
     currentFolder: StructuredFolder;
     allFolders: StructuredFolders;
   }>;
