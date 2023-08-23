@@ -6,9 +6,9 @@ import { FolderType } from "../fs";
 import {
   FileInfo,
   MirrorFile,
-  MirrorFiles,
+  MirrorFileRecord,
   StructuredFolder,
-  StructuredFolders,
+  StructuredFolderRecord,
 } from "../fs/types";
 import { SYSTEM_CALL } from "./constants";
 import { RESOURCE } from "../wallet";
@@ -152,36 +152,36 @@ export interface ReturnType {
     };
   }>;
 
-  readFolders: Promise<StructuredFolders>;
+  readFolders: Promise<StructuredFolderRecord>;
   readFolderById: Promise<StructuredFolder>;
   createFolder: Promise<{
     newFolder: StructuredFolder;
-    allFolders: StructuredFolders;
+    allFolders: StructuredFolderRecord;
   }>;
   updateFolderBaseInfo: Promise<{
     currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
+    allFolders: StructuredFolderRecord;
   }>;
   deleteFolder: Promise<{
     currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
+    allFolders: StructuredFolderRecord;
   }>;
 
   uploadFile: Promise<{
     newFile: MirrorFile;
     currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
+    allFolders: StructuredFolderRecord;
   }>;
   updateFileBaseInfo: Promise<{
     currentFile: MirrorFile;
     currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
+    allFolders: StructuredFolderRecord;
   }>;
   moveFiles: Promise<{
-    sourceFolders: StructuredFolders;
+    sourceFolders: StructuredFolderRecord;
     targetFolder: StructuredFolder;
-    movedFiles: MirrorFiles;
-    allFolders: StructuredFolders;
+    movedFiles: MirrorFileRecord;
+    allFolders: StructuredFolderRecord;
   }>;
   monetizeFile: Promise<{
     streamContent: {
@@ -190,9 +190,9 @@ export interface ReturnType {
     };
   }>;
   removeFiles: Promise<{
-    sourceFolders: StructuredFolders;
-    removedFiles: MirrorFiles;
-    allFolders: StructuredFolders;
+    sourceFolders: StructuredFolderRecord;
+    removedFiles: MirrorFileRecord;
+    allFolders: StructuredFolderRecord;
   }>;
 
   unlock: Promise<{

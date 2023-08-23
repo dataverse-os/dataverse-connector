@@ -4,7 +4,7 @@ import {
 } from "../../data-monetize";
 
 export enum EncryptionProtocol {
-  Lit,
+  Lit = "Lit",
 }
 
 export interface EncryptionProvider {
@@ -15,7 +15,7 @@ export interface EncryptionProvider {
 }
 
 export enum MonetizationProtocol {
-  Lens,
+  Lens = "Lens",
 }
 
 export interface MonetizationProvider {

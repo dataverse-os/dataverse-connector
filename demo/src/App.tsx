@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   DataverseConnector,
   FolderType,
-  StructuredFolders,
+  StructuredFolderRecord,
   Currency,
   StorageProviderName,
   WALLET,
@@ -20,7 +20,7 @@ const dataverseConnector = new DataverseConnector();
 export const appId = "a3f0ac63-ff7d-4085-aade-c04888b71088";
 
 const modelId =
-  "kjzl6hvfrbw6catndj34fzm0au0qu8dznn6wtrrdmd4va7052ffiypywqd8fjg9";
+  "kjzl6hvfrbw6catek36h3pep09k9gymfnla9k6ojlgrmwjogvjqg8q3zpybl1yu";
 
 const postVersion = "0.0.1";
 
@@ -47,7 +47,7 @@ function App() {
   const [streamId, setStreamId] = useState("");
   const [folderId, setFolderId] = useState("");
   const [indexFileId, setIndexFileId] = useState("");
-  const [folders, setFolders] = useState<StructuredFolders>();
+  const [folders, setFolders] = useState<StructuredFolderRecord>();
   const [
     dataverseProviderHasAddedListener,
     setDataverseProviderHasAddedListener,
@@ -396,7 +396,7 @@ function App() {
       params: {
         modelId,
         streamContent: {
-          appVersion: postVersion,
+          modelVersion: postVersion,
           text: "hello",
           images: [
             "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
@@ -428,7 +428,7 @@ function App() {
       params: {
         streamId,
         streamContent: {
-          appVersion: postVersion,
+          modelVersion: postVersion,
           text: "hello",
           images: [
             "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",

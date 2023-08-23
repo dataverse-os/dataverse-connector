@@ -56,6 +56,6 @@ export interface Mirror {
   unsynchronized?: boolean;
 }
 
-export interface Mirrors extends Record<string, Mirror> {}
+export interface MirrorRecord extends Record<string, Mirror> {}
 
-export interface MirrorFiles extends Record<string, MirrorFile> {}
+export interface MirrorFileRecord extends Record<string, MirrorFile> {}

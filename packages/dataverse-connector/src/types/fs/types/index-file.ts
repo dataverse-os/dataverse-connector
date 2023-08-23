@@ -24,7 +24,7 @@ export interface IndexFile {
   reserved?: string;
 }
 
-export interface IndexFilesRecord
+export interface IndexFileRecord
   extends Record<string, IndexFile & { controller: string }> {}
 
 export interface StructuredFile
@@ -50,9 +50,9 @@ export interface FileInfo {
 }
 
 export enum StorageResource {
-  CERAMIC,
-  WEAVEDB,
-  IPFS,
+  CERAMIC = "CERAMIC",
+  WEAVEDB = "WEAVEDB",
+  IPFS = "IPFS",
 }
 
 export interface ContentType {

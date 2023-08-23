@@ -48,9 +48,9 @@ export interface ActionFileInfo {
 }
 
 export enum Action {
-  LIKE,
-  COMMENT,
-  SECRET_CLICK,
-  UNLOCK,
-  RECEIVE,
+  LIKE = "LIKE",
+  COMMENT = "COMMENT",
+  SECRET_CLICK = "SECRET_CLICK",
+  UNLOCK = "UNLOCK",
+  RECEIVE = "RECEIVE",
 }

@@ -1,18 +1,18 @@
 export type {
   IndexFolder,
   ContentFolder,
-  IndexFoldersRecord,
-  ContentFoldersRecord,
-  NativeFolders,
+  IndexFolderRecord,
+  ContentFolderRecord,
+  NativeFolder,
   StructuredFolder,
-  StructuredFolders,
+  StructuredFolderRecord,
 } from "./folder";
 
 export type {
   ContentType,
   FileInfo,
   IndexFile,
-  IndexFilesRecord,
+  IndexFileRecord,
   StructuredFile,
   StructuredFiles,
 } from "./index-file";
@@ -28,7 +28,12 @@ export type {
   StructuredActionFiles,
 } from "./action-file";
 
-export type { Mirror, Mirrors, MirrorFile, MirrorFiles } from "./mirrors";
+export type {
+  Mirror,
+  MirrorRecord,
+  MirrorFile,
+  MirrorFileRecord,
+} from "./mirror";
 
 export {
   EncryptionProtocol,

@@ -1,6 +1,6 @@
 import { FolderType } from "../constants";
 import { EncryptionProvider, MonetizationProvider } from "./common";
-import { Mirrors } from "./mirrors";
+import { MirrorRecord } from "./mirror";
 
 export interface IndexFolder {
   fsVersion: string;
@@ -17,7 +17,7 @@ export interface IndexFolder {
   reserved?: string;
 }
 
-export type IndexFoldersRecord = Record<string, IndexFolder>;
+export type IndexFolderRecord = Record<string, IndexFolder>;
 
 export interface ContentFolder {
   fsVersion: string;
@@ -27,11 +27,11 @@ export interface ContentFolder {
   reserved?: string;
 }
 
-export type ContentFoldersRecord = Record<string, ContentFolder>;
+export type ContentFolderRecord = Record<string, ContentFolder>;
 
-export interface NativeFolders {
-  indexFolders: IndexFoldersRecord;
-  contentFolders: ContentFoldersRecord;
+export interface NativeFolder {
+  indexFolderRecord: IndexFolderRecord;
+  contentFolderRecord: ContentFolderRecord;
 }
 
 export interface StructuredFolder {
@@ -54,12 +54,12 @@ export interface StructuredFolder {
   deleted?: boolean;
   options?: FolderOptions;
   reserved?: any;
-  mirrors: Mirrors;
-  mirrorsLocked?: boolean;
+  mirrorRecord: MirrorRecord;
+  mirrorRecordLocked?: boolean;
 }
 
-export type StructuredFolders = Record<string, StructuredFolder>;
-export type StructuredFoldersWithEncryptedFileKeys = Record<
+export type StructuredFolderRecord = Record<string, StructuredFolder>;
+export type StructuredFolderRecordWithEncryptedFileKeys = Record<
   string,
   StructuredFolder & {
     encryptedFileKeys: string;

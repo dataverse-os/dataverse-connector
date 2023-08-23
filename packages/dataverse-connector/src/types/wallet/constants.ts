@@ -7,5 +7,5 @@ export enum WALLET {
 }
 
 export enum RESOURCE {
-  CERAMIC,
+  CERAMIC = "CERAMIC",
 }
