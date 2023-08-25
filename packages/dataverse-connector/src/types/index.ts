@@ -22,13 +22,13 @@ export {
   type DecryptionConditions,
 } from "./data-monetize";
 export {
-  FolderType,
+  Action,
   FileType,
+  FolderType,
   StorageResource,
   EncryptionProtocol,
   MonetizationProtocol,
   type IndexFile,
-  type Action,
   type ActionFileInfo,
   type ActionFile,
   type ActionFilesRecord,

@@ -4,6 +4,7 @@ import { StreamContent } from "../app";
 import { DatatokenVars, DecryptionConditions } from "../data-monetize/types";
 import { FolderType } from "../fs";
 import {
+  Action,
   FileInfo,
   MirrorFile,
   MirrorFileRecord,
@@ -61,6 +62,12 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
 
+  createActionFile: {
+    folderId?: string;
+    action: Action;
+    relationId: string;
+    fileName?: string;
+  };
   uploadFile: {
     folderId?: string;
     fileBase64: string;
@@ -167,6 +174,11 @@ export interface ReturnType {
     allFolders: StructuredFolderRecord;
   }>;
 
+  createActionFile: Promise<{
+    newFile: MirrorFile;
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
   uploadFile: Promise<{
     newFile: MirrorFile;
     currentFolder: StructuredFolder;

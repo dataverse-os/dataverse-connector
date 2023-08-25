@@ -20,13 +20,14 @@ export type {
 export { StorageResource } from "./index-file";
 
 export type {
-  Action,
   ActionFileInfo,
   ActionFile,
   ActionFilesRecord,
   StructuredActionFile,
   StructuredActionFiles,
 } from "./action-file";
+
+export { Action } from "./action-file";
 
 export type {
   Mirror,

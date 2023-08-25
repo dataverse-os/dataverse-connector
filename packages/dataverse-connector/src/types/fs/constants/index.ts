@@ -1,13 +1,13 @@
 export enum FolderType {
   Public,
   Private,
-  Datatoken,
+  Payable,
 }
 
 export enum FileType {
   Public,
   Private,
-  Datatoken,
+  Payable,
 }
 
 export const TEMP = "temp";

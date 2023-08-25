@@ -18,6 +18,7 @@ export enum SYSTEM_CALL {
   updateFolderBaseInfo = "updateFolderBaseInfo",
   deleteFolder = "deleteFolder",
 
+  createActionFile = "createActionFile",
   uploadFile = "uploadFile",
   updateFileBaseInfo = "updateFileBaseInfo",
   moveFiles = "moveFiles",
