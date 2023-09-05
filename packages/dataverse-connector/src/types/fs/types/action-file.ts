@@ -47,7 +47,14 @@ export interface ActionFileInfo {
   reserved?: any;
 }
 
-export enum Action {
+export interface Action {
+  actionType: ActionType;
+  comment?: string;
+  isRelationIdEncrypted?: boolean;
+  isCommentEncrypted?: boolean;
+}
+
+export enum ActionType {
   LIKE = "LIKE",
   COMMENT = "COMMENT",
   SECRET_CLICK = "SECRET_CLICK",

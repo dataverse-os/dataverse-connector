@@ -27,7 +27,7 @@ export type {
   StructuredActionFiles,
 } from "./action-file";
 
-export { Action } from "./action-file";
+export { type Action, ActionType } from "./action-file";
 
 export type {
   Mirror,

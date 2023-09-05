@@ -9,6 +9,7 @@ import {
   WALLET,
   RESOURCE,
   SYSTEM_CALL,
+  ActionType,
 } from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
@@ -210,7 +211,21 @@ function App() {
         },
       ],
     });
+
     console.log(res);
+
+    // const ethersProvider = new ethers.providers.Web3Provider(provider!);
+
+    // const ethersSigner = ethersProvider.getSigner();
+    // const res = await ethersSigner.sendTransaction({
+    //   from: dataverseConnector.address, // The user's active address.
+    //   to: dataverseConnector.address, // Required except during contract publications.
+    //   value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
+    //   // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
+    //   // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
+    // });
+    // const tx = await res.wait();
+    // console.log(tx);
   };
 
   const contractCall = async () => {
@@ -460,10 +475,6 @@ function App() {
       },
     });
     console.log(streams);
-    // const res = Object.values(streams).filter(
-    //   (el) => el.controller !== pkh && el.fileType === FileType.Datatoken
-    // );
-    // console.log(res);
   };
   /*** Stream ***/
 
@@ -514,7 +525,9 @@ function App() {
   const deleteFolder = async () => {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.deleteFolder,
-      params: { folderId },
+      params: {
+        folderId,
+      },
     });
     console.log(res);
   };
@@ -546,6 +559,28 @@ function App() {
   /*** Folders ***/
 
   /*** Files ***/
+  const createActionFile = async () => {
+    if (!indexFileId) {
+      throw "RelationId cannnot be empty";
+    }
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createActionFile,
+      params: {
+        folderId,
+        action: {
+          actionType: ActionType.LIKE,
+          comment: "I like it!",
+          isRelationIdEncrypted: false,
+          isCommentEncrypted: false,
+        },
+        relationId: indexFileId,
+        fileName: "like",
+      },
+    });
+    setIndexFileId(res.newFile.fileId);
+    console.log(res);
+  };
+
   const uploadFile = async (event: any) => {
     try {
       const file = event.target.files[0];
@@ -623,7 +658,7 @@ function App() {
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.monetizeFile,
         params: {
-          ...(indexFileId ? { indexFileId } : { streamId }),
+          ...(indexFileId ? { fileId: indexFileId } : { streamId }),
           datatokenVars: {
             profileId,
             collectLimit: 100,
@@ -724,8 +759,6 @@ function App() {
 
   const unlock = async () => {
     try {
-      // const indexFileId =
-      //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.unlock,
         params: {
@@ -739,8 +772,8 @@ function App() {
   };
 
   const isCollected = async () => {
-    const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
-    const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
+    const datatokenId = "0xA549778fE40D67e4811Cebf39e1A0A668b74E124";
+    const address = "0xd10d5b408A290a5FD0C2B15074995e899E944444";
     const res = await dataverseConnector.isCollected({
       datatokenId,
       address,
@@ -824,6 +857,7 @@ function App() {
       <button onClick={deleteAllFolder}>deleteAllFolder</button>
       <br />
       <br />
+      <button onClick={createActionFile}>createActionFile</button>
       <button>
         <span>uploadFile</span>
         <input
