@@ -27,7 +27,7 @@ const postVersion = "0.0.1";
 
 const storageProvider = {
   name: StorageProviderName.Lighthouse,
-  apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call uploadFile successfully
+  apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call createBareFile successfully
 };
 
 function App() {
@@ -48,6 +48,7 @@ function App() {
   const [streamId, setStreamId] = useState("");
   const [folderId, setFolderId] = useState("");
   const [indexFileId, setIndexFileId] = useState("");
+  const [actionFileId, setActionFileId] = useState("");
   const [folders, setFolders] = useState<StructuredFolderRecord>();
   const [
     dataverseProviderHasAddedListener,
@@ -374,6 +375,7 @@ function App() {
 
   /*** Stream ***/
   const createCapability = async () => {
+    await connectWalletWithMetamaskProvider();
     const pkh = await dataverseConnector.runOS({
       method: SYSTEM_CALL.createCapability,
       params: {
@@ -577,11 +579,28 @@ function App() {
         fileName: "like",
       },
     });
-    setIndexFileId(res.newFile.fileId);
+    setActionFileId(res.newFile.fileId);
     console.log(res);
   };
 
-  const uploadFile = async (event: any) => {
+  const updateActionFile = async () => {
+    if (!indexFileId) {
+      throw "RelationId cannnot be empty";
+    }
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.updateActionFile,
+      params: {
+        fileId: actionFileId,
+        isRelationIdEncrypted: true,
+        isCommentEncrypted: true,
+        fileName: "like",
+      },
+    });
+    setActionFileId(res.currentFile.fileId);
+    console.log(res);
+  };
+
+  const createBareFile = async (event: any) => {
     try {
       const file = event.target.files[0];
       console.log(file);
@@ -596,16 +615,9 @@ function App() {
       });
 
       console.log(fileBase64);
-      // var binaryString = atob(fileBase64.split(",")[1]);
-      // console.log(binaryString);
-      // var bytes = new Uint8Array(binaryString.length);
-      // for (var i = 0; i < binaryString.length; i++) {
-      //   bytes[i] = binaryString.charCodeAt(i);
-      // }
-      // console.log(bytes);
-      // console.log(bytes.buffer);
+
       const res = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.uploadFile,
+        method: SYSTEM_CALL.createBareFile,
         params: {
           folderId,
           fileBase64,
@@ -621,17 +633,37 @@ function App() {
     }
   };
 
-  const updateFileBaseInfo = async () => {
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.updateFileBaseInfo,
-      params: {
-        fileId: indexFileId,
-        fileInfo: {
-          fileName: "aaa",
+  const updateBareFile = async (event: any) => {
+    try {
+      const file = event.target.files[0];
+      console.log(file);
+      const fileName = file.name;
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      const fileBase64: string = await new Promise(resolve => {
+        reader.addEventListener("load", async (e: any) => {
+          resolve(e.target.result);
+        });
+      });
+
+      console.log(fileBase64);
+
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.updateBareFile,
+        params: {
+          fileId: indexFileId,
+          fileBase64,
+          fileName,
+          encrypted: true,
+          storageProvider,
         },
-      },
-    });
-    console.log(res);
+      });
+      setIndexFileId(res.currentFile.fileId);
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const moveFiles = async () => {
@@ -639,7 +671,7 @@ function App() {
       method: SYSTEM_CALL.moveFiles,
       params: {
         targetFolderId: folderId || (await getDefaultFolderId()),
-        fileIds: [indexFileId],
+        fileIds: [indexFileId || actionFileId],
       },
     });
     console.log(res);
@@ -658,7 +690,9 @@ function App() {
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.monetizeFile,
         params: {
-          ...(indexFileId ? { fileId: indexFileId } : { streamId }),
+          ...(actionFileId || indexFileId
+            ? { fileId: actionFileId || indexFileId }
+            : { streamId }),
           datatokenVars: {
             profileId,
             collectLimit: 100,
@@ -762,7 +796,9 @@ function App() {
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.unlock,
         params: {
-          ...(indexFileId ? { fileId: indexFileId } : { streamId }),
+          ...(actionFileId || indexFileId
+            ? { fileId: actionFileId || indexFileId }
+            : { streamId }),
         },
       });
       console.log(res);
@@ -858,17 +894,25 @@ function App() {
       <br />
       <br />
       <button onClick={createActionFile}>createActionFile</button>
+      <button onClick={updateActionFile}>updateActionFile</button>
       <button>
-        <span>uploadFile</span>
+        <span>createBareFile</span>
         <input
           type='file'
-          onChange={uploadFile}
-          name='uploadFile'
+          onChange={createBareFile}
+          name='createBareFile'
           style={{ width: "168px", marginLeft: "10px" }}
         />
       </button>
-
-      <button onClick={updateFileBaseInfo}>updateFileBaseInfo</button>
+      <button>
+        <span>updateBareFile</span>
+        <input
+          type='file'
+          onChange={updateBareFile}
+          name='updateBareFile'
+          style={{ width: "168px", marginLeft: "10px" }}
+        />
+      </button>
       <button onClick={moveFiles}>moveFiles</button>
       <button onClick={monetizeFile}>monetizeFile</button>
       <button onClick={removeFiles}>removeFiles</button>

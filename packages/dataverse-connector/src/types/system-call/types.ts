@@ -5,7 +5,6 @@ import { DatatokenVars, DecryptionConditions } from "../data-monetize/types";
 import { FolderType } from "../fs";
 import {
   Action,
-  FileInfo,
   MirrorFile,
   MirrorFileRecord,
   StructuredFolder,
@@ -68,23 +67,26 @@ export interface RequestType {
     relationId: string;
     fileName?: string;
   };
-  uploadFile: {
+  updateActionFile: {
+    fileId: string;
+    fileName?: string;
+    isRelationIdEncrypted?: boolean;
+    isCommentEncrypted?: boolean;
+    syncImmediately?: boolean;
+  };
+  createBareFile: {
     folderId?: string;
     fileBase64: string;
     fileName: string;
     encrypted: boolean;
     storageProvider: StorageProvider;
   };
-  updateFileBaseInfo: {
+  updateBareFile: {
     fileId: string;
-    fileInfo?: Omit<
-      FileInfo,
-      | "datatokenId"
-      | "fileKey"
-      | "encryptedSymmetricKey"
-      | "decryptionConditions"
-      | "decryptionConditionsType"
-    >;
+    fileBase64?: string;
+    fileName?: string;
+    encrypted?: boolean;
+    storageProvider?: StorageProvider;
     syncImmediately?: boolean;
   };
   moveFiles: {
@@ -173,18 +175,22 @@ export interface ReturnType {
     currentFolder: StructuredFolder;
     allFolders: StructuredFolderRecord;
   }>;
-
   createActionFile: Promise<{
     newFile: MirrorFile;
     currentFolder: StructuredFolder;
     allFolders: StructuredFolderRecord;
   }>;
-  uploadFile: Promise<{
+  updateActionFile: Promise<{
+    currentFile: MirrorFile;
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
+  createBareFile: Promise<{
     newFile: MirrorFile;
     currentFolder: StructuredFolder;
     allFolders: StructuredFolderRecord;
   }>;
-  updateFileBaseInfo: Promise<{
+  updateBareFile: Promise<{
     currentFile: MirrorFile;
     currentFolder: StructuredFolder;
     allFolders: StructuredFolderRecord;
