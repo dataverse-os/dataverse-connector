@@ -26,5 +26,6 @@ export enum SYSTEM_CALL {
   removeFiles = "removeFiles",
   monetizeFile = "monetizeFile",
 
+  collect = "collect",
   unlock = "unlock",
 }

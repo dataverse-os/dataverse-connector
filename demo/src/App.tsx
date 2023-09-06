@@ -682,10 +682,42 @@ function App() {
       if (!pkh) {
         throw "You must connect capability";
       }
+
       const profileId = await getProfileId({
         pkh,
         lensNickName: "hello123456",
       });
+
+      await provider?.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x13881" }],
+      });
+
+      // const contractAddress = "0x0a9945c64B4e2393c6425DCe8Ac1369134D09544";
+
+      // const abi = [
+      //   {
+      //     inputs: [],
+      //     name: "currentTimestamp",
+      //     outputs: [
+      //       {
+      //         internalType: "uint256",
+      //         name: "",
+      //         type: "uint256",
+      //       },
+      //     ],
+      //     stateMutability: "view",
+      //     type: "function",
+      //   },
+      // ];
+
+      // const ethersProvider = new ethers.providers.Web3Provider(provider!);
+
+      // const contract = new Contract(contractAddress, abi, ethersProvider);
+
+      // const res2 = await contract.currentTimestamp();
+      // console.log(BigNumber.from(res2).toNumber());
+      // console.log(new Date(Number(`${BigNumber.from(res2).toNumber()}000`)));
 
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.monetizeFile,
@@ -699,6 +731,10 @@ function App() {
             amount: 0.0001,
             currency: Currency.WMATIC,
           },
+          unlockingTimeStamp: String(
+            Math.floor(Date.now() / 1000) + 5 * 60,
+            // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+          ),
           // decryptionConditions: [
           //   [
           //     {
@@ -791,15 +827,23 @@ function App() {
     return profileId;
   };
 
+  const collect = async () => {
+    try {
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.collect,
+        params: actionFileId || indexFileId,
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const unlock = async () => {
     try {
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.unlock,
-        params: {
-          ...(actionFileId || indexFileId
-            ? { fileId: actionFileId || indexFileId }
-            : { streamId }),
-        },
+        params: actionFileId || indexFileId,
       });
       console.log(res);
     } catch (error) {
@@ -808,8 +852,8 @@ function App() {
   };
 
   const isCollected = async () => {
-    const datatokenId = "0xA549778fE40D67e4811Cebf39e1A0A668b74E124";
-    const address = "0xd10d5b408A290a5FD0C2B15074995e899E944444";
+    const datatokenId = "0xcF37808924b474f11108a3dbcEF1cA9966bfc1cF";
+    const address = "0x312eA852726E3A9f633A0377c0ea882086d66666";
     const res = await dataverseConnector.isCollected({
       datatokenId,
       address,
@@ -920,6 +964,7 @@ function App() {
       <br />
       <button onClick={createProfile}>createProfile</button>
       <button onClick={getProfiles}>getProfiles</button>
+      <button onClick={collect}>collect</button>
       <button onClick={unlock}>unlock</button>
       <button onClick={isCollected}>isCollected</button>
       <button onClick={getDatatokenBaseInfo}>getDatatokenBaseInfo</button>

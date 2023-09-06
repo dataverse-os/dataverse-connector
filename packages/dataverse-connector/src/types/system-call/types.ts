@@ -99,13 +99,15 @@ export interface RequestType {
     fileId?: string;
     datatokenVars: Omit<DatatokenVars, "streamId">;
     decryptionConditions?: DecryptionConditions;
+    unlockingTimeStamp?: string;
   };
   removeFiles: {
     fileIds: string[];
     syncImmediately?: boolean;
   };
 
-  unlock: { streamId?: string; fileId?: string };
+  collect: string;
+  unlock: string;
 }
 
 export interface ReturnType {
@@ -213,6 +215,11 @@ export interface ReturnType {
     allFolders: StructuredFolderRecord;
   }>;
 
+  collect: Promise<{
+    newFile: MirrorFile;
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
   unlock: Promise<{
     streamContent: {
       file: Omit<MirrorFile, "fileKey" | "content">;
