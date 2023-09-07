@@ -494,7 +494,7 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.createFolder,
       params: {
-        folderType: FolderType.Private,
+        folderType: FolderType.PrivateFolderType,
         folderName: "Private",
       },
     });

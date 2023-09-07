@@ -1,13 +1,12 @@
 export enum FolderType {
-  Public,
-  Private,
-  Payable,
+  PrivateFolderType,
+  UnionFolderType,
 }
 
 export enum FileType {
-  Public,
-  Private,
-  Payable,
+  PublicFileType,
+  PrivateFileType,
+  PayableFileType,
 }
 
 export const TEMP = "temp";
