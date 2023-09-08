@@ -14,7 +14,6 @@ export interface MirrorFile {
   content?: any;
   fileName?: string;
   fileType?: FileType;
-  fileKey?: string;
   accessControl?: {
     encryptionProvider?: EncryptionProvider;
     monetizationProvider?: MonetizationProvider;
@@ -31,7 +30,6 @@ export interface MirrorFile {
     content?: any;
     fileName?: string;
     fileType?: FileType;
-    fileKey?: string;
     accessControl?: {
       encryptionProvider?: EncryptionProvider;
       monetizationProvider?: MonetizationProvider;

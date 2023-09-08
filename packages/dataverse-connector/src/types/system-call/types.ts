@@ -125,7 +125,7 @@ export interface ReturnType {
     modelId: string;
     streamContent:
       | {
-          file?: Omit<MirrorFile, "fileKey" | "content">;
+          file?: Omit<MirrorFile, "content" | "external">;
           content?: StreamContent;
         }
       | StreamContent;
@@ -139,7 +139,7 @@ export interface ReturnType {
         pkh: string;
         streamContent:
           | {
-              file?: Omit<MirrorFile, "fileKey" | "content">;
+              file?: Omit<MirrorFile, "content" | "external">;
               content?: StreamContent;
             }
           | StreamContent;
@@ -152,13 +152,13 @@ export interface ReturnType {
     modelId: string;
     streamId: string;
     streamContent: {
-      file: Omit<MirrorFile, "fileKey" | "content">;
+      file: Omit<MirrorFile, "content">;
       content: StreamContent;
     };
   }>;
   updateStream: Promise<{
     streamContent: {
-      file: Omit<MirrorFile, "fileKey" | "content">;
+      file: Omit<MirrorFile, "content">;
       content: StreamContent;
     };
   }>;
@@ -205,7 +205,7 @@ export interface ReturnType {
   }>;
   monetizeFile: Promise<{
     streamContent: {
-      file: Omit<MirrorFile, "fileKey" | "content">;
+      file: Omit<MirrorFile, "content" | "external">;
       content: StreamContent | string;
     };
   }>;
@@ -214,15 +214,15 @@ export interface ReturnType {
     removedFiles: MirrorFileRecord;
     allFolders: StructuredFolderRecord;
   }>;
-
   collect: Promise<{
-    newFile: MirrorFile;
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolderRecord;
+    streamContent: {
+      file: Omit<MirrorFile, "content" | "external">;
+      content: StreamContent | string;
+    };
   }>;
   unlock: Promise<{
     streamContent: {
-      file: Omit<MirrorFile, "fileKey" | "content">;
+      file: Omit<MirrorFile, "content" | "external">;
       content: StreamContent | string;
     };
   }>;
