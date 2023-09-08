@@ -494,6 +494,7 @@ function App() {
       method: SYSTEM_CALL.createFile,
       params: {
         modelId,
+        fileName: "create a file",
         fileContent: {
           modelVersion: postVersion,
           text: "hello",
@@ -525,6 +526,7 @@ function App() {
       method: SYSTEM_CALL.updateFile,
       params: {
         fileId: indexFileId,
+        fileName: "update the file",
         fileContent: {
           modelVersion: postVersion,
           text: "hello",

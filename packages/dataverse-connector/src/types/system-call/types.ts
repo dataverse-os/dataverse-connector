@@ -49,11 +49,13 @@ export interface RequestType {
 
   createFile: {
     modelId: string;
+    fileName?: string;
     fileContent: FileContent;
   };
   updateFile: {
     fileId: string;
-    fileContent: FileContent;
+    fileName?: string;
+    fileContent?: FileContent;
     syncImmediately?: boolean;
   };
   loadFile: string;
