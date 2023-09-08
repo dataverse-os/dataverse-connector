@@ -2,7 +2,6 @@ import { BigNumber, BigNumberish } from "ethers";
 import { Currency } from "./constants";
 
 export interface DatatokenVars {
-  streamId: string;
   profileId?: string;
   collectLimit: number;
   amount: number;

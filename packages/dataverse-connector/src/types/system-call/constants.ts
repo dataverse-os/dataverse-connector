@@ -7,10 +7,6 @@ export enum SYSTEM_CALL {
 
   createCapability = "createCapability",
   checkCapability = "checkCapability",
-  loadStream = "loadStream",
-  loadStreamsBy = "loadStreamsBy",
-  createStream = "createStream",
-  updateStream = "updateStream",
 
   readFolders = "readFolders",
   readFolderById = "readFolderById",
@@ -18,6 +14,10 @@ export enum SYSTEM_CALL {
   updateFolderBaseInfo = "updateFolderBaseInfo",
   deleteFolder = "deleteFolder",
 
+  createFile = "createFile",
+  updateFile = "updateFile",
+  loadFile = "loadFile",
+  loadFilesBy = "loadFilesBy",
   createActionFile = "createActionFile",
   updateActionFile = "updateActionFile",
   createBareFile = "createBareFile",

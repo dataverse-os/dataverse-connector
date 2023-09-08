@@ -42,4 +42,6 @@ export {
   type EncryptionProvider,
   type MonetizationProvider,
   type AccessControl,
-} from "./acl";
+  type FileContent,
+  type FileRecord,
+} from "./common";

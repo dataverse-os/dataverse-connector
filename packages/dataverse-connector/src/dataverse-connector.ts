@@ -170,8 +170,8 @@ export class DataverseConnector {
   }): Promise<Awaited<ReturnType[T]>> {
     if (
       method !== SYSTEM_CALL.checkCapability &&
-      method !== SYSTEM_CALL.loadStream &&
-      method !== SYSTEM_CALL.loadStreamsBy &&
+      method !== SYSTEM_CALL.loadFile &&
+      method !== SYSTEM_CALL.loadFilesBy &&
       method !== SYSTEM_CALL.getModelBaseInfo &&
       !this?.isConnected
     ) {

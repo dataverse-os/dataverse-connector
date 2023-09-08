@@ -45,7 +45,6 @@ function App() {
   const [appListInfo, setAppListInfo] = useState<string>("");
   const [appInfo, setAppInfo] = useState<string>("");
 
-  const [streamId, setStreamId] = useState("");
   const [folderId, setFolderId] = useState("");
   const [indexFileId, setIndexFileId] = useState("");
   const [actionFileId, setActionFileId] = useState("");
@@ -373,7 +372,7 @@ function App() {
   };
   /*** DApp ***/
 
-  /*** Stream ***/
+  /*** Capability ***/
   const createCapability = async () => {
     await connectWalletWithMetamaskProvider();
     const pkh = await dataverseConnector.runOS({
@@ -399,86 +398,7 @@ function App() {
     setIsCurrentPkhValid(isCurrentPkhValid);
   };
 
-  const createStream = async () => {
-    const date = new Date().toISOString();
-
-    const encrypted = JSON.stringify({
-      text: false,
-      images: false,
-      videos: false,
-    });
-
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.createStream,
-      params: {
-        modelId,
-        streamContent: {
-          modelVersion: postVersion,
-          text: "hello",
-          images: [
-            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
-          ],
-          videos: [],
-          createdAt: date,
-          updatedAt: date,
-          encrypted,
-        },
-      },
-    });
-
-    setStreamId(res.streamId);
-    setIndexFileId(res.streamContent.file.fileId);
-    console.log(res);
-  };
-
-  const updateStream = async () => {
-    const date = new Date().toISOString();
-
-    const encrypted = JSON.stringify({
-      text: true,
-      images: true,
-      videos: false,
-    });
-
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.updateStream,
-      params: {
-        streamId,
-        streamContent: {
-          modelVersion: postVersion,
-          text: "hello",
-          images: [
-            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
-          ],
-          videos: [],
-          createdAt: date,
-          updatedAt: date,
-          encrypted,
-        },
-      },
-    });
-    console.log(res);
-  };
-
-  const loadStream = async () => {
-    const stream = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadStream,
-      params: streamId,
-    });
-    console.log(stream);
-  };
-
-  const loadStreamsBy = async () => {
-    const streams = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadStreamsBy,
-      params: {
-        modelId,
-        pkh,
-      },
-    });
-    console.log(streams);
-  };
-  /*** Stream ***/
+  /*** Capability ***/
 
   /*** Folders ***/
   const readFolders = async () => {
@@ -561,6 +481,85 @@ function App() {
   /*** Folders ***/
 
   /*** Files ***/
+  const createFile = async () => {
+    const date = new Date().toISOString();
+
+    const encrypted = JSON.stringify({
+      text: false,
+      images: false,
+      videos: false,
+    });
+
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createFile,
+      params: {
+        modelId,
+        fileContent: {
+          modelVersion: postVersion,
+          text: "hello",
+          images: [
+            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+          ],
+          videos: [],
+          createdAt: date,
+          updatedAt: date,
+          encrypted,
+        },
+      },
+    });
+
+    setIndexFileId(res.fileContent.file.fileId);
+    console.log(res);
+  };
+
+  const updateFile = async () => {
+    const date = new Date().toISOString();
+
+    const encrypted = JSON.stringify({
+      text: true,
+      images: true,
+      videos: false,
+    });
+
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.updateFile,
+      params: {
+        fileId: indexFileId,
+        fileContent: {
+          modelVersion: postVersion,
+          text: "hello",
+          images: [
+            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+          ],
+          videos: [],
+          createdAt: date,
+          updatedAt: date,
+          encrypted,
+        },
+      },
+    });
+    console.log(res);
+  };
+
+  const loadFile = async () => {
+    const file = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadFile,
+      params: indexFileId,
+    });
+    console.log(file);
+  };
+
+  const loadFilesBy = async () => {
+    const fileRecord = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadFilesBy,
+      params: {
+        modelId,
+        pkh,
+      },
+    });
+    console.log(fileRecord);
+  };
+
   const createActionFile = async () => {
     if (!indexFileId) {
       throw "RelationId cannnot be empty";
@@ -693,38 +692,10 @@ function App() {
         params: [{ chainId: "0x13881" }],
       });
 
-      // const contractAddress = "0x0a9945c64B4e2393c6425DCe8Ac1369134D09544";
-
-      // const abi = [
-      //   {
-      //     inputs: [],
-      //     name: "currentTimestamp",
-      //     outputs: [
-      //       {
-      //         internalType: "uint256",
-      //         name: "",
-      //         type: "uint256",
-      //       },
-      //     ],
-      //     stateMutability: "view",
-      //     type: "function",
-      //   },
-      // ];
-
-      // const ethersProvider = new ethers.providers.Web3Provider(provider!);
-
-      // const contract = new Contract(contractAddress, abi, ethersProvider);
-
-      // const res2 = await contract.currentTimestamp();
-      // console.log(BigNumber.from(res2).toNumber());
-      // console.log(new Date(Number(`${BigNumber.from(res2).toNumber()}000`)));
-
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.monetizeFile,
         params: {
-          ...(actionFileId || indexFileId
-            ? { fileId: actionFileId || indexFileId }
-            : { streamId }),
+          fileId: actionFileId || indexFileId,
           datatokenVars: {
             profileId,
             collectLimit: 100,
@@ -923,11 +894,6 @@ function App() {
         {isCurrentPkhValid !== undefined && String(isCurrentPkhValid)}
       </div>
       <hr />
-      <button onClick={createStream}>createStream</button>
-      <button onClick={updateStream}>updateStream</button>
-      <button onClick={loadStream}>loadStream</button>
-      <button onClick={loadStreamsBy}>loadStreamsBy</button>
-      <br />
       <br />
       <button onClick={readFolders}>readFolders</button>
       <button onClick={createFolder}>createFolder</button>
@@ -937,6 +903,10 @@ function App() {
       <button onClick={deleteAllFolder}>deleteAllFolder</button>
       <br />
       <br />
+      <button onClick={createFile}>createFile</button>
+      <button onClick={updateFile}>updateFile</button>
+      <button onClick={loadFile}>loadFile</button>
+      <button onClick={loadFilesBy}>loadFilesBy</button>
       <button onClick={createActionFile}>createActionFile</button>
       <button onClick={updateActionFile}>updateActionFile</button>
       <button>
