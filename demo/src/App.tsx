@@ -10,7 +10,6 @@ import {
   RESOURCE,
   SYSTEM_CALL,
   ActionType,
-  StorageResource,
 } from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
@@ -683,6 +682,26 @@ function App() {
 
       console.log(fileBase64);
 
+      const isDatatoken = false;
+      let datatokenVars;
+      let unlockingTimeStamp;
+      if (isDatatoken) {
+        const profileId = await getProfileId({
+          pkh,
+          lensNickName: "hello123456",
+        });
+        datatokenVars = {
+          profileId,
+          collectLimit: 100,
+          amount: 0.0001,
+          currency: Currency.WMATIC,
+        };
+        // unlockingTimeStamp = String(
+        //   Math.floor(Date.now() / 1000) + 5 * 60,
+        //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+        // );
+      }
+
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.createBareFile,
         params: {
@@ -691,6 +710,11 @@ function App() {
           fileName,
           encrypted: false,
           storageProvider,
+          isDatatoken,
+          dataUnionId:
+            "kjzl6kcym7w8y6fgvy8egbj9rgrcbjzfwvmzu1376o0nhvfwcxe5hbioji351yw",
+          datatokenVars,
+          unlockingTimeStamp,
         },
       });
       setIndexFileId(res.newFile.fileId);
@@ -770,6 +794,7 @@ function App() {
             amount: 0.0001,
             currency: Currency.WMATIC,
           },
+          dataUnionId,
           unlockingTimeStamp: String(
             Math.floor(Date.now() / 1000) + 5 * 60,
             // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,

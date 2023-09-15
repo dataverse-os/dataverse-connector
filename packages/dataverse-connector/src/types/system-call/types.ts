@@ -97,6 +97,10 @@ export interface RequestType {
     fileName: string;
     encrypted: boolean;
     storageProvider: StorageProvider;
+    isDatatoken?: boolean;
+    dataUnionId?: string;
+    datatokenVars?: Omit<DatatokenVars, "streamId">;
+    unlockingTimeStamp?: string;
   };
   updateBareFile: {
     fileId: string;
@@ -114,8 +118,9 @@ export interface RequestType {
   monetizeFile: {
     fileId: string;
     datatokenVars: DatatokenVars;
-    decryptionConditions?: DecryptionConditions;
     unlockingTimeStamp?: string;
+    dataUnionId?: string;
+    decryptionConditions?: DecryptionConditions;
   };
   removeFiles: {
     fileIds: string[];
