@@ -10,6 +10,7 @@ import {
   RESOURCE,
   SYSTEM_CALL,
   ActionType,
+  StorageResource,
 } from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
@@ -45,10 +46,14 @@ function App() {
   const [appListInfo, setAppListInfo] = useState<string>("");
   const [appInfo, setAppInfo] = useState<string>("");
 
+  const [folders, setFolders] = useState<StructuredFolderRecord>();
   const [folderId, setFolderId] = useState("");
+
+  const [dataUnions, setDataUnions] = useState<StructuredFolderRecord>();
+  const [dataUnionId, setDataUnionId] = useState("");
+
   const [indexFileId, setIndexFileId] = useState("");
   const [actionFileId, setActionFileId] = useState("");
-  const [folders, setFolders] = useState<StructuredFolderRecord>();
   const [
     dataverseProviderHasAddedListener,
     setDataverseProviderHasAddedListener,
@@ -480,6 +485,67 @@ function App() {
   };
   /*** Folders ***/
 
+  /*** DataUnions ***/
+  const readDataUnions = async () => {
+    const dataUnions = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.readDataUnions,
+    });
+    setDataUnions(dataUnions);
+    console.log({ dataUnions });
+    return folders;
+  };
+
+  const createDataUnion = async () => {
+    const profileId = await getProfileId({
+      pkh,
+      lensNickName: "hello123456",
+    });
+
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createDataUnion,
+      params: {
+        dataUnionName: "data union",
+        // contentType: { resource: StorageResource.CERAMIC, resourceId: modelId },
+        // contentType: { resource: StorageResource.IPFS },
+        // actionType: ActionType.LIKE,
+        dataUnionVars: {
+          profileId,
+          collectLimit: 100,
+          amount: 0.0001,
+          currency: Currency.WMATIC,
+        },
+      },
+    });
+    console.log(res);
+    setDataUnionId(res.newDataUnion.folderId);
+    console.log(res.newDataUnion.folderId);
+  };
+
+  const deleteDataUnion = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.deleteDataUnion,
+      params: {
+        dataUnionId,
+      },
+    });
+    console.log(res);
+  };
+
+  const deleteAllDataUnion = async () => {
+    if (!dataUnions) {
+      throw "Please call readDataUnions first";
+    }
+    await Promise.all(
+      Object.keys(dataUnions).map(dataUnionId =>
+        dataverseConnector.runOS({
+          method: SYSTEM_CALL.deleteDataUnion,
+          params: { dataUnionId },
+        }),
+      ),
+    );
+  };
+  /*** DataUnions ***/
+
   /*** Files ***/
   const createFile = async () => {
     const date = new Date().toISOString();
@@ -903,6 +969,12 @@ function App() {
       <button onClick={readFolderById}>readFolderById</button>
       <button onClick={deleteFolder}>deleteFolder</button>
       <button onClick={deleteAllFolder}>deleteAllFolder</button>
+      <br />
+      <br />
+      <button onClick={readDataUnions}>readDataUnions</button>
+      <button onClick={createDataUnion}>createDataUnion</button>
+      <button onClick={deleteDataUnion}>deleteDataUnion</button>
+      <button onClick={deleteAllDataUnion}>deleteAllDataUnion</button>
       <br />
       <br />
       <button onClick={createFile}>createFile</button>

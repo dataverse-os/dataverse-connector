@@ -14,6 +14,10 @@ export enum SYSTEM_CALL {
   updateFolderBaseInfo = "updateFolderBaseInfo",
   deleteFolder = "deleteFolder",
 
+  readDataUnions = "readDataUnions",
+  createDataUnion = "createDataUnion",
+  deleteDataUnion = "deleteDataUnion",
+
   createFile = "createFile",
   updateFile = "updateFile",
   loadFile = "loadFile",

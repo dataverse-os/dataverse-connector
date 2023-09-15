@@ -4,6 +4,8 @@ import { DatatokenVars, DecryptionConditions } from "../data-monetize/types";
 import { FolderType } from "../fs";
 import {
   Action,
+  ActionType,
+  ContentType,
   FileContent,
   MirrorFile,
   MirrorFileRecord,
@@ -44,6 +46,19 @@ export interface RequestType {
   };
   deleteFolder: {
     folderId: string;
+    syncImmediately?: boolean;
+  };
+
+  readDataUnions: void;
+  createDataUnion: {
+    dataUnionName: string;
+    dataUnionDescription?: string;
+    contentType?: ContentType;
+    actionType?: ActionType;
+    dataUnionVars: Omit<DatatokenVars, "streamId">;
+  };
+  deleteDataUnion: {
+    dataUnionId: string;
     syncImmediately?: boolean;
   };
 
@@ -134,6 +149,16 @@ export interface ReturnType {
   deleteFolder: Promise<{
     currentFolder: StructuredFolder;
     allFolders: StructuredFolderRecord;
+  }>;
+
+  readDataUnions: Promise<StructuredFolderRecord>;
+  createDataUnion: Promise<{
+    newDataUnion: StructuredFolder;
+    allDataUnions: StructuredFolderRecord;
+  }>;
+  deleteDataUnion: Promise<{
+    currentDataUnion: StructuredFolder;
+    allDataUnions: StructuredFolderRecord;
   }>;
 
   createFile: Promise<{
