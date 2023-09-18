@@ -97,7 +97,6 @@ export interface RequestType {
     fileName: string;
     encrypted: boolean;
     storageProvider: StorageProvider;
-    isDatatoken?: boolean;
     dataUnionId?: string;
     datatokenVars?: Omit<DatatokenVars, "streamId">;
     unlockingTimeStamp?: string;
@@ -117,7 +116,7 @@ export interface RequestType {
   };
   monetizeFile: {
     fileId: string;
-    datatokenVars: DatatokenVars;
+    datatokenVars?: DatatokenVars;
     unlockingTimeStamp?: string;
     dataUnionId?: string;
     decryptionConditions?: DecryptionConditions;

@@ -710,9 +710,8 @@ function App() {
           fileName,
           encrypted: false,
           storageProvider,
-          isDatatoken,
           dataUnionId:
-            "kjzl6kcym7w8y6fgvy8egbj9rgrcbjzfwvmzu1376o0nhvfwcxe5hbioji351yw",
+            "kjzl6kcym7w8y861tk0jmzwkhb28xnps99ty3rewy8iq3lu9dq5hfa7qu6fgxmb",
           datatokenVars,
           unlockingTimeStamp,
         },
