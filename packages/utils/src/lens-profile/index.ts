@@ -36,9 +36,8 @@ export async function createLensProfile(vars: {
 
   const profileCreationProxy = getProfileCreationProxyContract(signer);
 
-  const estimateGas = await profileCreationProxy.estimateGas.proxyCreateProfile(
-    input,
-  );
+  const estimateGas =
+    await profileCreationProxy.estimateGas.proxyCreateProfile(input);
 
   const tx = await profileCreationProxy.proxyCreateProfile(input, {
     gasLimit: estimateGas.mul(15).div(10),

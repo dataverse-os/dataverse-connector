@@ -1,6 +1,5 @@
 import { convertTxData } from ".";
 import { Contract, ethers } from "ethers";
-import { getAddress } from "viem";
 
 export class ExternalWallet {
   wallet = "ExternalWallet";
@@ -10,38 +9,6 @@ export class ExternalWallet {
 
   setProvider(externalProvider: any) {
     this.externalProvider = externalProvider;
-    const onChainChangedBinder = this.onChainChanged.bind(this);
-    const onAccountsChangedBinder = this.onAccountsChanged.bind(this);
-    externalProvider?.removeAllListeners?.("chainChanged");
-    externalProvider?.removeAllListeners?.("accountsChanged");
-    externalProvider?.on("chainChanged", onChainChangedBinder);
-    externalProvider?.on("accountsChanged", onAccountsChangedBinder);
-  }
-
-  onChainChanged(networkId) {
-    console.log(networkId);
-    this.connectWallet();
-    (window as any).dataverseCommunicator?.sendRequest({
-      method: "chainChanged",
-      params: {
-        chain: { chainId: Number(networkId), chainName: "Unknown" },
-        wallet: this.wallet,
-      },
-      postMessageTo: "Browser",
-    });
-  }
-
-  onAccountsChanged(accounts) {
-    console.log(accounts);
-    this.connectWallet();
-    (window as any).dataverseCommunicator?.sendRequest({
-      method: "accountsChanged",
-      params: {
-        accounts: accounts.map(account => getAddress(account)),
-        wallet: this.wallet,
-      },
-      postMessageTo: "Browser",
-    });
   }
 
   async connectWallet(): Promise<{

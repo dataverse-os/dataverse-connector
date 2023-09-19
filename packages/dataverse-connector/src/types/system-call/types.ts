@@ -100,6 +100,7 @@ export interface RequestType {
     dataUnionId?: string;
     datatokenVars?: Omit<DatatokenVars, "streamId">;
     unlockingTimeStamp?: string;
+    decryptionConditions?: DecryptionConditions;
   };
   updateBareFile: {
     fileId: string;

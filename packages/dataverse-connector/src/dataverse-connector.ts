@@ -132,9 +132,25 @@ export class DataverseConnector {
       this.chain.chainId = chainId;
       this.chain.chainName =
         chainId === 80001 ? "mumbai" : chainId === 1 ? "ethereum" : "Unknown";
+      window.dataverseCommunicator?.sendRequest({
+        method: "chainChanged",
+        params: {
+          chain: { chainId: Number(networkId), chainName: "Unknown" },
+          wallet: this.wallet,
+        },
+        postMessageTo: "Browser",
+      });
     });
     this.externalProvider.on("accountsChanged", (accounts: string[]) => {
       this.address = getAddress(accounts[0]);
+      window.dataverseCommunicator?.sendRequest({
+        method: "accountsChanged",
+        params: {
+          accounts: accounts.map(account => getAddress(account)),
+          wallet: this.wallet,
+        },
+        postMessageTo: "Browser",
+      });
     });
 
     this.isConnected = true;

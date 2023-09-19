@@ -682,9 +682,9 @@ function App() {
 
       console.log(fileBase64);
 
-      const isDatatoken = false;
+      const isDatatoken = true;
       let datatokenVars;
-      let unlockingTimeStamp;
+
       if (isDatatoken) {
         const profileId = await getProfileId({
           pkh,
@@ -696,10 +696,6 @@ function App() {
           amount: 0.0001,
           currency: Currency.WMATIC,
         };
-        // unlockingTimeStamp = String(
-        //   Math.floor(Date.now() / 1000) + 5 * 60,
-        //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
-        // );
       }
 
       const res = await dataverseConnector.runOS({
@@ -713,7 +709,39 @@ function App() {
           dataUnionId:
             "kjzl6kcym7w8y861tk0jmzwkhb28xnps99ty3rewy8iq3lu9dq5hfa7qu6fgxmb",
           datatokenVars,
-          unlockingTimeStamp,
+          // unlockingTimeStamp: String(
+          //   Math.floor(Date.now() / 1000) + 5 * 60,
+          //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+          // ),
+          // decryptionConditions: [
+          //   [
+          //     {
+          //       conditionType: "evmBasic",
+          //       contractAddress: "",
+          //       standardContractType: "",
+          //       chain: "filecoin",
+          //       method: "",
+          //       parameters: [":userAddress"],
+          //       returnValueTest: {
+          //         comparator: "=",
+          //         value: "0xd10d5b408A290a5FD0C2B15074995e899E944444",
+          //       },
+          //     },
+          //     { operator: "or" },
+          //     {
+          //       conditionType: "evmBasic",
+          //       contractAddress: "",
+          //       standardContractType: "",
+          //       chain: "filecoin",
+          //       method: "",
+          //       parameters: [":userAddress"],
+          //       returnValueTest: {
+          //         comparator: "=",
+          //         value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
+          //       },
+          //     },
+          //   ] as any,
+          // ], // Only sell to specific users;
         },
       });
       setIndexFileId(res.newFile.fileId);
@@ -773,31 +801,38 @@ function App() {
         throw "You must connect capability";
       }
 
-      const profileId = await getProfileId({
-        pkh,
-        lensNickName: "hello123456",
-      });
-
       await provider?.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: "0x13881" }],
       });
 
+      const isDatatoken = true;
+      let datatokenVars;
+
+      if (isDatatoken) {
+        const profileId = await getProfileId({
+          pkh,
+          lensNickName: "hello123456",
+        });
+        datatokenVars = {
+          profileId,
+          collectLimit: 100,
+          amount: 0.0001,
+          currency: Currency.WMATIC,
+        };
+      }
+
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.monetizeFile,
         params: {
           fileId: actionFileId || indexFileId,
-          datatokenVars: {
-            profileId,
-            collectLimit: 100,
-            amount: 0.0001,
-            currency: Currency.WMATIC,
-          },
-          dataUnionId,
-          unlockingTimeStamp: String(
-            Math.floor(Date.now() / 1000) + 5 * 60,
-            // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
-          ),
+          datatokenVars,
+          dataUnionId:
+            "kjzl6kcym7w8y861tk0jmzwkhb28xnps99ty3rewy8iq3lu9dq5hfa7qu6fgxmb",
+          // unlockingTimeStamp: String(
+          //   Math.floor(Date.now() / 1000) + 5 * 60,
+          //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+          // ),
           // decryptionConditions: [
           //   [
           //     {
@@ -826,7 +861,7 @@ function App() {
           //       },
           //     },
           //   ] as any,
-          // ], // Only sell to specific users
+          // ], // Only sell to specific users;
         },
       });
 

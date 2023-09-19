@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/dataverse-connector",
-  "version": "1.0.25",
+  "version": "1.0.26",
   "description": "",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",
@@ -21,10 +21,10 @@
     "doc": "pnpm typedoc src/index.ts --out ../../docs/dataverse-connector"
   },
   "dependencies": {
-    "@dataverse/communicator": "^1.0.31",
+    "@dataverse/communicator": "^1.0.34",
     "@dataverse/dapp-table-client": "^1.0.6",
-    "@dataverse/utils": "^1.0.8",
-    "@dataverse/wallet-provider": "^1.0.11",
+    "@dataverse/utils": "^1.0.9",
+    "@dataverse/wallet-provider": "^1.0.12",
     "@ethersproject/abstract-provider": "^5.7.0",
     "@lit-protocol/crypto": "2.1.161",
     "ethers": "5.6.9",
