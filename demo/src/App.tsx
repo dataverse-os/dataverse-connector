@@ -925,10 +925,10 @@ function App() {
     return profileId;
   };
 
-  const collect = async () => {
+  const collectFile = async () => {
     try {
       const res = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.collect,
+        method: SYSTEM_CALL.collectFile,
         params: actionFileId || indexFileId,
       });
       console.log(res);
@@ -937,10 +937,22 @@ function App() {
     }
   };
 
-  const unlock = async () => {
+  const collectDataUnion = async () => {
     try {
       const res = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.unlock,
+        method: SYSTEM_CALL.collectDataUnion,
+        params: dataUnionId,
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const unlockFile = async () => {
+    try {
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.unlockFile,
         params: actionFileId || indexFileId,
       });
       console.log(res);
@@ -1067,8 +1079,9 @@ function App() {
       <br />
       <button onClick={createProfile}>createProfile</button>
       <button onClick={getProfiles}>getProfiles</button>
-      <button onClick={collect}>collect</button>
-      <button onClick={unlock}>unlock</button>
+      <button onClick={collectFile}>collectFile</button>
+      <button onClick={collectDataUnion}>collectDataUnion</button>
+      <button onClick={unlockFile}>unlockFile</button>
       <button onClick={isCollected}>isCollected</button>
       <button onClick={getDatatokenBaseInfo}>getDatatokenBaseInfo</button>
       <br />

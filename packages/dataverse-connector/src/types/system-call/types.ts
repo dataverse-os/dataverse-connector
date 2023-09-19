@@ -127,8 +127,9 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
 
-  collect: string;
-  unlock: string;
+  collectFile: string;
+  collectDataUnion: string;
+  unlockFile: string;
 }
 
 export interface ReturnType {
@@ -246,13 +247,14 @@ export interface ReturnType {
     allFolders: StructuredFolderRecord;
   }>;
 
-  collect: Promise<{
+  collectFile: Promise<{
     fileContent: {
       file: Omit<MirrorFile, "fileKey" | "content" | "external">;
       content: FileContent | string;
     };
   }>;
-  unlock: Promise<{
+  collectDataUnion: Promise<StructuredFolder>;
+  unlockFile: Promise<{
     fileContent: {
       file: Omit<MirrorFile, "fileKey" | "content" | "external">;
       content: FileContent | string;
