@@ -10,6 +10,7 @@ import {
   RESOURCE,
   SYSTEM_CALL,
   ActionType,
+  // StorageResource,
 } from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
@@ -670,6 +671,9 @@ function App() {
     try {
       const file = event.target.files[0];
       console.log(file);
+      if (!file) {
+        return;
+      }
       const fileName = file.name;
 
       const reader = new FileReader();
@@ -682,7 +686,7 @@ function App() {
 
       console.log(fileBase64);
 
-      const isDatatoken = true;
+      const isDatatoken = false;
       let datatokenVars;
 
       if (isDatatoken) {
@@ -706,8 +710,7 @@ function App() {
           fileName,
           encrypted: false,
           storageProvider,
-          dataUnionId:
-            "kjzl6kcym7w8y861tk0jmzwkhb28xnps99ty3rewy8iq3lu9dq5hfa7qu6fgxmb",
+          dataUnionId,
           datatokenVars,
           // unlockingTimeStamp: String(
           //   Math.floor(Date.now() / 1000) + 5 * 60,
@@ -755,6 +758,9 @@ function App() {
     try {
       const file = event.target.files[0];
       console.log(file);
+      if (!file) {
+        return;
+      }
       const fileName = file.name;
 
       const reader = new FileReader();
@@ -806,7 +812,7 @@ function App() {
         params: [{ chainId: "0x13881" }],
       });
 
-      const isDatatoken = true;
+      const isDatatoken = false;
       let datatokenVars;
 
       if (isDatatoken) {
@@ -827,8 +833,7 @@ function App() {
         params: {
           fileId: actionFileId || indexFileId,
           datatokenVars,
-          dataUnionId:
-            "kjzl6kcym7w8y861tk0jmzwkhb28xnps99ty3rewy8iq3lu9dq5hfa7qu6fgxmb",
+          dataUnionId,
           // unlockingTimeStamp: String(
           //   Math.floor(Date.now() / 1000) + 5 * 60,
           //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
