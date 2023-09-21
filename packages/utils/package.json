@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "ethers": "5.6.9",
-    "graphql": "16.6.0",
+    "graphql": "16.8.1",
     "graphql-request": "^6.1.0",
     "viem": "^1.4.1"
   },
