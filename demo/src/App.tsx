@@ -790,6 +790,18 @@ function App() {
     }
   };
 
+  const readBareFileContent = async () => {
+    try {
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.readBareFileContent,
+        params: indexFileId,
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const moveFiles = async () => {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.moveFiles,
@@ -1077,6 +1089,7 @@ function App() {
           style={{ width: "168px", marginLeft: "10px" }}
         />
       </button>
+      <button onClick={readBareFileContent}>readBareFileContent</button>
       <button onClick={moveFiles}>moveFiles</button>
       <button onClick={monetizeFile}>monetizeFile</button>
       <button onClick={removeFiles}>removeFiles</button>

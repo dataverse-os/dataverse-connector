@@ -110,6 +110,7 @@ export interface RequestType {
     storageProvider?: StorageProvider;
     syncImmediately?: boolean;
   };
+  readBareFileContent: string;
   moveFiles: {
     targetFolderId: string;
     fileIds: string[];
@@ -229,6 +230,7 @@ export interface ReturnType {
     currentFolder: StructuredFolder;
     allFolders: StructuredFolderRecord;
   }>;
+  readBareFileContent: Promise<string>;
   moveFiles: Promise<{
     sourceFolders: StructuredFolderRecord;
     targetFolder: StructuredFolder;

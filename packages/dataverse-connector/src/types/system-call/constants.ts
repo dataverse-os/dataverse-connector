@@ -26,6 +26,7 @@ export enum SYSTEM_CALL {
   updateActionFile = "updateActionFile",
   createBareFile = "createBareFile",
   updateBareFile = "updateBareFile",
+  readBareFileContent = "readBareFileContent",
   moveFiles = "moveFiles",
   removeFiles = "removeFiles",
   monetizeFile = "monetizeFile",
