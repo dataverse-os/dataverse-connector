@@ -686,7 +686,7 @@ function App() {
 
       console.log(fileBase64);
 
-      const isDatatoken = false;
+      const isDatatoken = true;
       let datatokenVars;
 
       if (isDatatoken) {
@@ -708,7 +708,7 @@ function App() {
           folderId,
           fileBase64,
           fileName,
-          encrypted: false,
+          encrypted: true,
           storageProvider,
           dataUnionId,
           datatokenVars,
@@ -807,7 +807,7 @@ function App() {
       method: SYSTEM_CALL.moveFiles,
       params: {
         targetFolderId: folderId || (await getDefaultFolderId()),
-        fileIds: [indexFileId || actionFileId],
+        fileIds: [actionFileId || indexFileId],
       },
     });
     console.log(res);
@@ -824,7 +824,7 @@ function App() {
         params: [{ chainId: "0x13881" }],
       });
 
-      const isDatatoken = false;
+      const isDatatoken = true;
       let datatokenVars;
 
       if (isDatatoken) {
@@ -843,7 +843,8 @@ function App() {
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.monetizeFile,
         params: {
-          fileId: actionFileId || indexFileId,
+          // actionFile cannot be monetized to a datatoken
+          fileId: (!isDatatoken && actionFileId) || indexFileId,
           datatokenVars,
           dataUnionId,
           // unlockingTimeStamp: String(
@@ -893,7 +894,7 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.removeFiles,
       params: {
-        fileIds: [indexFileId],
+        fileIds: [actionFileId || indexFileId],
       },
     });
     console.log(res);
