@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   DataverseConnector,
-  FolderType,
   StructuredFolderRecord,
   Currency,
   StorageProviderName,
@@ -406,9 +405,9 @@ function App() {
   /*** Capability ***/
 
   /*** Folders ***/
-  const readFolders = async () => {
+  const loadFolderTrees = async () => {
     const folders = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.readFolders,
+      method: SYSTEM_CALL.loadFolderTrees,
     });
     setFolders(folders);
     console.log({ folders });
@@ -419,7 +418,6 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.createFolder,
       params: {
-        folderType: FolderType.PrivateFolderType,
         folderName: "Private",
       },
     });
@@ -440,9 +438,9 @@ function App() {
     console.log(res);
   };
 
-  const readFolderById = async () => {
+  const loadFolderById = async () => {
     const folder = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.readFolderById,
+      method: SYSTEM_CALL.loadFolderById,
       params: folderId,
     });
     console.log({ folder });
@@ -459,9 +457,9 @@ function App() {
     console.log(res);
   };
 
-  const deleteAllFolder = async () => {
+  const deleteAllFolders = async () => {
     if (!folders) {
-      throw "Please call readFolders first";
+      throw "Please call loadFolderTrees first";
     }
     await Promise.all(
       Object.keys(folders).map(folderId =>
@@ -475,7 +473,7 @@ function App() {
 
   const getDefaultFolderId = async () => {
     if (!folders) {
-      throw "Please call readFolders first";
+      throw "Please call loadFolderTrees first";
     }
     const { defaultFolderName } = await getDAppInfo();
     const folder = Object.values(folders).find(
@@ -486,23 +484,23 @@ function App() {
   /*** Folders ***/
 
   /*** DataUnions ***/
-  const readDataUnions = async () => {
+  const loadDataUnions = async () => {
     const dataUnions = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.readDataUnions,
+      method: SYSTEM_CALL.loadDataUnions,
     });
     setDataUnions(dataUnions);
     console.log({ dataUnions });
     return folders;
   };
 
-  const createDataUnion = async () => {
+  const publishDataUnion = async () => {
     const profileId = await getProfileId({
       pkh,
       lensNickName: "hello123456",
     });
 
     const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.createDataUnion,
+      method: SYSTEM_CALL.publishDataUnion,
       params: {
         dataUnionName: "data union",
         // contentType: { resource: StorageResource.CERAMIC, resourceId: modelId },
@@ -533,7 +531,7 @@ function App() {
 
   const deleteAllDataUnion = async () => {
     if (!dataUnions) {
-      throw "Please call readDataUnions first";
+      throw "Please call loadDataUnions first";
     }
     await Promise.all(
       Object.keys(dataUnions).map(dataUnionId =>
@@ -547,7 +545,7 @@ function App() {
   /*** DataUnions ***/
 
   /*** Files ***/
-  const createFile = async () => {
+  const createIndexFile = async () => {
     const date = new Date().toISOString();
 
     const encrypted = JSON.stringify({
@@ -557,7 +555,7 @@ function App() {
     });
 
     const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.createFile,
+      method: SYSTEM_CALL.createIndexFile,
       params: {
         modelId,
         fileName: "create a file",
@@ -579,7 +577,7 @@ function App() {
     console.log(res);
   };
 
-  const updateFile = async () => {
+  const updateIndexFile = async () => {
     const date = new Date().toISOString();
 
     const encrypted = JSON.stringify({
@@ -589,7 +587,7 @@ function App() {
     });
 
     const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.updateFile,
+      method: SYSTEM_CALL.updateIndexFile,
       params: {
         fileId: indexFileId,
         fileName: "update the file",
@@ -709,6 +707,7 @@ function App() {
           fileBase64,
           fileName,
           encrypted: true,
+          // previewed: true,
           storageProvider,
           dataUnionId,
           datatokenVars,
@@ -790,10 +789,10 @@ function App() {
     }
   };
 
-  const readBareFileContent = async () => {
+  const loadBareFileContent = async () => {
     try {
       const res = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.readBareFileContent,
+        method: SYSTEM_CALL.loadBareFileContent,
         params: indexFileId,
       });
       console.log(res);
@@ -982,16 +981,19 @@ function App() {
   const isCollected = async () => {
     const datatokenId = "0xcF37808924b474f11108a3dbcEF1cA9966bfc1cF";
     const address = "0x312eA852726E3A9f633A0377c0ea882086d66666";
-    const res = await dataverseConnector.isCollected({
-      datatokenId,
-      address,
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.checkIsDataTokenCollectedByAddress,
+      params: { datatokenId, address },
     });
     console.log(res);
   };
 
   const getDatatokenBaseInfo = async () => {
-    const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
-    const res = await dataverseConnector.getDatatokenBaseInfo(datatokenId);
+    const datatokenId = "0x34d50E3b91d43D3df635F454a687492901AB0818";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.getDatatokenBaseInfo,
+      params: datatokenId,
+    });
     console.log(res);
   };
   /*** Monetize ***/
@@ -1052,22 +1054,22 @@ function App() {
       </div>
       <hr />
       <br />
-      <button onClick={readFolders}>readFolders</button>
+      <button onClick={loadFolderTrees}>loadFolderTrees</button>
       <button onClick={createFolder}>createFolder</button>
       <button onClick={updateFolderBaseInfo}>updateFolderBaseInfo</button>
-      <button onClick={readFolderById}>readFolderById</button>
+      <button onClick={loadFolderById}>loadFolderById</button>
       <button onClick={deleteFolder}>deleteFolder</button>
-      <button onClick={deleteAllFolder}>deleteAllFolder</button>
+      <button onClick={deleteAllFolders}>deleteAllFolders</button>
       <br />
       <br />
-      <button onClick={readDataUnions}>readDataUnions</button>
-      <button onClick={createDataUnion}>createDataUnion</button>
+      <button onClick={loadDataUnions}>loadDataUnions</button>
+      <button onClick={publishDataUnion}>publishDataUnion</button>
       <button onClick={deleteDataUnion}>deleteDataUnion</button>
       <button onClick={deleteAllDataUnion}>deleteAllDataUnion</button>
       <br />
       <br />
-      <button onClick={createFile}>createFile</button>
-      <button onClick={updateFile}>updateFile</button>
+      <button onClick={createIndexFile}>createIndexFile</button>
+      <button onClick={updateIndexFile}>updateIndexFile</button>
       <button onClick={loadFile}>loadFile</button>
       <button onClick={loadFilesBy}>loadFilesBy</button>
       <button onClick={createActionFile}>createActionFile</button>
@@ -1090,7 +1092,7 @@ function App() {
           style={{ width: "168px", marginLeft: "10px" }}
         />
       </button>
-      <button onClick={readBareFileContent}>readBareFileContent</button>
+      <button onClick={loadBareFileContent}>loadBareFileContent</button>
       <button onClick={moveFiles}>moveFiles</button>
       <button onClick={monetizeFile}>monetizeFile</button>
       <button onClick={removeFiles}>removeFiles</button>

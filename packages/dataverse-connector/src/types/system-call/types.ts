@@ -1,7 +1,6 @@
 import { StorageProvider } from "../types";
 import { ValidAppCaps } from "../app/types";
 import { DatatokenVars, DecryptionConditions } from "../data-monetize/types";
-import { FolderType } from "../fs";
 import {
   Action,
   ActionType,
@@ -31,10 +30,9 @@ export interface RequestType {
     resource?: RESOURCE;
   };
 
-  readFolders: void;
-  readFolderById: string;
+  loadFolderTrees: void;
+  loadFolderById: string;
   createFolder: {
-    folderType: FolderType;
     folderName: string;
     folderDescription?: string;
   };
@@ -49,8 +47,8 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
 
-  readDataUnions: void;
-  createDataUnion: {
+  loadDataUnions: void;
+  publishDataUnion: {
     dataUnionName: string;
     dataUnionDescription?: string;
     contentType?: ContentType;
@@ -62,22 +60,18 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
 
-  createFile: {
+  createIndexFile: {
     modelId: string;
     fileName?: string;
     fileContent: FileContent;
   };
-  updateFile: {
+  updateIndexFile: {
     fileId: string;
     fileName?: string;
     fileContent?: FileContent;
     syncImmediately?: boolean;
   };
-  loadFile: string;
-  loadFilesBy: {
-    modelId: string;
-    pkh?: string;
-  };
+
   createActionFile: {
     folderId?: string;
     action: Action;
@@ -95,7 +89,8 @@ export interface RequestType {
     folderId?: string;
     fileBase64: string;
     fileName: string;
-    encrypted: boolean;
+    encrypted?: boolean;
+    previewed?: boolean;
     storageProvider: StorageProvider;
     dataUnionId?: string;
     datatokenVars?: Omit<DatatokenVars, "streamId">;
@@ -110,12 +105,24 @@ export interface RequestType {
     storageProvider?: StorageProvider;
     syncImmediately?: boolean;
   };
-  readBareFileContent: string;
   moveFiles: {
     targetFolderId: string;
     fileIds: string[];
     syncImmediately?: boolean;
   };
+
+  removeFiles: {
+    fileIds: string[];
+    syncImmediately?: boolean;
+  };
+
+  loadFile: string;
+  loadFilesBy: {
+    modelId: string;
+    pkh?: string;
+  };
+  loadBareFileContent: string;
+
   monetizeFile: {
     fileId: string;
     datatokenVars?: DatatokenVars;
@@ -123,14 +130,11 @@ export interface RequestType {
     dataUnionId?: string;
     decryptionConditions?: DecryptionConditions;
   };
-  removeFiles: {
-    fileIds: string[];
-    syncImmediately?: boolean;
-  };
-
   collectFile: string;
   collectDataUnion: string;
   unlockFile: string;
+  checkIsDataTokenCollectedByAddress: { datatokenId: string; address: string };
+  getDatatokenBaseInfo: string;
 }
 
 export interface ReturnType {
@@ -143,8 +147,8 @@ export interface ReturnType {
   createCapability: Promise<string>;
   checkCapability: Promise<boolean>;
 
-  readFolders: Promise<StructuredFolderRecord>;
-  readFolderById: Promise<StructuredFolder>;
+  loadFolderTrees: Promise<StructuredFolderRecord>;
+  loadFolderById: Promise<StructuredFolder>;
   createFolder: Promise<{
     newFolder: StructuredFolder;
     allFolders: StructuredFolderRecord;
@@ -158,8 +162,8 @@ export interface ReturnType {
     allFolders: StructuredFolderRecord;
   }>;
 
-  readDataUnions: Promise<StructuredFolderRecord>;
-  createDataUnion: Promise<{
+  loadDataUnions: Promise<StructuredFolderRecord>;
+  publishDataUnion: Promise<{
     newDataUnion: StructuredFolder;
     allDataUnions: StructuredFolderRecord;
   }>;
@@ -168,7 +172,7 @@ export interface ReturnType {
     allDataUnions: StructuredFolderRecord;
   }>;
 
-  createFile: Promise<{
+  createIndexFile: Promise<{
     pkh: string;
     appId: string;
     modelId: string;
@@ -177,12 +181,46 @@ export interface ReturnType {
       content: FileContent;
     };
   }>;
-  updateFile: Promise<{
+  updateIndexFile: Promise<{
     fileContent: {
       file: Omit<MirrorFile, "fileKey" | "content" | "external">;
       content: FileContent;
     };
   }>;
+
+  createActionFile: Promise<{
+    newFile: MirrorFile;
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
+  updateActionFile: Promise<{
+    currentFile: MirrorFile;
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
+  createBareFile: Promise<{
+    newFile: MirrorFile;
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
+  updateBareFile: Promise<{
+    currentFile: MirrorFile;
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
+  moveFiles: Promise<{
+    sourceFolders: StructuredFolderRecord;
+    targetFolder: StructuredFolder;
+    movedFiles: MirrorFileRecord;
+    allFolders: StructuredFolderRecord;
+  }>;
+
+  removeFiles: Promise<{
+    sourceFolders: StructuredFolderRecord;
+    removedFiles: MirrorFileRecord;
+    allFolders: StructuredFolderRecord;
+  }>;
+
   loadFile: Promise<{
     pkh: string;
     appId: string;
@@ -210,45 +248,14 @@ export interface ReturnType {
       }
     >
   >;
-  createActionFile: Promise<{
-    newFile: MirrorFile;
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolderRecord;
-  }>;
-  updateActionFile: Promise<{
-    currentFile: MirrorFile;
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolderRecord;
-  }>;
-  createBareFile: Promise<{
-    newFile: MirrorFile;
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolderRecord;
-  }>;
-  updateBareFile: Promise<{
-    currentFile: MirrorFile;
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolderRecord;
-  }>;
-  readBareFileContent: Promise<string>;
-  moveFiles: Promise<{
-    sourceFolders: StructuredFolderRecord;
-    targetFolder: StructuredFolder;
-    movedFiles: MirrorFileRecord;
-    allFolders: StructuredFolderRecord;
-  }>;
+  loadBareFileContent: Promise<string>;
+
   monetizeFile: Promise<{
     fileContent: {
       file: Omit<MirrorFile, "fileKey" | "content" | "external">;
       content: FileContent | string;
     };
   }>;
-  removeFiles: Promise<{
-    sourceFolders: StructuredFolderRecord;
-    removedFiles: MirrorFileRecord;
-    allFolders: StructuredFolderRecord;
-  }>;
-
   collectFile: Promise<{
     fileContent: {
       file: Omit<MirrorFile, "fileKey" | "content" | "external">;
@@ -262,6 +269,8 @@ export interface ReturnType {
       content: FileContent | string;
     };
   }>;
+  checkIsDataTokenCollectedByAddress: Promise<boolean>;
+  getDatatokenBaseInfo: Promise<any>;
 }
 
 export interface RequestInputs {

@@ -14,8 +14,6 @@ import {
   getLensProfileIdByHandle,
   getLensProfiles,
   detectDataverseExtension,
-  getDatatokenBaseInfo,
-  isCollected,
   ExternalWallet,
 } from "@dataverse/utils";
 import { ethers } from "ethers";
@@ -189,6 +187,8 @@ export class DataverseConnector {
       method !== SYSTEM_CALL.loadFile &&
       method !== SYSTEM_CALL.loadFilesBy &&
       method !== SYSTEM_CALL.getModelBaseInfo &&
+      method !== SYSTEM_CALL.checkIsDataTokenCollectedByAddress &&
+      method !== SYSTEM_CALL.getDatatokenBaseInfo &&
       !this?.isConnected
     ) {
       throw new Error("Please connect wallet first");
@@ -232,19 +232,5 @@ export class DataverseConnector {
 
   async getProfiles(address: string): Promise<{ id: string }[]> {
     return getLensProfiles(address);
-  }
-
-  async isCollected({
-    datatokenId,
-    address,
-  }: {
-    datatokenId: string;
-    address: string;
-  }): Promise<boolean> {
-    return isCollected({ datatokenId, address });
-  }
-
-  async getDatatokenBaseInfo(datatokenId: string): Promise<object> {
-    return getDatatokenBaseInfo(datatokenId);
   }
 }
