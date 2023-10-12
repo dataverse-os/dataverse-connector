@@ -1,4 +1,8 @@
 import {
+  DataTokenType,
+  ChainId,
+} from "@dataverse/dataverse-contracts-sdk/data-token";
+import {
   DecryptionConditions,
   DecryptionConditionsTypes,
 } from "../../data-monetize";
@@ -20,12 +24,14 @@ export enum MonetizationProtocol {
 }
 
 export interface MonetizationProvider {
-  protocol: MonetizationProtocol;
-  chainId: number;
-  baseContract: string;
-  unionContract: string;
+  protocol: DataTokenType;
+  chainId: ChainId;
+  baseContract?: string;
+  unionContract?: string;
   datatokenId?: string;
+  dataUnionId?: string;
   dataUnionIds?: string[];
+  unlockingTimeStamp?: string;
 }
 
 export interface AccessControl {
