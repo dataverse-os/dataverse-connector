@@ -62,7 +62,10 @@ function App() {
     const provider = new WalletProvider();
     console.log(provider);
     const res = await dataverseConnector.connectWallet({
-      ...(_wallet !== WALLET.EXTERNAL_WALLET && { wallet: _wallet }),
+      ...(_wallet !== WALLET.EXTERNAL_WALLET && {
+        wallet: _wallet,
+        preferredAuthType: "twitter",
+      }),
       provider,
     });
     console.log(res);

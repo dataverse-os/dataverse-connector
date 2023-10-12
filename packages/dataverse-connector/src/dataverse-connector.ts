@@ -8,6 +8,7 @@ import {
   WALLET,
   Extension,
   Provider,
+  AuthType,
 } from "./types";
 import {
   createLensProfile,
@@ -58,6 +59,7 @@ export class DataverseConnector {
 
   async connectWallet(params?: {
     wallet?: WALLET | undefined;
+    preferredAuthType?: AuthType;
     provider?: Provider;
   }): Promise<{
     address: string;
@@ -66,9 +68,11 @@ export class DataverseConnector {
   }> {
     let wallet: WALLET;
     let provider: Provider;
+    let preferredAuthType: AuthType;
     if (params) {
       wallet = params.wallet;
       provider = params.provider || window.dataverse;
+      preferredAuthType = params.preferredAuthType;
     } else {
       provider = window.dataverse;
     }
@@ -84,9 +88,10 @@ export class DataverseConnector {
       this.communicator.onRequestMessage(() => {});
 
       const dataverseProvider = new WalletProvider();
-      const res = await dataverseProvider.connectWallet(
-        wallet || provider.wallet,
-      );
+      const res = await dataverseProvider.connectWallet({
+        wallet: wallet || provider.wallet,
+        preferredAuthType,
+      });
 
       if (
         !this.isConnected ||
@@ -123,7 +128,9 @@ export class DataverseConnector {
     this.communicator.onRequestMessage(undefined);
 
     const dataverseProvider = new WalletProvider();
-    const res = await dataverseProvider.connectWallet(WALLET.EXTERNAL_WALLET);
+    const res = await dataverseProvider.connectWallet({
+      wallet: WALLET.EXTERNAL_WALLET,
+    });
 
     this.externalProvider.removeAllListeners("chainChanged");
     this.externalProvider.removeAllListeners("accountsChanged");
