@@ -1,9 +1,17 @@
 export { Currency } from "./constants";
 
-export { DecryptionConditionsTypes } from "./constants";
+export {
+  ChainId,
+  DatatokenType,
+  LensCollectModule,
+  ProfilelessCollectModule,
+  CyberMiddleWare,
+  DecryptionConditionsTypes,
+} from "./constants";
 
 export type {
   DatatokenVars,
+  CollectModule,
   DecryptionConditions,
   AccessControlCondition,
   BooleanCondition,

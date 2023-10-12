@@ -1,3 +1,5 @@
+import { DataTokenType } from "@dataverse/dataverse-contracts-sdk/data-token";
+
 export enum Currency {
   USDC = "USDC",
   DAI = "DAI",
@@ -9,3 +11,12 @@ export enum DecryptionConditionsTypes {
   AccessControlCondition = "AccessControlCondition",
   UnifiedAccessControlCondition = "UnifiedAccessControlCondition",
 }
+
+export {
+  ChainId,
+  LensCollectModule,
+  ProfilelessCollectModule,
+  CyberMiddleWare,
+} from "@dataverse/dataverse-contracts-sdk/data-token";
+
+export { DataTokenType as DatatokenType };

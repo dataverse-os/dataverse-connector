@@ -9,6 +9,9 @@ import {
   RESOURCE,
   SYSTEM_CALL,
   ActionType,
+  DatatokenType,
+  LensCollectModule,
+  ChainId,
   // StorageResource,
 } from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
@@ -32,7 +35,7 @@ const storageProvider = {
 
 function App() {
   const [address, setAddress] = useState("");
-  const [wallet, setWallet] = useState<WALLET>();
+  const [wallet, setWallet] = useState<WALLET>(WALLET.PARTICLE);
   const [pkh, setPkh] = useState("");
   const [currentPkh, setCurrentPkh] = useState("");
   const [pkpWallet, setPKPWallet] = useState({
@@ -507,6 +510,9 @@ function App() {
         // contentType: { resource: StorageResource.IPFS },
         // actionType: ActionType.LIKE,
         dataUnionVars: {
+          chainId: ChainId.Mumbai,
+          type: DatatokenType.Lens,
+          collectModule: LensCollectModule.LimitedFeeCollectModule,
           profileId,
           collectLimit: 100,
           amount: 0.0001,
@@ -693,6 +699,9 @@ function App() {
           lensNickName: "hello123456",
         });
         datatokenVars = {
+          chainId: ChainId.Mumbai,
+          type: DatatokenType.Lens,
+          collectModule: LensCollectModule.LimitedFeeCollectModule,
           profileId,
           collectLimit: 100,
           amount: 0.0001,
@@ -818,11 +827,6 @@ function App() {
         throw "You must connect capability";
       }
 
-      await provider?.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x13881" }],
-      });
-
       const isDatatoken = true;
       let datatokenVars;
 
@@ -832,6 +836,9 @@ function App() {
           lensNickName: "hello123456",
         });
         datatokenVars = {
+          chainId: ChainId.Mumbai,
+          type: DatatokenType.Lens,
+          collectModule: LensCollectModule.LimitedFeeCollectModule,
           profileId,
           collectLimit: 100,
           amount: 0.0001,

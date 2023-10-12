@@ -53,7 +53,7 @@ export interface RequestType {
     dataUnionDescription?: string;
     contentType?: ContentType;
     actionType?: ActionType;
-    dataUnionVars: Omit<DatatokenVars, "streamId">;
+    dataUnionVars: DatatokenVars;
   };
   deleteDataUnion: {
     dataUnionId: string;
@@ -93,7 +93,7 @@ export interface RequestType {
     previewed?: boolean;
     storageProvider: StorageProvider;
     dataUnionId?: string;
-    datatokenVars?: Omit<DatatokenVars, "streamId">;
+    datatokenVars?: DatatokenVars;
     unlockingTimeStamp?: string;
     decryptionConditions?: DecryptionConditions;
   };
