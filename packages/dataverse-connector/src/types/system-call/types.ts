@@ -1,6 +1,10 @@
 import { StorageProvider } from "../types";
 import { ValidAppCaps } from "../app/types";
-import { DatatokenVars, DecryptionConditions } from "../data-monetize/types";
+import {
+  DataUnionVars,
+  DatatokenVars,
+  DecryptionConditions,
+} from "../data-monetize/types";
 import {
   Action,
   ActionType,
@@ -53,7 +57,7 @@ export interface RequestType {
     dataUnionDescription?: string;
     contentType?: ContentType;
     actionType?: ActionType;
-    dataUnionVars: DatatokenVars;
+    dataUnionVars: DataUnionVars;
   };
   deleteDataUnion: {
     dataUnionId: string;

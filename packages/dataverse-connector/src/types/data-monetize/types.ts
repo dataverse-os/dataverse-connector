@@ -4,8 +4,17 @@ import {
   CreateDataTokenInput,
 } from "@dataverse/dataverse-contracts-sdk/data-token";
 
+import { PublishDataUnionInput } from "@dataverse/dataverse-contracts-sdk/data-union";
+
 export type DatatokenVars = Omit<CreateDataTokenInput, "contentURI"> & {
   chainId: ChainId;
+};
+
+export type DataUnionVars = Omit<
+  PublishDataUnionInput,
+  "createDataTokenInput"
+> & {
+  datatokenVars: DatatokenVars;
 };
 
 export type { CollectModule };
