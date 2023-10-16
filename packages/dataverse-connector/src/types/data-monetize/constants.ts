@@ -19,4 +19,9 @@ export {
   CyberMiddleWare,
 } from "@dataverse/dataverse-contracts-sdk/data-token";
 
+export {
+  SubscribeModule,
+  SubscribeTimeSegment,
+} from "@dataverse/dataverse-contracts-sdk/data-union";
+
 export { DataTokenType as DatatokenType };

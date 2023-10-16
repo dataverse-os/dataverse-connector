@@ -12,6 +12,8 @@ import {
   DatatokenType,
   LensCollectModule,
   ChainId,
+  SubscribeModule,
+  SubscribeTimeSegment,
   // StorageResource,
 } from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
@@ -513,13 +515,22 @@ function App() {
         // contentType: { resource: StorageResource.IPFS },
         // actionType: ActionType.LIKE,
         dataUnionVars: {
-          chainId: ChainId.Mumbai,
-          type: DatatokenType.Lens,
-          collectModule: LensCollectModule.LimitedFeeCollectModule,
-          profileId,
-          collectLimit: 100,
-          amount: 0.0001,
-          currency: Currency.WMATIC,
+          datatokenVars: {
+            chainId: ChainId.Mumbai,
+            type: DatatokenType.Lens,
+            collectModule: LensCollectModule.LimitedFeeCollectModule,
+            profileId,
+            collectLimit: 100,
+            amount: 0.0001,
+            currency: Currency.WMATIC,
+          },
+          resourceId: "",
+          subscribeModule: SubscribeModule.TimeSegmentSubscribeModule,
+          subscribeModuleInput: {
+            amount: 0.0001,
+            currency: Currency.WMATIC,
+            segment: SubscribeTimeSegment.Week,
+          },
         },
       },
     });

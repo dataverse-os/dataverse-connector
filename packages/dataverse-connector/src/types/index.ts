@@ -21,6 +21,8 @@ export {
   ProfilelessCollectModule,
   CyberMiddleWare,
   DecryptionConditionsTypes,
+  SubscribeModule,
+  SubscribeTimeSegment,
   type DatatokenVars,
   type CollectModule,
   type DecryptionConditions,
