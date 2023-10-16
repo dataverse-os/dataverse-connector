@@ -5,7 +5,14 @@ declare global {
   interface Window {
     dataverse: {
       isDataverse: boolean;
-      connectWallet: (wallet: string) => Promise<{
+      connectWallet: (
+        params:
+          | {
+              wallet?: string;
+              preferredAuthType?: string;
+            }
+          | undefined,
+      ) => Promise<{
         address: string;
         chain: { chainId: number; chainName: string };
         wallet: string;

@@ -32,7 +32,9 @@ export class DataverseWalletConnector extends Connector {
 
     const currentWallet = await provider.getCurrentWallet();
     if (currentWallet) {
-      const res = await provider.connectWallet(currentWallet.wallet);
+      const res = await provider.connectWallet({
+        wallet: currentWallet.wallet,
+      });
       this.storage?.setItem("DataverseConnector_isConnected", true);
 
       provider.on("accountsChanged", this.onAccountsChanged);
