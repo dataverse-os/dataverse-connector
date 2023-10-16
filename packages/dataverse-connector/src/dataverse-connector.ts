@@ -9,6 +9,7 @@ import {
   Extension,
   Provider,
   AuthType,
+  ChainId,
 } from "./types";
 import {
   createLensProfile,
@@ -234,10 +235,16 @@ export class DataverseConnector {
     const signer = provider.getSigner();
     const id = await getLensProfileIdByHandle({ handle, signer });
     if (id != 0) throw new Error("Handle is taken, try a new handle.");
-    return createLensProfile({ handle, signer });
+    return createLensProfile({ chainId: ChainId.Mumbai, handle, signer });
   }
 
   async getProfiles(address: string): Promise<{ id: string }[]> {
-    return getLensProfiles(address);
+    const provider = new ethers.providers.Web3Provider(this.provider, "any");
+    const res = await getLensProfiles({
+      chainId: ChainId.Mumbai,
+      account: address,
+      signerOrProvider: provider,
+    });
+    return res.map(item => ({ id: item.toHexString() }));
   }
 }
