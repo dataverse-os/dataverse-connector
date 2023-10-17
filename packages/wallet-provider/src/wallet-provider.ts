@@ -27,6 +27,7 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
     chainName: string;
   };
   wallet?: string;
+  userInfo?: any;
 
   constructor() {
     super();
@@ -52,6 +53,7 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
     this.address = res.address;
     this.chain = res.chain;
     this.wallet = res.wallet;
+    this.userInfo = res.userInfo;
     const provider = new ethers.providers.Web3Provider(this, "any");
     this.signer = provider.getSigner();
     return res;
