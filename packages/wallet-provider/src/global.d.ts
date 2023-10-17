@@ -16,6 +16,7 @@ declare global {
         address: string;
         chain: { chainId: number; chainName: string };
         wallet: string;
+        userInfo?: any;
       }>;
       getCurrentWallet: () => Promise<{
         address: string;

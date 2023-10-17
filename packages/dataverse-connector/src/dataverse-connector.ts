@@ -34,6 +34,7 @@ export class DataverseConnector {
   address?: string;
   chain?: Chain;
   appId?: string;
+  userInfo?: any;
 
   constructor() {
     if (!window.externalWallet) {
@@ -65,6 +66,7 @@ export class DataverseConnector {
     address: string;
     chain: Chain;
     wallet: WALLET;
+    userInfo?: any;
   }> {
     let wallet: WALLET;
     let provider: Provider;
@@ -112,6 +114,7 @@ export class DataverseConnector {
       this.wallet = res.wallet as WALLET;
       this.address = res.address;
       this.chain = res.chain;
+      this.userInfo = res.userInfo;
       this.provider = dataverseProvider;
       this.dataverseProvider = dataverseProvider;
 
@@ -119,6 +122,7 @@ export class DataverseConnector {
         wallet: this.wallet,
         address: this.address,
         chain: this.chain,
+        userInfo: this.userInfo,
       };
     }
 
@@ -148,12 +152,14 @@ export class DataverseConnector {
     this.wallet = res.wallet as WALLET;
     this.address = res.address;
     this.chain = res.chain;
+    this.userInfo = res.userInfo;
     this.provider = this.externalProvider;
 
     return {
       wallet: this.wallet,
       address: this.address,
       chain: this.chain,
+      userInfo: this.userInfo,
     };
   }
 
