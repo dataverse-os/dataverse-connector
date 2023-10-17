@@ -5,8 +5,7 @@ export {
   SignMethod,
 } from "./constants";
 export type { StorageProvider, Provider } from "./types";
-export { WALLET, type Chain } from "./wallet";
-export { RESOURCE } from "./wallet";
+export { RESOURCE, WALLET, type Chain, type AuthType } from "./wallet";
 export {
   Apps,
   ModelName,

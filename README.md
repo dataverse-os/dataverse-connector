@@ -56,8 +56,10 @@ const dataverseConnector = new DataverseConnector();
 ```
 
 ## Functions
-
-**`dataverseConnector.connectWallet({ wallet: WALLET.METAMASK })`**
+### connectWallet
+```js
+dataverseConnector.connectWallet({ wallet: WALLET.METAMASK })
+```
 
 Connect with user wallet. pass in which wallet you want to connect with,
 currently support MetaMask, WalletConnect, Coinbase and Particle Network.
@@ -93,7 +95,17 @@ enum WALLET {
 
 <br>
 
-**`dataverseConnector.createCapability({ appId: string, resource: RESOURCE, wallet: WALLET })`**
+### createCapability
+
+```js
+dataverseConnector.runOS({
+  method: SYSTEM_CALL.createCapability,
+  params: {
+    appId,
+    resource: RESOURCE.CERAMIC,
+  }
+})
+```
 
 Create a capability for the application to access the data resources.
 
@@ -104,8 +116,7 @@ Create a capability for the application to access the data resources.
     CERAMIC,
   }
   ```
-  This method will open a popup and ask the user to sign a message to create a
-  capability. The message will be like this.
+This method will open a popup and ask the user to sign a message as a capability - grant access for this application to user's data. The message will be in the format below:
 
 ```yaml
 Message:
@@ -146,7 +157,7 @@ did:pkh:eip155:1:0x29761660d6Cb26a08e9A9c7de12E0038eE9cb623
 
 <br>
 
-check all functions in [docs](https://docs.dataverse-os.com/sdk/apis).
+check all functions in [docs](https://docs.dataverse-os.com/wallet-apis/connectWallet).
 
 ## License
 

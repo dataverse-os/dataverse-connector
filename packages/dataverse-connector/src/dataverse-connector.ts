@@ -8,6 +8,7 @@ import {
   WALLET,
   Extension,
   Provider,
+  AuthType,
 } from "./types";
 import {
   createLensProfile,
@@ -31,6 +32,7 @@ export class DataverseConnector {
   address?: string;
   chain?: Chain;
   appId?: string;
+  userInfo?: any;
 
   constructor() {
     if (!window.externalWallet) {
@@ -56,17 +58,21 @@ export class DataverseConnector {
 
   async connectWallet(params?: {
     wallet?: WALLET | undefined;
+    preferredAuthType?: AuthType;
     provider?: Provider;
   }): Promise<{
     address: string;
     chain: Chain;
     wallet: WALLET;
+    userInfo?: any;
   }> {
     let wallet: WALLET;
     let provider: Provider;
+    let preferredAuthType: AuthType;
     if (params) {
       wallet = params.wallet;
       provider = params.provider || window.dataverse;
+      preferredAuthType = params.preferredAuthType;
     } else {
       provider = window.dataverse;
     }
@@ -82,9 +88,10 @@ export class DataverseConnector {
       this.communicator.onRequestMessage(() => {});
 
       const dataverseProvider = new WalletProvider();
-      const res = await dataverseProvider.connectWallet(
-        wallet || provider.wallet,
-      );
+      const res = await dataverseProvider.connectWallet({
+        wallet: wallet || provider.wallet,
+        preferredAuthType,
+      });
 
       if (
         !this.isConnected ||
@@ -105,6 +112,7 @@ export class DataverseConnector {
       this.wallet = res.wallet as WALLET;
       this.address = res.address;
       this.chain = res.chain;
+      this.userInfo = res.userInfo;
       this.provider = dataverseProvider;
       this.dataverseProvider = dataverseProvider;
 
@@ -112,6 +120,7 @@ export class DataverseConnector {
         wallet: this.wallet,
         address: this.address,
         chain: this.chain,
+        userInfo: this.userInfo,
       };
     }
 
@@ -121,7 +130,9 @@ export class DataverseConnector {
     this.communicator.onRequestMessage(undefined);
 
     const dataverseProvider = new WalletProvider();
-    const res = await dataverseProvider.connectWallet(WALLET.EXTERNAL_WALLET);
+    const res = await dataverseProvider.connectWallet({
+      wallet: WALLET.EXTERNAL_WALLET,
+    });
 
     this.externalProvider.removeAllListeners("chainChanged");
     this.externalProvider.removeAllListeners("accountsChanged");
@@ -155,12 +166,14 @@ export class DataverseConnector {
     this.wallet = res.wallet as WALLET;
     this.address = res.address;
     this.chain = res.chain;
+    this.userInfo = res.userInfo;
     this.provider = this.externalProvider;
 
     return {
       wallet: this.wallet,
       address: this.address,
       chain: this.chain,
+      userInfo: this.userInfo,
     };
   }
 
