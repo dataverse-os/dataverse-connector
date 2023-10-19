@@ -16,3 +16,20 @@ export interface PkhObject {
   pkh: string;
   wallet: WALLET;
 }
+
+export declare const AuthTypes: readonly [
+  "email",
+  "phone",
+  "facebook",
+  "google",
+  "apple",
+  "discord",
+  "github",
+  "twitch",
+  "twitter",
+  "microsoft",
+  "linkedin",
+  "jwt",
+];
+declare type AuthTypeTuple = typeof AuthTypes;
+export declare type AuthType = AuthTypeTuple[number];
