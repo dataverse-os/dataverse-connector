@@ -23,6 +23,7 @@ export interface RequestType {
   createCapability: {
     appId: string;
     resource?: RESOURCE;
+    refetchDappTable?: boolean;
   };
   checkCapability: {
     appId: string;

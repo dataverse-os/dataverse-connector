@@ -367,6 +367,7 @@ function App() {
       params: {
         appId,
         resource: RESOURCE.CERAMIC,
+        refetchDappTable: true,
       },
     });
     setPkh(pkh);
