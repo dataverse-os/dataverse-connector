@@ -4,6 +4,10 @@ import {
   DataUnionVars,
   DatatokenVars,
   DecryptionConditions,
+  DataTokenGraphType,
+  Datatoken_Collector,
+  DataUnionGraphType,
+  Data_Union_Subscriber,
 } from "../data-monetize/types";
 import {
   Action,
@@ -126,6 +130,8 @@ export interface RequestType {
     pkh?: string;
   };
   loadBareFileContent: string;
+  loadCreatedDatatokenFiles: void;
+  loadCollectedDatatokenFiles: void;
 
   monetizeFile: {
     fileId: string;
@@ -137,8 +143,28 @@ export interface RequestType {
   collectFile: string;
   collectDataUnion: string;
   unlockFile: string;
-  checkIsDataTokenCollectedByAddress: { datatokenId: string; address: string };
-  getDatatokenBaseInfo: string;
+
+  loadDatatokensByCreator: string;
+  loadDatatokensByCollector: string;
+  loadDatatokenDetail: string;
+  loadDatatokenCollectors: string;
+  isDatatokenCollectedBy: { datatokenId: string; collector: string };
+
+  loadDataUnionsByPublisher: string;
+  loadDataUnionsByCollector: string;
+  loadDataUnionDetail: string;
+  loadDataUnionCollectors: string;
+  loadDataUnionSubscribers: string;
+  isDataUnionCollectedBy: {
+    dataUnionId: string;
+    collector: string;
+  };
+  isDataUnionSubscribedBy: {
+    dataUnionId: string;
+    subscriber: string;
+    blockNumber?: number;
+    timestamp?: number;
+  };
 }
 
 export interface ReturnType {
@@ -253,6 +279,8 @@ export interface ReturnType {
     >
   >;
   loadBareFileContent: Promise<string>;
+  loadCreatedDatatokenFiles: Promise<MirrorFileRecord>;
+  loadCollectedDatatokenFiles: Promise<MirrorFileRecord>;
 
   monetizeFile: Promise<{
     fileContent: {
@@ -273,8 +301,20 @@ export interface ReturnType {
       content: FileContent | string;
     };
   }>;
-  checkIsDataTokenCollectedByAddress: Promise<boolean>;
-  getDatatokenBaseInfo: Promise<any>;
+
+  loadDatatokensByCreator: Promise<Array<DataTokenGraphType>>;
+  loadDatatokensByCollector: Promise<Datatoken_Collector[]>;
+  loadDatatokenDetail: Promise<DataTokenGraphType>;
+  loadDatatokenCollectors: Promise<Datatoken_Collector[]>;
+  isDatatokenCollectedBy: Promise<boolean>;
+
+  loadDataUnionsByPublisher: Promise<Array<DataUnionGraphType>>;
+  loadDataUnionsByCollector: Promise<Data_Union_Subscriber[]>;
+  loadDataUnionDetail: Promise<DataUnionGraphType>;
+  loadDataUnionCollectors: Promise<Data_Union_Subscriber[]>;
+  loadDataUnionSubscribers: Promise<Data_Union_Subscriber[]>;
+  isDataUnionCollectedBy: Promise<boolean>;
+  isDataUnionSubscribedBy: Promise<boolean>;
 }
 
 export interface RequestInputs {

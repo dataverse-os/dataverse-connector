@@ -1,6 +1,7 @@
 import {
   DataTokenType,
   ChainId,
+  DataTokenGraphType,
 } from "@dataverse/dataverse-contracts-sdk/data-token";
 import {
   DecryptionConditions,
@@ -32,6 +33,7 @@ export interface MonetizationProvider {
   dataUnionId?: string;
   dataUnionIds?: string[];
   unlockingTimeStamp?: string;
+  datatokenDetail?: DataTokenGraphType;
 }
 
 export interface AccessControl {

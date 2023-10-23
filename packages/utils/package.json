@@ -21,7 +21,7 @@
     "doc": "pnpm typedoc src/index.ts --out ../../docs/utils"
   },
   "dependencies": {
-    "@dataverse/dataverse-contracts-sdk": "^1.0.8",
+    "@dataverse/dataverse-contracts-sdk": "^1.0.16",
     "ethers": "^5.7.2",
     "graphql": "16.6.0",
     "graphql-request": "^6.1.0",

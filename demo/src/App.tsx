@@ -10,11 +10,9 @@ import {
   SYSTEM_CALL,
   ActionType,
   DatatokenType,
-  LensCollectModule,
   ChainId,
-  SubscribeModule,
-  SubscribeTimeSegment,
-  // StorageResource,
+  DatatokenVars,
+  StorageResource,
 } from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
@@ -27,6 +25,8 @@ export const appId = "a3f0ac63-ff7d-4085-aade-c04888b71088";
 
 const modelId =
   "kjzl6hvfrbw6catek36h3pep09k9gymfnla9k6ojlgrmwjogvjqg8q3zpybl1yu";
+
+const chainId = ChainId.Mumbai;
 
 const postVersion = "0.0.1";
 
@@ -56,7 +56,9 @@ function App() {
   const [dataUnions, setDataUnions] = useState<StructuredFolderRecord>();
   const [dataUnionId, setDataUnionId] = useState("");
 
-  const [indexFileId, setIndexFileId] = useState("");
+  const [indexFileId, setIndexFileId] = useState(
+    "kjzl6kcym7w8y78easx82i29nz1di702vyxlmwrdnh2ksncohf383kkeq67oqxi",
+  );
   const [actionFileId, setActionFileId] = useState("");
   const [
     dataverseProviderHasAddedListener,
@@ -502,7 +504,7 @@ function App() {
   };
 
   const publishDataUnion = async () => {
-    const profileId = await getProfileId({
+    const profileId = await getOrCreateProfileId({
       pkh,
       lensNickName: "hello123456",
     });
@@ -516,20 +518,20 @@ function App() {
         // actionType: ActionType.LIKE,
         dataUnionVars: {
           datatokenVars: {
-            chainId: ChainId.Mumbai,
+            chainId,
             type: DatatokenType.Lens,
-            collectModule: LensCollectModule.LimitedFeeCollectModule,
+            collectModule: "LimitedFeeCollectModule",
             profileId,
             collectLimit: 100,
             amount: 0.0001,
             currency: Currency.WMATIC,
           },
           resourceId: "",
-          subscribeModule: SubscribeModule.TimeSegmentSubscribeModule,
+          subscribeModule: "TimeSegmentSubscribeModule",
           subscribeModuleInput: {
             amount: 0.0001,
             currency: Currency.WMATIC,
-            segment: SubscribeTimeSegment.Week,
+            segment: "Week",
           },
         },
       },
@@ -646,6 +648,20 @@ function App() {
     console.log(fileRecord);
   };
 
+  const loadCreatedDatatokenFiles = async () => {
+    const fileRecord = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadCreatedDatatokenFiles,
+    });
+    console.log(fileRecord);
+  };
+
+  const loadCollectedDatatokenFiles = async () => {
+    const fileRecord = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadCollectedDatatokenFiles,
+    });
+    console.log(fileRecord);
+  };
+
   const createActionFile = async () => {
     if (!indexFileId) {
       throw "RelationId cannnot be empty";
@@ -705,17 +721,17 @@ function App() {
       console.log(fileBase64);
 
       const isDatatoken = true;
-      let datatokenVars;
+      let datatokenVars: DatatokenVars | undefined = undefined;
 
       if (isDatatoken) {
-        const profileId = await getProfileId({
+        const profileId = await getOrCreateProfileId({
           pkh,
           lensNickName: "hello123456",
         });
         datatokenVars = {
-          chainId: ChainId.Mumbai,
+          chainId,
           type: DatatokenType.Lens,
-          collectModule: LensCollectModule.LimitedFeeCollectModule,
+          collectModule: "LimitedFeeCollectModule",
           profileId,
           collectLimit: 100,
           amount: 0.0001,
@@ -842,17 +858,17 @@ function App() {
       }
 
       const isDatatoken = true;
-      let datatokenVars;
+      let datatokenVars: DatatokenVars | undefined = undefined;
 
       if (isDatatoken) {
-        const profileId = await getProfileId({
+        const profileId = await getOrCreateProfileId({
           pkh,
           lensNickName: "hello123456",
         });
         datatokenVars = {
-          chainId: ChainId.Mumbai,
+          chainId,
           type: DatatokenType.Lens,
-          collectModule: LensCollectModule.LimitedFeeCollectModule,
+          collectModule: "LimitedFeeCollectModule",
           profileId,
           collectLimit: 100,
           amount: 0.0001,
@@ -921,48 +937,7 @@ function App() {
   };
   /*** Files ***/
 
-  /*** Monetize ***/
-  const createProfile = async () => {
-    await provider?.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: "0x13881" }],
-    });
-    const res = await dataverseConnector.createProfile("test01");
-    console.log(res);
-  };
-
-  const getProfiles = async () => {
-    const res = await dataverseConnector.getProfiles(address);
-    console.log(res);
-  };
-
-  const getProfileId = async ({
-    pkh,
-    lensNickName,
-  }: {
-    pkh: string;
-    lensNickName?: string;
-  }) => {
-    const lensProfiles = await dataverseConnector.getProfiles(
-      pkh.slice(pkh.lastIndexOf(":") + 1),
-    );
-
-    let profileId;
-    if (lensProfiles?.[0]?.id) {
-      profileId = lensProfiles?.[0]?.id;
-    } else {
-      if (!lensNickName) {
-        throw "Please pass in lensNickName";
-      }
-      if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
-        throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
-      }
-      profileId = await dataverseConnector.createProfile(lensNickName);
-    }
-
-    return profileId;
-  };
-
+  /*** Collect and Unlock ***/
   const collectFile = async () => {
     try {
       const res = await dataverseConnector.runOS({
@@ -998,26 +973,200 @@ function App() {
       console.error(error);
     }
   };
+  /*** Collect and Unlock ***/
 
-  const isCollected = async () => {
-    const datatokenId = "0xcF37808924b474f11108a3dbcEF1cA9966bfc1cF";
-    const address = "0x312eA852726E3A9f633A0377c0ea882086d66666";
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.checkIsDataTokenCollectedByAddress,
-      params: { datatokenId, address },
+  /*** Profile ***/
+  const createProfile = async () => {
+    await provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
+    });
+    const res = await dataverseConnector.createProfile({
+      chainId,
+      handle: "test01",
     });
     console.log(res);
   };
 
-  const getDatatokenBaseInfo = async () => {
-    const datatokenId = "0x34d50E3b91d43D3df635F454a687492901AB0818";
+  const getProfiles = async () => {
+    const res = await dataverseConnector.getProfiles({
+      chainId,
+      address,
+    });
+    console.log(res);
+  };
+
+  const getProfileIdByHandle = async () => {
+    const res = await dataverseConnector.getProfileIdByHandle({
+      chainId,
+      handle: "nickname1687838298915.test",
+    });
+    console.log(res);
+  };
+
+  const getHandleByProfileId = async () => {
+    const res = await dataverseConnector.getHandleByProfileId({
+      chainId,
+      profileId: "0x8739",
+    });
+    console.log(res);
+  };
+
+  const getOrCreateProfileId = async ({
+    pkh,
+    lensNickName,
+  }: {
+    pkh: string;
+    lensNickName?: string;
+  }) => {
+    const chainId = ChainId.Mumbai;
+    const lensProfiles = await dataverseConnector.getProfiles({
+      chainId,
+      address: pkh.slice(pkh.lastIndexOf(":") + 1),
+    });
+    let profileId;
+    if (lensProfiles?.[0]?.id) {
+      profileId = lensProfiles?.[0]?.id;
+    } else {
+      if (!lensNickName) {
+        throw "Please pass in lensNickName";
+      }
+      if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
+        throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
+      }
+      profileId = await dataverseConnector.createProfile({
+        chainId,
+        handle: lensNickName,
+      });
+    }
+
+    return profileId;
+  };
+  /*** Profile ***/
+
+  /*** Query Datatoken ***/
+  const loadDatatokensByCreator = async () => {
     const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.getDatatokenBaseInfo,
+      method: SYSTEM_CALL.loadDatatokensByCreator,
+      params: address,
+    });
+    console.log(res);
+  };
+
+  const loadDatatokensByCollector = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDatatokensByCollector,
+      params: address,
+    });
+    console.log(res);
+  };
+
+  const loadDatatokenDetail = async () => {
+    const datatokenId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDatatokenDetail,
       params: datatokenId,
     });
     console.log(res);
   };
-  /*** Monetize ***/
+
+  const loadDatatokenCollectors = async () => {
+    const datatokenId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDatatokenCollectors,
+      params: datatokenId,
+    });
+    console.log(res);
+  };
+
+  const isDatatokenCollectedBy = async () => {
+    const datatokenId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.isDatatokenCollectedBy,
+      params: { datatokenId, collector: address },
+    });
+    console.log(res);
+  };
+  /*** Query Datatoken ***/
+
+  /*** Query DataUnion ***/
+  const loadDataUnionsByPublisher = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionsByPublisher,
+      params: address,
+    });
+    console.log(res);
+  };
+
+  const loadDataUnionsByCollector = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionsByCollector,
+      params: address,
+    });
+    console.log(res);
+  };
+
+  const loadDataUnionDetail = async () => {
+    const dataUnionId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionDetail,
+      params: dataUnionId,
+    });
+    console.log(res);
+  };
+
+  const loadDataUnionCollectors = async () => {
+    const dataUnionId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionCollectors,
+      params: dataUnionId,
+    });
+    console.log(res);
+  };
+
+  const loadDataUnionSubscribers = async () => {
+    const dataUnionId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionSubscribers,
+      params: dataUnionId,
+    });
+    console.log(res);
+  };
+
+  const isDataUnionCollectedBy = async () => {
+    const dataUnionId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.isDataUnionCollectedBy,
+      params: {
+        dataUnionId,
+        collector: address,
+      },
+    });
+    console.log(res);
+  };
+
+  const isDataUnionSubscribedBy = async () => {
+    const dataUnionId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.isDataUnionSubscribedBy,
+      params: {
+        dataUnionId,
+        subscriber: address,
+        timestamp: 0,
+      },
+    });
+    console.log(res);
+  };
+
+  /*** Query DataUnion ***/
 
   return (
     <div className='App'>
@@ -1093,6 +1242,12 @@ function App() {
       <button onClick={updateIndexFile}>updateIndexFile</button>
       <button onClick={loadFile}>loadFile</button>
       <button onClick={loadFilesBy}>loadFilesBy</button>
+      <button onClick={loadCreatedDatatokenFiles}>
+        loadCreatedDatatokenFiles
+      </button>
+      <button onClick={loadCollectedDatatokenFiles}>
+        loadCollectedDatatokenFiles
+      </button>
       <button onClick={createActionFile}>createActionFile</button>
       <button onClick={updateActionFile}>updateActionFile</button>
       <button>
@@ -1119,13 +1274,39 @@ function App() {
       <button onClick={removeFiles}>removeFiles</button>
       <br />
       <br />
-      <button onClick={createProfile}>createProfile</button>
-      <button onClick={getProfiles}>getProfiles</button>
       <button onClick={collectFile}>collectFile</button>
       <button onClick={collectDataUnion}>collectDataUnion</button>
       <button onClick={unlockFile}>unlockFile</button>
-      <button onClick={isCollected}>isCollected</button>
-      <button onClick={getDatatokenBaseInfo}>getDatatokenBaseInfo</button>
+      <br />
+      <br />
+      <button onClick={createProfile}>createProfile</button>
+      <button onClick={getProfiles}>getProfiles</button>
+      <button onClick={getProfileIdByHandle}>getProfileIdByHandle</button>
+      <button onClick={getHandleByProfileId}>getHandleByProfileId</button>
+      <br />
+      <br />
+      <button onClick={loadDatatokensByCreator}>loadDatatokensByCreator</button>
+      <button onClick={loadDatatokensByCollector}>
+        loadDatatokensByCollector
+      </button>
+      <button onClick={loadDatatokenDetail}>loadDatatokenDetail</button>
+      <button onClick={loadDatatokenCollectors}>loadDatatokenCollectors</button>
+      <button onClick={isDatatokenCollectedBy}>isDatatokenCollectedBy</button>
+      <br />
+      <br />
+      <button onClick={loadDataUnionsByPublisher}>
+        loadDataUnionsByPublisher
+      </button>
+      <button onClick={loadDataUnionsByCollector}>
+        loadDataUnionsByCollector
+      </button>
+      <button onClick={loadDataUnionDetail}>loadDataUnionDetail</button>
+      <button onClick={loadDataUnionCollectors}>loadDataUnionCollectors</button>
+      <button onClick={loadDataUnionSubscribers}>
+        loadDataUnionSubscribers
+      </button>
+      <button onClick={isDataUnionCollectedBy}>isDataUnionCollectedBy</button>
+      <button onClick={isDataUnionSubscribedBy}>isDataUnionSubscribedBy</button>
       <br />
       <br />
     </div>

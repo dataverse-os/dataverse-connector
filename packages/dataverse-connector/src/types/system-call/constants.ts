@@ -30,11 +30,25 @@ export enum SYSTEM_CALL {
   loadFile = "loadFile",
   loadFilesBy = "loadFilesBy",
   loadBareFileContent = "loadBareFileContent",
+  loadCreatedDatatokenFiles = "loadCreatedDatatokenFiles",
+  loadCollectedDatatokenFiles = "loadCollectedDatatokenFiles",
 
   monetizeFile = "monetizeFile",
   collectFile = "collectFile",
   collectDataUnion = "collectDataUnion",
   unlockFile = "unlockFile",
-  checkIsDataTokenCollectedByAddress = "checkIsDataTokenCollectedByAddress",
-  getDatatokenBaseInfo = "getDatatokenBaseInfo",
+
+  loadDatatokensByCreator = "loadDatatokensByCreator",
+  loadDatatokensByCollector = "loadDatatokensByCollector",
+  loadDatatokenDetail = "loadDatatokenDetail",
+  loadDatatokenCollectors = "loadDatatokenCollectors",
+  isDatatokenCollectedBy = "isDatatokenCollectedBy",
+
+  loadDataUnionsByPublisher = "loadDataUnionsByPublisher",
+  loadDataUnionsByCollector = "loadDataUnionsByCollector",
+  loadDataUnionDetail = "loadDataUnionDetail",
+  loadDataUnionCollectors = "loadDataUnionCollectors",
+  loadDataUnionSubscribers = "loadDataUnionSubscribers",
+  isDataUnionCollectedBy = "isDataUnionCollectedBy",
+  isDataUnionSubscribedBy = "isDataUnionSubscribedBy",
 }

@@ -1,14 +1,19 @@
 import {
   ChainId,
-  CollectModule,
   CreateDataTokenInput,
+  DataTokenParams,
+  DataTokenType,
 } from "@dataverse/dataverse-contracts-sdk/data-token";
 
 import { PublishDataUnionInput } from "@dataverse/dataverse-contracts-sdk/data-union";
 
-export type DatatokenVars = Omit<CreateDataTokenInput, "contentURI"> & {
-  chainId: ChainId;
-};
+export type DatatokenVars<T extends DataTokenType = DataTokenType> = Omit<
+  CreateDataTokenInput<T>,
+  "contentURI"
+> &
+  DataTokenParams[T] & {
+    chainId: ChainId;
+  };
 
 export type DataUnionVars = Omit<
   PublishDataUnionInput,
@@ -16,8 +21,6 @@ export type DataUnionVars = Omit<
 > & {
   datatokenVars: DatatokenVars;
 };
-
-export type { CollectModule };
 
 export interface AccessControlCondition {
   conditionType?: string;
@@ -69,3 +72,13 @@ export interface AdditionalMirrorParams {
   folderId: string;
   bucketId: string;
 }
+
+export type {
+  DataTokenGraphType,
+  Datatoken_Collector,
+} from "@dataverse/dataverse-contracts-sdk/data-token";
+
+export type {
+  DataUnionGraphType,
+  Data_Union_Subscriber,
+} from "@dataverse/dataverse-contracts-sdk/data-union";

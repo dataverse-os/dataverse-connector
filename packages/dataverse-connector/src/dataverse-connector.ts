@@ -1,5 +1,15 @@
+import { ethers } from "ethers";
+import { getAddress } from "viem";
 import { Communicator } from "@dataverse/communicator";
 import { WalletProvider } from "@dataverse/wallet-provider";
+import { detectDataverseExtension, ExternalWallet } from "@dataverse/utils";
+import { getDapp, getDapps } from "@dataverse/dapp-table-client";
+import {
+  createLensProfile,
+  getLensProfiles,
+  getLensProfileIdByHandle,
+  getHandleByLensProfileId,
+} from "@dataverse/dataverse-contracts-sdk/data-token";
 import {
   RequestType,
   SYSTEM_CALL,
@@ -11,16 +21,6 @@ import {
   AuthType,
   ChainId,
 } from "./types";
-import {
-  createLensProfile,
-  getLensProfileIdByHandle,
-  getLensProfiles,
-  detectDataverseExtension,
-  ExternalWallet,
-} from "@dataverse/utils";
-import { ethers } from "ethers";
-import { getDapp, getDapps } from "@dataverse/dapp-table-client";
-import { getAddress } from "viem";
 
 export class DataverseConnector {
   private communicator: Communicator;
@@ -201,8 +201,18 @@ export class DataverseConnector {
       method !== SYSTEM_CALL.loadFile &&
       method !== SYSTEM_CALL.loadFilesBy &&
       method !== SYSTEM_CALL.getModelBaseInfo &&
-      method !== SYSTEM_CALL.checkIsDataTokenCollectedByAddress &&
-      method !== SYSTEM_CALL.getDatatokenBaseInfo &&
+      method !== SYSTEM_CALL.loadDatatokensByCreator &&
+      method !== SYSTEM_CALL.loadDatatokensByCollector &&
+      method !== SYSTEM_CALL.loadDatatokenCollectors &&
+      method !== SYSTEM_CALL.loadDatatokenCollectors &&
+      method !== SYSTEM_CALL.isDatatokenCollectedBy &&
+      method !== SYSTEM_CALL.loadDataUnionsByPublisher &&
+      method !== SYSTEM_CALL.loadDataUnionsByCollector &&
+      method !== SYSTEM_CALL.loadDataUnionDetail &&
+      method !== SYSTEM_CALL.loadDataUnionCollectors &&
+      method !== SYSTEM_CALL.loadDataUnionSubscribers &&
+      method !== SYSTEM_CALL.isDataUnionCollectedBy &&
+      method !== SYSTEM_CALL.isDataUnionSubscribedBy &&
       !this?.isConnected
     ) {
       throw new Error("Please connect wallet first");
@@ -236,21 +246,102 @@ export class DataverseConnector {
     return `did:pkh:eip155:1:${this.address}`;
   }
 
-  async createProfile(handle: string): Promise<string> {
+  async createProfile({
+    chainId,
+    handle,
+  }: {
+    chainId: ChainId;
+    handle: string;
+  }): Promise<string> {
+    if (!this?.isConnected) {
+      throw new Error("Please connect wallet first");
+    }
+
     const provider = new ethers.providers.Web3Provider(this.provider, "any");
     const signer = provider.getSigner();
-    const id = await getLensProfileIdByHandle({ handle, signer });
-    if (id != 0) throw new Error("Handle is taken, try a new handle.");
-    return createLensProfile({ chainId: ChainId.Mumbai, handle, signer });
+
+    const id = await getLensProfileIdByHandle({
+      chainId,
+      signerOrProvider: signer,
+      handle,
+    });
+
+    if (id.toNumber() != 0)
+      throw new Error("Handle is taken, try a new handle.");
+
+    const profile = await createLensProfile({
+      chainId,
+      handle,
+      signer,
+    });
+    console.log(profile);
+
+    return profile.toHexString();
   }
 
-  async getProfiles(address: string): Promise<{ id: string }[]> {
+  async getProfiles({
+    chainId,
+    address,
+  }: {
+    chainId: ChainId;
+    address: string;
+  }): Promise<{ id: string }[]> {
+    if (!this?.isConnected) {
+      throw new Error("Please connect wallet first");
+    }
+
     const provider = new ethers.providers.Web3Provider(this.provider, "any");
+
     const res = await getLensProfiles({
-      chainId: ChainId.Mumbai,
+      chainId,
       account: address,
       signerOrProvider: provider,
     });
+
     return res.map(item => ({ id: item.toHexString() }));
+  }
+
+  async getProfileIdByHandle({
+    chainId,
+    handle,
+  }: {
+    chainId: ChainId;
+    handle: string;
+  }): Promise<string> {
+    if (!this?.isConnected) {
+      throw new Error("Please connect wallet first");
+    }
+
+    const provider = new ethers.providers.Web3Provider(this.provider, "any");
+
+    const res = await getLensProfileIdByHandle({
+      chainId,
+      handle,
+      signerOrProvider: provider,
+    });
+
+    return res.toHexString();
+  }
+
+  async getHandleByProfileId({
+    chainId,
+    profileId,
+  }: {
+    chainId: ChainId;
+    profileId: string;
+  }): Promise<string> {
+    if (!this?.isConnected) {
+      throw new Error("Please connect wallet first");
+    }
+
+    const provider = new ethers.providers.Web3Provider(this.provider, "any");
+
+    const res = await getHandleByLensProfileId({
+      chainId,
+      profileId,
+      signerOrProvider: provider,
+    });
+
+    return res;
   }
 }
