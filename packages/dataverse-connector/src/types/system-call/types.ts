@@ -46,8 +46,8 @@ export interface RequestType {
   };
   updateFolderBaseInfo: {
     folderId: string;
-    newFolderName?: string;
-    newFolderDescription?: string;
+    folderName?: string;
+    folderDescription?: string;
     syncImmediately?: boolean;
   };
   deleteFolder: {
@@ -62,6 +62,12 @@ export interface RequestType {
     contentType?: ContentType;
     actionType?: ActionType;
     dataUnionVars: DataUnionVars;
+  };
+  updateDataUnionBaseInfo: {
+    dataUnionId: string;
+    dataUnionName: string;
+    dataUnionDescription?: string;
+    syncImmediately?: boolean;
   };
   deleteDataUnion: {
     dataUnionId: string;
@@ -195,6 +201,10 @@ export interface ReturnType {
   loadDataUnions: Promise<StructuredFolderRecord>;
   publishDataUnion: Promise<{
     newDataUnion: StructuredFolder;
+    allDataUnions: StructuredFolderRecord;
+  }>;
+  updateDataUnionBaseInfo: Promise<{
+    currentDataUnion: StructuredFolder;
     allDataUnions: StructuredFolderRecord;
   }>;
   deleteDataUnion: Promise<{

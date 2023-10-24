@@ -441,8 +441,8 @@ function App() {
       method: SYSTEM_CALL.updateFolderBaseInfo,
       params: {
         folderId,
-        newFolderName: new Date().toISOString(),
-        newFolderDescription: new Date().toISOString(),
+        folderName: new Date().toISOString(),
+        folderDescription: new Date().toISOString(),
       },
     });
     console.log(res);
@@ -513,6 +513,7 @@ function App() {
       method: SYSTEM_CALL.publishDataUnion,
       params: {
         dataUnionName: "data union",
+        dataUnionDescription: "data union description",
         // contentType: { resource: StorageResource.CERAMIC, resourceId: modelId },
         // contentType: { resource: StorageResource.IPFS },
         // actionType: ActionType.LIKE,
@@ -539,6 +540,18 @@ function App() {
     console.log(res);
     setDataUnionId(res.newDataUnion.folderId);
     console.log(res.newDataUnion.folderId);
+  };
+
+  const updateDataUnionBaseInfo = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.updateDataUnionBaseInfo,
+      params: {
+        dataUnionId,
+        dataUnionName: new Date().toISOString(),
+        dataUnionDescription: new Date().toISOString(),
+      },
+    });
+    console.log(res);
   };
 
   const deleteDataUnion = async () => {
@@ -1234,6 +1247,7 @@ function App() {
       <br />
       <button onClick={loadDataUnions}>loadDataUnions</button>
       <button onClick={publishDataUnion}>publishDataUnion</button>
+      <button onClick={updateDataUnionBaseInfo}>updateDataUnionBaseInfo</button>
       <button onClick={deleteDataUnion}>deleteDataUnion</button>
       <button onClick={deleteAllDataUnion}>deleteAllDataUnion</button>
       <br />

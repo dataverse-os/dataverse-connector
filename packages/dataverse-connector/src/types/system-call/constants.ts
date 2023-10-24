@@ -16,6 +16,7 @@ export enum SYSTEM_CALL {
 
   loadDataUnions = "loadDataUnions",
   publishDataUnion = "publishDataUnion",
+  updateDataUnionBaseInfo = "updateDataUnionBaseInfo",
   deleteDataUnion = "deleteDataUnion",
 
   createIndexFile = "createIndexFile",
