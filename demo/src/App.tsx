@@ -56,9 +56,7 @@ function App() {
   const [dataUnions, setDataUnions] = useState<StructuredFolderRecord>();
   const [dataUnionId, setDataUnionId] = useState("");
 
-  const [indexFileId, setIndexFileId] = useState(
-    "kjzl6kcym7w8y78easx82i29nz1di702vyxlmwrdnh2ksncohf383kkeq67oqxi",
-  );
+  const [indexFileId, setIndexFileId] = useState("");
   const [actionFileId, setActionFileId] = useState("");
   const [
     dataverseProviderHasAddedListener,

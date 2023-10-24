@@ -274,7 +274,6 @@ export class DataverseConnector {
       handle,
       signer,
     });
-    console.log(profile);
 
     return profile.toHexString();
   }
@@ -286,11 +285,10 @@ export class DataverseConnector {
     chainId: ChainId;
     address: string;
   }): Promise<{ id: string }[]> {
-    if (!this?.isConnected) {
-      throw new Error("Please connect wallet first");
+    let provider: ethers.providers.Web3Provider;
+    if (chainId && this.chain?.chainId === chainId) {
+      provider = new ethers.providers.Web3Provider(this.provider, "any");
     }
-
-    const provider = new ethers.providers.Web3Provider(this.provider, "any");
 
     const res = await getLensProfiles({
       chainId,
@@ -308,11 +306,10 @@ export class DataverseConnector {
     chainId: ChainId;
     handle: string;
   }): Promise<string> {
-    if (!this?.isConnected) {
-      throw new Error("Please connect wallet first");
+    let provider: ethers.providers.Web3Provider;
+    if (chainId && this.chain?.chainId === chainId) {
+      provider = new ethers.providers.Web3Provider(this.provider, "any");
     }
-
-    const provider = new ethers.providers.Web3Provider(this.provider, "any");
 
     const res = await getLensProfileIdByHandle({
       chainId,
@@ -330,11 +327,10 @@ export class DataverseConnector {
     chainId: ChainId;
     profileId: string;
   }): Promise<string> {
-    if (!this?.isConnected) {
-      throw new Error("Please connect wallet first");
+    let provider: ethers.providers.Web3Provider;
+    if (chainId && this.chain?.chainId === chainId) {
+      provider = new ethers.providers.Web3Provider(this.provider, "any");
     }
-
-    const provider = new ethers.providers.Web3Provider(this.provider, "any");
 
     const res = await getHandleByLensProfileId({
       chainId,
