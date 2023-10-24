@@ -12,7 +12,7 @@ import {
   DatatokenType,
   ChainId,
   DatatokenVars,
-  StorageResource,
+  // StorageResource,
 } from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
@@ -415,15 +415,6 @@ function App() {
   /*** Capability ***/
 
   /*** Folders ***/
-  const loadFolderTrees = async () => {
-    const folders = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadFolderTrees,
-    });
-    setFolders(folders);
-    console.log({ folders });
-    return folders;
-  };
-
   const createFolder = async () => {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.createFolder,
@@ -448,6 +439,15 @@ function App() {
     console.log(res);
   };
 
+  const loadFolderTrees = async () => {
+    const folders = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadFolderTrees,
+    });
+    setFolders(folders);
+    console.log({ folders });
+    return folders;
+  };
+
   const loadFolderById = async () => {
     const folder = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadFolderById,
@@ -455,6 +455,17 @@ function App() {
     });
     console.log({ folder });
     return folder;
+  };
+
+  const getDefaultFolderId = async () => {
+    if (!folders) {
+      throw "Please call loadFolderTrees first";
+    }
+    const { defaultFolderName } = await getDAppInfo();
+    const folder = Object.values(folders).find(
+      folder => folder.folderName === defaultFolderName,
+    );
+    return folder!.folderId;
   };
 
   const deleteFolder = async () => {
@@ -481,28 +492,9 @@ function App() {
     );
   };
 
-  const getDefaultFolderId = async () => {
-    if (!folders) {
-      throw "Please call loadFolderTrees first";
-    }
-    const { defaultFolderName } = await getDAppInfo();
-    const folder = Object.values(folders).find(
-      folder => folder.folderName === defaultFolderName,
-    );
-    return folder!.folderId;
-  };
   /*** Folders ***/
 
   /*** DataUnions ***/
-  const loadDataUnions = async () => {
-    const dataUnions = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDataUnions,
-    });
-    setDataUnions(dataUnions);
-    console.log({ dataUnions });
-    return folders;
-  };
-
   const publishDataUnion = async () => {
     const profileId = await getOrCreateProfileId({
       pkh,
@@ -550,6 +542,28 @@ function App() {
         dataUnionName: new Date().toISOString(),
         dataUnionDescription: new Date().toISOString(),
       },
+    });
+    console.log(res);
+  };
+
+  const loadCreatedDataUnions = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadCreatedDataUnions,
+    });
+    setDataUnions(res);
+    console.log(res);
+  };
+
+  const loadCollectedDataUnions = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadCollectedDataUnions,
+    });
+    console.log(res);
+  };
+
+  const loadDataUnionById = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionById,
     });
     console.log(res);
   };
@@ -1012,7 +1026,7 @@ function App() {
   const getProfileIdByHandle = async () => {
     const res = await dataverseConnector.getProfileIdByHandle({
       chainId,
-      handle: "nickname1687838298915.test",
+      handle: "test01",
     });
     console.log(res);
   };
@@ -1020,7 +1034,7 @@ function App() {
   const getHandleByProfileId = async () => {
     const res = await dataverseConnector.getHandleByProfileId({
       chainId,
-      profileId: "0x8739",
+      profileId: "0x3ed9",
     });
     console.log(res);
   };
@@ -1237,17 +1251,19 @@ function App() {
       </div>
       <hr />
       <br />
-      <button onClick={loadFolderTrees}>loadFolderTrees</button>
       <button onClick={createFolder}>createFolder</button>
       <button onClick={updateFolderBaseInfo}>updateFolderBaseInfo</button>
+      <button onClick={loadFolderTrees}>loadFolderTrees</button>
       <button onClick={loadFolderById}>loadFolderById</button>
       <button onClick={deleteFolder}>deleteFolder</button>
       <button onClick={deleteAllFolders}>deleteAllFolders</button>
       <br />
       <br />
-      <button onClick={loadDataUnions}>loadDataUnions</button>
       <button onClick={publishDataUnion}>publishDataUnion</button>
       <button onClick={updateDataUnionBaseInfo}>updateDataUnionBaseInfo</button>
+      <button onClick={loadCreatedDataUnions}>loadCreatedDataUnions</button>
+      <button onClick={loadCollectedDataUnions}>loadCollectedDataUnions</button>
+      <button onClick={loadDataUnionById}>loadDataUnionById</button>
       <button onClick={deleteDataUnion}>deleteDataUnion</button>
       <button onClick={deleteAllDataUnion}>deleteAllDataUnion</button>
       <br />

@@ -8,15 +8,17 @@ export enum SYSTEM_CALL {
   createCapability = "createCapability",
   checkCapability = "checkCapability",
 
-  loadFolderTrees = "loadFolderTrees",
-  loadFolderById = "loadFolderById",
   createFolder = "createFolder",
   updateFolderBaseInfo = "updateFolderBaseInfo",
+  loadFolderTrees = "loadFolderTrees",
+  loadFolderById = "loadFolderById",
   deleteFolder = "deleteFolder",
 
-  loadDataUnions = "loadDataUnions",
   publishDataUnion = "publishDataUnion",
   updateDataUnionBaseInfo = "updateDataUnionBaseInfo",
+  loadCreatedDataUnions = "loadCreatedDataUnions",
+  loadCollectedDataUnions = "loadCollectedDataUnions",
+  loadDataUnionById = "loadDataUnionById",
   deleteDataUnion = "deleteDataUnion",
 
   createIndexFile = "createIndexFile",

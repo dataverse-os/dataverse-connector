@@ -38,8 +38,6 @@ export interface RequestType {
     resource?: RESOURCE;
   };
 
-  loadFolderTrees: void;
-  loadFolderById: string;
   createFolder: {
     folderName: string;
     folderDescription?: string;
@@ -50,12 +48,13 @@ export interface RequestType {
     folderDescription?: string;
     syncImmediately?: boolean;
   };
+  loadFolderTrees: void;
+  loadFolderById: string;
   deleteFolder: {
     folderId: string;
     syncImmediately?: boolean;
   };
 
-  loadDataUnions: void;
   publishDataUnion: {
     dataUnionName: string;
     dataUnionDescription?: string;
@@ -69,6 +68,9 @@ export interface RequestType {
     dataUnionDescription?: string;
     syncImmediately?: boolean;
   };
+  loadCreatedDataUnions: void;
+  loadCollectedDataUnions: void;
+  loadDataUnionById: string;
   deleteDataUnion: {
     dataUnionId: string;
     syncImmediately?: boolean;
@@ -183,8 +185,6 @@ export interface ReturnType {
   createCapability: Promise<string>;
   checkCapability: Promise<boolean>;
 
-  loadFolderTrees: Promise<StructuredFolderRecord>;
-  loadFolderById: Promise<StructuredFolder>;
   createFolder: Promise<{
     newFolder: StructuredFolder;
     allFolders: StructuredFolderRecord;
@@ -193,12 +193,13 @@ export interface ReturnType {
     currentFolder: StructuredFolder;
     allFolders: StructuredFolderRecord;
   }>;
+  loadFolderTrees: Promise<StructuredFolderRecord>;
+  loadFolderById: Promise<StructuredFolder>;
   deleteFolder: Promise<{
     currentFolder: StructuredFolder;
     allFolders: StructuredFolderRecord;
   }>;
 
-  loadDataUnions: Promise<StructuredFolderRecord>;
   publishDataUnion: Promise<{
     newDataUnion: StructuredFolder;
     allDataUnions: StructuredFolderRecord;
@@ -207,6 +208,9 @@ export interface ReturnType {
     currentDataUnion: StructuredFolder;
     allDataUnions: StructuredFolderRecord;
   }>;
+  loadCreatedDataUnions: Promise<StructuredFolderRecord>;
+  loadCollectedDataUnions: Promise<StructuredFolderRecord>;
+  loadDataUnionById: Promise<StructuredFolder>;
   deleteDataUnion: Promise<{
     currentDataUnion: StructuredFolder;
     allDataUnions: StructuredFolderRecord;
@@ -254,7 +258,6 @@ export interface ReturnType {
     movedFiles: MirrorFileRecord;
     allFolders: StructuredFolderRecord;
   }>;
-
   removeFiles: Promise<{
     sourceFolders: StructuredFolderRecord;
     removedFiles: MirrorFileRecord;
