@@ -1,2 +1,2 @@
 export { Apps, ModelName } from "./constants";
-export type { DAppInfo, DAppTable, Models } from "./types";
+export type { DAppTable, ValidAppCaps, DAppInfo, Models } from "./types";

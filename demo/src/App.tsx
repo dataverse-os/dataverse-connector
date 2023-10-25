@@ -12,6 +12,7 @@ import {
   DatatokenType,
   ChainId,
   DatatokenVars,
+  MirrorFile,
   // StorageResource,
 } from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
@@ -54,7 +55,9 @@ function App() {
   const [folderId, setFolderId] = useState("");
 
   const [dataUnions, setDataUnions] = useState<StructuredFolderRecord>();
-  const [dataUnionId, setDataUnionId] = useState("");
+  const [dataUnionId, setDataUnionId] = useState(
+    "kjzl6kcym7w8y5fohka9uhaprpwvb8ygr7fie9971eljpug497p9tgs0acr57ue",
+  );
 
   const [indexFileId, setIndexFileId] = useState("");
   const [actionFileId, setActionFileId] = useState("");
@@ -562,6 +565,7 @@ function App() {
   const loadDataUnionById = async () => {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDataUnionById,
+      params: dataUnionId,
     });
     console.log(res);
   };
@@ -660,6 +664,7 @@ function App() {
       params: indexFileId,
     });
     console.log(file);
+    return file;
   };
 
   const loadFilesBy = async () => {
@@ -987,6 +992,44 @@ function App() {
     }
   };
 
+  const subscribeDataUnion = async () => {
+    try {
+      const fileRes = await loadFile();
+      const file = fileRes.fileContent.file as MirrorFile;
+
+      if (!file.accessControl?.monetizationProvider?.dataUnionIds) {
+        throw "The file cannot be subscribed";
+      }
+
+      const startAt = file.accessControl?.monetizationProvider?.blockNumber;
+
+      const subscriptionList = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.loadDataUnionSubscriptionListByCollector,
+        params: {
+          dataUnionId,
+          collector: address,
+        },
+      });
+
+      const collectTokenId = subscriptionList[0].collect_nft_token_id;
+
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.subscribeDataUnion,
+        params: {
+          dataUnionId,
+          collectTokenId,
+          subscribeInput: {
+            startAt,
+            segmentsCount: 1,
+          },
+        },
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const unlockFile = async () => {
     try {
       const res = await dataverseConnector.runOS({
@@ -1164,6 +1207,19 @@ function App() {
     console.log(res);
   };
 
+  const loadDataUnionSubscriptionListByCollector = async () => {
+    const dataUnionId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionSubscriptionListByCollector,
+      params: {
+        dataUnionId,
+        collector: address,
+      },
+    });
+    console.log(res);
+  };
+
   const isDataUnionCollectedBy = async () => {
     const dataUnionId =
       "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
@@ -1190,7 +1246,6 @@ function App() {
     });
     console.log(res);
   };
-
   /*** Query DataUnion ***/
 
   return (
@@ -1304,6 +1359,7 @@ function App() {
       <br />
       <button onClick={collectFile}>collectFile</button>
       <button onClick={collectDataUnion}>collectDataUnion</button>
+      <button onClick={subscribeDataUnion}>subscribeDataUnion</button>
       <button onClick={unlockFile}>unlockFile</button>
       <br />
       <br />
@@ -1332,6 +1388,9 @@ function App() {
       <button onClick={loadDataUnionCollectors}>loadDataUnionCollectors</button>
       <button onClick={loadDataUnionSubscribers}>
         loadDataUnionSubscribers
+      </button>
+      <button onClick={loadDataUnionSubscriptionListByCollector}>
+        loadDataUnionSubscriptionListByCollector
       </button>
       <button onClick={isDataUnionCollectedBy}>isDataUnionCollectedBy</button>
       <button onClick={isDataUnionSubscribedBy}>isDataUnionSubscribedBy</button>

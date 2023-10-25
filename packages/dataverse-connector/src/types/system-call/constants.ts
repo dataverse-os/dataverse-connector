@@ -39,6 +39,7 @@ export enum SYSTEM_CALL {
   monetizeFile = "monetizeFile",
   collectFile = "collectFile",
   collectDataUnion = "collectDataUnion",
+  subscribeDataUnion = "subscribeDataUnion",
   unlockFile = "unlockFile",
 
   loadDatatokensByCreator = "loadDatatokensByCreator",
@@ -52,6 +53,7 @@ export enum SYSTEM_CALL {
   loadDataUnionDetail = "loadDataUnionDetail",
   loadDataUnionCollectors = "loadDataUnionCollectors",
   loadDataUnionSubscribers = "loadDataUnionSubscribers",
+  loadDataUnionSubscriptionListByCollector = "loadDataUnionSubscriptionListByCollector",
   isDataUnionCollectedBy = "isDataUnionCollectedBy",
   isDataUnionSubscribedBy = "isDataUnionSubscribedBy",
 }

@@ -1,5 +1,5 @@
-import { StorageProvider } from "../types";
-import { ValidAppCaps } from "../app/types";
+import { StorageProvider } from "..";
+import { ValidAppCaps } from "../app";
 import {
   DataUnionVars,
   DatatokenVars,
@@ -8,7 +8,9 @@ import {
   Datatoken_Collector,
   DataUnionGraphType,
   Data_Union_Subscriber,
-} from "../data-monetize/types";
+  SubscribeDataUnionVars,
+  SubscribeDataUnionOutput,
+} from "../data-monetize";
 import {
   Action,
   ActionType,
@@ -18,7 +20,7 @@ import {
   MirrorFileRecord,
   StructuredFolder,
   StructuredFolderRecord,
-} from "../fs/types";
+} from "../fs";
 import { SYSTEM_CALL } from "./constants";
 import { RESOURCE } from "../wallet";
 
@@ -150,6 +152,7 @@ export interface RequestType {
   };
   collectFile: string;
   collectDataUnion: string;
+  subscribeDataUnion: SubscribeDataUnionVars;
   unlockFile: string;
 
   loadDatatokensByCreator: string;
@@ -163,6 +166,10 @@ export interface RequestType {
   loadDataUnionDetail: string;
   loadDataUnionCollectors: string;
   loadDataUnionSubscribers: string;
+  loadDataUnionSubscriptionListByCollector: {
+    dataUnionId: string;
+    collector: string;
+  };
   isDataUnionCollectedBy: {
     dataUnionId: string;
     collector: string;
@@ -308,6 +315,7 @@ export interface ReturnType {
     };
   }>;
   collectDataUnion: Promise<StructuredFolder>;
+  subscribeDataUnion: Promise<SubscribeDataUnionOutput>;
   unlockFile: Promise<{
     fileContent: {
       file: Omit<MirrorFile, "fileKey" | "content" | "external">;
@@ -316,16 +324,19 @@ export interface ReturnType {
   }>;
 
   loadDatatokensByCreator: Promise<Array<DataTokenGraphType>>;
-  loadDatatokensByCollector: Promise<Datatoken_Collector[]>;
+  loadDatatokensByCollector: Promise<Array<DataTokenGraphType>>;
   loadDatatokenDetail: Promise<DataTokenGraphType>;
-  loadDatatokenCollectors: Promise<Datatoken_Collector[]>;
+  loadDatatokenCollectors: Promise<Array<Datatoken_Collector>>;
   isDatatokenCollectedBy: Promise<boolean>;
 
   loadDataUnionsByPublisher: Promise<Array<DataUnionGraphType>>;
-  loadDataUnionsByCollector: Promise<Data_Union_Subscriber[]>;
+  loadDataUnionsByCollector: Promise<Array<DataUnionGraphType>>;
   loadDataUnionDetail: Promise<DataUnionGraphType>;
-  loadDataUnionCollectors: Promise<Data_Union_Subscriber[]>;
-  loadDataUnionSubscribers: Promise<Data_Union_Subscriber[]>;
+  loadDataUnionCollectors: Promise<Array<Data_Union_Subscriber>>;
+  loadDataUnionSubscribers: Promise<Array<Data_Union_Subscriber>>;
+  loadDataUnionSubscriptionListByCollector: Promise<
+    Array<Data_Union_Subscriber>
+  >;
   isDataUnionCollectedBy: Promise<boolean>;
   isDataUnionSubscribedBy: Promise<boolean>;
 }

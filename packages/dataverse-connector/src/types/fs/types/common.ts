@@ -4,6 +4,7 @@ import {
   DataTokenGraphType,
 } from "@dataverse/dataverse-contracts-sdk/data-token";
 import {
+  DataUnionGraphType,
   DecryptionConditions,
   DecryptionConditionsTypes,
 } from "../../data-monetize";
@@ -32,8 +33,10 @@ export interface MonetizationProvider {
   datatokenId?: string;
   dataUnionId?: string;
   dataUnionIds?: string[];
+  blockNumber?: number;
   unlockingTimeStamp?: string;
   datatokenDetail?: DataTokenGraphType;
+  dataUnionDetail?: DataUnionGraphType;
 }
 
 export interface AccessControl {

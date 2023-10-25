@@ -5,7 +5,11 @@ import {
   DataTokenType,
 } from "@dataverse/dataverse-contracts-sdk/data-token";
 
-import { PublishDataUnionInput } from "@dataverse/dataverse-contracts-sdk/data-union";
+import {
+  PublishDataUnionInput,
+  SubscribeDataUnionInput,
+  SubscribeDataUnionOutput as SubscribeDataUnionResult,
+} from "@dataverse/dataverse-contracts-sdk/data-union";
 
 export type DatatokenVars<T extends DataTokenType = DataTokenType> = Omit<
   CreateDataTokenInput<T>,
@@ -21,6 +25,21 @@ export type DataUnionVars = Omit<
 > & {
   datatokenVars: DatatokenVars;
 };
+
+export type SubscribeDataUnionOutput = Omit<
+  SubscribeDataUnionResult,
+  "dataUnionId" | "collectTokenId" | "startAt" | "endAt"
+> & {
+  dataUnionId: string;
+  collectTokenId: string;
+  subscribeModule: string;
+  startAt: number;
+  endAt: number;
+};
+
+export interface SubscribeDataUnionVars extends SubscribeDataUnionInput {
+  dataUnionId: string;
+}
 
 export interface AccessControlCondition {
   conditionType?: string;
