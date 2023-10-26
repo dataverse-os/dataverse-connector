@@ -1,4 +1,4 @@
-import { WalletProvider } from "@dataverse/wallet-provider";
+import { WalletProvider } from "@dataverse/wallet-provider-test";
 import { StorageProviderName } from "./constants";
 
 export interface StorageProvider {

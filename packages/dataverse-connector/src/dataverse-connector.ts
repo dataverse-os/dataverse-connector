@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { getAddress } from "viem";
 import { Communicator } from "@dataverse/communicator";
-import { WalletProvider } from "@dataverse/wallet-provider";
+import { WalletProvider } from "@dataverse/wallet-provider-test";
 import { detectDataverseExtension, ExternalWallet } from "@dataverse/utils";
 import { getDapp, getDapps } from "@dataverse/dapp-table-client";
 import {

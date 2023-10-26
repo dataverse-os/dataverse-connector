@@ -14,10 +14,10 @@ import {
   DatatokenVars,
   MirrorFile,
   // StorageResource,
-} from "@dataverse/dataverse-connector";
+} from "@dataverse/dataverse-connector-test";
 import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
-import { WalletProvider } from "@dataverse/wallet-provider";
+import { WalletProvider } from "@dataverse/wallet-provider-test";
 import "./App.scss";
 
 const dataverseConnector = new DataverseConnector();

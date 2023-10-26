@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@dataverse/dataverse-connector": "workspace:*",
-    "@dataverse/wallet-adapter": "workspace:*",
-    "@dataverse/wallet-provider": "workspace:*",
+    "@dataverse/dataverse-connector-test": "^1.0.1",
+    "@dataverse/wallet-adapter-test": "^1.0.1",
+    "@dataverse/wallet-provider-test": "^1.0.0",
     "@wagmi/core": "1.3.0",
     "ethers": "5.6.9",
     "events": "^3.3.0",

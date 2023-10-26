@@ -28,7 +28,7 @@ import {
 import { Address, parseEther } from "viem";
 import { mainnet } from "wagmi/chains";
 import { polygonMumbai } from "./utils/configChains";
-import { DataverseWalletConnector } from "@dataverse/wallet-adapter";
+import { DataverseWalletConnector } from "@dataverse/wallet-adapter-test";
 import { publicProvider } from "wagmi/providers/public";
 import {
   abi1,
@@ -49,7 +49,7 @@ import {
   SYSTEM_CALL,
   WALLET,
   DataverseConnector as _DataverseConnector,
-} from "@dataverse/dataverse-connector";
+} from "@dataverse/dataverse-connector-test";
 import { appId } from "./App";
 
 const { chains, publicClient } = configureChains(

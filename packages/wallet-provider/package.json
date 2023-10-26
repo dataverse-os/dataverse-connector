@@ -1,6 +1,6 @@
 {
-  "name": "@dataverse/wallet-provider",
-  "version": "1.0.13",
+  "name": "@dataverse/wallet-provider-test",
+  "version": "1.0.0",
   "description": "",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",

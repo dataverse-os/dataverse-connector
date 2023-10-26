@@ -1,7 +1,6 @@
 {
   "workspaces": [
-    "packages/*",
-    "demo"
+    "packages/*"
   ],
   "scripts": {
     "build": "npm run format && npm run lint:fix && lerna run build",

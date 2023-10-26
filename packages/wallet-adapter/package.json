@@ -1,6 +1,6 @@
 {
-  "name": "@dataverse/wallet-adapter",
-  "version": "1.0.4",
+  "name": "@dataverse/wallet-adapter-test",
+  "version": "1.0.1",
   "description": "",
   "module": "dist/esm/index.js",
   "main": "dist/cjs/index.js",
@@ -16,7 +16,7 @@
     "doc": "pnpm typedoc src/index.ts --out ../../docs/wallet-adapter"
   },
   "dependencies": {
-    "@dataverse/wallet-provider": "^1.0.11",
+    "@dataverse/wallet-provider-test": "^1.0.0",
     "@ethersproject/providers": "^5.7.0",
     "@rainbow-me/rainbowkit": "^1.0.4",
     "@wagmi/connectors": "2.5.0",

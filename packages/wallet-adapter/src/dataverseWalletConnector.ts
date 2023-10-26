@@ -1,5 +1,5 @@
 import { Connector, Chain, Address, WalletClient } from "wagmi";
-import { WalletProvider } from "@dataverse/wallet-provider";
+import { WalletProvider } from "@dataverse/wallet-provider-test";
 
 import { createWalletClient, custom, getAddress, numberToHex } from "viem";
 import { ConnectorNotFoundError, normalizeChainId } from "@wagmi/connectors";
