@@ -55,9 +55,7 @@ function App() {
   const [folderId, setFolderId] = useState("");
 
   const [dataUnions, setDataUnions] = useState<StructuredFolderRecord>();
-  const [dataUnionId, setDataUnionId] = useState(
-    "kjzl6kcym7w8y5fohka9uhaprpwvb8ygr7fie9971eljpug497p9tgs0acr57ue",
-  );
+  const [dataUnionId, setDataUnionId] = useState("");
 
   const [indexFileId, setIndexFileId] = useState("");
   const [actionFileId, setActionFileId] = useState("");
@@ -995,7 +993,8 @@ function App() {
   const subscribeDataUnion = async () => {
     try {
       const fileRes = await loadFile();
-      const file = fileRes.fileContent.file as MirrorFile;
+      const file = (fileRes.fileContent.file ??
+        fileRes.fileContent.content) as MirrorFile;
 
       if (!file.accessControl?.monetizationProvider?.dataUnionIds) {
         throw "The file cannot be subscribed";
@@ -1003,15 +1002,23 @@ function App() {
 
       const startAt = file.accessControl?.monetizationProvider?.blockNumber;
 
+      const dataUnion = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.loadDataUnionById,
+        params: dataUnionId,
+      });
+
+      const dataUnionContractId =
+        dataUnion.accessControl?.monetizationProvider?.dataUnionId;
+
       const subscriptionList = await dataverseConnector.runOS({
         method: SYSTEM_CALL.loadDataUnionSubscriptionListByCollector,
         params: {
-          dataUnionId,
+          dataUnionId: dataUnionContractId!,
           collector: address,
         },
       });
 
-      const collectTokenId = subscriptionList[0].collect_nft_token_id;
+      const collectTokenId = subscriptionList[0]?.collect_nft_token_id;
 
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.subscribeDataUnion,
