@@ -10,7 +10,6 @@ import {
   getLensProfileIdByHandle,
   getHandleByLensProfileId,
 } from "@dataverse/dataverse-contracts-sdk/data-token";
-import { getBlockNumberByTimestamp as fetchBlockNumberByTimestamp } from "@dataverse/dataverse-contracts-sdk";
 import {
   RequestType,
   SYSTEM_CALL,
@@ -340,15 +339,5 @@ export class DataverseConnector {
     });
 
     return res;
-  }
-
-  async getBlockNumberByTimestamp({
-    chainId,
-    timestamp,
-  }: {
-    chainId: ChainId;
-    timestamp: number;
-  }) {
-    return fetchBlockNumberByTimestamp({ chainId, timestamp });
   }
 }

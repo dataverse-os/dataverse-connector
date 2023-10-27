@@ -1,4 +1,7 @@
-import { DataTokenType } from "@dataverse/dataverse-contracts-sdk/data-token";
+import {
+  ChainId,
+  DataTokenType,
+} from "@dataverse/dataverse-contracts-sdk/data-token";
 
 export enum Currency {
   USDC = "USDC",
@@ -12,6 +15,4 @@ export enum DecryptionConditionsTypes {
   UnifiedAccessControlCondition = "UnifiedAccessControlCondition",
 }
 
-export { ChainId } from "@dataverse/dataverse-contracts-sdk/data-token";
-
-export { DataTokenType as DatatokenType };
+export { ChainId, DataTokenType as DatatokenType };
