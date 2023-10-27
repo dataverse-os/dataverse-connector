@@ -21,6 +21,7 @@ import {
   AuthType,
   ChainId,
 } from "./types";
+import { getTimestampByBlockNumber as fetchTimestampByBlockNumber } from "@dataverse/dataverse-contracts-sdk";
 
 export class DataverseConnector {
   private communicator: Communicator;
@@ -339,5 +340,15 @@ export class DataverseConnector {
     });
 
     return res;
+  }
+
+  getTimestampByBlockNumber({
+    chainId,
+    blockNumber,
+  }: {
+    chainId: ChainId;
+    blockNumber: number;
+  }) {
+    return fetchTimestampByBlockNumber({ chainId, blockNumber });
   }
 }
