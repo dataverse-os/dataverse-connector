@@ -3,3 +3,4 @@ pnpm-lock.yaml
 dist
 **/.DS_Store
 docs
+bun.lockb

@@ -497,7 +497,7 @@ function App() {
   const publishDataUnion = async () => {
     const profileId = await getOrCreateProfileId({
       pkh,
-      lensNickName: "hello123456",
+      lensNickName: "handle" + Date.now(),
     });
 
     const res = await dataverseConnector.runOS({
@@ -754,7 +754,7 @@ function App() {
       if (isDatatoken) {
         const profileId = await getOrCreateProfileId({
           pkh,
-          lensNickName: "hello123456",
+          lensNickName: "handle" + Date.now(),
         });
         datatokenVars = {
           chainId,
@@ -891,7 +891,7 @@ function App() {
       if (isDatatoken) {
         const profileId = await getOrCreateProfileId({
           pkh,
-          lensNickName: "hello123456",
+          lensNickName: "handle" + Date.now(),
         });
         datatokenVars = {
           chainId,
@@ -1058,7 +1058,7 @@ function App() {
     });
     const res = await dataverseConnector.createProfile({
       chainId,
-      handle: "test01",
+      handle: "handle" + Date.now(),
     });
     console.log(res);
   };
@@ -1137,8 +1137,7 @@ function App() {
   };
 
   const loadDatatokenDetail = async () => {
-    const datatokenId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const datatokenId = "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDatatokenDetail,
       params: datatokenId,
@@ -1147,8 +1146,7 @@ function App() {
   };
 
   const loadDatatokenCollectors = async () => {
-    const datatokenId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const datatokenId = "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDatatokenCollectors,
       params: datatokenId,
@@ -1157,8 +1155,7 @@ function App() {
   };
 
   const isDatatokenCollectedBy = async () => {
-    const datatokenId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const datatokenId = "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.isDatatokenCollectedBy,
       params: { datatokenId, collector: address },
