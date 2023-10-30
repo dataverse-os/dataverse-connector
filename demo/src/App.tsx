@@ -28,6 +28,7 @@ const modelId =
   "kjzl6hvfrbw6catek36h3pep09k9gymfnla9k6ojlgrmwjogvjqg8q3zpybl1yu";
 
 const chainId = ChainId.Mumbai;
+const datatokenType = DatatokenType.Profileless;
 
 const postVersion = "0.0.1";
 
@@ -495,10 +496,13 @@ function App() {
 
   /*** DataUnions ***/
   const publishDataUnion = async () => {
-    const profileId = await getOrCreateProfileId({
-      pkh,
-      lensNickName: "handle" + Date.now(),
-    });
+    let profileId;
+    if (datatokenType !== DatatokenType.Profileless) {
+      profileId = await getOrCreateProfileId({
+        pkh,
+        lensNickName: "handle" + Date.now(),
+      });
+    }
 
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.publishDataUnion,
@@ -511,9 +515,9 @@ function App() {
         dataUnionVars: {
           datatokenVars: {
             chainId,
-            type: DatatokenType.Lens,
+            type: datatokenType,
             collectModule: "LimitedFeeCollectModule",
-            profileId,
+            ...(profileId && { profileId }),
             collectLimit: 100,
             amount: 0.0001,
             currency: Currency.WMATIC,
@@ -752,15 +756,22 @@ function App() {
       let datatokenVars: DatatokenVars | undefined = undefined;
 
       if (isDatatoken) {
-        const profileId = await getOrCreateProfileId({
-          pkh,
-          lensNickName: "handle" + Date.now(),
-        });
+        // const profileId = await getOrCreateProfileId({
+        //   pkh,
+        //   lensNickName: "handle" + Date.now(),
+        // });
+        let profileId;
+        if (datatokenType !== DatatokenType.Profileless) {
+          profileId = await getOrCreateProfileId({
+            pkh,
+            lensNickName: "handle" + Date.now(),
+          });
+        }
         datatokenVars = {
           chainId,
-          type: DatatokenType.Lens,
+          type: datatokenType,
           collectModule: "LimitedFeeCollectModule",
-          profileId,
+          ...(profileId && { profileId }),
           collectLimit: 100,
           amount: 0.0001,
           currency: Currency.WMATIC,
@@ -885,19 +896,22 @@ function App() {
         throw "You must connect capability";
       }
 
-      const isDatatoken = true;
+      const isDatatoken = false;
       let datatokenVars: DatatokenVars | undefined = undefined;
 
       if (isDatatoken) {
-        const profileId = await getOrCreateProfileId({
-          pkh,
-          lensNickName: "handle" + Date.now(),
-        });
+        let profileId;
+        if (datatokenType !== DatatokenType.Profileless) {
+          profileId = await getOrCreateProfileId({
+            pkh,
+            lensNickName: "handle" + Date.now(),
+          });
+        }
         datatokenVars = {
           chainId,
-          type: DatatokenType.Lens,
+          type: datatokenType,
           collectModule: "LimitedFeeCollectModule",
-          profileId,
+          ...(profileId && { profileId }),
           collectLimit: 100,
           amount: 0.0001,
           currency: Currency.WMATIC,
@@ -1137,7 +1151,7 @@ function App() {
   };
 
   const loadDatatokenDetail = async () => {
-    const datatokenId = "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0";
+    const datatokenId = "0x194bDf72c224B33B850C5ebC541BA7D7CdBCE8A4";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDatatokenDetail,
       params: datatokenId,
