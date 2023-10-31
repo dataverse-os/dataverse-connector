@@ -336,9 +336,7 @@ export interface ReturnType {
   loadDataUnion: Promise<DataUnionGraphType>;
   loadDataUnionCollectors: Promise<Array<Data_Union_Subscriber>>;
   loadDataUnionSubscribers: Promise<Array<Data_Union_Subscriber>>;
-  loadDataUnionSubscriptionsBy: Promise<
-    Array<Data_Union_Subscriber>
-  >;
+  loadDataUnionSubscriptionsBy: Promise<Array<Data_Union_Subscriber>>;
   isDataUnionCollectedBy: Promise<boolean>;
   isDataUnionSubscribedBy: Promise<boolean>;
 }
