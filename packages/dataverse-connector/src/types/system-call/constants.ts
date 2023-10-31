@@ -45,6 +45,7 @@ export enum SYSTEM_CALL {
   loadDatatokensByCreator = "loadDatatokensByCreator",
   loadDatatokensByCollector = "loadDatatokensByCollector",
   loadDatatokenDetail = "loadDatatokenDetail",
+  loadDatatokenDetailsBy = "loadDatatokenDetailsBy",
   loadDatatokenCollectors = "loadDatatokenCollectors",
   isDatatokenCollectedBy = "isDatatokenCollectedBy",
 

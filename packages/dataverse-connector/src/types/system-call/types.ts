@@ -158,6 +158,7 @@ export interface RequestType {
   loadDatatokensByCreator: string;
   loadDatatokensByCollector: string;
   loadDatatokenDetail: string;
+  loadDatatokenDetailsBy: Array<string>;
   loadDatatokenCollectors: string;
   isDatatokenCollectedBy: { datatokenId: string; collector: string };
 
@@ -326,6 +327,7 @@ export interface ReturnType {
   loadDatatokensByCreator: Promise<Array<DataTokenGraphType>>;
   loadDatatokensByCollector: Promise<Array<DataTokenGraphType>>;
   loadDatatokenDetail: Promise<DataTokenGraphType>;
+  loadDatatokenDetailsBy: Promise<Array<DataTokenGraphType>>;
   loadDatatokenCollectors: Promise<Array<Datatoken_Collector>>;
   isDatatokenCollectedBy: Promise<boolean>;
 

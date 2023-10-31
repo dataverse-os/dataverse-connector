@@ -205,6 +205,7 @@ export class DataverseConnector {
       method !== SYSTEM_CALL.loadDatatokensByCreator &&
       method !== SYSTEM_CALL.loadDatatokensByCollector &&
       method !== SYSTEM_CALL.loadDatatokenDetail &&
+      method !== SYSTEM_CALL.loadDatatokenDetailsBy &&
       method !== SYSTEM_CALL.loadDatatokenCollectors &&
       method !== SYSTEM_CALL.isDatatokenCollectedBy &&
       method !== SYSTEM_CALL.loadDataUnionsByPublisher &&

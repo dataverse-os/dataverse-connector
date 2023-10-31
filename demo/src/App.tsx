@@ -1151,10 +1151,22 @@ function App() {
   };
 
   const loadDatatokenDetail = async () => {
-    const datatokenId = "0x194bDf72c224B33B850C5ebC541BA7D7CdBCE8A4";
+    const datatokenId = "0x251458653489F46f0E117925d649Bca3bA04a91b";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDatatokenDetail,
       params: datatokenId,
+    });
+    console.log(res);
+  };
+
+  const loadDatatokenDetailsBy = async () => {
+    const datatokenIds = [
+      "0x251458653489F46f0E117925d649Bca3bA04a91b",
+      "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0",
+    ];
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDatatokenDetailsBy,
+      params: datatokenIds,
     });
     console.log(res);
   };
@@ -1392,6 +1404,7 @@ function App() {
         loadDatatokensByCollector
       </button>
       <button onClick={loadDatatokenDetail}>loadDatatokenDetail</button>
+      <button onClick={loadDatatokenDetailsBy}>loadDatatokenDetailsBy</button>
       <button onClick={loadDatatokenCollectors}>loadDatatokenCollectors</button>
       <button onClick={isDatatokenCollectedBy}>isDatatokenCollectedBy</button>
       <br />
