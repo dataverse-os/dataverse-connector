@@ -1025,7 +1025,7 @@ function App() {
         dataUnion.accessControl?.monetizationProvider?.dataUnionId;
 
       const subscriptionList = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDataUnionSubscriptionListByCollector,
+        method: SYSTEM_CALL.loadDataUnionSubscriptionsBy,
         params: {
           dataUnionId: dataUnionContractId!,
           collector: address,
@@ -1134,45 +1134,45 @@ function App() {
   /*** Profile ***/
 
   /*** Query Datatoken ***/
-  const loadDatatokensByCreator = async () => {
+  const loadDatatokensCreatedBy = async () => {
     const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDatatokensByCreator,
+      method: SYSTEM_CALL.loadDatatokensCreatedBy,
       params: address,
     });
     console.log(res);
   };
 
-  const loadDatatokensByCollector = async () => {
+  const loadDatatokensCollectedBy = async () => {
     const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDatatokensByCollector,
+      method: SYSTEM_CALL.loadDatatokensCollectedBy,
       params: address,
     });
     console.log(res);
   };
 
-  const loadDatatokenDetail = async () => {
-    const datatokenId = "0x251458653489F46f0E117925d649Bca3bA04a91b";
+  const loadDatatoken = async () => {
+    const datatokenId = "0xeDb95BC3725230e20AC67F420be871926d12a094";
     const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDatatokenDetail,
+      method: SYSTEM_CALL.loadDatatoken,
       params: datatokenId,
     });
     console.log(res);
   };
 
-  const loadDatatokenDetailsBy = async () => {
+  const loadDatatokens = async () => {
     const datatokenIds = [
       "0x251458653489F46f0E117925d649Bca3bA04a91b",
       "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0",
     ];
     const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDatatokenDetailsBy,
+      method: SYSTEM_CALL.loadDatatokens,
       params: datatokenIds,
     });
     console.log(res);
   };
 
   const loadDatatokenCollectors = async () => {
-    const datatokenId = "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0";
+    const datatokenId = "0xeDb95BC3725230e20AC67F420be871926d12a094";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDatatokenCollectors,
       params: datatokenId,
@@ -1191,27 +1191,27 @@ function App() {
   /*** Query Datatoken ***/
 
   /*** Query DataUnion ***/
-  const loadDataUnionsByPublisher = async () => {
+  const loadDataUnionsPublishedBy = async () => {
     const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDataUnionsByPublisher,
+      method: SYSTEM_CALL.loadDataUnionsPublishedBy,
       params: address,
     });
     console.log(res);
   };
 
-  const loadDataUnionsByCollector = async () => {
+  const loadDataUnionsCollectedBy = async () => {
     const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDataUnionsByCollector,
+      method: SYSTEM_CALL.loadDataUnionsCollectedBy,
       params: address,
     });
     console.log(res);
   };
 
-  const loadDataUnionDetail = async () => {
+  const loadDataUnion = async () => {
     const dataUnionId =
       "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
     const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDataUnionDetail,
+      method: SYSTEM_CALL.loadDataUnion,
       params: dataUnionId,
     });
     console.log(res);
@@ -1237,11 +1237,11 @@ function App() {
     console.log(res);
   };
 
-  const loadDataUnionSubscriptionListByCollector = async () => {
+  const loadDataUnionSubscriptionsBy = async () => {
     const dataUnionId =
       "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
     const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDataUnionSubscriptionListByCollector,
+      method: SYSTEM_CALL.loadDataUnionSubscriptionsBy,
       params: {
         dataUnionId,
         collector: address,
@@ -1399,29 +1399,29 @@ function App() {
       <button onClick={getHandleByProfileId}>getHandleByProfileId</button>
       <br />
       <br />
-      <button onClick={loadDatatokensByCreator}>loadDatatokensByCreator</button>
-      <button onClick={loadDatatokensByCollector}>
-        loadDatatokensByCollector
+      <button onClick={loadDatatokensCreatedBy}>loadDatatokensCreatedBy</button>
+      <button onClick={loadDatatokensCollectedBy}>
+        loadDatatokensCollectedBy
       </button>
-      <button onClick={loadDatatokenDetail}>loadDatatokenDetail</button>
-      <button onClick={loadDatatokenDetailsBy}>loadDatatokenDetailsBy</button>
+      <button onClick={loadDatatoken}>loadDatatoken</button>
+      <button onClick={loadDatatokens}>loadDatatokens</button>
       <button onClick={loadDatatokenCollectors}>loadDatatokenCollectors</button>
       <button onClick={isDatatokenCollectedBy}>isDatatokenCollectedBy</button>
       <br />
       <br />
-      <button onClick={loadDataUnionsByPublisher}>
-        loadDataUnionsByPublisher
+      <button onClick={loadDataUnionsPublishedBy}>
+        loadDataUnionsPublishedBy
       </button>
-      <button onClick={loadDataUnionsByCollector}>
-        loadDataUnionsByCollector
+      <button onClick={loadDataUnionsCollectedBy}>
+        loadDataUnionsCollectedBy
       </button>
-      <button onClick={loadDataUnionDetail}>loadDataUnionDetail</button>
+      <button onClick={loadDataUnion}>loadDataUnion</button>
       <button onClick={loadDataUnionCollectors}>loadDataUnionCollectors</button>
       <button onClick={loadDataUnionSubscribers}>
         loadDataUnionSubscribers
       </button>
-      <button onClick={loadDataUnionSubscriptionListByCollector}>
-        loadDataUnionSubscriptionListByCollector
+      <button onClick={loadDataUnionSubscriptionsBy}>
+        loadDataUnionSubscriptionsBy
       </button>
       <button onClick={isDataUnionCollectedBy}>isDataUnionCollectedBy</button>
       <button onClick={isDataUnionSubscribedBy}>isDataUnionSubscribedBy</button>

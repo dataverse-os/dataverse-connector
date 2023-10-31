@@ -155,19 +155,19 @@ export interface RequestType {
   subscribeDataUnion: SubscribeDataUnionVars;
   unlockFile: string;
 
-  loadDatatokensByCreator: string;
-  loadDatatokensByCollector: string;
-  loadDatatokenDetail: string;
-  loadDatatokenDetailsBy: Array<string>;
+  loadDatatokensCreatedBy: string;
+  loadDatatokensCollectedBy: string;
+  loadDatatoken: string;
+  loadDatatokens: Array<string>;
   loadDatatokenCollectors: string;
   isDatatokenCollectedBy: { datatokenId: string; collector: string };
 
-  loadDataUnionsByPublisher: string;
-  loadDataUnionsByCollector: string;
-  loadDataUnionDetail: string;
+  loadDataUnionsPublishedBy: string;
+  loadDataUnionsCollectedBy: string;
+  loadDataUnion: string;
   loadDataUnionCollectors: string;
   loadDataUnionSubscribers: string;
-  loadDataUnionSubscriptionListByCollector: {
+  loadDataUnionSubscriptionsBy: {
     dataUnionId: string;
     collector: string;
   };
@@ -324,19 +324,19 @@ export interface ReturnType {
     };
   }>;
 
-  loadDatatokensByCreator: Promise<Array<DataTokenGraphType>>;
-  loadDatatokensByCollector: Promise<Array<DataTokenGraphType>>;
-  loadDatatokenDetail: Promise<DataTokenGraphType>;
-  loadDatatokenDetailsBy: Promise<Array<DataTokenGraphType>>;
+  loadDatatokensCreatedBy: Promise<Array<DataTokenGraphType>>;
+  loadDatatokensCollectedBy: Promise<Array<DataTokenGraphType>>;
+  loadDatatoken: Promise<DataTokenGraphType>;
+  loadDatatokens: Promise<Array<DataTokenGraphType>>;
   loadDatatokenCollectors: Promise<Array<Datatoken_Collector>>;
   isDatatokenCollectedBy: Promise<boolean>;
 
-  loadDataUnionsByPublisher: Promise<Array<DataUnionGraphType>>;
-  loadDataUnionsByCollector: Promise<Array<DataUnionGraphType>>;
-  loadDataUnionDetail: Promise<DataUnionGraphType>;
+  loadDataUnionsPublishedBy: Promise<Array<DataUnionGraphType>>;
+  loadDataUnionsCollectedBy: Promise<Array<DataUnionGraphType>>;
+  loadDataUnion: Promise<DataUnionGraphType>;
   loadDataUnionCollectors: Promise<Array<Data_Union_Subscriber>>;
   loadDataUnionSubscribers: Promise<Array<Data_Union_Subscriber>>;
-  loadDataUnionSubscriptionListByCollector: Promise<
+  loadDataUnionSubscriptionsBy: Promise<
     Array<Data_Union_Subscriber>
   >;
   isDataUnionCollectedBy: Promise<boolean>;

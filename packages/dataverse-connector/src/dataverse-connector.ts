@@ -202,18 +202,18 @@ export class DataverseConnector {
       method !== SYSTEM_CALL.loadFile &&
       method !== SYSTEM_CALL.loadFilesBy &&
       method !== SYSTEM_CALL.getModelBaseInfo &&
-      method !== SYSTEM_CALL.loadDatatokensByCreator &&
-      method !== SYSTEM_CALL.loadDatatokensByCollector &&
-      method !== SYSTEM_CALL.loadDatatokenDetail &&
-      method !== SYSTEM_CALL.loadDatatokenDetailsBy &&
+      method !== SYSTEM_CALL.loadDatatokensCreatedBy &&
+      method !== SYSTEM_CALL.loadDatatokensCollectedBy &&
+      method !== SYSTEM_CALL.loadDatatoken &&
+      method !== SYSTEM_CALL.loadDatatokens &&
       method !== SYSTEM_CALL.loadDatatokenCollectors &&
       method !== SYSTEM_CALL.isDatatokenCollectedBy &&
-      method !== SYSTEM_CALL.loadDataUnionsByPublisher &&
-      method !== SYSTEM_CALL.loadDataUnionsByCollector &&
-      method !== SYSTEM_CALL.loadDataUnionDetail &&
+      method !== SYSTEM_CALL.loadDataUnionsPublishedBy &&
+      method !== SYSTEM_CALL.loadDataUnionsCollectedBy &&
+      method !== SYSTEM_CALL.loadDataUnion &&
       method !== SYSTEM_CALL.loadDataUnionCollectors &&
       method !== SYSTEM_CALL.loadDataUnionSubscribers &&
-      method !== SYSTEM_CALL.loadDataUnionSubscriptionListByCollector &&
+      method !== SYSTEM_CALL.loadDataUnionSubscriptionsBy &&
       method !== SYSTEM_CALL.isDataUnionCollectedBy &&
       method !== SYSTEM_CALL.isDataUnionSubscribedBy &&
       !this?.isConnected
