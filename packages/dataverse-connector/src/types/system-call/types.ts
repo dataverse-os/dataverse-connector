@@ -154,6 +154,7 @@ export interface RequestType {
   collectDataUnion: string;
   subscribeDataUnion: SubscribeDataUnionVars;
   unlockFile: string;
+  isFileUnlocked: string;
 
   loadDatatokensCreatedBy: string;
   loadDatatokensCollectedBy: string;
@@ -323,6 +324,7 @@ export interface ReturnType {
       content: FileContent | string;
     };
   }>;
+  isFileUnlocked: Promise<boolean>;
 
   loadDatatokensCreatedBy: Promise<Array<DataTokenGraphType>>;
   loadDatatokensCollectedBy: Promise<Array<DataTokenGraphType>>;

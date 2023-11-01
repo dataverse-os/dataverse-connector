@@ -41,6 +41,7 @@ export enum SYSTEM_CALL {
   collectDataUnion = "collectDataUnion",
   subscribeDataUnion = "subscribeDataUnion",
   unlockFile = "unlockFile",
+  isFileUnlocked = "isFileUnlocked",
 
   loadDatatokensCreatedBy = "loadDatatokensCreatedBy",
   loadDatatokensCollectedBy = "loadDatatokensCollectedBy",

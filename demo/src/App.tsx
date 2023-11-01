@@ -1062,6 +1062,18 @@ function App() {
       console.error(error);
     }
   };
+
+  const isFileUnlocked = async () => {
+    try {
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.isFileUnlocked,
+        params: actionFileId || indexFileId,
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   /*** Collect and Unlock ***/
 
   /*** Profile ***/
@@ -1151,7 +1163,7 @@ function App() {
   };
 
   const loadDatatoken = async () => {
-    const datatokenId = "0xeDb95BC3725230e20AC67F420be871926d12a094";
+    const datatokenId = "0xc2B6e45E469f618fc927a10A90dc3549dB9C268d";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDatatoken,
       params: datatokenId,
@@ -1391,6 +1403,7 @@ function App() {
       <button onClick={collectDataUnion}>collectDataUnion</button>
       <button onClick={subscribeDataUnion}>subscribeDataUnion</button>
       <button onClick={unlockFile}>unlockFile</button>
+      <button onClick={isFileUnlocked}>isFileUnlocked</button>
       <br />
       <br />
       <button onClick={createProfile}>createProfile</button>
