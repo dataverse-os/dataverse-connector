@@ -896,7 +896,7 @@ function App() {
         throw "You must connect capability";
       }
 
-      const isDatatoken = false;
+      const isDatatoken = true;
       let datatokenVars: DatatokenVars | undefined = undefined;
 
       if (isDatatoken) {
