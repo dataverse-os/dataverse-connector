@@ -1,5 +1,3 @@
-import { SYSTEM_CALL, ReturnType } from "../system-call";
-
 export interface DAppInfo {
   address: string;
   ceramic: string;
@@ -37,7 +35,3 @@ export type ValidAppCaps = (DAppInfo & {
   streamsNumber: number;
   isIdentityValid: boolean;
 })[];
-
-export type StreamContent = Record<string, any>;
-
-export type StreamRecord = Awaited<ReturnType[SYSTEM_CALL.loadStream]>;

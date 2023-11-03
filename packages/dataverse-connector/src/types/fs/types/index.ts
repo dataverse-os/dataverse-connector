@@ -1,25 +1,47 @@
 export type {
   IndexFolder,
   ContentFolder,
-  IndexFoldersRecord,
-  ContentFoldersRecord,
-  NativeFolders,
+  IndexFolderRecord,
+  ContentFolderRecord,
+  NativeFolder,
   StructuredFolder,
-  StructuredFolders,
-  PrivateFolderOptions,
-  PublicFolderOptions,
-  DatatokenFolderOptions,
+  StructuredFolderRecord,
 } from "./folder";
 
 export type {
-  IndexFile,
-  IndexFilesRecord,
+  ContentType,
   FileInfo,
+  IndexFile,
+  IndexFileRecord,
   StructuredFile,
   StructuredFiles,
-  Comment,
-  Relation,
-  Additional,
 } from "./index-file";
 
-export type { Mirror, Mirrors, MirrorFile, MirrorFiles } from "./mirrors";
+export { StorageResource } from "./index-file";
+
+export type {
+  ActionFileInfo,
+  ActionFile,
+  ActionFilesRecord,
+  StructuredActionFile,
+  StructuredActionFiles,
+} from "./action-file";
+
+export { type Action, ActionType } from "./action-file";
+
+export type {
+  Mirror,
+  MirrorRecord,
+  MirrorFile,
+  MirrorFileRecord,
+} from "./mirror";
+
+export {
+  EncryptionProtocol,
+  MonetizationProtocol,
+  type EncryptionProvider,
+  type MonetizationProvider,
+  type AccessControl,
+  type FileContent,
+  type FileRecord,
+} from "./common";

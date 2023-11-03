@@ -2,13 +2,18 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   DataverseConnector,
-  FolderType,
-  StructuredFolders,
+  StructuredFolderRecord,
   Currency,
   StorageProviderName,
   WALLET,
   RESOURCE,
   SYSTEM_CALL,
+  ActionType,
+  DatatokenType,
+  ChainId,
+  DatatokenVars,
+  MirrorFile,
+  // StorageResource,
 } from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
@@ -17,16 +22,19 @@ import "./App.scss";
 
 const dataverseConnector = new DataverseConnector();
 
-export const appId = "319e6aa6-916d-46fc-a7bf-4c4b0cb04919";
+export const appId = "9aaae63f-3445-47d5-8785-c23dd16e4965";
 
 const modelId =
-  "kjzl6hvfrbw6catndj34fzm0au0qu8dznn6wtrrdmd4va7052ffiypywqd8fjg9";
+  "kjzl6hvfrbw6c8h0oiiv2ccikb2thxsu98sy0ydi6oshj6sjuz9dga94463anvf";
+
+const chainId = ChainId.Mumbai;
+const datatokenType = DatatokenType.Profileless;
 
 const postVersion = "0.0.1";
 
 const storageProvider = {
   name: StorageProviderName.Lighthouse,
-  apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call uploadFile successfully
+  apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call createBareFile successfully
 };
 
 function App() {
@@ -44,10 +52,14 @@ function App() {
   const [appListInfo, setAppListInfo] = useState<string>("");
   const [appInfo, setAppInfo] = useState<string>("");
 
-  const [streamId, setStreamId] = useState("");
+  const [folders, setFolders] = useState<StructuredFolderRecord>();
   const [folderId, setFolderId] = useState("");
+
+  const [dataUnions, setDataUnions] = useState<StructuredFolderRecord>();
+  const [dataUnionId, setDataUnionId] = useState("");
+
   const [indexFileId, setIndexFileId] = useState("");
-  const [folders, setFolders] = useState<StructuredFolders>();
+  const [actionFileId, setActionFileId] = useState("");
   const [
     dataverseProviderHasAddedListener,
     setDataverseProviderHasAddedListener,
@@ -213,7 +225,21 @@ function App() {
         },
       ],
     });
+
     console.log(res);
+
+    // const ethersProvider = new ethers.providers.Web3Provider(provider!);
+
+    // const ethersSigner = ethersProvider.getSigner();
+    // const res = await ethersSigner.sendTransaction({
+    //   from: dataverseConnector.address, // The user's active address.
+    //   to: dataverseConnector.address, // Required except during contract publications.
+    //   value: "0xE8D4A50FFD41E", // Only required to send ether to the recipient from the initiating external account.
+    //   // gasPrice: "0x09184e72a000", // Customizable by the user during MetaMask confirmation.
+    //   // gas: "0x2710", // Customizable by the user during MetaMask confirmation.
+    // });
+    // const tx = await res.wait();
+    // console.log(tx);
   };
 
   const contractCall = async () => {
@@ -360,8 +386,9 @@ function App() {
   };
   /*** DApp ***/
 
-  /*** Stream ***/
+  /*** Capability ***/
   const createCapability = async () => {
+    await connectWalletWithMetamaskProvider();
     const pkh = await dataverseConnector.runOS({
       method: SYSTEM_CALL.createCapability,
       params: {
@@ -385,106 +412,13 @@ function App() {
     setIsCurrentPkhValid(isCurrentPkhValid);
   };
 
-  const createStream = async () => {
-    const date = new Date().toISOString();
-
-    const encrypted = JSON.stringify({
-      text: false,
-      images: false,
-      videos: false,
-    });
-
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.createStream,
-      params: {
-        modelId,
-        streamContent: {
-          appVersion: postVersion,
-          text: "hello",
-          images: [
-            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
-          ],
-          videos: [],
-          createdAt: date,
-          updatedAt: date,
-          encrypted,
-        },
-      },
-    });
-
-    setStreamId(res.streamId);
-    setIndexFileId(res.streamContent.file.indexFileId);
-    console.log(res);
-  };
-
-  const updateStream = async () => {
-    const date = new Date().toISOString();
-
-    const encrypted = JSON.stringify({
-      text: true,
-      images: true,
-      videos: false,
-    });
-
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.updateStream,
-      params: {
-        streamId,
-        streamContent: {
-          appVersion: postVersion,
-          text: "hello",
-          images: [
-            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
-          ],
-          videos: [],
-          createdAt: date,
-          updatedAt: date,
-          encrypted,
-        },
-      },
-    });
-    console.log(res);
-  };
-
-  const loadStream = async () => {
-    const stream = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadStream,
-      params: streamId,
-    });
-    console.log(stream);
-  };
-
-  const loadStreamsBy = async () => {
-    const streams = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadStreamsBy,
-      params: {
-        modelId,
-        pkh,
-      },
-    });
-    console.log(streams);
-    // const res = Object.values(streams).filter(
-    //   (el) => el.controller !== pkh && el.fileType === FileType.Datatoken
-    // );
-    // console.log(res);
-  };
-  /*** Stream ***/
+  /*** Capability ***/
 
   /*** Folders ***/
-  const readFolders = async () => {
-    const folders = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.readFolders,
-    });
-    setFolders(folders);
-    console.log({ folders });
-    return folders;
-  };
-
   const createFolder = async () => {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.createFolder,
       params: {
-        folderType: FolderType.Private,
         folderName: "Private",
       },
     });
@@ -498,33 +432,55 @@ function App() {
       method: SYSTEM_CALL.updateFolderBaseInfo,
       params: {
         folderId,
-        newFolderName: new Date().toISOString(),
-        newFolderDescription: new Date().toISOString(),
+        folderName: new Date().toISOString(),
+        folderDescription: new Date().toISOString(),
       },
     });
     console.log(res);
   };
 
-  const readFolderById = async () => {
+  const loadFolderTrees = async () => {
+    const folders = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadFolderTrees,
+    });
+    setFolders(folders);
+    console.log({ folders });
+    return folders;
+  };
+
+  const loadFolderById = async () => {
     const folder = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.readFolderById,
+      method: SYSTEM_CALL.loadFolderById,
       params: folderId,
     });
     console.log({ folder });
     return folder;
   };
 
+  const getDefaultFolderId = async () => {
+    if (!folders) {
+      throw "Please call loadFolderTrees first";
+    }
+    const { defaultFolderName } = await getDAppInfo();
+    const folder = Object.values(folders).find(
+      folder => folder.folderName === defaultFolderName,
+    );
+    return folder!.folderId;
+  };
+
   const deleteFolder = async () => {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.deleteFolder,
-      params: { folderId },
+      params: {
+        folderId,
+      },
     });
     console.log(res);
   };
 
-  const deleteAllFolder = async () => {
+  const deleteAllFolders = async () => {
     if (!folders) {
-      throw "Please call readFolders first";
+      throw "Please call loadFolderTrees first";
     }
     await Promise.all(
       Object.keys(folders).map(folderId =>
@@ -536,23 +492,254 @@ function App() {
     );
   };
 
-  const getDefaultFolderId = async () => {
-    if (!folders) {
-      throw "Please call readFolders first";
-    }
-    const { defaultFolderName } = await getDAppInfo();
-    const folder = Object.values(folders).find(
-      folder => folder.options.folderName === defaultFolderName,
-    );
-    return folder!.folderId;
-  };
   /*** Folders ***/
 
+  /*** DataUnions ***/
+  const publishDataUnion = async () => {
+    let profileId;
+    if (datatokenType !== DatatokenType.Profileless) {
+      profileId = await getOrCreateProfileId({
+        pkh,
+        lensNickName: "handle" + Date.now(),
+      });
+    }
+
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.publishDataUnion,
+      params: {
+        dataUnionName: "data union",
+        dataUnionDescription: "data union description",
+        // contentType: { resource: StorageResource.CERAMIC, resourceId: modelId },
+        // contentType: { resource: StorageResource.IPFS },
+        // actionType: ActionType.LIKE,
+        dataUnionVars: {
+          datatokenVars: {
+            chainId,
+            type: datatokenType,
+            collectModule: "LimitedFeeCollectModule",
+            ...(profileId && { profileId }),
+            collectLimit: 100,
+            amount: 0.0001,
+            currency: Currency.WMATIC,
+          },
+          resourceId: "",
+          subscribeModule: "TimeSegmentSubscribeModule",
+          subscribeModuleInput: {
+            amount: 0.0001,
+            currency: Currency.WMATIC,
+            segment: "Week",
+          },
+        },
+      },
+    });
+    console.log(res);
+    setDataUnionId(res.newDataUnion.folderId);
+    console.log(res.newDataUnion.folderId);
+  };
+
+  const updateDataUnionBaseInfo = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.updateDataUnionBaseInfo,
+      params: {
+        dataUnionId,
+        dataUnionName: new Date().toISOString(),
+        dataUnionDescription: new Date().toISOString(),
+      },
+    });
+    console.log(res);
+  };
+
+  const loadCreatedDataUnions = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadCreatedDataUnions,
+    });
+    setDataUnions(res);
+    console.log(res);
+  };
+
+  const loadCollectedDataUnions = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadCollectedDataUnions,
+    });
+    console.log(res);
+  };
+
+  const loadDataUnionById = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionById,
+      params: dataUnionId,
+    });
+    console.log(res);
+  };
+
+  const deleteDataUnion = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.deleteDataUnion,
+      params: {
+        dataUnionId,
+      },
+    });
+    console.log(res);
+  };
+
+  const deleteAllDataUnion = async () => {
+    if (!dataUnions) {
+      throw "Please call loadDataUnions first";
+    }
+    await Promise.all(
+      Object.keys(dataUnions).map(dataUnionId =>
+        dataverseConnector.runOS({
+          method: SYSTEM_CALL.deleteDataUnion,
+          params: { dataUnionId },
+        }),
+      ),
+    );
+  };
+  /*** DataUnions ***/
+
   /*** Files ***/
-  const uploadFile = async (event: any) => {
+  const createIndexFile = async () => {
+    const date = new Date().toISOString();
+
+    const encrypted = JSON.stringify({
+      text: false,
+      images: false,
+      videos: false,
+    });
+
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createIndexFile,
+      params: {
+        modelId,
+        fileName: "create a file",
+        fileContent: {
+          modelVersion: postVersion,
+          text: "hello",
+          images: [
+            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+          ],
+          videos: [],
+          createdAt: date,
+          updatedAt: date,
+          encrypted,
+        },
+      },
+    });
+
+    setIndexFileId(res.fileContent.file.fileId);
+    console.log(res);
+  };
+
+  const updateIndexFile = async () => {
+    const date = new Date().toISOString();
+
+    const encrypted = JSON.stringify({
+      text: true,
+      images: true,
+      videos: false,
+    });
+
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.updateIndexFile,
+      params: {
+        fileId: indexFileId,
+        fileName: "update the file",
+        fileContent: {
+          modelVersion: postVersion,
+          text: "hello",
+          images: [
+            "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link",
+          ],
+          videos: [],
+          createdAt: date,
+          updatedAt: date,
+          encrypted,
+        },
+      },
+    });
+    console.log(res);
+  };
+
+  const loadFile = async () => {
+    const file = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadFile,
+      params: indexFileId,
+    });
+    console.log(file);
+    return file;
+  };
+
+  const loadFilesBy = async () => {
+    const fileRecord = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadFilesBy,
+      params: {
+        modelId,
+        pkh,
+      },
+    });
+    console.log(fileRecord);
+  };
+
+  const loadCreatedDatatokenFiles = async () => {
+    const fileRecord = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadCreatedDatatokenFiles,
+    });
+    console.log(fileRecord);
+  };
+
+  const loadCollectedDatatokenFiles = async () => {
+    const fileRecord = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadCollectedDatatokenFiles,
+    });
+    console.log(fileRecord);
+  };
+
+  const createActionFile = async () => {
+    if (!indexFileId) {
+      throw "RelationId cannnot be empty";
+    }
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.createActionFile,
+      params: {
+        folderId,
+        action: {
+          actionType: ActionType.LIKE,
+          comment: "I like it!",
+          isRelationIdEncrypted: false,
+          isCommentEncrypted: false,
+        },
+        relationId: indexFileId,
+        fileName: "like",
+      },
+    });
+    setActionFileId(res.newFile.fileId);
+    console.log(res);
+  };
+
+  const updateActionFile = async () => {
+    if (!indexFileId) {
+      throw "RelationId cannnot be empty";
+    }
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.updateActionFile,
+      params: {
+        fileId: actionFileId,
+        isRelationIdEncrypted: true,
+        isCommentEncrypted: true,
+        fileName: "like",
+      },
+    });
+    setActionFileId(res.currentFile.fileId);
+    console.log(res);
+  };
+
+  const createBareFile = async (event: any) => {
     try {
       const file = event.target.files[0];
       console.log(file);
+      if (!file) {
+        return;
+      }
       const fileName = file.name;
 
       const reader = new FileReader();
@@ -564,75 +751,48 @@ function App() {
       });
 
       console.log(fileBase64);
-      // var binaryString = atob(fileBase64.split(",")[1]);
-      // console.log(binaryString);
-      // var bytes = new Uint8Array(binaryString.length);
-      // for (var i = 0; i < binaryString.length; i++) {
-      //   bytes[i] = binaryString.charCodeAt(i);
-      // }
-      // console.log(bytes);
-      // console.log(bytes.buffer);
+
+      const isDatatoken = true;
+      let datatokenVars: DatatokenVars | undefined = undefined;
+
+      if (isDatatoken) {
+        // const profileId = await getOrCreateProfileId({
+        //   pkh,
+        //   lensNickName: "handle" + Date.now(),
+        // });
+        let profileId;
+        if (datatokenType !== DatatokenType.Profileless) {
+          profileId = await getOrCreateProfileId({
+            pkh,
+            lensNickName: "handle" + Date.now(),
+          });
+        }
+        datatokenVars = {
+          chainId,
+          type: datatokenType,
+          collectModule: "LimitedFeeCollectModule",
+          ...(profileId && { profileId }),
+          collectLimit: 100,
+          amount: 0.0001,
+          currency: Currency.WMATIC,
+        };
+      }
+
       const res = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.uploadFile,
+        method: SYSTEM_CALL.createBareFile,
         params: {
           folderId,
           fileBase64,
           fileName,
-          encrypted: false,
+          encrypted: true,
+          // previewed: true,
           storageProvider,
-        },
-      });
-      setIndexFileId(res.newFile.indexFileId);
-      console.log(res);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const updateFileBaseInfo = async () => {
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.updateFileBaseInfo,
-      params: {
-        indexFileId,
-        fileInfo: {
-          mirrorName: "aaa",
-        },
-      },
-    });
-    console.log(res);
-  };
-
-  const moveFiles = async () => {
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.moveFiles,
-      params: {
-        targetFolderId: folderId || (await getDefaultFolderId()),
-        sourceIndexFileIds: [indexFileId],
-      },
-    });
-    console.log(res);
-  };
-
-  const monetizeFile = async () => {
-    try {
-      if (!pkh) {
-        throw "You must connect capability";
-      }
-      const profileId = await getProfileId({
-        pkh,
-        lensNickName: "hello123456",
-      });
-
-      const res = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.monetizeFile,
-        params: {
-          ...(indexFileId ? { indexFileId } : { streamId }),
-          datatokenVars: {
-            profileId,
-            collectLimit: 100,
-            amount: 0.0001,
-            currency: Currency.WMATIC,
-          },
+          dataUnionId,
+          datatokenVars,
+          // unlockingTimeStamp: String(
+          //   Math.floor(Date.now() / 1000) + 5 * 60,
+          //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+          // ),
           // decryptionConditions: [
           //   [
           //     {
@@ -661,7 +821,143 @@ function App() {
           //       },
           //     },
           //   ] as any,
-          // ], // Only sell to specific users
+          // ], // Only sell to specific users;
+        },
+      });
+      setIndexFileId(res.newFile.fileId);
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const updateBareFile = async (event: any) => {
+    try {
+      const file = event.target.files[0];
+      console.log(file);
+      if (!file) {
+        return;
+      }
+      const fileName = file.name;
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      const fileBase64: string = await new Promise(resolve => {
+        reader.addEventListener("load", async (e: any) => {
+          resolve(e.target.result);
+        });
+      });
+
+      console.log(fileBase64);
+
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.updateBareFile,
+        params: {
+          fileId: indexFileId,
+          fileBase64,
+          fileName,
+          encrypted: true,
+          storageProvider,
+        },
+      });
+      setIndexFileId(res.currentFile.fileId);
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const loadBareFileContent = async () => {
+    try {
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.loadBareFileContent,
+        params: indexFileId,
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const moveFiles = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.moveFiles,
+      params: {
+        targetFolderId: folderId || (await getDefaultFolderId()),
+        fileIds: [actionFileId || indexFileId],
+      },
+    });
+    console.log(res);
+  };
+
+  const monetizeFile = async () => {
+    try {
+      if (!pkh) {
+        throw "You must connect capability";
+      }
+
+      const isDatatoken = true;
+      let datatokenVars: DatatokenVars | undefined = undefined;
+
+      if (isDatatoken) {
+        let profileId;
+        if (datatokenType !== DatatokenType.Profileless) {
+          profileId = await getOrCreateProfileId({
+            pkh,
+            lensNickName: "handle" + Date.now(),
+          });
+        }
+        datatokenVars = {
+          chainId,
+          type: datatokenType,
+          collectModule: "LimitedFeeCollectModule",
+          ...(profileId && { profileId }),
+          collectLimit: 100,
+          amount: 0.0001,
+          currency: Currency.WMATIC,
+        };
+      }
+
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.monetizeFile,
+        params: {
+          // actionFile cannot be monetized to a datatoken
+          fileId: (!isDatatoken && actionFileId) || indexFileId,
+          datatokenVars,
+          dataUnionId,
+          // unlockingTimeStamp: String(
+          //   Math.floor(Date.now() / 1000) + 5 * 60,
+          //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+          // ),
+          // decryptionConditions: [
+          //   [
+          //     {
+          //       conditionType: "evmBasic",
+          //       contractAddress: "",
+          //       standardContractType: "",
+          //       chain: "filecoin",
+          //       method: "",
+          //       parameters: [":userAddress"],
+          //       returnValueTest: {
+          //         comparator: "=",
+          //         value: "0xd10d5b408A290a5FD0C2B15074995e899E944444",
+          //       },
+          //     },
+          //     { operator: "or" },
+          //     {
+          //       conditionType: "evmBasic",
+          //       contractAddress: "",
+          //       standardContractType: "",
+          //       chain: "filecoin",
+          //       method: "",
+          //       parameters: [":userAddress"],
+          //       returnValueTest: {
+          //         comparator: "=",
+          //         value: "0x3c6216caE32FF6691C55cb691766220Fd3f55555",
+          //       },
+          //     },
+          //   ] as any,
+          // ], // Only sell to specific users;
         },
       });
 
@@ -676,39 +972,159 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.removeFiles,
       params: {
-        indexFileIds: [indexFileId],
+        fileIds: [actionFileId || indexFileId],
       },
     });
     console.log(res);
   };
   /*** Files ***/
 
-  /*** Monetize ***/
+  /*** Collect and Unlock ***/
+  const collectFile = async () => {
+    try {
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.collectFile,
+        params: actionFileId || indexFileId,
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const collectDataUnion = async () => {
+    try {
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.collectDataUnion,
+        params: dataUnionId,
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const subscribeDataUnion = async () => {
+    try {
+      const fileRes = await loadFile();
+      const file = (fileRes.fileContent.file ??
+        fileRes.fileContent.content) as MirrorFile;
+
+      if (!file.accessControl?.monetizationProvider?.dataUnionIds) {
+        throw "The file cannot be subscribed";
+      }
+
+      const startAt = file.accessControl?.monetizationProvider?.blockNumber;
+
+      const dataUnion = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.loadDataUnionById,
+        params: dataUnionId,
+      });
+
+      const dataUnionContractId =
+        dataUnion.accessControl?.monetizationProvider?.dataUnionId;
+
+      const subscriptionList = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.loadDataUnionSubscriptionsBy,
+        params: {
+          dataUnionId: dataUnionContractId!,
+          collector: address,
+        },
+      });
+
+      const collectTokenId = subscriptionList[0]?.collect_nft_token_id;
+
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.subscribeDataUnion,
+        params: {
+          dataUnionId,
+          collectTokenId,
+          subscribeInput: {
+            startAt,
+            segmentsCount: 1,
+          },
+        },
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const unlockFile = async () => {
+    try {
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.unlockFile,
+        params: actionFileId || indexFileId,
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const isFileUnlocked = async () => {
+    try {
+      const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.isFileUnlocked,
+        params: actionFileId || indexFileId,
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  /*** Collect and Unlock ***/
+
+  /*** Profile ***/
   const createProfile = async () => {
     await provider?.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: "0x13881" }],
     });
-    const res = await dataverseConnector.createProfile("test01");
+    const res = await dataverseConnector.createProfile({
+      chainId,
+      handle: "handle" + Date.now(),
+    });
     console.log(res);
   };
 
   const getProfiles = async () => {
-    const res = await dataverseConnector.getProfiles(address);
+    const res = await dataverseConnector.getProfiles({
+      chainId,
+      address,
+    });
     console.log(res);
   };
 
-  const getProfileId = async ({
+  const getProfileIdByHandle = async () => {
+    const res = await dataverseConnector.getProfileIdByHandle({
+      chainId,
+      handle: "test01",
+    });
+    console.log(res);
+  };
+
+  const getHandleByProfileId = async () => {
+    const res = await dataverseConnector.getHandleByProfileId({
+      chainId,
+      profileId: "0x3ed9",
+    });
+    console.log(res);
+  };
+
+  const getOrCreateProfileId = async ({
     pkh,
     lensNickName,
   }: {
     pkh: string;
     lensNickName?: string;
   }) => {
-    const lensProfiles = await dataverseConnector.getProfiles(
-      pkh.slice(pkh.lastIndexOf(":") + 1),
-    );
-
+    const chainId = ChainId.Mumbai;
+    const lensProfiles = await dataverseConnector.getProfiles({
+      chainId,
+      address: pkh.slice(pkh.lastIndexOf(":") + 1),
+    });
     let profileId;
     if (lensProfiles?.[0]?.id) {
       profileId = lensProfiles?.[0]?.id;
@@ -719,44 +1135,160 @@ function App() {
       if (!/^[\da-z]{5,26}$/.test(lensNickName) || lensNickName.length > 26) {
         throw "Only supports lower case characters, numbers, must be minimum of 5 length and maximum of 26 length";
       }
-      profileId = await dataverseConnector.createProfile(lensNickName);
+      profileId = await dataverseConnector.createProfile({
+        chainId,
+        handle: lensNickName,
+      });
     }
 
     return profileId;
   };
+  /*** Profile ***/
 
-  const unlock = async () => {
-    try {
-      // const indexFileId =
-      //   "kjzl6kcym7w8y8k0cbuzlcrd78o1jpjohqj6tnrakwdq0vklbek5nhj55g2c4se";
-      const res = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.unlock,
-        params: {
-          ...(indexFileId ? { indexFileId } : { streamId }),
-        },
-      });
-      console.log(res);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const isCollected = async () => {
-    const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
-    const address = "0xdC4b09aBf7dB2Adf6C5b4d4f34fd54759aAA5Ccd";
-    const res = await dataverseConnector.isCollected({
-      datatokenId,
-      address,
+  /*** Query Datatoken ***/
+  const loadDatatokensCreatedBy = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDatatokensCreatedBy,
+      params: address,
     });
     console.log(res);
   };
 
-  const getDatatokenBaseInfo = async () => {
-    const datatokenId = "0xD0f57610CA33A86d1A9C8749CbEa027fDCff3575";
-    const res = await dataverseConnector.getDatatokenBaseInfo(datatokenId);
+  const loadDatatokensCollectedBy = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDatatokensCollectedBy,
+      params: address,
+    });
     console.log(res);
   };
-  /*** Monetize ***/
+
+  const loadDatatoken = async () => {
+    const datatokenId = "0xF18dc9f5E94C24bbf56Dde5d4476bA6838CD01ba";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDatatoken,
+      params: datatokenId,
+    });
+    console.log(res);
+  };
+
+  const loadDatatokens = async () => {
+    const datatokenIds = [
+      "0x251458653489F46f0E117925d649Bca3bA04a91b",
+      "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0",
+    ];
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDatatokens,
+      params: datatokenIds,
+    });
+    console.log(res);
+  };
+
+  const loadDatatokenCollectors = async () => {
+    const datatokenId = "0x50eD54ae8700f23E24cB6316ddE8869978AB4d5f";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDatatokenCollectors,
+      params: datatokenId,
+    });
+    console.log(res);
+  };
+
+  const isDatatokenCollectedBy = async () => {
+    const datatokenId = "0x50eD54ae8700f23E24cB6316ddE8869978AB4d5f";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.isDatatokenCollectedBy,
+      params: { datatokenId, collector: address },
+    });
+    console.log(res);
+  };
+  /*** Query Datatoken ***/
+
+  /*** Query DataUnion ***/
+  const loadDataUnionsPublishedBy = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionsPublishedBy,
+      params: address,
+    });
+    console.log(res);
+  };
+
+  const loadDataUnionsCollectedBy = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionsCollectedBy,
+      params: address,
+    });
+    console.log(res);
+  };
+
+  const loadDataUnion = async () => {
+    const dataUnionId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnion,
+      params: dataUnionId,
+    });
+    console.log(res);
+  };
+
+  const loadDataUnionCollectors = async () => {
+    const dataUnionId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionCollectors,
+      params: dataUnionId,
+    });
+    console.log(res);
+  };
+
+  const loadDataUnionSubscribers = async () => {
+    const dataUnionId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionSubscribers,
+      params: dataUnionId,
+    });
+    console.log(res);
+  };
+
+  const loadDataUnionSubscriptionsBy = async () => {
+    const dataUnionId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionSubscriptionsBy,
+      params: {
+        dataUnionId,
+        collector: address,
+      },
+    });
+    console.log(res);
+  };
+
+  const isDataUnionCollectedBy = async () => {
+    const dataUnionId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.isDataUnionCollectedBy,
+      params: {
+        dataUnionId,
+        collector: address,
+      },
+    });
+    console.log(res);
+  };
+
+  const isDataUnionSubscribedBy = async () => {
+    const dataUnionId =
+      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.isDataUnionSubscribedBy,
+      params: {
+        dataUnionId,
+        subscriber: address,
+        timestamp: 0,
+      },
+    });
+    console.log(res);
+  };
+  /*** Query DataUnion ***/
 
   return (
     <div className='App'>
@@ -813,41 +1345,99 @@ function App() {
         {isCurrentPkhValid !== undefined && String(isCurrentPkhValid)}
       </div>
       <hr />
-      <button onClick={createStream}>createStream</button>
-      <button onClick={updateStream}>updateStream</button>
-      <button onClick={loadStream}>loadStream</button>
-      <button onClick={loadStreamsBy}>loadStreamsBy</button>
       <br />
-      <br />
-      <button onClick={readFolders}>readFolders</button>
       <button onClick={createFolder}>createFolder</button>
       <button onClick={updateFolderBaseInfo}>updateFolderBaseInfo</button>
-      <button onClick={readFolderById}>readFolderById</button>
+      <button onClick={loadFolderTrees}>loadFolderTrees</button>
+      <button onClick={loadFolderById}>loadFolderById</button>
       <button onClick={deleteFolder}>deleteFolder</button>
-      <button onClick={deleteAllFolder}>deleteAllFolder</button>
+      <button onClick={deleteAllFolders}>deleteAllFolders</button>
       <br />
       <br />
+      <button onClick={publishDataUnion}>publishDataUnion</button>
+      <button onClick={updateDataUnionBaseInfo}>updateDataUnionBaseInfo</button>
+      <button onClick={loadCreatedDataUnions}>loadCreatedDataUnions</button>
+      <button onClick={loadCollectedDataUnions}>loadCollectedDataUnions</button>
+      <button onClick={loadDataUnionById}>loadDataUnionById</button>
+      <button onClick={deleteDataUnion}>deleteDataUnion</button>
+      <button onClick={deleteAllDataUnion}>deleteAllDataUnion</button>
+      <br />
+      <br />
+      <button onClick={createIndexFile}>createIndexFile</button>
+      <button onClick={updateIndexFile}>updateIndexFile</button>
+      <button onClick={loadFile}>loadFile</button>
+      <button onClick={loadFilesBy}>loadFilesBy</button>
+      <button onClick={loadCreatedDatatokenFiles}>
+        loadCreatedDatatokenFiles
+      </button>
+      <button onClick={loadCollectedDatatokenFiles}>
+        loadCollectedDatatokenFiles
+      </button>
+      <button onClick={createActionFile}>createActionFile</button>
+      <button onClick={updateActionFile}>updateActionFile</button>
       <button>
-        <span>uploadFile</span>
+        <span>createBareFile</span>
         <input
           type='file'
-          onChange={uploadFile}
-          name='uploadFile'
+          onChange={createBareFile}
+          name='createBareFile'
           style={{ width: "168px", marginLeft: "10px" }}
         />
       </button>
-
-      <button onClick={updateFileBaseInfo}>updateFileBaseInfo</button>
+      <button>
+        <span>updateBareFile</span>
+        <input
+          type='file'
+          onChange={updateBareFile}
+          name='updateBareFile'
+          style={{ width: "168px", marginLeft: "10px" }}
+        />
+      </button>
+      <button onClick={loadBareFileContent}>loadBareFileContent</button>
       <button onClick={moveFiles}>moveFiles</button>
       <button onClick={monetizeFile}>monetizeFile</button>
       <button onClick={removeFiles}>removeFiles</button>
       <br />
       <br />
+      <button onClick={collectFile}>collectFile</button>
+      <button onClick={collectDataUnion}>collectDataUnion</button>
+      <button onClick={subscribeDataUnion}>subscribeDataUnion</button>
+      <button onClick={unlockFile}>unlockFile</button>
+      <button onClick={isFileUnlocked}>isFileUnlocked</button>
+      <br />
+      <br />
       <button onClick={createProfile}>createProfile</button>
       <button onClick={getProfiles}>getProfiles</button>
-      <button onClick={unlock}>unlock</button>
-      <button onClick={isCollected}>isCollected</button>
-      <button onClick={getDatatokenBaseInfo}>getDatatokenBaseInfo</button>
+      <button onClick={getProfileIdByHandle}>getProfileIdByHandle</button>
+      <button onClick={getHandleByProfileId}>getHandleByProfileId</button>
+      <br />
+      <br />
+      <button onClick={loadDatatokensCreatedBy}>loadDatatokensCreatedBy</button>
+      <button onClick={loadDatatokensCollectedBy}>
+        loadDatatokensCollectedBy
+      </button>
+      <button onClick={loadDatatoken}>loadDatatoken</button>
+      <button onClick={loadDatatokens}>loadDatatokens</button>
+      <button onClick={loadDatatokenCollectors}>loadDatatokenCollectors</button>
+      <button onClick={isDatatokenCollectedBy}>isDatatokenCollectedBy</button>
+      <br />
+      <br />
+      <button onClick={loadDataUnionsPublishedBy}>
+        loadDataUnionsPublishedBy
+      </button>
+      <button onClick={loadDataUnionsCollectedBy}>
+        loadDataUnionsCollectedBy
+      </button>
+      <button onClick={loadDataUnion}>loadDataUnion</button>
+      <button onClick={loadDataUnionCollectors}>loadDataUnionCollectors</button>
+      <button onClick={loadDataUnionSubscribers}>
+        loadDataUnionSubscribers
+      </button>
+      <button onClick={loadDataUnionSubscriptionsBy}>
+        loadDataUnionSubscriptionsBy
+      </button>
+      <button onClick={isDataUnionCollectedBy}>isDataUnionCollectedBy</button>
+      <button onClick={isDataUnionSubscribedBy}>isDataUnionSubscribedBy</button>
       <br />
       <br />
     </div>

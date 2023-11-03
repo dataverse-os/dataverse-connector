@@ -1,15 +1,26 @@
-import { StorageProvider } from "../types";
-import { ValidAppCaps } from "../app/types";
-import { StreamContent } from "../app";
-import { DatatokenVars, DecryptionConditions } from "../data-monetize/types";
-import { FolderType } from "../fs";
+import { StorageProvider } from "..";
+import { ValidAppCaps } from "../app";
 import {
-  FileInfo,
+  DataUnionVars,
+  DatatokenVars,
+  DecryptionConditions,
+  DataTokenGraphType,
+  Datatoken_Collector,
+  DataUnionGraphType,
+  Data_Union_Subscriber,
+  SubscribeDataUnionVars,
+  SubscribeDataUnionOutput,
+} from "../data-monetize";
+import {
+  Action,
+  ActionType,
+  ContentType,
+  FileContent,
   MirrorFile,
-  MirrorFiles,
+  MirrorFileRecord,
   StructuredFolder,
-  StructuredFolders,
-} from "../fs/types";
+  StructuredFolderRecord,
+} from "../fs";
 import { SYSTEM_CALL } from "./constants";
 import { RESOURCE } from "../wallet";
 
@@ -28,75 +39,149 @@ export interface RequestType {
     appId: string;
     resource?: RESOURCE;
   };
-  loadStream: string;
-  loadStreamsBy: {
-    modelId: string;
-    pkh?: string;
-  };
-  createStream: {
-    modelId: string;
-    streamContent: StreamContent;
-  };
-  updateStream: {
-    streamId: string;
-    streamContent: StreamContent;
-    syncImmediately?: boolean;
-  };
 
-  readFolders: void;
-  readFolderById: string;
   createFolder: {
-    folderType: FolderType;
     folderName: string;
     folderDescription?: string;
   };
   updateFolderBaseInfo: {
     folderId: string;
-    newFolderName?: string;
-    newFolderDescription?: string;
+    folderName?: string;
+    folderDescription?: string;
     syncImmediately?: boolean;
   };
+  loadFolderTrees: void;
+  loadFolderById: string;
   deleteFolder: {
     folderId: string;
     syncImmediately?: boolean;
   };
 
-  uploadFile: {
+  publishDataUnion: {
+    dataUnionName: string;
+    dataUnionDescription?: string;
+    contentType?: ContentType;
+    actionType?: ActionType;
+    dataUnionVars: DataUnionVars;
+  };
+  updateDataUnionBaseInfo: {
+    dataUnionId: string;
+    dataUnionName: string;
+    dataUnionDescription?: string;
+    syncImmediately?: boolean;
+  };
+  loadCreatedDataUnions: void;
+  loadCollectedDataUnions: void;
+  loadDataUnionById: string;
+  deleteDataUnion: {
+    dataUnionId: string;
+    syncImmediately?: boolean;
+  };
+
+  createIndexFile: {
+    modelId: string;
+    fileName?: string;
+    fileContent: FileContent;
+  };
+  updateIndexFile: {
+    fileId: string;
+    fileName?: string;
+    fileContent?: FileContent;
+    syncImmediately?: boolean;
+  };
+
+  createActionFile: {
+    folderId?: string;
+    action: Action;
+    relationId: string;
+    fileName?: string;
+  };
+  updateActionFile: {
+    fileId: string;
+    fileName?: string;
+    isRelationIdEncrypted?: boolean;
+    isCommentEncrypted?: boolean;
+    syncImmediately?: boolean;
+  };
+  createBareFile: {
     folderId?: string;
     fileBase64: string;
     fileName: string;
-    encrypted: boolean;
+    encrypted?: boolean;
+    previewed?: boolean;
     storageProvider: StorageProvider;
+    dataUnionId?: string;
+    datatokenVars?: DatatokenVars;
+    unlockingTimeStamp?: string;
+    decryptionConditions?: DecryptionConditions;
   };
-  updateFileBaseInfo: {
-    indexFileId: string;
-    fileInfo?: Omit<
-      FileInfo,
-      | "datatokenId"
-      | "fileKey"
-      | "encryptedSymmetricKey"
-      | "decryptionConditions"
-      | "decryptionConditionsType"
-    >;
+  updateBareFile: {
+    fileId: string;
+    fileBase64?: string;
+    fileName?: string;
+    encrypted?: boolean;
+    storageProvider?: StorageProvider;
     syncImmediately?: boolean;
   };
   moveFiles: {
     targetFolderId: string;
-    sourceIndexFileIds: string[];
-    syncImmediately?: boolean;
-  };
-  monetizeFile: {
-    streamId?: string;
-    indexFileId?: string;
-    datatokenVars: Omit<DatatokenVars, "streamId">;
-    decryptionConditions?: DecryptionConditions;
-  };
-  removeFiles: {
-    indexFileIds: string[];
+    fileIds: string[];
     syncImmediately?: boolean;
   };
 
-  unlock: { streamId?: string; indexFileId?: string };
+  removeFiles: {
+    fileIds: string[];
+    syncImmediately?: boolean;
+  };
+
+  loadFile: string;
+  loadFilesBy: {
+    modelId: string;
+    pkh?: string;
+  };
+  loadBareFileContent: string;
+  loadCreatedDatatokenFiles: void;
+  loadCollectedDatatokenFiles: void;
+
+  monetizeFile: {
+    fileId: string;
+    datatokenVars?: DatatokenVars;
+    unlockingTimeStamp?: string;
+    dataUnionId?: string;
+    decryptionConditions?: DecryptionConditions;
+  };
+  collectFile: string;
+  collectDataUnion: string;
+  subscribeDataUnion: SubscribeDataUnionVars;
+  unlockFile: string;
+  isFileUnlocked: string;
+
+  loadDatatokensCreatedBy: string;
+  loadDatatokensCollectedBy: string;
+  loadDatatoken: string;
+  loadDatatokens: Array<string>;
+  loadDatatokenCollectors: string;
+  isDatatokenCollectedBy: { datatokenId: string; collector: string };
+
+  loadDataUnionsPublishedBy: string;
+  loadDataUnionsCollectedBy: string;
+  loadDataUnion: string;
+  loadDataUnionCollectors: string;
+  loadDataUnionSubscribers: string;
+  loadDataUnionSubscriptionsBy: {
+    dataUnionId: string;
+    collector: string;
+  };
+  isDataUnionCollectedBy: {
+    dataUnionId: string;
+    collector: string;
+  };
+  isDataUnionSubscribedBy: {
+    dataUnionId: string;
+    subscriber: string;
+    blockNumber?: number;
+    timestamp?: number;
+  };
 }
 
 export interface ReturnType {
@@ -104,103 +189,158 @@ export interface ReturnType {
   executeLitAction: Promise<any>;
 
   getValidAppCaps: Promise<ValidAppCaps>;
-  getModelBaseInfo: Promise<StreamContent>;
+  getModelBaseInfo: Promise<any>;
 
   createCapability: Promise<string>;
   checkCapability: Promise<boolean>;
-  loadStream: Promise<{
+
+  createFolder: Promise<{
+    newFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
+  updateFolderBaseInfo: Promise<{
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
+  loadFolderTrees: Promise<StructuredFolderRecord>;
+  loadFolderById: Promise<StructuredFolder>;
+  deleteFolder: Promise<{
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
+
+  publishDataUnion: Promise<{
+    newDataUnion: StructuredFolder;
+    allDataUnions: StructuredFolderRecord;
+  }>;
+  updateDataUnionBaseInfo: Promise<{
+    currentDataUnion: StructuredFolder;
+    allDataUnions: StructuredFolderRecord;
+  }>;
+  loadCreatedDataUnions: Promise<StructuredFolderRecord>;
+  loadCollectedDataUnions: Promise<StructuredFolderRecord>;
+  loadDataUnionById: Promise<StructuredFolder>;
+  deleteDataUnion: Promise<{
+    currentDataUnion: StructuredFolder;
+    allDataUnions: StructuredFolderRecord;
+  }>;
+
+  createIndexFile: Promise<{
     pkh: string;
     appId: string;
     modelId: string;
-    streamContent:
-      | {
-          file?: Omit<MirrorFile, "fileKey" | "content">;
-          content?: StreamContent;
-        }
-      | StreamContent;
+    fileContent: {
+      file: Omit<MirrorFile, "fileKey" | "content" | "external">;
+      content: FileContent;
+    };
   }>;
-  loadStreamsBy: Promise<
+  updateIndexFile: Promise<{
+    fileContent: {
+      file: Omit<MirrorFile, "fileKey" | "content" | "external">;
+      content: FileContent;
+    };
+  }>;
+
+  createActionFile: Promise<{
+    newFile: MirrorFile;
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
+  updateActionFile: Promise<{
+    currentFile: MirrorFile;
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
+  createBareFile: Promise<{
+    newFile: MirrorFile;
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
+  updateBareFile: Promise<{
+    currentFile: MirrorFile;
+    currentFolder: StructuredFolder;
+    allFolders: StructuredFolderRecord;
+  }>;
+  moveFiles: Promise<{
+    sourceFolders: StructuredFolderRecord;
+    targetFolder: StructuredFolder;
+    movedFiles: MirrorFileRecord;
+    allFolders: StructuredFolderRecord;
+  }>;
+  removeFiles: Promise<{
+    sourceFolders: StructuredFolderRecord;
+    removedFiles: MirrorFileRecord;
+    allFolders: StructuredFolderRecord;
+  }>;
+
+  loadFile: Promise<{
+    pkh: string;
+    appId: string;
+    modelId: string;
+    fileContent:
+      | {
+          file?: Omit<MirrorFile, "fileKey" | "content" | "external">;
+          content?: FileContent;
+        }
+      | FileContent;
+  }>;
+  loadFilesBy: Promise<
     Record<
       string,
       {
         appId: string;
         modelId: string;
         pkh: string;
-        streamContent:
+        fileContent:
           | {
-              file?: Omit<MirrorFile, "fileKey" | "content">;
-              content?: StreamContent;
+              file?: Omit<MirrorFile, "fileKey" | "content" | "external">;
+              content?: FileContent;
             }
-          | StreamContent;
+          | FileContent;
       }
     >
   >;
-  createStream: Promise<{
-    pkh: string;
-    appId: string;
-    modelId: string;
-    streamId: string;
-    streamContent: {
-      file: Omit<MirrorFile, "fileKey" | "content">;
-      content: StreamContent;
-    };
-  }>;
-  updateStream: Promise<{
-    streamContent: {
-      file: Omit<MirrorFile, "fileKey" | "content">;
-      content: StreamContent;
-    };
-  }>;
+  loadBareFileContent: Promise<string>;
+  loadCreatedDatatokenFiles: Promise<MirrorFileRecord>;
+  loadCollectedDatatokenFiles: Promise<MirrorFileRecord>;
 
-  readFolders: Promise<StructuredFolders>;
-  readFolderById: Promise<StructuredFolder>;
-  createFolder: Promise<{
-    newFolder: StructuredFolder;
-    allFolders: StructuredFolders;
-  }>;
-  updateFolderBaseInfo: Promise<{
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
-  }>;
-  deleteFolder: Promise<{
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
-  }>;
-
-  uploadFile: Promise<{
-    newFile: MirrorFile;
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
-  }>;
-  updateFileBaseInfo: Promise<{
-    currentFile: MirrorFile;
-    currentFolder: StructuredFolder;
-    allFolders: StructuredFolders;
-  }>;
-  moveFiles: Promise<{
-    sourceFolders: StructuredFolders;
-    targetFolder: StructuredFolder;
-    movedFiles: MirrorFiles;
-    allFolders: StructuredFolders;
-  }>;
   monetizeFile: Promise<{
-    streamContent: {
-      file: Omit<MirrorFile, "fileKey" | "content">;
-      content: StreamContent | string;
+    fileContent: {
+      file: Omit<MirrorFile, "fileKey" | "content" | "external">;
+      content: FileContent | string;
     };
   }>;
-  removeFiles: Promise<{
-    sourceFolders: StructuredFolders;
-    removedFiles: MirrorFiles;
-    allFolders: StructuredFolders;
+  collectFile: Promise<{
+    fileContent: {
+      file: Omit<MirrorFile, "fileKey" | "content" | "external">;
+      content: FileContent | string;
+    };
   }>;
+  collectDataUnion: Promise<StructuredFolder>;
+  subscribeDataUnion: Promise<SubscribeDataUnionOutput>;
+  unlockFile: Promise<{
+    fileContent: {
+      file: Omit<MirrorFile, "fileKey" | "content" | "external">;
+      content: FileContent | string;
+    };
+  }>;
+  isFileUnlocked: Promise<boolean>;
 
-  unlock: Promise<{
-    streamContent: {
-      file: Omit<MirrorFile, "fileKey" | "content">;
-      content: StreamContent | string;
-    };
-  }>;
+  loadDatatokensCreatedBy: Promise<Array<DataTokenGraphType>>;
+  loadDatatokensCollectedBy: Promise<Array<DataTokenGraphType>>;
+  loadDatatoken: Promise<DataTokenGraphType>;
+  loadDatatokens: Promise<Array<DataTokenGraphType>>;
+  loadDatatokenCollectors: Promise<Array<Datatoken_Collector>>;
+  isDatatokenCollectedBy: Promise<boolean>;
+
+  loadDataUnionsPublishedBy: Promise<Array<DataUnionGraphType>>;
+  loadDataUnionsCollectedBy: Promise<Array<DataUnionGraphType>>;
+  loadDataUnion: Promise<DataUnionGraphType>;
+  loadDataUnionCollectors: Promise<Array<Data_Union_Subscriber>>;
+  loadDataUnionSubscribers: Promise<Array<Data_Union_Subscriber>>;
+  loadDataUnionSubscriptionsBy: Promise<Array<Data_Union_Subscriber>>;
+  isDataUnionCollectedBy: Promise<boolean>;
+  isDataUnionSubscribedBy: Promise<boolean>;
 }
 
 export interface RequestInputs {

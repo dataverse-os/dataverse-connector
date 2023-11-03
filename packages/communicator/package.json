@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/communicator",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "description": "",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",

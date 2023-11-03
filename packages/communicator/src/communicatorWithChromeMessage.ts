@@ -28,7 +28,7 @@ export class CommunicatorWithChromeMessage {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const onmessage = this._onmessage.bind(this);
       onmessage(message, sender).then(res => {
-        sendResponse(res);
+        res && sendResponse(res);
       });
       return true;
     });
@@ -94,7 +94,7 @@ export class CommunicatorWithChromeMessage {
       }
 
       if (this.handleResponseMessage) {
-        this.handleResponseMessage(message);
+        this.handleResponseMessage({ message, sender });
       } else {
         let result: { code: string; result?: any; error?: string };
         if (!this.methodClass) {
@@ -117,6 +117,7 @@ export class CommunicatorWithChromeMessage {
             };
           }
         }
+
         return {
           sequenceId: args.sequenceId,
           type: RESPONSE,

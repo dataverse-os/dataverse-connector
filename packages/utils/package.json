@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/utils",
-  "version": "1.0.8",
+  "version": "1.0.10",
   "description": "",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",
@@ -21,7 +21,7 @@
     "doc": "pnpm typedoc src/index.ts --out ../../docs/utils"
   },
   "dependencies": {
-    "ethers": "5.6.9",
+    "ethers": "^5.7.2",
     "graphql": "16.6.0",
     "graphql-request": "^6.1.0",
     "viem": "^1.4.1"

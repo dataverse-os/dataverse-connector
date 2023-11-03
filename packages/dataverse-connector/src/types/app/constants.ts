@@ -4,8 +4,8 @@ export enum Apps {
   MigrateOldFolders = "MigrateOldFolders",
 }
 
-export enum ModelNames {
-  indexFolders = "indexFolders",
-  contentFolders = "contentFolders",
-  indexFiles = "indexFiles",
+export enum ModelName {
+  indexFolder = "indexFolder",
+  contentFolder = "contentFolder",
+  indexFile = "indexFile",
 }
