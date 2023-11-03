@@ -1,6 +1,6 @@
 {
   "name": "@dataverse/dataverse-connector",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "description": "",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.js",
@@ -24,7 +24,7 @@
     "@dataverse/communicator": "^1.0.34",
     "@dataverse/dapp-table-client": "^1.0.6",
     "@dataverse/dataverse-contracts-sdk": "^1.0.17-alpha.13",
-    "@dataverse/utils": "^1.0.9",
+    "@dataverse/utils": "^1.0.10",
     "@dataverse/wallet-provider": "^1.0.13",
     "@ethersproject/abstract-provider": "^5.7.0",
     "@lit-protocol/crypto": "2.1.161",
