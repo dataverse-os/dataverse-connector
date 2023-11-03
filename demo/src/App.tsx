@@ -22,10 +22,10 @@ import "./App.scss";
 
 const dataverseConnector = new DataverseConnector();
 
-export const appId = "a3f0ac63-ff7d-4085-aade-c04888b71088";
+export const appId = "9aaae63f-3445-47d5-8785-c23dd16e4965";
 
 const modelId =
-  "kjzl6hvfrbw6catek36h3pep09k9gymfnla9k6ojlgrmwjogvjqg8q3zpybl1yu";
+  "kjzl6hvfrbw6c8h0oiiv2ccikb2thxsu98sy0ydi6oshj6sjuz9dga94463anvf";
 
 const chainId = ChainId.Mumbai;
 const datatokenType = DatatokenType.Profileless;
@@ -39,7 +39,7 @@ const storageProvider = {
 
 function App() {
   const [address, setAddress] = useState("");
-  const [wallet, setWallet] = useState<WALLET>(WALLET.PARTICLE);
+  const [wallet, setWallet] = useState<WALLET>();
   const [pkh, setPkh] = useState("");
   const [currentPkh, setCurrentPkh] = useState("");
   const [pkpWallet, setPKPWallet] = useState({
