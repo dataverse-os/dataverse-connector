@@ -24,8 +24,11 @@ const dataverseConnector = new DataverseConnector();
 
 export const appId = "9aaae63f-3445-47d5-8785-c23dd16e4965";
 
-const modelId =
+const postModelId =
   "kjzl6hvfrbw6c8h0oiiv2ccikb2thxsu98sy0ydi6oshj6sjuz9dga94463anvf";
+
+const actionFileModelId =
+  "kjzl6hvfrbw6c9g4ui7z1jksvbk7y09q6c1ruyqiij0otmvzr7oy3vd0yg43qzw";
 
 const chainId = ChainId.Mumbai;
 const datatokenType = DatatokenType.Profileless;
@@ -380,7 +383,7 @@ function App() {
   const getModelBaseInfo = async () => {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.getModelBaseInfo,
-      params: modelId,
+      params: postModelId,
     });
     console.log(res);
   };
@@ -509,7 +512,7 @@ function App() {
       params: {
         dataUnionName: "data union",
         dataUnionDescription: "data union description",
-        // contentType: { resource: StorageResource.CERAMIC, resourceId: modelId },
+        // contentType: { resource: StorageResource.CERAMIC, resourceId: postModelId },
         // contentType: { resource: StorageResource.IPFS },
         // actionType: ActionType.LIKE,
         dataUnionVars: {
@@ -610,7 +613,7 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.createIndexFile,
       params: {
-        modelId,
+        modelId: postModelId,
         fileName: "create a file",
         fileContent: {
           modelVersion: postVersion,
@@ -673,7 +676,7 @@ function App() {
     const fileRecord = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadFilesBy,
       params: {
-        modelId,
+        modelId: postModelId,
         pkh,
       },
     });
