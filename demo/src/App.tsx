@@ -1111,7 +1111,7 @@ function App() {
   const getHandleByProfileId = async () => {
     const res = await dataverseConnector.getHandleByProfileId({
       chainId,
-      profileId: "0x3ed9",
+      profileId: "0xc0",
     });
     console.log(res);
   };

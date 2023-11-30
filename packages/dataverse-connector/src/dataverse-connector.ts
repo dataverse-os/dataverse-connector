@@ -22,6 +22,7 @@ import {
   ChainId,
 } from "./types";
 import { getTimestampByBlockNumber as fetchTimestampByBlockNumber } from "@dataverse/contracts-sdk";
+import { LensHandleNamespace } from "./types/constants";
 
 export class DataverseConnector {
   private communicator: Communicator;
@@ -265,21 +266,16 @@ export class DataverseConnector {
 
     const id = await getLensProfileIdByHandle({
       chainId,
-      handle,
+      handle: `${LensHandleNamespace}/${handle}`,
     });
 
-    if (Number.parseInt(id) != 0)
+    if (id && Number.parseInt(id) != 0)
       throw new Error("Handle is taken, try a new handle.");
 
-    await createLensProfile({
+    const profile = await createLensProfile({
       chainId,
-      handle,
+      handle: handle,
       to: await signer.getAddress(),
-    });
-
-    const profile = await getLensProfileIdByHandle({
-      chainId,
-      handle,
     });
 
     return profile;
@@ -309,7 +305,7 @@ export class DataverseConnector {
   }): Promise<string> {
     const res = await getLensProfileIdByHandle({
       chainId,
-      handle,
+      handle: `${LensHandleNamespace}/${handle}`,
     });
 
     return res;
