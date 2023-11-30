@@ -9,7 +9,7 @@ import {
   getLensProfiles,
   getLensProfileIdByHandle,
   getHandleByLensProfileId,
-} from "@dataverse/dataverse-contracts-sdk/data-token";
+} from "@dataverse/contracts-sdk/data-token";
 import {
   RequestType,
   SYSTEM_CALL,
@@ -21,7 +21,7 @@ import {
   AuthType,
   ChainId,
 } from "./types";
-import { getTimestampByBlockNumber as fetchTimestampByBlockNumber } from "@dataverse/dataverse-contracts-sdk";
+import { getTimestampByBlockNumber as fetchTimestampByBlockNumber } from "@dataverse/contracts-sdk";
 
 export class DataverseConnector {
   private communicator: Communicator;
@@ -265,20 +265,24 @@ export class DataverseConnector {
 
     const id = await getLensProfileIdByHandle({
       chainId,
-      signerOrProvider: signer,
       handle,
     });
 
-    if (id.toNumber() != 0)
+    if (Number.parseInt(id) != 0)
       throw new Error("Handle is taken, try a new handle.");
 
-    const profile = await createLensProfile({
+    await createLensProfile({
       chainId,
       handle,
-      signer,
+      to: await signer.getAddress(),
     });
 
-    return profile.toHexString();
+    const profile = await getLensProfileIdByHandle({
+      chainId,
+      handle,
+    });
+
+    return profile;
   }
 
   async getProfiles({
@@ -288,18 +292,12 @@ export class DataverseConnector {
     chainId: ChainId;
     address: string;
   }): Promise<{ id: string }[]> {
-    let provider: ethers.providers.Web3Provider;
-    if (chainId && this.chain?.chainId === chainId) {
-      provider = new ethers.providers.Web3Provider(this.provider, "any");
-    }
-
     const res = await getLensProfiles({
       chainId,
       account: address,
-      signerOrProvider: provider,
     });
 
-    return res.map(item => ({ id: item.toHexString() }));
+    return res.map(item => ({ id: item }));
   }
 
   async getProfileIdByHandle({
@@ -309,18 +307,12 @@ export class DataverseConnector {
     chainId: ChainId;
     handle: string;
   }): Promise<string> {
-    let provider: ethers.providers.Web3Provider;
-    if (chainId && this.chain?.chainId === chainId) {
-      provider = new ethers.providers.Web3Provider(this.provider, "any");
-    }
-
     const res = await getLensProfileIdByHandle({
       chainId,
       handle,
-      signerOrProvider: provider,
     });
 
-    return res.toHexString();
+    return res;
   }
 
   async getHandleByProfileId({
@@ -330,15 +322,9 @@ export class DataverseConnector {
     chainId: ChainId;
     profileId: string;
   }): Promise<string> {
-    let provider: ethers.providers.Web3Provider;
-    if (chainId && this.chain?.chainId === chainId) {
-      provider = new ethers.providers.Web3Provider(this.provider, "any");
-    }
-
     const res = await getHandleByLensProfileId({
       chainId,
       profileId,
-      signerOrProvider: provider,
     });
 
     return res;

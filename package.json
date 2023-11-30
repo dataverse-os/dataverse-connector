@@ -16,7 +16,7 @@
     "doc:wallet-provider": "lerna run doc --scope=@dataverse/wallet-provider",
     "doc:wallet-adapter": "lerna run doc --scope=@dataverse/wallet-adapter",
     "doc:dataverse-connector": "lerna run doc --scope=@dataverse/dataverse-connector",
-    "test": "pnpm --filter 'demo' dev",
+    "test": "pnpm --filter \"demo\" dev",
     "publish": "lerna publish --no-private",
     "format": "prettier --config .prettierrc . --write",
     "lint": "eslint . --ext .ts,.tsx",

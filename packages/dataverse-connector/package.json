@@ -23,7 +23,7 @@
   "dependencies": {
     "@dataverse/communicator": "^1.0.34",
     "@dataverse/dapp-table-client": "^1.0.6",
-    "@dataverse/dataverse-contracts-sdk": "^1.0.17-alpha.13",
+    "@dataverse/contracts-sdk": "^1.0.2",
     "@dataverse/utils": "^1.0.10",
     "@dataverse/wallet-provider": "^1.0.13",
     "@ethersproject/abstract-provider": "^5.7.0",

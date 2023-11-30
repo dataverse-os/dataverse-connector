@@ -27,10 +27,10 @@ export const appId = "9aaae63f-3445-47d5-8785-c23dd16e4965";
 const postModelId =
   "kjzl6hvfrbw6c8h0oiiv2ccikb2thxsu98sy0ydi6oshj6sjuz9dga94463anvf";
 
-const actionFileModelId =
-  "kjzl6hvfrbw6c9g4ui7z1jksvbk7y09q6c1ruyqiij0otmvzr7oy3vd0yg43qzw";
+// const actionFileModelId =
+//   "kjzl6hvfrbw6c9g4ui7z1jksvbk7y09q6c1ruyqiij0otmvzr7oy3vd0yg43qzw";
 
-const chainId = ChainId.Mumbai;
+const chainId = ChainId.PolygonMumbai;
 const datatokenType = DatatokenType.Profileless;
 
 const postVersion = "0.0.1";
@@ -529,7 +529,7 @@ function App() {
           subscribeModule: "TimeSegmentSubscribeModule",
           subscribeModuleInput: {
             amount: 0.0001,
-            currency: Currency.WMATIC,
+            currency: "DVC",
             segment: "Week",
           },
         },
@@ -1123,7 +1123,7 @@ function App() {
     pkh: string;
     lensNickName?: string;
   }) => {
-    const chainId = ChainId.Mumbai;
+    const chainId = ChainId.PolygonMumbai;
     const lensProfiles = await dataverseConnector.getProfiles({
       chainId,
       address: pkh.slice(pkh.lastIndexOf(":") + 1),
