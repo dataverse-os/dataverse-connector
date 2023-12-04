@@ -42,14 +42,14 @@ const storageProvider = {
 };
 
 function App() {
-  // const [address, setAddress] = useState("");
+  const [_address, _setAddress] = useState("");
   // const [wallet, setWallet] = useState<WALLET>();
-  // const [pkh, setPkh] = useState("");
-  // const [currentPkh, setCurrentPkh] = useState("");
+  const [_pkh, _setPkh] = useState("");
+  const [_currentPkh, _setCurrentPkh] = useState("");
   let address: string | undefined;
   let wallet: WALLET | undefined;
   let pkh: string | undefined;
-  let currentPkh: string | undefined;
+  // let currentPkh: string | undefined;
   const [pkpWallet, setPKPWallet] = useState({
     address: "",
     publicKey: "",
@@ -80,6 +80,7 @@ function App() {
   ] = useState<boolean>();
   const [mochaRunner, setMochaRunner] = useState<Mocha.Runner>();
   const [mochaSuites, setMochaSuites] = useState<Mocha.Suite[]>();
+  const [showMoreTests, setShowMoreTests] = useState<boolean>(false);
 
   const [provider, setProvider] = useState<WalletProvider>();
 
@@ -290,6 +291,7 @@ function App() {
     setProvider(provider);
     wallet = res.wallet;
     address = res.address;
+    _setAddress(address);
     if (!dataverseProviderHasAddedListener) {
       provider.on("chainChanged", (chainId: number) => {
         console.log(chainId);
@@ -300,6 +302,7 @@ function App() {
       provider.on("accountsChanged", (accounts: Array<string>) => {
         console.log(accounts);
         address = accounts[0];
+        _setAddress(address);
       });
       setDataverseProviderHasAddedListener(true);
     }
@@ -317,12 +320,14 @@ function App() {
     setProvider(provider);
     wallet = WALLET.EXTERNAL_WALLET;
     address = res.address;
+    _setAddress(address);
     provider.on("chainChanged", (networkId: string) => {
       console.log(Number(networkId));
     });
     provider.on("accountsChanged", (accounts: Array<string>) => {
       console.log(accounts);
       address = getAddress(accounts[0]);
+      _setAddress(address);
     });
     return res;
   };
@@ -516,7 +521,7 @@ function App() {
   const getCurrentPkh = async () => {
     const res = dataverseConnector.getCurrentPkh();
     console.log(res);
-    currentPkh = res;
+    _setCurrentPkh(res);
   };
 
   const getPKP = async () => {
@@ -606,6 +611,7 @@ function App() {
       },
     });
     pkh = _pkh;
+    _setPkh(pkh);
     console.log(pkh);
     return pkh;
   };
@@ -1502,35 +1508,42 @@ function App() {
 
   return (
     <div className='App'>
-      <button
-        onClick={() =>
-          handleRunTests([
-            defineDappTests(),
-            defineProfileTests(),
-            defineFolderTests(),
-            defineFileTests(),
-            defineUnionTests(),
-          ])
-        }
-      >
-        run all tests
-      </button>
-      <button onClick={() => handleRunTests([defineDappTests()])}>
-        run dapp tests
-      </button>
-      <button onClick={() => handleRunTests([defineFolderTests()])}>
-        run folder tests
-      </button>
-      <button onClick={() => handleRunTests([defineFileTests()])}>
-        run file tests
-      </button>
-      <button onClick={() => handleRunTests([defineUnionTests()])}>
-        run union tests
-      </button>
-      <button onClick={() => handleRunTests([defineProfileTests()])}>
-        run profile tests
-      </button>
       <div id='mocha' />
+      <div className='flex'>
+        <button
+          onClick={() =>
+            handleRunTests([
+              defineDappTests(),
+              defineProfileTests(),
+              defineFolderTests(),
+              defineFileTests(),
+              defineUnionTests(),
+            ])
+          }
+        >
+          run all tests
+        </button>
+        <p className='link' onClick={() => setShowMoreTests(show => !show)}>
+          {showMoreTests ? "less" : "more"}
+        </p>
+      </div>
+      <div className={showMoreTests ? "show" : "hidden"}>
+        <button onClick={() => handleRunTests([defineDappTests()])}>
+          run dapp tests
+        </button>
+        <button onClick={() => handleRunTests([defineFolderTests()])}>
+          run folder tests
+        </button>
+        <button onClick={() => handleRunTests([defineFileTests()])}>
+          run file tests
+        </button>
+        <button onClick={() => handleRunTests([defineUnionTests()])}>
+          run union tests
+        </button>
+        <button onClick={() => handleRunTests([defineProfileTests()])}>
+          run profile tests
+        </button>
+      </div>
       <button onClick={() => navigate("/wagmi")}>go to wagmi demo page</button>
       <button onClick={() => connectWalletWithDataverseProvider()}>
         connectWalletWithDataverseProvider
@@ -1538,7 +1551,7 @@ function App() {
       <button onClick={() => connectWalletWithMetamaskProvider()}>
         connectWalletWithMetamaskProvider
       </button>
-      <div className='blackText'>{address}</div>
+      <div className='blackText'>{_address}</div>
       <hr />
       <button onClick={getCurrentWallet}>getCurrentWallet</button>
       <hr />
@@ -1551,7 +1564,7 @@ function App() {
       <button onClick={contractCall}>contractCall</button>
       <hr />
       <button onClick={getCurrentPkh}>getCurrentPkh</button>
-      <div className='blackText'>{currentPkh}</div>
+      <div className='blackText'>{_currentPkh}</div>
       <hr />
       <button onClick={getPKP}>getPKP</button>
       {pkpWallet.address && (
@@ -1577,7 +1590,7 @@ function App() {
       <br />
       <br />
       <button onClick={createCapability}>createCapability</button>
-      <div className='blackText'>{pkh}</div>
+      <div className='blackText'>{_pkh}</div>
       <hr />
       <button onClick={checkCapability}>checkCapability</button>
       <div className='blackText'>
