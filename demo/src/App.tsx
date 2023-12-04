@@ -19,6 +19,7 @@ import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
 import { WalletProvider } from "@dataverse/wallet-provider";
 import { assert } from "chai";
+import { Modal } from "antd";
 import "./App.scss";
 
 const dataverseConnector = new DataverseConnector();
@@ -211,11 +212,47 @@ function App() {
 
       it("updateActionFile", updateActionFile);
 
-      it.skip("createBareFile", createBareFile);
+      it("createBareFile", async () => {
+        return new Promise((resolve, reject) => {
+          try {
+            const inputDom = document.createElement("input");
+            inputDom.type = "file";
+            inputDom.onchange = e =>
+              createBareFile(e).then(resolve).catch(reject);
+            // Warning: File chooser dialog can only be shown with a user activation
+            // ref: https://github.com/lostvita/blog/issues/32
+            Modal.confirm({
+              title: "Please click 'OK' to upload a file",
+              onOk: () => inputDom.click(),
+              onCancel: () => reject("cancel"),
+            });
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
 
-      it.skip("updateBareFile", updateBareFile);
+      it("updateBareFile", async () => {
+        return new Promise((resolve, reject) => {
+          try {
+            const inputDom = document.createElement("input");
+            inputDom.type = "file";
+            inputDom.onchange = e =>
+              updateBareFile(e).then(resolve).catch(reject);
+            // Warning: File chooser dialog can only be shown with a user activation
+            // ref: https://github.com/lostvita/blog/issues/32
+            Modal.confirm({
+              title: "Please click 'OK' to upload a file",
+              onOk: () => inputDom.click(),
+              onCancel: () => reject("cancel"),
+            });
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
 
-      it.skip("loadBareFileContent", loadBareFileContent);
+      it("loadBareFileContent", loadBareFileContent);
 
       it("moveFiles", moveFiles);
 
@@ -1060,6 +1097,7 @@ function App() {
       console.log(res);
     } catch (error) {
       console.error(error);
+      throw error;
     }
   };
 
@@ -1096,6 +1134,7 @@ function App() {
       console.log(res);
     } catch (error) {
       console.error(error);
+      throw error;
     }
   };
 
@@ -1453,7 +1492,7 @@ function App() {
 
   const loadDataUnion = async () => {
     const dataUnionId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+      "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDataUnion,
       params: dataUnionId,
@@ -1463,7 +1502,7 @@ function App() {
 
   const loadDataUnionCollectors = async () => {
     const dataUnionId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+      "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDataUnionCollectors,
       params: dataUnionId,
@@ -1473,7 +1512,7 @@ function App() {
 
   const loadDataUnionSubscribers = async () => {
     const dataUnionId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+      "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDataUnionSubscribers,
       params: dataUnionId,
@@ -1483,7 +1522,7 @@ function App() {
 
   const loadDataUnionSubscriptionsBy = async () => {
     const dataUnionId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+      "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDataUnionSubscriptionsBy,
       params: {
@@ -1496,7 +1535,7 @@ function App() {
 
   const isDataUnionCollectedBy = async () => {
     const dataUnionId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+      "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.isDataUnionCollectedBy,
       params: {
@@ -1509,7 +1548,7 @@ function App() {
 
   const isDataUnionSubscribedBy = async () => {
     const dataUnionId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+      "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.isDataUnionSubscribedBy,
       params: {
