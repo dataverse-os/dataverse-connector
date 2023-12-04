@@ -45,19 +45,9 @@ export enum SYSTEM_CALL {
   unlockFile = "unlockFile",
   isFileUnlocked = "isFileUnlocked",
 
-  loadDatatokensCreatedBy = "loadDatatokensCreatedBy",
-  loadDatatokensCollectedBy = "loadDatatokensCollectedBy",
-  loadDatatoken = "loadDatatoken",
   loadDatatokens = "loadDatatokens",
-  loadDatatokenCollectors = "loadDatatokenCollectors",
   isDatatokenCollectedBy = "isDatatokenCollectedBy",
-
-  loadDataUnionsPublishedBy = "loadDataUnionsPublishedBy",
-  loadDataUnionsCollectedBy = "loadDataUnionsCollectedBy",
-  loadDataUnion = "loadDataUnion",
-  loadDataUnionCollectors = "loadDataUnionCollectors",
-  loadDataUnionSubscribers = "loadDataUnionSubscribers",
-  loadDataUnionSubscriptionsBy = "loadDataUnionSubscriptionsBy",
+  loadDataUnions = "loadDataUnions",
   isDataUnionCollectedBy = "isDataUnionCollectedBy",
   isDataUnionSubscribedBy = "isDataUnionSubscribedBy",
 }
