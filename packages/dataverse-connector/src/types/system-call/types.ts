@@ -140,6 +140,8 @@ export interface RequestType {
     pkh?: string;
   };
   loadBareFileContent: string;
+  loadActionFilesByFileId: string;
+  loadActionFilesByDataUnionId: string;
   loadCreatedDatatokenFiles: void;
   loadCollectedDatatokenFiles: void;
 
@@ -301,6 +303,8 @@ export interface ReturnType {
     >
   >;
   loadBareFileContent: Promise<string>;
+  loadActionFilesByFileId: Promise<MirrorFileRecord>;
+  loadActionFilesByDataUnionId: Promise<MirrorFileRecord>;
   loadCreatedDatatokenFiles: Promise<MirrorFileRecord>;
   loadCollectedDatatokenFiles: Promise<MirrorFileRecord>;
 

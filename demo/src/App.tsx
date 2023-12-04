@@ -896,6 +896,22 @@ function App() {
     console.log(fileRecord);
   };
 
+  const loadActionFilesByFileId = async () => {
+    const fileRecord = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadActionFilesByFileId,
+      params: indexFileId,
+    });
+    console.log(fileRecord);
+  };
+
+  const loadActionFilesByDataUnionId = async () => {
+    const fileRecord = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadActionFilesByDataUnionId,
+      params: dataUnionId,
+    });
+    console.log(fileRecord);
+  };
+
   const loadCreatedDatatokenFiles = async () => {
     const fileRecord = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadCreatedDatatokenFiles,
@@ -1627,6 +1643,10 @@ function App() {
       </button>
       <button onClick={createActionFile}>createActionFile</button>
       <button onClick={updateActionFile}>updateActionFile</button>
+      <button onClick={loadActionFilesByFileId}>loadActionFilesByFileId</button>
+      <button onClick={loadActionFilesByDataUnionId}>
+        loadActionFilesByDataUnionId
+      </button>
       <button>
         <span>createBareFile</span>
         <input

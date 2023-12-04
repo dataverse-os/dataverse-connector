@@ -33,6 +33,8 @@ export enum SYSTEM_CALL {
   loadFile = "loadFile",
   loadFilesBy = "loadFilesBy",
   loadBareFileContent = "loadBareFileContent",
+  loadActionFilesByFileId = "loadActionFilesByFileId",
+  loadActionFilesByDataUnionId = "loadActionFilesByDataUnionId",
   loadCreatedDatatokenFiles = "loadCreatedDatatokenFiles",
   loadCollectedDatatokenFiles = "loadCollectedDatatokenFiles",
 
