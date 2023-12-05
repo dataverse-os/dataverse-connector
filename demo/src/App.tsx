@@ -82,8 +82,8 @@ function App() {
   const [mochaRunner, setMochaRunner] = useState<Mocha.Runner>();
   const [mochaSuites, setMochaSuites] = useState<Mocha.Suite[]>();
   const [showMoreTests, setShowMoreTests] = useState<boolean>(false);
-
   const [provider, setProvider] = useState<WalletProvider>();
+  const [isInit, setIsInit] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
@@ -113,15 +113,38 @@ function App() {
     }
   };
 
+  const init = async () => {
+    console.log("connecting dataverse wallet...");
+    const connectResult = await connectWalletWithMetamaskProvider();
+    assert.isDefined(connectResult, "connect wallet failed");
+    console.log("creating capability...");
+    const pkh = await createCapability();
+    assert.isString(pkh, "createCapability failed");
+    const checked = await checkCapability();
+    assert.isTrue(checked, "checkCapability failed");
+    setIsInit(true);
+  };
+
+  const defineInitTests = () => {
+    return describe("Init", function () {
+      // set no timeout
+      this.timeout(0);
+
+      it("Init", async () => {
+        await init();
+      });
+    });
+  };
+
   const defineDappTests = () => {
     return describe("DApp", function () {
       // set no timeout
       this.timeout(0);
 
       before(async () => {
-        // await connectWalletWithDataverseProvider();
-        const connectResult = await connectWalletWithMetamaskProvider();
-        assert.isDefined(connectResult, "connect wallet failed");
+        if (!isInit) {
+          await init();
+        }
       });
 
       it("getDAppTable", async () => {
@@ -155,14 +178,9 @@ function App() {
       this.timeout(0);
 
       before(async () => {
-        console.log("connecting dataverse wallet...");
-        const connectResult = await connectWalletWithMetamaskProvider();
-        assert.isDefined(connectResult, "connect wallet failed");
-        console.log("creating capability...");
-        const pkh = await createCapability();
-        assert.isString(pkh, "createCapability failed");
-        const checked = await checkCapability();
-        assert.isTrue(checked, "checkCapability failed");
+        if (!isInit) {
+          await init();
+        }
       });
 
       it("loadFolderTrees", loadFolderTrees);
@@ -185,16 +203,12 @@ function App() {
       this.timeout(0);
 
       before(async () => {
-        console.log("connecting dataverse wallet...");
-        const connectResult = await connectWalletWithMetamaskProvider();
-        assert.isDefined(connectResult, "connect wallet failed");
-        console.log("creating capability...");
-        const pkh = await createCapability();
-        assert.isString(pkh, "createCapability failed");
-        const checked = await checkCapability();
-        assert.isTrue(checked, "checkCapability failed");
-        await createFolder();
+        if (!isInit) {
+          await init();
+        }
       });
+
+      it("createFolder", createFolder);
 
       it("createIndexFile", createIndexFile);
 
@@ -268,14 +282,9 @@ function App() {
       this.timeout(0);
 
       before(async () => {
-        console.log("connecting dataverse wallet...");
-        const connectResult = await connectWalletWithMetamaskProvider();
-        assert.isDefined(connectResult, "connect wallet failed");
-        console.log("creating capability...");
-        const pkh = await createCapability();
-        assert.isString(pkh, "createCapability failed");
-        const checked = await checkCapability();
-        assert.isTrue(checked, "checkCapability failed");
+        if (!isInit) {
+          await init();
+        }
       });
 
       it("publishDataUnion", publishDataUnion);
@@ -298,9 +307,9 @@ function App() {
       this.timeout(0);
 
       before(async () => {
-        console.log("connecting dataverse wallet...");
-        const connectResult = await connectWalletWithMetamaskProvider();
-        assert.isDefined(connectResult, "connect wallet failed");
+        if (!isInit) {
+          await init();
+        }
       });
 
       it("createProfile", createProfile);
@@ -712,7 +721,7 @@ function App() {
 
   const getDefaultFolderId = async () => {
     if (!folders) {
-      throw "Please call loadFolderTrees first";
+      folders = await loadFolderTrees();
     }
     const { defaultFolderName } = await getDAppInfo();
     const folder = Object.values(folders).find(
@@ -733,7 +742,7 @@ function App() {
 
   const deleteAllFolders = async () => {
     if (!folders) {
-      throw "Please call loadFolderTrees first";
+      folders = await loadFolderTrees();
     }
     await Promise.all(
       Object.keys(folders).map(folderId =>
@@ -808,6 +817,7 @@ function App() {
     });
     dataUnions = res;
     console.log(res);
+    return res;
   };
 
   const loadCollectedDataUnions = async () => {
@@ -837,7 +847,7 @@ function App() {
 
   const deleteAllDataUnion = async () => {
     if (!dataUnions) {
-      throw "Please call loadDataUnions first";
+      dataUnions = await loadCreatedDataUnions();
     }
     await Promise.all(
       Object.keys(dataUnions).map(dataUnionId =>
@@ -1021,7 +1031,7 @@ function App() {
 
       console.log(fileBase64);
 
-      const isDatatoken = true;
+      const isDatatoken = false;
       let datatokenVars: DatatokenVars | undefined = undefined;
 
       if (isDatatoken) {
@@ -1486,11 +1496,12 @@ function App() {
         <button
           onClick={() =>
             handleRunTests([
+              defineInitTests(),
               defineDappTests(),
               defineProfileTests(),
               defineFolderTests(),
               defineFileTests(),
-              defineUnionTests(),
+              // defineUnionTests(),
             ])
           }
         >
@@ -1501,6 +1512,9 @@ function App() {
         </p>
       </div>
       <div className={showMoreTests ? "show" : "hidden"}>
+        <button onClick={() => handleRunTests([defineInitTests()])}>
+          run init tests
+        </button>
         <button onClick={() => handleRunTests([defineDappTests()])}>
           run dapp tests
         </button>
@@ -1510,9 +1524,9 @@ function App() {
         <button onClick={() => handleRunTests([defineFileTests()])}>
           run file tests
         </button>
-        <button onClick={() => handleRunTests([defineUnionTests()])}>
+        {/* <button onClick={() => handleRunTests([defineUnionTests()])}>
           run union tests
-        </button>
+        </button> */}
         <button onClick={() => handleRunTests([defineProfileTests()])}>
           run profile tests
         </button>
