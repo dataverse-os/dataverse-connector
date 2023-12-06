@@ -24,7 +24,7 @@ import "./App.scss";
 
 const dataverseConnector = new DataverseConnector();
 
-export const appId = "c949b803-7f2f-40b9-acba-e9913288f9f2";
+export const appId = "9aaae63f-3445-47d5-8785-c23dd16e4965";
 
 const postModelId =
   "kjzl6hvfrbw6c8h0oiiv2ccikb2thxsu98sy0ydi6oshj6sjuz9dga94463anvf";
@@ -46,6 +46,15 @@ let address: string;
 let wallet: WALLET;
 let pkh: string;
 
+let folders: StructuredFolderRecord;
+let folderId: string;
+
+let dataUnions: StructuredFolderRecord;
+let dataUnionId: string;
+
+let indexFileId: string;
+let actionFileId: string;
+
 function App() {
   const [_address, _setAddress] = useState("");
   // const [wallet, setWallet] = useState<WALLET>();
@@ -64,18 +73,11 @@ function App() {
 
   // const [folders, setFolders] = useState<StructuredFolderRecord>();
   // const [folderId, setFolderId] = useState("");
-  let folders: StructuredFolderRecord | undefined;
-  let folderId: string | undefined;
-
   // const [dataUnions, setDataUnions] = useState<StructuredFolderRecord>();
   // const [dataUnionId, setDataUnionId] = useState("");
-  let dataUnions: StructuredFolderRecord | undefined;
-  let dataUnionId: string | undefined;
-
   // const [indexFileId, setIndexFileId] = useState("");
   // const [actionFileId, setActionFileId] = useState("");
-  let indexFileId: string | undefined;
-  let actionFileId: string | undefined;
+
   const [
     dataverseProviderHasAddedListener,
     setDataverseProviderHasAddedListener,
@@ -1322,8 +1324,7 @@ function App() {
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.collectFile,
         params: {
-          fileId:
-            "kjzl6kcym7w8ya6onyyl76zchd0asfqb6lr1dlb0mj04vr08onoamespnwvkf2b",
+          fileId: indexFileId,
           profileId,
         },
       });
@@ -1397,8 +1398,7 @@ function App() {
     try {
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.unlockFile,
-        params:
-          "kjzl6kcym7w8ya6onyyl76zchd0asfqb6lr1dlb0mj04vr08onoamespnwvkf2b",
+        params: indexFileId,
       });
       console.log(res);
     } catch (error) {
