@@ -1235,7 +1235,7 @@ function App() {
             collectLimit: 100,
             amount: 0.0001,
             currency: Currency.WMATIC,
-            recipient: _address!,
+            recipient: address!,
             endTimestamp: "4722366482869645213695",
           };
         } else if (datatokenType === DatatokenType.Profileless) {
