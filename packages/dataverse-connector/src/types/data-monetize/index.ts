@@ -15,4 +15,5 @@ export type {
   Data_Union_Subscriber,
   SubscribeDataUnionVars,
   SubscribeDataUnionOutput,
+  CollectModule,
 } from "./types";

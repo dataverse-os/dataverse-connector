@@ -95,6 +95,7 @@ export interface AdditionalMirrorParams {
 export type {
   DataTokenGraphType,
   Datatoken_Collector,
+  CollectModule,
 } from "@dataverse/contracts-sdk/data-token";
 
 export type {

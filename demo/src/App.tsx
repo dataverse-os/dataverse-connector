@@ -24,7 +24,7 @@ import "./App.scss";
 
 const dataverseConnector = new DataverseConnector();
 
-export const appId = "9aaae63f-3445-47d5-8785-c23dd16e4965";
+export const appId = "c949b803-7f2f-40b9-acba-e9913288f9f2";
 
 const postModelId =
   "kjzl6hvfrbw6c8h0oiiv2ccikb2thxsu98sy0ydi6oshj6sjuz9dga94463anvf";
@@ -33,7 +33,7 @@ const postModelId =
 //   "kjzl6hvfrbw6c9g4ui7z1jksvbk7y09q6c1ruyqiij0otmvzr7oy3vd0yg43qzw";
 
 const chainId = ChainId.PolygonMumbai;
-const datatokenType = DatatokenType.Profileless;
+const datatokenType: DatatokenType = DatatokenType.Lens;
 
 const postVersion = "0.0.1";
 
@@ -42,14 +42,15 @@ const storageProvider = {
   apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call createBareFile successfully
 };
 
+let address: string;
+let wallet: WALLET;
+let pkh: string;
+
 function App() {
   const [_address, _setAddress] = useState("");
   // const [wallet, setWallet] = useState<WALLET>();
   const [_pkh, _setPkh] = useState("");
   const [_currentPkh, _setCurrentPkh] = useState("");
-  let address: string | undefined;
-  let wallet: WALLET | undefined;
-  let pkh: string | undefined;
   // let currentPkh: string | undefined;
   const [pkpWallet, setPKPWallet] = useState({
     address: "",
@@ -276,30 +277,30 @@ function App() {
     });
   };
 
-  const defineUnionTests = () => {
-    return describe("Union", function () {
-      // set no timeout
-      this.timeout(0);
+  // const defineUnionTests = () => {
+  //   return describe("Union", function () {
+  //     // set no timeout
+  //     this.timeout(0);
 
-      before(async () => {
-        if (!isInit) {
-          await init();
-        }
-      });
+  //     before(async () => {
+  //       if (!isInit) {
+  //         await init();
+  //       }
+  //     });
 
-      it("publishDataUnion", publishDataUnion);
+  //     it("publishDataUnion", publishDataUnion);
 
-      it("updateDataUnionBaseInfo", updateDataUnionBaseInfo);
+  //     it("updateDataUnionBaseInfo", updateDataUnionBaseInfo);
 
-      it("loadCreatedDataUnions", loadCreatedDataUnions);
+  //     it("loadCreatedDataUnions", loadCreatedDataUnions);
 
-      it("loadCollectedDataUnions", loadCollectedDataUnions);
+  //     it("loadCollectedDataUnions", loadCollectedDataUnions);
 
-      it("loadDataUnionById", loadDataUnionById);
+  //     it("loadDataUnionById", loadDataUnionById);
 
-      it("deleteDataUnion", deleteDataUnion);
-    });
-  };
+  //     it("deleteDataUnion", deleteDataUnion);
+  //   });
+  // };
 
   const defineProfileTests = () => {
     return describe("Profile", function () {
@@ -759,44 +760,76 @@ function App() {
   /*** DataUnions ***/
   const publishDataUnion = async () => {
     let profileId;
-    if (datatokenType !== DatatokenType.Profileless) {
+    let res;
+    if (datatokenType === DatatokenType.Lens) {
       profileId = await getOrCreateProfileId({
         pkh: pkh!,
         lensNickName: "handle" + Date.now(),
       });
-    }
 
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.publishDataUnion,
-      params: {
-        dataUnionName: "data union",
-        dataUnionDescription: "data union description",
-        // contentType: { resource: StorageResource.CERAMIC, resourceId: postModelId },
-        // contentType: { resource: StorageResource.IPFS },
-        // actionType: ActionType.LIKE,
-        dataUnionVars: {
-          datatokenVars: {
-            chainId,
-            type: datatokenType,
-            collectModule: "LimitedFeeCollectModule",
-            ...(profileId && { profileId }),
-            collectLimit: 100,
-            amount: 0.0001,
-            currency: Currency.WMATIC,
-          },
-          resourceId: "",
-          subscribeModule: "TimeSegmentSubscribeModule",
-          subscribeModuleInput: {
-            amount: 0.0001,
-            currency: "DVC",
-            segment: "Week",
+      res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.publishDataUnion,
+        params: {
+          dataUnionName: "data union",
+          dataUnionDescription: "data union description",
+          // contentType: { resource: StorageResource.CERAMIC, resourceId: postModelId },
+          // contentType: { resource: StorageResource.IPFS },
+          // actionType: ActionType.LIKE,
+          dataUnionVars: {
+            datatokenVars: {
+              chainId,
+              type: datatokenType,
+              collectModule: "SimpleFeeCollectModule",
+              profileId,
+              collectLimit: 100,
+              amount: 0.0001,
+              currency: Currency.WMATIC,
+              recipient: address!,
+              endTimestamp: "4722366482869645213695",
+            },
+            resourceId: "",
+            subscribeModule: "TimeSegmentSubscribeModule",
+            subscribeModuleInput: {
+              amount: 0.0001,
+              currency: "DVC",
+              segment: "Week",
+            },
           },
         },
-      },
-    });
-    console.log(res);
-    dataUnionId = res.newDataUnion.folderId;
-    console.log(res.newDataUnion.folderId);
+      });
+
+      console.log(res);
+      dataUnionId = res.newDataUnion.folderId;
+      console.log(res.newDataUnion.folderId);
+    } else if (datatokenType === DatatokenType.Profileless) {
+      res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.publishDataUnion,
+        params: {
+          dataUnionName: "data union",
+          dataUnionDescription: "data union description",
+          // contentType: { resource: StorageResource.CERAMIC, resourceId: postModelId },
+          // contentType: { resource: StorageResource.IPFS },
+          // actionType: ActionType.LIKE,
+          dataUnionVars: {
+            datatokenVars: {
+              chainId,
+              type: datatokenType,
+              collectModule: "LimitedFeeCollectModule",
+              collectLimit: 100,
+              amount: 0.0001,
+              currency: Currency.WMATIC,
+            },
+            resourceId: "",
+            subscribeModule: "TimeSegmentSubscribeModule",
+            subscribeModuleInput: {
+              amount: 0.0001,
+              currency: "DVC",
+              segment: "Week",
+            },
+          },
+        },
+      });
+    }
   };
 
   const updateDataUnionBaseInfo = async () => {
@@ -1035,26 +1068,32 @@ function App() {
       let datatokenVars: DatatokenVars | undefined = undefined;
 
       if (isDatatoken) {
-        // const profileId = await getOrCreateProfileId({
-        //   pkh,
-        //   lensNickName: "handle" + Date.now(),
-        // });
-        let profileId;
-        if (datatokenType !== DatatokenType.Profileless) {
-          profileId = await getOrCreateProfileId({
+        if (datatokenType === DatatokenType.Lens) {
+          const profileId = await getOrCreateProfileId({
             pkh: pkh!,
             lensNickName: "handle" + Date.now(),
           });
+          datatokenVars = {
+            chainId,
+            type: datatokenType,
+            collectModule: "SimpleFeeCollectModule",
+            profileId,
+            collectLimit: 100,
+            amount: 0.0001,
+            currency: Currency.WMATIC,
+            recipient: address!,
+            endTimestamp: "4722366482869645213695",
+          };
+        } else if (datatokenType === DatatokenType.Profileless) {
+          datatokenVars = {
+            chainId,
+            type: datatokenType,
+            collectModule: "LimitedFeeCollectModule",
+            collectLimit: 100,
+            amount: 0.0001,
+            currency: Currency.WMATIC,
+          };
         }
-        datatokenVars = {
-          chainId,
-          type: datatokenType,
-          collectModule: "LimitedFeeCollectModule",
-          ...(profileId && { profileId }),
-          collectLimit: 100,
-          amount: 0.0001,
-          currency: Currency.WMATIC,
-        };
       }
 
       const res = await dataverseConnector.runOS({
@@ -1181,22 +1220,32 @@ function App() {
       let datatokenVars: DatatokenVars | undefined = undefined;
 
       if (isDatatoken) {
-        let profileId;
-        if (datatokenType !== DatatokenType.Profileless) {
-          profileId = await getOrCreateProfileId({
-            pkh,
+        if (datatokenType === DatatokenType.Lens) {
+          const profileId = await getOrCreateProfileId({
+            pkh: pkh!,
             lensNickName: "handle" + Date.now(),
           });
+          datatokenVars = {
+            chainId,
+            type: datatokenType,
+            collectModule: "SimpleFeeCollectModule",
+            profileId,
+            collectLimit: 100,
+            amount: 0.0001,
+            currency: Currency.WMATIC,
+            recipient: _address!,
+            endTimestamp: "4722366482869645213695",
+          };
+        } else if (datatokenType === DatatokenType.Profileless) {
+          datatokenVars = {
+            chainId,
+            type: datatokenType,
+            collectModule: "LimitedFeeCollectModule",
+            collectLimit: 100,
+            amount: 0.0001,
+            currency: Currency.WMATIC,
+          };
         }
-        datatokenVars = {
-          chainId,
-          type: datatokenType,
-          collectModule: "LimitedFeeCollectModule",
-          ...(profileId && { profileId }),
-          collectLimit: 100,
-          amount: 0.0001,
-          currency: Currency.WMATIC,
-        };
       }
 
       const res = await dataverseConnector.runOS({
@@ -1263,9 +1312,20 @@ function App() {
   /*** Collect and Unlock ***/
   const collectFile = async () => {
     try {
+      let profileId;
+      if (datatokenType !== DatatokenType.Profileless) {
+        profileId = await getOrCreateProfileId({
+          pkh: pkh!,
+          lensNickName: "handle" + Date.now(),
+        });
+      }
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.collectFile,
-        params: actionFileId || indexFileId,
+        params: {
+          fileId:
+            "kjzl6kcym7w8ya6onyyl76zchd0asfqb6lr1dlb0mj04vr08onoamespnwvkf2b",
+          profileId,
+        },
       });
       console.log(res);
     } catch (error) {
@@ -1337,7 +1397,8 @@ function App() {
     try {
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.unlockFile,
-        params: actionFileId || indexFileId,
+        params:
+          "kjzl6kcym7w8ya6onyyl76zchd0asfqb6lr1dlb0mj04vr08onoamespnwvkf2b",
       });
       console.log(res);
     } catch (error) {
@@ -1374,7 +1435,7 @@ function App() {
   const getProfiles = async () => {
     const res = await dataverseConnector.getProfiles({
       chainId,
-      address: address!,
+      address,
     });
     console.log(res);
   };
@@ -1444,7 +1505,7 @@ function App() {
     const datatokenId = "0x50eD54ae8700f23E24cB6316ddE8869978AB4d5f";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.isDatatokenCollectedBy,
-      params: { datatokenId, collector: address! },
+      params: { datatokenId, collector: address },
     });
     console.log(res);
   };
@@ -1468,7 +1529,7 @@ function App() {
       method: SYSTEM_CALL.isDataUnionCollectedBy,
       params: {
         dataUnionId,
-        collector: address!,
+        collector: address,
       },
     });
     console.log(res);
@@ -1481,7 +1542,7 @@ function App() {
       method: SYSTEM_CALL.isDataUnionSubscribedBy,
       params: {
         dataUnionId,
-        subscriber: address!,
+        subscriber: address,
         timestamp: 0,
       },
     });

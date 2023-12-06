@@ -150,7 +150,7 @@ export interface RequestType {
     dataUnionId?: string;
     decryptionConditions?: DecryptionConditions;
   };
-  collectFile: string;
+  collectFile: { fileId: string; profileId?: string };
   collectDataUnion: string;
   subscribeDataUnion: SubscribeDataUnionVars;
   unlockFile: string;
