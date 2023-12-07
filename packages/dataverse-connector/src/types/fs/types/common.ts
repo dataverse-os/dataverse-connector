@@ -1,10 +1,10 @@
 import {
-  DataTokenType,
   ChainId,
   DataTokenGraphType,
-} from "@dataverse/dataverse-contracts-sdk/data-token";
+} from "@dataverse/contracts-sdk/data-token";
 import {
   DataUnionGraphType,
+  DatatokenType,
   DecryptionConditions,
   DecryptionConditionsTypes,
 } from "../../data-monetize";
@@ -26,7 +26,7 @@ export enum MonetizationProtocol {
 }
 
 export interface MonetizationProvider {
-  protocol: DataTokenType;
+  protocol: DatatokenType;
   chainId: ChainId;
   baseContract?: string;
   unionContract?: string;

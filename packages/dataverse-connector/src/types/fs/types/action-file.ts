@@ -57,7 +57,7 @@ export interface Action {
 export enum ActionType {
   LIKE = "LIKE",
   COMMENT = "COMMENT",
-  SECRET_CLICK = "SECRET_CLICK",
+  CLICK = "CLICK",
   UNLOCK = "UNLOCK",
   RECEIVE = "RECEIVE",
 }

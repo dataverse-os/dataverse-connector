@@ -2,16 +2,16 @@ import {
   ChainId,
   CreateDataTokenInput,
   DataTokenParams,
-  DataTokenType,
-} from "@dataverse/dataverse-contracts-sdk/data-token";
+} from "@dataverse/contracts-sdk/data-token";
 
 import {
   PublishDataUnionInput,
   SubscribeDataUnionInput,
   SubscribeDataUnionOutput as SubscribeDataUnionResult,
-} from "@dataverse/dataverse-contracts-sdk/data-union";
+} from "@dataverse/contracts-sdk/data-union";
+import { DatatokenType } from "./constants";
 
-export type DatatokenVars<T extends DataTokenType = DataTokenType> = Omit<
+export type DatatokenVars<T extends DatatokenType = DatatokenType> = Omit<
   CreateDataTokenInput<T>,
   "contentURI"
 > &
@@ -95,9 +95,10 @@ export interface AdditionalMirrorParams {
 export type {
   DataTokenGraphType,
   Datatoken_Collector,
-} from "@dataverse/dataverse-contracts-sdk/data-token";
+  CollectModule,
+} from "@dataverse/contracts-sdk/data-token";
 
 export type {
   DataUnionGraphType,
   Data_Union_Subscriber,
-} from "@dataverse/dataverse-contracts-sdk/data-union";
+} from "@dataverse/contracts-sdk/data-union";

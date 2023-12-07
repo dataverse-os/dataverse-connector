@@ -20,6 +20,7 @@ export {
   DecryptionConditionsTypes,
   type DatatokenVars,
   type DecryptionConditions,
+  type CollectModule,
 } from "./data-monetize";
 export {
   ActionType,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   DataverseConnector,
@@ -18,6 +18,8 @@ import {
 import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
 import { WalletProvider } from "@dataverse/wallet-provider";
+import { assert } from "chai";
+import { Modal } from "antd";
 import "./App.scss";
 
 const dataverseConnector = new DataverseConnector();
@@ -27,11 +29,11 @@ export const appId = "9aaae63f-3445-47d5-8785-c23dd16e4965";
 const postModelId =
   "kjzl6hvfrbw6c8h0oiiv2ccikb2thxsu98sy0ydi6oshj6sjuz9dga94463anvf";
 
-const actionFileModelId =
-  "kjzl6hvfrbw6c9g4ui7z1jksvbk7y09q6c1ruyqiij0otmvzr7oy3vd0yg43qzw";
+// const actionFileModelId =
+//   "kjzl6hvfrbw6c9g4ui7z1jksvbk7y09q6c1ruyqiij0otmvzr7oy3vd0yg43qzw";
 
-const chainId = ChainId.Mumbai;
-const datatokenType = DatatokenType.Profileless;
+const chainId = ChainId.PolygonMumbai;
+const datatokenType: DatatokenType = DatatokenType.Lens;
 
 const postVersion = "0.0.1";
 
@@ -40,11 +42,25 @@ const storageProvider = {
   apiKey: "9d632fe6.e756cc9797c345dc85595a688017b226", // input your api key to call createBareFile successfully
 };
 
+let address: string;
+let wallet: WALLET;
+let pkh: string;
+
+let folders: StructuredFolderRecord;
+let folderId: string;
+
+let dataUnions: StructuredFolderRecord;
+let dataUnionId: string;
+
+let indexFileId: string;
+let actionFileId: string;
+
 function App() {
-  const [address, setAddress] = useState("");
-  const [wallet, setWallet] = useState<WALLET>();
-  const [pkh, setPkh] = useState("");
-  const [currentPkh, setCurrentPkh] = useState("");
+  const [_address, _setAddress] = useState("");
+  // const [wallet, setWallet] = useState<WALLET>();
+  const [_pkh, _setPkh] = useState("");
+  const [_currentPkh, _setCurrentPkh] = useState("");
+  // let currentPkh: string | undefined;
   const [pkpWallet, setPKPWallet] = useState({
     address: "",
     publicKey: "",
@@ -55,22 +71,259 @@ function App() {
   const [appListInfo, setAppListInfo] = useState<string>("");
   const [appInfo, setAppInfo] = useState<string>("");
 
-  const [folders, setFolders] = useState<StructuredFolderRecord>();
-  const [folderId, setFolderId] = useState("");
+  // const [folders, setFolders] = useState<StructuredFolderRecord>();
+  // const [folderId, setFolderId] = useState("");
+  // const [dataUnions, setDataUnions] = useState<StructuredFolderRecord>();
+  // const [dataUnionId, setDataUnionId] = useState("");
+  // const [indexFileId, setIndexFileId] = useState("");
+  // const [actionFileId, setActionFileId] = useState("");
 
-  const [dataUnions, setDataUnions] = useState<StructuredFolderRecord>();
-  const [dataUnionId, setDataUnionId] = useState("");
-
-  const [indexFileId, setIndexFileId] = useState("");
-  const [actionFileId, setActionFileId] = useState("");
   const [
     dataverseProviderHasAddedListener,
     setDataverseProviderHasAddedListener,
   ] = useState<boolean>();
-
+  const [mochaRunner, setMochaRunner] = useState<Mocha.Runner>();
+  const [mochaSuites, setMochaSuites] = useState<Mocha.Suite[]>();
+  const [showMoreTests, setShowMoreTests] = useState<boolean>(false);
   const [provider, setProvider] = useState<WalletProvider>();
+  const [isInit, setIsInit] = useState<boolean>(false);
 
   const navigate = useNavigate();
+
+  // setup mocha
+  useEffect(() => {
+    mocha.setup({
+      ui: "bdd",
+      asyncOnly: true,
+    });
+  }, []);
+
+  const handleRunTests = async (suites: Mocha.Suite[]) => {
+    // clean up tests
+    if (mochaSuites) {
+      mochaSuites.forEach(suite => {
+        suite.tests = [];
+      });
+    }
+    // define tests
+    // const dappSuite = defineDappTests();
+    setMochaSuites(suites);
+    // run tests
+    if (!mochaRunner) {
+      setMochaRunner(mocha.run());
+    } else {
+      mochaRunner.run();
+    }
+  };
+
+  const init = async () => {
+    console.log("connecting dataverse wallet...");
+    const connectResult = await connectWalletWithMetamaskProvider();
+    assert.isDefined(connectResult, "connect wallet failed");
+    console.log("creating capability...");
+    const pkh = await createCapability();
+    assert.isString(pkh, "createCapability failed");
+    const checked = await checkCapability();
+    assert.isTrue(checked, "checkCapability failed");
+    setIsInit(true);
+  };
+
+  const defineInitTests = () => {
+    return describe("Init", function () {
+      // set no timeout
+      this.timeout(0);
+
+      it("Init", async () => {
+        await init();
+      });
+    });
+  };
+
+  const defineDappTests = () => {
+    return describe("DApp", function () {
+      // set no timeout
+      this.timeout(0);
+
+      before(async () => {
+        if (!isInit) {
+          await init();
+        }
+      });
+
+      it("getDAppTable", async () => {
+        const dappTable = await getDAppTable();
+        assert(dappTable && dappTable.length > 0, "getDAppTable failed");
+      });
+
+      it("getDAppInfo", async () => {
+        const dappInfo = await getDAppInfo();
+        assert.isObject(dappInfo, "getDAppInfo failed");
+      });
+
+      it("getValidAppCaps", async () => {
+        const validAppCaps = await getValidAppCaps();
+        assert(
+          validAppCaps && validAppCaps.length > 0,
+          "getValidAppCaps failed",
+        );
+      });
+
+      it("getModelBaseInfo", async () => {
+        const modelInfo = await getModelBaseInfo();
+        assert.isObject(modelInfo, "getModelBaseInfo failed");
+      });
+    });
+  };
+
+  const defineFolderTests = () => {
+    return describe("Folder", function () {
+      // set no timeout
+      this.timeout(0);
+
+      before(async () => {
+        if (!isInit) {
+          await init();
+        }
+      });
+
+      it("loadFolderTrees", loadFolderTrees);
+
+      it("createFolder", createFolder);
+
+      it("updateFolderBaseInfo", updateFolderBaseInfo);
+
+      it("loadFolderById", loadFolderById);
+
+      it("getDefaultFolderId", getDefaultFolderId);
+
+      it("deleteFolder", deleteFolder);
+    });
+  };
+
+  const defineFileTests = () => {
+    return describe("File", function () {
+      // set no timeout
+      this.timeout(0);
+
+      before(async () => {
+        if (!isInit) {
+          await init();
+        }
+      });
+
+      it("createFolder", createFolder);
+
+      it("createIndexFile", createIndexFile);
+
+      it("updateIndexFile", updateIndexFile);
+
+      it("loadFile", loadFile);
+
+      it("loadFilesBy", loadFilesBy);
+
+      it("loadCreatedDatatokenFiles", loadCreatedDatatokenFiles);
+
+      it("loadCollectedDatatokenFiles", loadCollectedDatatokenFiles);
+
+      it("createActionFile", createActionFile);
+
+      it("updateActionFile", updateActionFile);
+
+      it("createBareFile", async () => {
+        return new Promise((resolve, reject) => {
+          try {
+            const inputDom = document.createElement("input");
+            inputDom.type = "file";
+            inputDom.onchange = e =>
+              createBareFile(e).then(resolve).catch(reject);
+            // Warning: File chooser dialog can only be shown with a user activation
+            // ref: https://github.com/lostvita/blog/issues/32
+            Modal.confirm({
+              title: "Please click 'OK' to upload a file",
+              onOk: () => inputDom.click(),
+              onCancel: () => reject("cancel"),
+            });
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
+
+      it("updateBareFile", async () => {
+        return new Promise((resolve, reject) => {
+          try {
+            const inputDom = document.createElement("input");
+            inputDom.type = "file";
+            inputDom.onchange = e =>
+              updateBareFile(e).then(resolve).catch(reject);
+            // Warning: File chooser dialog can only be shown with a user activation
+            // ref: https://github.com/lostvita/blog/issues/32
+            Modal.confirm({
+              title: "Please click 'OK' to upload a file",
+              onOk: () => inputDom.click(),
+              onCancel: () => reject("cancel"),
+            });
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
+
+      it("loadBareFileContent", loadBareFileContent);
+
+      it("moveFiles", moveFiles);
+
+      it("monetizeFile", monetizeFile);
+
+      it("removeFiles", removeFiles);
+    });
+  };
+
+  // const defineUnionTests = () => {
+  //   return describe("Union", function () {
+  //     // set no timeout
+  //     this.timeout(0);
+
+  //     before(async () => {
+  //       if (!isInit) {
+  //         await init();
+  //       }
+  //     });
+
+  //     it("publishDataUnion", publishDataUnion);
+
+  //     it("updateDataUnionBaseInfo", updateDataUnionBaseInfo);
+
+  //     it("loadCreatedDataUnions", loadCreatedDataUnions);
+
+  //     it("loadCollectedDataUnions", loadCollectedDataUnions);
+
+  //     it("loadDataUnionById", loadDataUnionById);
+
+  //     it("deleteDataUnion", deleteDataUnion);
+  //   });
+  // };
+
+  const defineProfileTests = () => {
+    return describe("Profile", function () {
+      // set no timeout
+      this.timeout(0);
+
+      before(async () => {
+        if (!isInit) {
+          await init();
+        }
+      });
+
+      it("createProfile", createProfile);
+
+      it("getProfiles", getProfiles);
+
+      it("getProfileIdByHandle", getProfileIdByHandle);
+
+      it("getHandleByProfileId", getHandleByProfileId);
+    });
+  };
 
   /*** Wallet ***/
   const connectWalletWithDataverseProvider = async (_wallet = wallet) => {
@@ -85,8 +338,9 @@ function App() {
     });
     console.log(res);
     setProvider(provider);
-    setWallet(res.wallet);
-    setAddress(res.address);
+    wallet = res.wallet;
+    address = res.address;
+    _setAddress(address);
     if (!dataverseProviderHasAddedListener) {
       provider.on("chainChanged", (chainId: number) => {
         console.log(chainId);
@@ -96,7 +350,8 @@ function App() {
       });
       provider.on("accountsChanged", (accounts: Array<string>) => {
         console.log(accounts);
-        setAddress(accounts[0]);
+        address = accounts[0];
+        _setAddress(address);
       });
       setDataverseProviderHasAddedListener(true);
     }
@@ -112,14 +367,16 @@ function App() {
     });
     console.log(res);
     setProvider(provider);
-    setWallet(WALLET.EXTERNAL_WALLET);
-    setAddress(res.address);
+    wallet = WALLET.EXTERNAL_WALLET;
+    address = res.address;
+    _setAddress(address);
     provider.on("chainChanged", (networkId: string) => {
       console.log(Number(networkId));
     });
     provider.on("accountsChanged", (accounts: Array<string>) => {
       console.log(accounts);
-      setAddress(getAddress(accounts[0]));
+      address = getAddress(accounts[0]);
+      _setAddress(address);
     });
     return res;
   };
@@ -313,7 +570,7 @@ function App() {
   const getCurrentPkh = async () => {
     const res = dataverseConnector.getCurrentPkh();
     console.log(res);
-    setCurrentPkh(res);
+    _setCurrentPkh(res);
   };
 
   const getPKP = async () => {
@@ -364,6 +621,7 @@ function App() {
     const appsInfo = await dataverseConnector.getDAppTable();
     console.log(appsInfo);
     setAppListInfo(`${appsInfo.length} results show in console.`);
+    return appsInfo;
   };
 
   const getDAppInfo = async () => {
@@ -378,6 +636,7 @@ function App() {
       method: SYSTEM_CALL.getValidAppCaps,
     });
     console.log(appsInfo);
+    return appsInfo;
   };
 
   const getModelBaseInfo = async () => {
@@ -386,20 +645,22 @@ function App() {
       params: postModelId,
     });
     console.log(res);
+    return res;
   };
   /*** DApp ***/
 
   /*** Capability ***/
   const createCapability = async () => {
     await connectWalletWithMetamaskProvider();
-    const pkh = await dataverseConnector.runOS({
+    const _pkh = await dataverseConnector.runOS({
       method: SYSTEM_CALL.createCapability,
       params: {
         appId,
         resource: RESOURCE.CERAMIC,
       },
     });
-    setPkh(pkh);
+    pkh = _pkh;
+    _setPkh(pkh);
     console.log(pkh);
     return pkh;
   };
@@ -413,6 +674,7 @@ function App() {
     });
     console.log(isCurrentPkhValid);
     setIsCurrentPkhValid(isCurrentPkhValid);
+    return isCurrentPkhValid;
   };
 
   /*** Capability ***/
@@ -426,7 +688,7 @@ function App() {
       },
     });
     console.log(res);
-    setFolderId(res.newFolder.folderId);
+    folderId = res.newFolder.folderId;
     console.log(res.newFolder.folderId);
   };
 
@@ -434,7 +696,7 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.updateFolderBaseInfo,
       params: {
-        folderId,
+        folderId: folderId!,
         folderName: new Date().toISOString(),
         folderDescription: new Date().toISOString(),
       },
@@ -443,10 +705,10 @@ function App() {
   };
 
   const loadFolderTrees = async () => {
-    const folders = await dataverseConnector.runOS({
+    const _folders = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadFolderTrees,
     });
-    setFolders(folders);
+    folders = _folders;
     console.log({ folders });
     return folders;
   };
@@ -462,7 +724,7 @@ function App() {
 
   const getDefaultFolderId = async () => {
     if (!folders) {
-      throw "Please call loadFolderTrees first";
+      folders = await loadFolderTrees();
     }
     const { defaultFolderName } = await getDAppInfo();
     const folder = Object.values(folders).find(
@@ -475,7 +737,7 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.deleteFolder,
       params: {
-        folderId,
+        folderId: folderId!,
       },
     });
     console.log(res);
@@ -483,7 +745,7 @@ function App() {
 
   const deleteAllFolders = async () => {
     if (!folders) {
-      throw "Please call loadFolderTrees first";
+      folders = await loadFolderTrees();
     }
     await Promise.all(
       Object.keys(folders).map(folderId =>
@@ -500,51 +762,91 @@ function App() {
   /*** DataUnions ***/
   const publishDataUnion = async () => {
     let profileId;
-    if (datatokenType !== DatatokenType.Profileless) {
+    let res;
+    if (datatokenType === DatatokenType.Lens) {
       profileId = await getOrCreateProfileId({
-        pkh,
+        pkh: pkh!,
         lensNickName: "handle" + Date.now(),
       });
-    }
-
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.publishDataUnion,
-      params: {
-        dataUnionName: "data union",
-        dataUnionDescription: "data union description",
-        // contentType: { resource: StorageResource.CERAMIC, resourceId: postModelId },
-        // contentType: { resource: StorageResource.IPFS },
-        // actionType: ActionType.LIKE,
-        dataUnionVars: {
-          datatokenVars: {
-            chainId,
-            type: datatokenType,
-            collectModule: "LimitedFeeCollectModule",
-            ...(profileId && { profileId }),
-            collectLimit: 100,
-            amount: 0.0001,
-            currency: Currency.WMATIC,
-          },
-          resourceId: "",
-          subscribeModule: "TimeSegmentSubscribeModule",
-          subscribeModuleInput: {
-            amount: 0.0001,
-            currency: Currency.WMATIC,
-            segment: "Week",
+      const isFree = false;
+      const collectModule = isFree ? "None" : "SimpleFeeCollectModule";
+      res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.publishDataUnion,
+        params: {
+          dataUnionName: "data union",
+          dataUnionDescription: "data union description",
+          // contentType: { resource: StorageResource.CERAMIC, resourceId: postModelId },
+          // contentType: { resource: StorageResource.IPFS },
+          // actionType: ActionType.LIKE,
+          dataUnionVars: {
+            datatokenVars: {
+              chainId,
+              type: datatokenType,
+              collectModule,
+              profileId,
+              collectLimit: 100,
+              ...(!isFree
+                ? {
+                    amount: 0.0001,
+                    currency: Currency.WMATIC,
+                    recipient: address,
+                  }
+                : undefined),
+              // endTimestamp: String(
+              //   Math.floor(Date.now() / 1000) + 5 * 60,
+              //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+              // ),
+            },
+            resourceId: "",
+            subscribeModule: "TimeSegmentSubscribeModule",
+            subscribeModuleInput: {
+              amount: 0.0001,
+              currency: "DVC",
+              segment: "Week",
+            },
           },
         },
-      },
-    });
-    console.log(res);
-    setDataUnionId(res.newDataUnion.folderId);
-    console.log(res.newDataUnion.folderId);
+      });
+
+      console.log(res);
+      dataUnionId = res.newDataUnion.folderId;
+      console.log(res.newDataUnion.folderId);
+    } else if (datatokenType === DatatokenType.Profileless) {
+      res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.publishDataUnion,
+        params: {
+          dataUnionName: "data union",
+          dataUnionDescription: "data union description",
+          // contentType: { resource: StorageResource.CERAMIC, resourceId: postModelId },
+          // contentType: { resource: StorageResource.IPFS },
+          // actionType: ActionType.LIKE,
+          dataUnionVars: {
+            datatokenVars: {
+              chainId,
+              type: datatokenType,
+              collectModule: "LimitedFeeCollectModule",
+              collectLimit: 100,
+              amount: 0.0001,
+              currency: Currency.WMATIC,
+            },
+            resourceId: "",
+            subscribeModule: "TimeSegmentSubscribeModule",
+            subscribeModuleInput: {
+              amount: 0.0001,
+              currency: "DVC",
+              segment: "Week",
+            },
+          },
+        },
+      });
+    }
   };
 
   const updateDataUnionBaseInfo = async () => {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.updateDataUnionBaseInfo,
       params: {
-        dataUnionId,
+        dataUnionId: dataUnionId!,
         dataUnionName: new Date().toISOString(),
         dataUnionDescription: new Date().toISOString(),
       },
@@ -556,8 +858,9 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadCreatedDataUnions,
     });
-    setDataUnions(res);
+    dataUnions = res;
     console.log(res);
+    return res;
   };
 
   const loadCollectedDataUnions = async () => {
@@ -579,7 +882,7 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.deleteDataUnion,
       params: {
-        dataUnionId,
+        dataUnionId: dataUnionId!,
       },
     });
     console.log(res);
@@ -587,7 +890,7 @@ function App() {
 
   const deleteAllDataUnion = async () => {
     if (!dataUnions) {
-      throw "Please call loadDataUnions first";
+      dataUnions = await loadCreatedDataUnions();
     }
     await Promise.all(
       Object.keys(dataUnions).map(dataUnionId =>
@@ -629,7 +932,7 @@ function App() {
       },
     });
 
-    setIndexFileId(res.fileContent.file.fileId);
+    indexFileId = res.fileContent.file.fileId;
     console.log(res);
   };
 
@@ -645,7 +948,7 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.updateIndexFile,
       params: {
-        fileId: indexFileId,
+        fileId: indexFileId!,
         fileName: "update the file",
         fileContent: {
           modelVersion: postVersion,
@@ -683,6 +986,22 @@ function App() {
     console.log(fileRecord);
   };
 
+  const loadActionFilesByFileId = async () => {
+    const fileRecord = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadActionFilesByFileId,
+      params: indexFileId,
+    });
+    console.log(fileRecord);
+  };
+
+  const loadActionFilesByDataUnionId = async () => {
+    const fileRecord = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadActionFilesByDataUnionId,
+      params: dataUnionId,
+    });
+    console.log(fileRecord);
+  };
+
   const loadCreatedDatatokenFiles = async () => {
     const fileRecord = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadCreatedDatatokenFiles,
@@ -715,7 +1034,7 @@ function App() {
         fileName: "like",
       },
     });
-    setActionFileId(res.newFile.fileId);
+    actionFileId = res.newFile.fileId;
     console.log(res);
   };
 
@@ -726,13 +1045,13 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.updateActionFile,
       params: {
-        fileId: actionFileId,
+        fileId: actionFileId!,
         isRelationIdEncrypted: true,
         isCommentEncrypted: true,
         fileName: "like",
       },
     });
-    setActionFileId(res.currentFile.fileId);
+    actionFileId = res.currentFile.fileId;
     console.log(res);
   };
 
@@ -755,30 +1074,45 @@ function App() {
 
       console.log(fileBase64);
 
-      const isDatatoken = true;
+      const isDatatoken = false;
       let datatokenVars: DatatokenVars | undefined = undefined;
 
       if (isDatatoken) {
-        // const profileId = await getOrCreateProfileId({
-        //   pkh,
-        //   lensNickName: "handle" + Date.now(),
-        // });
-        let profileId;
-        if (datatokenType !== DatatokenType.Profileless) {
-          profileId = await getOrCreateProfileId({
-            pkh,
+        if (datatokenType === DatatokenType.Lens) {
+          const profileId = await getOrCreateProfileId({
+            pkh: pkh!,
             lensNickName: "handle" + Date.now(),
           });
+          const isFree = false;
+          const collectModule = isFree ? "None" : "SimpleFeeCollectModule";
+          datatokenVars = {
+            chainId,
+            type: datatokenType,
+            collectModule,
+            profileId,
+            collectLimit: 100,
+            ...(!isFree
+              ? {
+                  amount: 0.0001,
+                  currency: Currency.WMATIC,
+                  recipient: address,
+                }
+              : undefined),
+            // endTimestamp: String(
+            //   Math.floor(Date.now() / 1000) + 5 * 60,
+            //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+            // ),
+          };
+        } else if (datatokenType === DatatokenType.Profileless) {
+          datatokenVars = {
+            chainId,
+            type: datatokenType,
+            collectModule: "LimitedFeeCollectModule",
+            collectLimit: 100,
+            amount: 0.0001,
+            currency: Currency.WMATIC,
+          };
         }
-        datatokenVars = {
-          chainId,
-          type: datatokenType,
-          collectModule: "LimitedFeeCollectModule",
-          ...(profileId && { profileId }),
-          collectLimit: 100,
-          amount: 0.0001,
-          currency: Currency.WMATIC,
-        };
       }
 
       const res = await dataverseConnector.runOS({
@@ -827,10 +1161,11 @@ function App() {
           // ], // Only sell to specific users;
         },
       });
-      setIndexFileId(res.newFile.fileId);
+      indexFileId = res.newFile.fileId;
       console.log(res);
     } catch (error) {
       console.error(error);
+      throw error;
     }
   };
 
@@ -856,17 +1191,18 @@ function App() {
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.updateBareFile,
         params: {
-          fileId: indexFileId,
+          fileId: indexFileId!,
           fileBase64,
           fileName,
           encrypted: true,
           storageProvider,
         },
       });
-      setIndexFileId(res.currentFile.fileId);
+      indexFileId = res.currentFile.fileId;
       console.log(res);
     } catch (error) {
       console.error(error);
+      throw error;
     }
   };
 
@@ -887,7 +1223,7 @@ function App() {
       method: SYSTEM_CALL.moveFiles,
       params: {
         targetFolderId: folderId || (await getDefaultFolderId()),
-        fileIds: [actionFileId || indexFileId],
+        fileIds: [actionFileId! || indexFileId!],
       },
     });
     console.log(res);
@@ -903,29 +1239,52 @@ function App() {
       let datatokenVars: DatatokenVars | undefined = undefined;
 
       if (isDatatoken) {
-        let profileId;
-        if (datatokenType !== DatatokenType.Profileless) {
-          profileId = await getOrCreateProfileId({
-            pkh,
+        if (datatokenType === DatatokenType.Lens) {
+          const profileId = await getOrCreateProfileId({
+            pkh: pkh!,
             lensNickName: "handle" + Date.now(),
           });
+          const isFree = false;
+          const collectModule = isFree ? "None" : "SimpleFeeCollectModule";
+          datatokenVars = {
+            chainId,
+            type: datatokenType,
+            collectModule,
+            profileId,
+            collectLimit: 100,
+            ...(!isFree
+              ? {
+                  amount: 0.0001,
+                  currency: Currency.WMATIC,
+                  recipient: address,
+                }
+              : undefined),
+            // endTimestamp: String(
+            //   Math.floor(Date.now() / 1000) + 5 * 60,
+            //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+            // ),
+          };
+        } else if (datatokenType === DatatokenType.Profileless) {
+          datatokenVars = {
+            chainId,
+            type: datatokenType,
+            collectModule: "LimitedFeeCollectModule",
+            collectLimit: 100,
+            amount: 0.0001,
+            currency: Currency.WMATIC,
+            // endTimestamp: String(
+            //   Math.floor(Date.now() / 1000) + 5 * 60,
+            //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+            // ),
+          };
         }
-        datatokenVars = {
-          chainId,
-          type: datatokenType,
-          collectModule: "LimitedFeeCollectModule",
-          ...(profileId && { profileId }),
-          collectLimit: 100,
-          amount: 0.0001,
-          currency: Currency.WMATIC,
-        };
       }
 
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.monetizeFile,
         params: {
           // actionFile cannot be monetized to a datatoken
-          fileId: (!isDatatoken && actionFileId) || indexFileId,
+          fileId: (!isDatatoken && actionFileId) || indexFileId!,
           datatokenVars,
           dataUnionId,
           // unlockingTimeStamp: String(
@@ -975,7 +1334,7 @@ function App() {
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.removeFiles,
       params: {
-        fileIds: [actionFileId || indexFileId],
+        fileIds: [actionFileId! || indexFileId!],
       },
     });
     console.log(res);
@@ -985,9 +1344,19 @@ function App() {
   /*** Collect and Unlock ***/
   const collectFile = async () => {
     try {
+      let profileId;
+      if (datatokenType !== DatatokenType.Profileless) {
+        profileId = await getOrCreateProfileId({
+          pkh: pkh!,
+          lensNickName: "handle" + Date.now(),
+        });
+      }
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.collectFile,
-        params: actionFileId || indexFileId,
+        params: {
+          fileId: indexFileId,
+          profileId,
+        },
       });
       console.log(res);
     } catch (error) {
@@ -1027,20 +1396,21 @@ function App() {
       const dataUnionContractId =
         dataUnion.accessControl?.monetizationProvider?.dataUnionId;
 
-      const subscriptionList = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.loadDataUnionSubscriptionsBy,
-        params: {
-          dataUnionId: dataUnionContractId!,
-          collector: address,
-        },
+      const dataUnions = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.loadDataUnions,
+        params: [dataUnionContractId!],
       });
+
+      const subscriptionList = dataUnions[0]?.subscribers?.filter(
+        item => item.subscriber === address,
+      );
 
       const collectTokenId = subscriptionList[0]?.collect_nft_token_id;
 
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.subscribeDataUnion,
         params: {
-          dataUnionId,
+          dataUnionId: dataUnionId!,
           collectTokenId,
           subscribeInput: {
             startAt,
@@ -1058,7 +1428,7 @@ function App() {
     try {
       const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.unlockFile,
-        params: actionFileId || indexFileId,
+        params: indexFileId,
       });
       console.log(res);
     } catch (error) {
@@ -1111,7 +1481,7 @@ function App() {
   const getHandleByProfileId = async () => {
     const res = await dataverseConnector.getHandleByProfileId({
       chainId,
-      profileId: "0x3ed9",
+      profileId: "0xc0",
     });
     console.log(res);
   };
@@ -1123,7 +1493,7 @@ function App() {
     pkh: string;
     lensNickName?: string;
   }) => {
-    const chainId = ChainId.Mumbai;
+    const chainId = ChainId.PolygonMumbai;
     const lensProfiles = await dataverseConnector.getProfiles({
       chainId,
       address: pkh.slice(pkh.lastIndexOf(":") + 1),
@@ -1149,48 +1519,14 @@ function App() {
   /*** Profile ***/
 
   /*** Query Datatoken ***/
-  const loadDatatokensCreatedBy = async () => {
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDatatokensCreatedBy,
-      params: address,
-    });
-    console.log(res);
-  };
-
-  const loadDatatokensCollectedBy = async () => {
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDatatokensCollectedBy,
-      params: address,
-    });
-    console.log(res);
-  };
-
-  const loadDatatoken = async () => {
-    const datatokenId = "0xF18dc9f5E94C24bbf56Dde5d4476bA6838CD01ba";
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDatatoken,
-      params: datatokenId,
-    });
-    console.log(res);
-  };
-
   const loadDatatokens = async () => {
     const datatokenIds = [
-      "0x251458653489F46f0E117925d649Bca3bA04a91b",
+      "0xd5a9fA9B780a92091B789e57B794c1dd86F3D134",
       "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0",
     ];
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDatatokens,
       params: datatokenIds,
-    });
-    console.log(res);
-  };
-
-  const loadDatatokenCollectors = async () => {
-    const datatokenId = "0x50eD54ae8700f23E24cB6316ddE8869978AB4d5f";
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDatatokenCollectors,
-      params: datatokenId,
     });
     console.log(res);
   };
@@ -1206,68 +1542,19 @@ function App() {
   /*** Query Datatoken ***/
 
   /*** Query DataUnion ***/
-  const loadDataUnionsPublishedBy = async () => {
+  const loadDataUnions = async () => {
     const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDataUnionsPublishedBy,
-      params: address,
-    });
-    console.log(res);
-  };
-
-  const loadDataUnionsCollectedBy = async () => {
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDataUnionsCollectedBy,
-      params: address,
-    });
-    console.log(res);
-  };
-
-  const loadDataUnion = async () => {
-    const dataUnionId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDataUnion,
-      params: dataUnionId,
-    });
-    console.log(res);
-  };
-
-  const loadDataUnionCollectors = async () => {
-    const dataUnionId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDataUnionCollectors,
-      params: dataUnionId,
-    });
-    console.log(res);
-  };
-
-  const loadDataUnionSubscribers = async () => {
-    const dataUnionId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDataUnionSubscribers,
-      params: dataUnionId,
-    });
-    console.log(res);
-  };
-
-  const loadDataUnionSubscriptionsBy = async () => {
-    const dataUnionId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
-    const res = await dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDataUnionSubscriptionsBy,
-      params: {
-        dataUnionId,
-        collector: address,
-      },
+      method: SYSTEM_CALL.loadDataUnions,
+      params: [
+        "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b",
+      ],
     });
     console.log(res);
   };
 
   const isDataUnionCollectedBy = async () => {
     const dataUnionId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+      "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.isDataUnionCollectedBy,
       params: {
@@ -1280,7 +1567,7 @@ function App() {
 
   const isDataUnionSubscribedBy = async () => {
     const dataUnionId =
-      "0xaef33b7500e198f59fb3370d93dcfc4176f27372254c5aba279e41ee913162f8";
+      "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.isDataUnionSubscribedBy,
       params: {
@@ -1295,6 +1582,46 @@ function App() {
 
   return (
     <div className='App'>
+      <div id='mocha' />
+      <div className='flex'>
+        <button
+          onClick={() =>
+            handleRunTests([
+              defineInitTests(),
+              defineDappTests(),
+              defineProfileTests(),
+              defineFolderTests(),
+              defineFileTests(),
+              // defineUnionTests(),
+            ])
+          }
+        >
+          run all tests
+        </button>
+        <p className='link' onClick={() => setShowMoreTests(show => !show)}>
+          {showMoreTests ? "less" : "more"}
+        </p>
+      </div>
+      <div className={showMoreTests ? "show" : "hidden"}>
+        <button onClick={() => handleRunTests([defineInitTests()])}>
+          run init tests
+        </button>
+        <button onClick={() => handleRunTests([defineDappTests()])}>
+          run dapp tests
+        </button>
+        <button onClick={() => handleRunTests([defineFolderTests()])}>
+          run folder tests
+        </button>
+        <button onClick={() => handleRunTests([defineFileTests()])}>
+          run file tests
+        </button>
+        {/* <button onClick={() => handleRunTests([defineUnionTests()])}>
+          run union tests
+        </button> */}
+        <button onClick={() => handleRunTests([defineProfileTests()])}>
+          run profile tests
+        </button>
+      </div>
       <button onClick={() => navigate("/wagmi")}>go to wagmi demo page</button>
       <button onClick={() => connectWalletWithDataverseProvider()}>
         connectWalletWithDataverseProvider
@@ -1302,7 +1629,7 @@ function App() {
       <button onClick={() => connectWalletWithMetamaskProvider()}>
         connectWalletWithMetamaskProvider
       </button>
-      <div className='blackText'>{address}</div>
+      <div className='blackText'>{_address}</div>
       <hr />
       <button onClick={getCurrentWallet}>getCurrentWallet</button>
       <hr />
@@ -1315,7 +1642,7 @@ function App() {
       <button onClick={contractCall}>contractCall</button>
       <hr />
       <button onClick={getCurrentPkh}>getCurrentPkh</button>
-      <div className='blackText'>{currentPkh}</div>
+      <div className='blackText'>{_currentPkh}</div>
       <hr />
       <button onClick={getPKP}>getPKP</button>
       {pkpWallet.address && (
@@ -1341,7 +1668,7 @@ function App() {
       <br />
       <br />
       <button onClick={createCapability}>createCapability</button>
-      <div className='blackText'>{pkh}</div>
+      <div className='blackText'>{_pkh}</div>
       <hr />
       <button onClick={checkCapability}>checkCapability</button>
       <div className='blackText'>
@@ -1378,6 +1705,10 @@ function App() {
       </button>
       <button onClick={createActionFile}>createActionFile</button>
       <button onClick={updateActionFile}>updateActionFile</button>
+      <button onClick={loadActionFilesByFileId}>loadActionFilesByFileId</button>
+      <button onClick={loadActionFilesByDataUnionId}>
+        loadActionFilesByDataUnionId
+      </button>
       <button>
         <span>createBareFile</span>
         <input
@@ -1415,30 +1746,11 @@ function App() {
       <button onClick={getHandleByProfileId}>getHandleByProfileId</button>
       <br />
       <br />
-      <button onClick={loadDatatokensCreatedBy}>loadDatatokensCreatedBy</button>
-      <button onClick={loadDatatokensCollectedBy}>
-        loadDatatokensCollectedBy
-      </button>
-      <button onClick={loadDatatoken}>loadDatatoken</button>
       <button onClick={loadDatatokens}>loadDatatokens</button>
-      <button onClick={loadDatatokenCollectors}>loadDatatokenCollectors</button>
       <button onClick={isDatatokenCollectedBy}>isDatatokenCollectedBy</button>
       <br />
       <br />
-      <button onClick={loadDataUnionsPublishedBy}>
-        loadDataUnionsPublishedBy
-      </button>
-      <button onClick={loadDataUnionsCollectedBy}>
-        loadDataUnionsCollectedBy
-      </button>
-      <button onClick={loadDataUnion}>loadDataUnion</button>
-      <button onClick={loadDataUnionCollectors}>loadDataUnionCollectors</button>
-      <button onClick={loadDataUnionSubscribers}>
-        loadDataUnionSubscribers
-      </button>
-      <button onClick={loadDataUnionSubscriptionsBy}>
-        loadDataUnionSubscriptionsBy
-      </button>
+      <button onClick={loadDataUnions}>loadDataUnions</button>
       <button onClick={isDataUnionCollectedBy}>isDataUnionCollectedBy</button>
       <button onClick={isDataUnionSubscribedBy}>isDataUnionSubscribedBy</button>
       <br />

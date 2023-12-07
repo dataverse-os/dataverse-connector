@@ -5,9 +5,7 @@ import {
   DatatokenVars,
   DecryptionConditions,
   DataTokenGraphType,
-  Datatoken_Collector,
   DataUnionGraphType,
-  Data_Union_Subscriber,
   SubscribeDataUnionVars,
   SubscribeDataUnionOutput,
 } from "../data-monetize";
@@ -140,6 +138,8 @@ export interface RequestType {
     pkh?: string;
   };
   loadBareFileContent: string;
+  loadActionFilesByFileId: string;
+  loadActionFilesByDataUnionId: string;
   loadCreatedDatatokenFiles: void;
   loadCollectedDatatokenFiles: void;
 
@@ -150,28 +150,16 @@ export interface RequestType {
     dataUnionId?: string;
     decryptionConditions?: DecryptionConditions;
   };
-  collectFile: string;
+  collectFile: { fileId: string; profileId?: string };
   collectDataUnion: string;
   subscribeDataUnion: SubscribeDataUnionVars;
   unlockFile: string;
   isFileUnlocked: string;
 
-  loadDatatokensCreatedBy: string;
-  loadDatatokensCollectedBy: string;
-  loadDatatoken: string;
   loadDatatokens: Array<string>;
-  loadDatatokenCollectors: string;
   isDatatokenCollectedBy: { datatokenId: string; collector: string };
 
-  loadDataUnionsPublishedBy: string;
-  loadDataUnionsCollectedBy: string;
-  loadDataUnion: string;
-  loadDataUnionCollectors: string;
-  loadDataUnionSubscribers: string;
-  loadDataUnionSubscriptionsBy: {
-    dataUnionId: string;
-    collector: string;
-  };
+  loadDataUnions: Array<string>;
   isDataUnionCollectedBy: {
     dataUnionId: string;
     collector: string;
@@ -301,6 +289,8 @@ export interface ReturnType {
     >
   >;
   loadBareFileContent: Promise<string>;
+  loadActionFilesByFileId: Promise<MirrorFileRecord>;
+  loadActionFilesByDataUnionId: Promise<MirrorFileRecord>;
   loadCreatedDatatokenFiles: Promise<MirrorFileRecord>;
   loadCollectedDatatokenFiles: Promise<MirrorFileRecord>;
 
@@ -326,19 +316,9 @@ export interface ReturnType {
   }>;
   isFileUnlocked: Promise<boolean>;
 
-  loadDatatokensCreatedBy: Promise<Array<DataTokenGraphType>>;
-  loadDatatokensCollectedBy: Promise<Array<DataTokenGraphType>>;
-  loadDatatoken: Promise<DataTokenGraphType>;
   loadDatatokens: Promise<Array<DataTokenGraphType>>;
-  loadDatatokenCollectors: Promise<Array<Datatoken_Collector>>;
   isDatatokenCollectedBy: Promise<boolean>;
-
-  loadDataUnionsPublishedBy: Promise<Array<DataUnionGraphType>>;
-  loadDataUnionsCollectedBy: Promise<Array<DataUnionGraphType>>;
-  loadDataUnion: Promise<DataUnionGraphType>;
-  loadDataUnionCollectors: Promise<Array<Data_Union_Subscriber>>;
-  loadDataUnionSubscribers: Promise<Array<Data_Union_Subscriber>>;
-  loadDataUnionSubscriptionsBy: Promise<Array<Data_Union_Subscriber>>;
+  loadDataUnions: Promise<Array<DataUnionGraphType>>;
   isDataUnionCollectedBy: Promise<boolean>;
   isDataUnionSubscribedBy: Promise<boolean>;
 }

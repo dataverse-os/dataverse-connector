@@ -9,7 +9,7 @@ import {
   getLensProfiles,
   getLensProfileIdByHandle,
   getHandleByLensProfileId,
-} from "@dataverse/dataverse-contracts-sdk/data-token";
+} from "@dataverse/contracts-sdk/data-token";
 import {
   RequestType,
   SYSTEM_CALL,
@@ -21,7 +21,8 @@ import {
   AuthType,
   ChainId,
 } from "./types";
-import { getTimestampByBlockNumber as fetchTimestampByBlockNumber } from "@dataverse/dataverse-contracts-sdk";
+import { getTimestampByBlockNumber as fetchTimestampByBlockNumber } from "@dataverse/contracts-sdk";
+import { LensHandleNamespace } from "./types/constants";
 
 export class DataverseConnector {
   private communicator: Communicator;
@@ -202,18 +203,9 @@ export class DataverseConnector {
       method !== SYSTEM_CALL.loadFile &&
       method !== SYSTEM_CALL.loadFilesBy &&
       method !== SYSTEM_CALL.getModelBaseInfo &&
-      method !== SYSTEM_CALL.loadDatatokensCreatedBy &&
-      method !== SYSTEM_CALL.loadDatatokensCollectedBy &&
-      method !== SYSTEM_CALL.loadDatatoken &&
       method !== SYSTEM_CALL.loadDatatokens &&
-      method !== SYSTEM_CALL.loadDatatokenCollectors &&
       method !== SYSTEM_CALL.isDatatokenCollectedBy &&
-      method !== SYSTEM_CALL.loadDataUnionsPublishedBy &&
-      method !== SYSTEM_CALL.loadDataUnionsCollectedBy &&
-      method !== SYSTEM_CALL.loadDataUnion &&
-      method !== SYSTEM_CALL.loadDataUnionCollectors &&
-      method !== SYSTEM_CALL.loadDataUnionSubscribers &&
-      method !== SYSTEM_CALL.loadDataUnionSubscriptionsBy &&
+      method !== SYSTEM_CALL.loadDataUnions &&
       method !== SYSTEM_CALL.isDataUnionCollectedBy &&
       method !== SYSTEM_CALL.isDataUnionSubscribedBy &&
       !this?.isConnected
@@ -265,20 +257,19 @@ export class DataverseConnector {
 
     const id = await getLensProfileIdByHandle({
       chainId,
-      signerOrProvider: signer,
-      handle,
+      handle: `${LensHandleNamespace}/${handle}`,
     });
 
-    if (id.toNumber() != 0)
+    if (id && Number.parseInt(id) != 0)
       throw new Error("Handle is taken, try a new handle.");
 
     const profile = await createLensProfile({
       chainId,
-      handle,
-      signer,
+      handle: handle,
+      to: await signer.getAddress(),
     });
 
-    return profile.toHexString();
+    return profile;
   }
 
   async getProfiles({
@@ -288,18 +279,12 @@ export class DataverseConnector {
     chainId: ChainId;
     address: string;
   }): Promise<{ id: string }[]> {
-    let provider: ethers.providers.Web3Provider;
-    if (chainId && this.chain?.chainId === chainId) {
-      provider = new ethers.providers.Web3Provider(this.provider, "any");
-    }
-
     const res = await getLensProfiles({
       chainId,
       account: address,
-      signerOrProvider: provider,
     });
 
-    return res.map(item => ({ id: item.toHexString() }));
+    return res.map(item => ({ id: item }));
   }
 
   async getProfileIdByHandle({
@@ -309,18 +294,12 @@ export class DataverseConnector {
     chainId: ChainId;
     handle: string;
   }): Promise<string> {
-    let provider: ethers.providers.Web3Provider;
-    if (chainId && this.chain?.chainId === chainId) {
-      provider = new ethers.providers.Web3Provider(this.provider, "any");
-    }
-
     const res = await getLensProfileIdByHandle({
       chainId,
-      handle,
-      signerOrProvider: provider,
+      handle: `${LensHandleNamespace}/${handle}`,
     });
 
-    return res.toHexString();
+    return res;
   }
 
   async getHandleByProfileId({
@@ -330,15 +309,9 @@ export class DataverseConnector {
     chainId: ChainId;
     profileId: string;
   }): Promise<string> {
-    let provider: ethers.providers.Web3Provider;
-    if (chainId && this.chain?.chainId === chainId) {
-      provider = new ethers.providers.Web3Provider(this.provider, "any");
-    }
-
     const res = await getHandleByLensProfileId({
       chainId,
       profileId,
-      signerOrProvider: provider,
     });
 
     return res;
