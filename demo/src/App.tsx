@@ -768,7 +768,8 @@ function App() {
         pkh: pkh!,
         lensNickName: "handle" + Date.now(),
       });
-
+      const isFree = false;
+      const collectModule = isFree ? "None" : "SimpleFeeCollectModule";
       res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.publishDataUnion,
         params: {
@@ -781,13 +782,20 @@ function App() {
             datatokenVars: {
               chainId,
               type: datatokenType,
-              collectModule: "SimpleFeeCollectModule",
+              collectModule,
               profileId,
               collectLimit: 100,
-              amount: 0.0001,
-              currency: Currency.WMATIC,
-              recipient: address!,
-              endTimestamp: "4722366482869645213695",
+              ...(!isFree
+                ? {
+                    amount: 0.0001,
+                    currency: Currency.WMATIC,
+                    recipient: address,
+                  }
+                : undefined),
+              // endTimestamp: String(
+              //   Math.floor(Date.now() / 1000) + 5 * 60,
+              //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+              // ),
             },
             resourceId: "",
             subscribeModule: "TimeSegmentSubscribeModule",
@@ -1075,16 +1083,25 @@ function App() {
             pkh: pkh!,
             lensNickName: "handle" + Date.now(),
           });
+          const isFree = false;
+          const collectModule = isFree ? "None" : "SimpleFeeCollectModule";
           datatokenVars = {
             chainId,
             type: datatokenType,
-            collectModule: "SimpleFeeCollectModule",
+            collectModule,
             profileId,
             collectLimit: 100,
-            amount: 0.0001,
-            currency: Currency.WMATIC,
-            recipient: address!,
-            endTimestamp: "4722366482869645213695",
+            ...(!isFree
+              ? {
+                  amount: 0.0001,
+                  currency: Currency.WMATIC,
+                  recipient: address,
+                }
+              : undefined),
+            // endTimestamp: String(
+            //   Math.floor(Date.now() / 1000) + 5 * 60,
+            //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+            // ),
           };
         } else if (datatokenType === DatatokenType.Profileless) {
           datatokenVars = {
@@ -1227,16 +1244,25 @@ function App() {
             pkh: pkh!,
             lensNickName: "handle" + Date.now(),
           });
+          const isFree = false;
+          const collectModule = isFree ? "None" : "SimpleFeeCollectModule";
           datatokenVars = {
             chainId,
             type: datatokenType,
-            collectModule: "SimpleFeeCollectModule",
+            collectModule,
             profileId,
             collectLimit: 100,
-            amount: 0.0001,
-            currency: Currency.WMATIC,
-            recipient: address!,
-            endTimestamp: "4722366482869645213695",
+            ...(!isFree
+              ? {
+                  amount: 0.0001,
+                  currency: Currency.WMATIC,
+                  recipient: address,
+                }
+              : undefined),
+            // endTimestamp: String(
+            //   Math.floor(Date.now() / 1000) + 5 * 60,
+            //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+            // ),
           };
         } else if (datatokenType === DatatokenType.Profileless) {
           datatokenVars = {
@@ -1246,6 +1272,10 @@ function App() {
             collectLimit: 100,
             amount: 0.0001,
             currency: Currency.WMATIC,
+            // endTimestamp: String(
+            //   Math.floor(Date.now() / 1000) + 5 * 60,
+            //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+            // ),
           };
         }
       }
@@ -1491,7 +1521,7 @@ function App() {
   /*** Query Datatoken ***/
   const loadDatatokens = async () => {
     const datatokenIds = [
-      "0x251458653489F46f0E117925d649Bca3bA04a91b",
+      "0xd5a9fA9B780a92091B789e57B794c1dd86F3D134",
       "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0",
     ];
     const res = await dataverseConnector.runOS({
