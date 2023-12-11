@@ -13,6 +13,7 @@ import {
   ChainId,
   DatatokenVars,
   MirrorFile,
+  CollectModule,
   // StorageResource,
 } from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
@@ -33,7 +34,7 @@ const postModelId =
 //   "kjzl6hvfrbw6c9g4ui7z1jksvbk7y09q6c1ruyqiij0otmvzr7oy3vd0yg43qzw";
 
 const chainId = ChainId.PolygonMumbai;
-const datatokenType: DatatokenType = DatatokenType.Lens;
+const datatokenType: DatatokenType = DatatokenType.Profileless;
 
 const postVersion = "0.0.1";
 
@@ -793,8 +794,7 @@ function App() {
                   }
                 : undefined),
               // endTimestamp: String(
-              //   Math.floor(Date.now() / 1000) + 5 * 60,
-              //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+              //   Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
               // ),
             },
             resourceId: "",
@@ -812,6 +812,9 @@ function App() {
       dataUnionId = res.newDataUnion.folderId;
       console.log(res.newDataUnion.folderId);
     } else if (datatokenType === DatatokenType.Profileless) {
+      const collectModule =
+        "LimitedTimedFeeCollectModule" as CollectModule<DatatokenType.Profileless>;
+
       res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.publishDataUnion,
         params: {
@@ -824,10 +827,18 @@ function App() {
             datatokenVars: {
               chainId,
               type: datatokenType,
-              collectModule: "LimitedFeeCollectModule",
+              collectModule,
               collectLimit: 100,
-              amount: 0.0001,
-              currency: Currency.WMATIC,
+              ...(collectModule !== "FreeCollectModule" && {
+                recipient: address,
+                currency: Currency.WMATIC,
+                amount: 0.0001,
+              }),
+              ...(collectModule === "LimitedTimedFeeCollectModule" && {
+                endTimestamp: String(
+                  Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+                ),
+              }),
             },
             resourceId: "",
             subscribeModule: "TimeSegmentSubscribeModule",
@@ -1099,18 +1110,27 @@ function App() {
                 }
               : undefined),
             // endTimestamp: String(
-            //   Math.floor(Date.now() / 1000) + 5 * 60,
-            //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+            //   Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
             // ),
           };
         } else if (datatokenType === DatatokenType.Profileless) {
+          const collectModule =
+            "LimitedTimedFeeCollectModule" as CollectModule<DatatokenType.Profileless>;
           datatokenVars = {
             chainId,
             type: datatokenType,
-            collectModule: "LimitedFeeCollectModule",
+            collectModule,
             collectLimit: 100,
-            amount: 0.0001,
-            currency: Currency.WMATIC,
+            ...(collectModule !== "FreeCollectModule" && {
+              recipient: address,
+              currency: Currency.WMATIC,
+              amount: 0.0001,
+            }),
+            ...(collectModule === "LimitedTimedFeeCollectModule" && {
+              endTimestamp: String(
+                Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+              ),
+            }),
           };
         }
       }
@@ -1260,22 +1280,27 @@ function App() {
                 }
               : undefined),
             // endTimestamp: String(
-            //   Math.floor(Date.now() / 1000) + 5 * 60,
-            //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+            //   Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
             // ),
           };
         } else if (datatokenType === DatatokenType.Profileless) {
+          const collectModule =
+            "LimitedTimedFeeCollectModule" as CollectModule<DatatokenType.Profileless>;
           datatokenVars = {
             chainId,
             type: datatokenType,
-            collectModule: "LimitedFeeCollectModule",
+            collectModule,
             collectLimit: 100,
-            amount: 0.0001,
-            currency: Currency.WMATIC,
-            // endTimestamp: String(
-            //   Math.floor(Date.now() / 1000) + 5 * 60,
-            //   // Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
-            // ),
+            ...(collectModule !== "FreeCollectModule" && {
+              recipient: address,
+              currency: Currency.WMATIC,
+              amount: 0.0001,
+            }),
+            ...(collectModule === "LimitedTimedFeeCollectModule" && {
+              endTimestamp: String(
+                Math.floor(Date.now() / 1000) + 1 * 60 * 60 * 24,
+              ),
+            }),
           };
         }
       }
@@ -1523,6 +1548,7 @@ function App() {
     const datatokenIds = [
       "0xd5a9fA9B780a92091B789e57B794c1dd86F3D134",
       "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0",
+      "0xee81E5318d2CBEF8d08080dA6a931d9f502208A9",
     ];
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDatatokens,
