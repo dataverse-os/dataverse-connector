@@ -2,7 +2,7 @@ export {
   Extension,
   Browser,
   StorageProviderName,
-  SignMethod,
+  SignMethod
 } from "./constants";
 export type { StorageProvider, Provider } from "./types";
 export { RESOURCE, WALLET, type Chain, type AuthType } from "./wallet";
@@ -11,7 +11,7 @@ export {
   ModelName,
   type Models,
   type DAppInfo,
-  type DAppTable,
+  type DAppTable
 } from "./app";
 export {
   ChainId,
@@ -19,8 +19,9 @@ export {
   DatatokenType,
   DecryptionConditionsTypes,
   type DatatokenVars,
+  type DataUnionVars,
   type DecryptionConditions,
-  type CollectModule,
+  type CollectModule
 } from "./data-monetize";
 export {
   ActionType,
@@ -28,7 +29,6 @@ export {
   FolderType,
   StorageResource,
   EncryptionProtocol,
-  MonetizationProtocol,
   type Action,
   type IndexFile,
   type ActionFileInfo,
@@ -46,6 +46,6 @@ export {
   type StructuredFolderRecord,
   type EncryptionProvider,
   type MonetizationProvider,
-  type AccessControl,
+  type AccessControl
 } from "./fs";
 export { type RequestType, type ReturnType, SYSTEM_CALL } from "./system-call";

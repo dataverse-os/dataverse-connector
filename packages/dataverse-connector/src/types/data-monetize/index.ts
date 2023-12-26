@@ -16,4 +16,5 @@ export type {
   SubscribeDataUnionVars,
   SubscribeDataUnionOutput,
   CollectModule,
+  MonetizationProvider
 } from "./types";

@@ -5,7 +5,7 @@ export type {
   ContentFolderRecord,
   NativeFolder,
   StructuredFolder,
-  StructuredFolderRecord,
+  StructuredFolderRecord
 } from "./folder";
 
 export type {
@@ -14,7 +14,7 @@ export type {
   IndexFile,
   IndexFileRecord,
   StructuredFile,
-  StructuredFiles,
+  StructuredFiles
 } from "./index-file";
 
 export { StorageResource } from "./index-file";
@@ -24,7 +24,7 @@ export type {
   ActionFile,
   ActionFilesRecord,
   StructuredActionFile,
-  StructuredActionFiles,
+  StructuredActionFiles
 } from "./action-file";
 
 export { type Action, ActionType } from "./action-file";
@@ -33,15 +33,14 @@ export type {
   Mirror,
   MirrorRecord,
   MirrorFile,
-  MirrorFileRecord,
+  MirrorFileRecord
 } from "./mirror";
 
 export {
   EncryptionProtocol,
-  MonetizationProtocol,
   type EncryptionProvider,
   type MonetizationProvider,
   type AccessControl,
   type FileContent,
-  type FileRecord,
+  type FileRecord
 } from "./common";

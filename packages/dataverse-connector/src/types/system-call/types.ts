@@ -1,26 +1,25 @@
 import { StorageProvider } from "..";
 import { ValidAppCaps } from "../app";
 import {
-  DataUnionVars,
-  DatatokenVars,
-  DecryptionConditions,
   DataTokenGraphType,
   DataUnionGraphType,
   SubscribeDataUnionVars,
-  SubscribeDataUnionOutput,
+  SubscribeDataUnionOutput
 } from "../data-monetize";
 import {
   Action,
   ActionType,
   ContentType,
+  EncryptionProvider,
   FileContent,
   MirrorFile,
   MirrorFileRecord,
   StructuredFolder,
-  StructuredFolderRecord,
+  StructuredFolderRecord
 } from "../fs";
 import { SYSTEM_CALL } from "./constants";
 import { RESOURCE } from "../wallet";
+import { MonetizationProvider } from "../data-monetize/types";
 
 export interface RequestType {
   getPKP: void;
@@ -56,11 +55,10 @@ export interface RequestType {
   };
 
   publishDataUnion: {
-    dataUnionName: string;
-    dataUnionDescription?: string;
+    dataUnionId: string;
     contentType?: ContentType;
     actionType?: ActionType;
-    dataUnionVars: DataUnionVars;
+    monetizationProvider: MonetizationProvider;
   };
   updateDataUnionBaseInfo: {
     dataUnionId: string;
@@ -108,10 +106,8 @@ export interface RequestType {
     encrypted?: boolean;
     previewed?: boolean;
     storageProvider: StorageProvider;
-    dataUnionId?: string;
-    datatokenVars?: DatatokenVars;
-    unlockingTimeStamp?: string;
-    decryptionConditions?: DecryptionConditions;
+    monetizationProvider?: MonetizationProvider;
+    encryptionProvider?: EncryptionProvider;
   };
   updateBareFile: {
     fileId: string;
@@ -145,10 +141,8 @@ export interface RequestType {
 
   monetizeFile: {
     fileId: string;
-    datatokenVars?: DatatokenVars;
-    unlockingTimeStamp?: string;
-    dataUnionId?: string;
-    decryptionConditions?: DecryptionConditions;
+    monetizationProvider: MonetizationProvider;
+    encryptionProvider?: EncryptionProvider;
   };
   collectFile: { fileId: string; profileId?: string };
   collectDataUnion: string;

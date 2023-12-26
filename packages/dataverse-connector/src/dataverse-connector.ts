@@ -8,7 +8,7 @@ import {
   createLensProfile,
   getLensProfiles,
   getLensProfileIdByHandle,
-  getHandleByLensProfileId,
+  getHandleByLensProfileId
 } from "@dataverse/contracts-sdk/data-token";
 import {
   RequestType,
@@ -19,9 +19,13 @@ import {
   Extension,
   Provider,
   AuthType,
-  ChainId,
+  ChainId
 } from "./types";
-import { getTimestampByBlockNumber as fetchTimestampByBlockNumber } from "@dataverse/contracts-sdk";
+import {
+  getTimestampByBlockNumber as fetchTimestampByBlockNumber,
+  getBlockNumberByTimestamp as fetchBlockNumberByTimestamp
+} from "@dataverse/contracts-sdk";
+import { MonetizationTemplate } from "@dataverse/monetization-template";
 import { LensHandleNamespace } from "./types/constants";
 
 export class DataverseConnector {
@@ -30,6 +34,8 @@ export class DataverseConnector {
   private dataverseProvider?: WalletProvider;
   private externalProvider?: any;
   private externalWallet: ExternalWallet;
+  monetizationTemplate: MonetizationTemplate;
+
   isConnected?: boolean;
   wallet?: WALLET;
   address?: string;
@@ -46,13 +52,14 @@ export class DataverseConnector {
       this.communicator = new Communicator({
         source: window,
         target: window.top,
-        methodClass: this.externalWallet,
+        methodClass: this.externalWallet
       });
       window.dataverseCommunicator = this.communicator;
     } else {
       this.communicator = window.dataverseCommunicator;
     }
     this.communicator.onRequestMessage(() => {});
+    this.monetizationTemplate = new MonetizationTemplate();
   }
 
   getProvider(): Provider {
@@ -93,7 +100,7 @@ export class DataverseConnector {
       const dataverseProvider = new WalletProvider();
       const res = await dataverseProvider.connectWallet({
         wallet: wallet || provider.wallet,
-        preferredAuthType,
+        preferredAuthType
       });
 
       if (
@@ -123,7 +130,7 @@ export class DataverseConnector {
         wallet: this.wallet,
         address: this.address,
         chain: this.chain,
-        userInfo: this.userInfo,
+        userInfo: this.userInfo
       };
     }
 
@@ -134,7 +141,7 @@ export class DataverseConnector {
 
     const dataverseProvider = new WalletProvider();
     const res = await dataverseProvider.connectWallet({
-      wallet: WALLET.EXTERNAL_WALLET,
+      wallet: WALLET.EXTERNAL_WALLET
     });
 
     this.externalProvider.removeAllListeners("chainChanged");
@@ -148,9 +155,9 @@ export class DataverseConnector {
         method: "chainChanged",
         params: {
           chain: { chainId: Number(networkId), chainName: "Unknown" },
-          wallet: this.wallet,
+          wallet: this.wallet
         },
-        postMessageTo: "Browser",
+        postMessageTo: "Browser"
       });
     });
     this.externalProvider.on("accountsChanged", (accounts: string[]) => {
@@ -158,10 +165,10 @@ export class DataverseConnector {
       window.dataverseCommunicator?.sendRequest({
         method: "accountsChanged",
         params: {
-          accounts: accounts.map(account => getAddress(account)),
-          wallet: this.wallet,
+          accounts: accounts.map((account) => getAddress(account)),
+          wallet: this.wallet
         },
-        postMessageTo: "Browser",
+        postMessageTo: "Browser"
       });
     });
 
@@ -176,7 +183,7 @@ export class DataverseConnector {
       wallet: this.wallet,
       address: this.address,
       chain: this.chain,
-      userInfo: this.userInfo,
+      userInfo: this.userInfo
     };
   }
 
@@ -193,7 +200,7 @@ export class DataverseConnector {
 
   async runOS<T extends SYSTEM_CALL>({
     method,
-    params,
+    params
   }: {
     method: T;
     params?: RequestType[T];
@@ -216,7 +223,7 @@ export class DataverseConnector {
     const res = (await this.communicator.sendRequest({
       method,
       params,
-      postMessageTo: Extension,
+      postMessageTo: Extension
     })) as ReturnType[SYSTEM_CALL];
 
     if (method === SYSTEM_CALL.createCapability) {
@@ -243,7 +250,7 @@ export class DataverseConnector {
 
   async createProfile({
     chainId,
-    handle,
+    handle
   }: {
     chainId: ChainId;
     handle: string;
@@ -257,7 +264,7 @@ export class DataverseConnector {
 
     const id = await getLensProfileIdByHandle({
       chainId,
-      handle: `${LensHandleNamespace}/${handle}`,
+      handle: `${LensHandleNamespace}/${handle}`
     });
 
     if (id && Number.parseInt(id) != 0)
@@ -266,7 +273,7 @@ export class DataverseConnector {
     const profile = await createLensProfile({
       chainId,
       handle: handle,
-      to: await signer.getAddress(),
+      to: await signer.getAddress()
     });
 
     return profile;
@@ -274,29 +281,29 @@ export class DataverseConnector {
 
   async getProfiles({
     chainId,
-    address,
+    address
   }: {
     chainId: ChainId;
     address: string;
   }): Promise<{ id: string }[]> {
     const res = await getLensProfiles({
       chainId,
-      account: address,
+      account: address
     });
 
-    return res.map(item => ({ id: item }));
+    return res.map((item) => ({ id: item }));
   }
 
   async getProfileIdByHandle({
     chainId,
-    handle,
+    handle
   }: {
     chainId: ChainId;
     handle: string;
   }): Promise<string> {
     const res = await getLensProfileIdByHandle({
       chainId,
-      handle: `${LensHandleNamespace}/${handle}`,
+      handle: `${LensHandleNamespace}/${handle}`
     });
 
     return res;
@@ -304,14 +311,14 @@ export class DataverseConnector {
 
   async getHandleByProfileId({
     chainId,
-    profileId,
+    profileId
   }: {
     chainId: ChainId;
     profileId: string;
   }): Promise<string> {
     const res = await getHandleByLensProfileId({
       chainId,
-      profileId,
+      profileId
     });
 
     return res;
@@ -319,11 +326,21 @@ export class DataverseConnector {
 
   getTimestampByBlockNumber({
     chainId,
-    blockNumber,
+    blockNumber
   }: {
     chainId: ChainId;
     blockNumber: number;
   }) {
     return fetchTimestampByBlockNumber({ chainId, blockNumber });
+  }
+
+  getBlockNumberByTimestamp({
+    chainId,
+    timestamp
+  }: {
+    chainId: ChainId;
+    timestamp: number;
+  }) {
+    return fetchBlockNumberByTimestamp({ chainId, timestamp });
   }
 }
