@@ -1,46 +1,57 @@
 import { BigNumber, ethers, Signer } from "ethers";
 import {
-  BooleanCondition,
-  CollectDataUnionOutput,
-  CreateDataUnionOutput,
+  AssetType,
   DatatokenVars,
   DataUnionVars,
-  DecryptionConditions,
-  MonetizationProvider,
   SubscribeDataUnionOutput,
-  SubscribeDataUnionVars,
-  UnifiedAccessControlCondition
+  SubscribeDataUnionVars
 } from "./types";
 import { nanoid } from "nanoid";
 import { uploadToIPFS } from "@dataverse/utils";
 import {
   ChainId,
-  GraphType as DataTokenType,
-  CreateDataTokenInput
+  GraphType as DataTokenType
 } from "@dataverse/contracts-sdk/data-token";
 
 import {
   DataUnion as DataUnionSDK,
-  DataUnionGraphType,
-  Data_Union_Subscriber
+  DataUnionGraphType
 } from "@dataverse/contracts-sdk/data-union";
-import { Lit } from "./lit";
-import { DeployedContracts } from "@dataverse/contracts-sdk";
+import {
+  DeployedContracts,
+  getTimestampByBlockNumber
+} from "@dataverse/contracts-sdk";
+import {
+  ActionType,
+  BooleanCondition,
+  ContentType,
+  DataverseConnector,
+  DecryptionConditions,
+  DecryptionConditionsType,
+  EncryptionProtocol,
+  ModelName,
+  MonetizationProvider,
+  Signal,
+  StorageResource,
+  SYSTEM_CALL,
+  UnifiedAccessControlCondition
+} from "@dataverse/dataverse-connector";
+import { contractCall, getChainNameFromChainId } from "./util";
 
 export class DataUnion {
-  lit: Lit;
+  dataverseConnector: DataverseConnector;
 
-  constructor(lit: Lit) {
-    this.lit = lit;
+  constructor(dataverseConnector: DataverseConnector) {
+    this.dataverseConnector = dataverseConnector;
   }
 
-  async createDataUnion({
-    signer,
-    dataUnionVars
+  async getAssetHandler({
+    dataUnionVars,
+    signer
   }: {
-    signer: Signer;
     dataUnionVars: DataUnionVars;
-  }): Promise<CreateDataUnionOutput> {
+    signer: Signer;
+  }) {
     const DATAVERSE_URL = "https://dataverse-os.com/";
 
     const POST_APP_ID = `dataverse-v0.1.0`;
@@ -48,7 +59,7 @@ export class DataUnion {
     const metadata = {
       version: "2.0.0",
       metadata_id: nanoid(),
-      content: `ceramic://${dataUnionVars.datatokenVars.streamId}`,
+      content: `ceramic://${dataUnionVars.dataTokenVars.streamId}`,
       locale: "en",
       mainContentFocus: "TEXT_ONLY",
       external_url: DATAVERSE_URL,
@@ -61,9 +72,6 @@ export class DataUnion {
 
     const contentURI = await uploadToIPFS(metadata, "metadata.json");
 
-    let input = {} as CreateDataTokenInput<DataTokenType.Profileless>;
-    let dataUnion = {} as DataUnionSDK;
-
     const {
       chainId,
       type,
@@ -73,19 +81,21 @@ export class DataUnion {
       currency,
       recipient,
       endTimestamp
-    } = dataUnionVars.datatokenVars as DatatokenVars<DataTokenType.Profileless>;
+    } = dataUnionVars.dataTokenVars as DatatokenVars<DataTokenType.Profileless>;
 
-    dataUnion = new DataUnionSDK({
+    const dataUnion = new DataUnionSDK({
       chainId: chainId ?? ChainId.PolygonMumbai,
       signer
     });
 
-    input = {
+    const creator = await signer.getAddress();
+
+    const input = {
       type: type ?? DataTokenType.Profileless,
       contentURI,
       collectModule: collectModule ?? "LimitedFeeCollectModule",
       collectLimit: collectLimit ?? 2 ** 52,
-      recipient: recipient ?? (await signer.getAddress()),
+      recipient: recipient ?? creator,
       currency,
       amount: ethers.utils.parseUnits(
         String(amount),
@@ -94,9 +104,9 @@ export class DataUnion {
       endTimestamp
     };
 
-    const { resourceId, subscribeModule, subscribeModuleInput } = dataUnionVars;
+    const { subscribeModule, subscribeModuleInput } = dataUnionVars;
 
-    const { dataToken, ...rest } = await dataUnion.publish({
+    const { dataUnionId } = await dataUnion.publish({
       createDataTokenInput: input,
       resourceId: "test-resource-1",
       subscribeModule,
@@ -106,26 +116,161 @@ export class DataUnion {
       }
     });
 
-    return { datatokenId: dataToken, ...rest };
+    return dataUnionId;
+  }
+
+  async applyMonetizerToFolder({
+    folderId,
+    dataUnionId,
+    chainId,
+    signal
+  }: {
+    folderId?: string;
+    dataUnionId?: string;
+    chainId?: number;
+    signal?: Signal;
+  }) {
+    const monetizationProvider = {
+      dataAsset: {
+        assetType: AssetType[AssetType.dataUnion],
+        assetId: dataUnionId,
+        assetContract: DeployedContracts[ChainId[chainId]].DataUnion.DataUnion,
+        chainId
+      }
+    };
+
+    const res = await this.dataverseConnector.runOS({
+      method: SYSTEM_CALL.monetizeFolder,
+      params: {
+        folderId,
+        monetizationProvider,
+        signal
+      }
+    });
+
+    return res;
+  }
+
+  async applyMonetizerToFile({
+    fileId,
+    creator,
+    unionFolderId,
+    blockNumber
+  }: {
+    fileId?: string;
+    creator?: string;
+    unionFolderId?: string;
+    blockNumber?: number;
+  }) {
+    const dataUnion = await this.dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadDataUnionById,
+      params: unionFolderId
+    });
+    const linkedAsset =
+      dataUnion.accessControl?.monetizationProvider?.dataAsset;
+
+    const fileRes = await this.dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadFile,
+      params: fileId
+    });
+    const file = fileRes?.fileContent?.file;
+    if (!file) {
+      throw new Error("The fileId does not exsit or has been deleted");
+    }
+
+    const modelId = fileRes?.modelId;
+    const dapp = await this.dataverseConnector.getDAppInfo(fileRes?.appId);
+    const indexFileModelId =
+      this.dataverseConnector.getModelIdByAppIdAndModelName({
+        dapp,
+        modelName: ModelName.indexFile
+      });
+    const actionFileModelId =
+      this.dataverseConnector.getModelIdByAppIdAndModelName({
+        dapp,
+        modelName: ModelName.actionFile
+      });
+
+    if (
+      (modelId === indexFileModelId &&
+        file.contentType.resource === StorageResource.IPFS &&
+        dataUnion.options.signal &&
+        (dataUnion.options.signal as ContentType).resource !==
+          StorageResource.IPFS) ||
+      (modelId === indexFileModelId &&
+        file.contentType.resource === StorageResource.CERAMIC &&
+        dataUnion.options.signal &&
+        (dataUnion.options.signal as ContentType).resource !==
+          StorageResource.CERAMIC) ||
+      (modelId === actionFileModelId &&
+        dataUnion.options.signal &&
+        !((dataUnion.options.signal as ActionType) in ActionType))
+    ) {
+      throw new Error(
+        "The file type that the data union can store does not match the current file type"
+      );
+    }
+
+    const unlockingTimeStamp = await getTimestampByBlockNumber({
+      chainId: linkedAsset.chainId,
+      blockNumber
+    });
+
+    const monetizationProvider = {
+      dependency: {
+        linkedAsset,
+        blockNumber
+      }
+    };
+
+    const decryptionConditions = await this.getAccessControlConditions({
+      creator,
+      unlockingTimeStamp,
+      monetizationProvider
+    });
+
+    const encryptionProvider = {
+      protocol: EncryptionProtocol.Lit,
+      decryptionConditions,
+      decryptionConditionsType:
+        DecryptionConditionsType.UnifiedAccessControlCondition,
+      unlockingTimeStamp
+    };
+
+    const res = await this.dataverseConnector.runOS({
+      method: SYSTEM_CALL.monetizeFile,
+      params: {
+        fileId,
+        monetizationProvider,
+        encryptionProvider
+      }
+    });
+
+    return res;
   }
 
   async collectDataUnion({
-    dataUnionId,
-    chainId,
+    contractAddress,
+    abi,
+    method,
+    params,
     signer
   }: {
-    dataUnionId: string;
-    chainId: ChainId;
+    contractAddress: string;
+    abi: any[];
+    method: string;
+    params: any[];
     signer: Signer;
-  }): Promise<CollectDataUnionOutput> {
-    const dataUnion = new DataUnionSDK({
-      chainId,
+  }) {
+    const res = await contractCall({
+      contractAddress,
+      abi,
+      method,
+      params,
       signer
     });
 
-    const { dataToken, ...rest } = await dataUnion.collect(dataUnionId);
-
-    return { datatokenId: dataToken, ...rest };
+    return res;
   }
 
   async subscribeDataUnion({
@@ -158,57 +303,10 @@ export class DataUnion {
     };
   }
 
-  async loadDataUnionsPublishedBy(
-    publisher: string
-  ): Promise<Array<DataUnionGraphType>> {
-    const res = await DataUnionSDK.loadDataUnionsPublishedBy(publisher);
-    return res;
-  }
-
-  async loadDataUnionsCollectedBy(
-    collector: string
-  ): Promise<Array<DataUnionGraphType>> {
-    const res = await DataUnionSDK.loadDataUnionsCollectedBy(collector);
-    return res;
-  }
-
-  async loadDataUnion(dataUnionId: string): Promise<DataUnionGraphType> {
-    const res = await DataUnionSDK.loadDataUnion(dataUnionId);
-    return res;
-  }
-
   async loadDataUnions(
     dataUnionIds: Array<string>
   ): Promise<Array<DataUnionGraphType>> {
     const res = await DataUnionSDK.loadDataUnions(dataUnionIds);
-    return res;
-  }
-
-  async loadDataUnionCollectors(
-    dataUnionId: string
-  ): Promise<Array<Data_Union_Subscriber>> {
-    const res = await DataUnionSDK.loadDataUnionCollectors(dataUnionId);
-    return res;
-  }
-
-  async loadDataUnionSubscribers(
-    dataUnionId: string
-  ): Promise<Array<Data_Union_Subscriber>> {
-    const res = await DataUnionSDK.loadDataUnionSubscribers(dataUnionId);
-    return res;
-  }
-
-  async loadDataUnionSubscriptionsBy({
-    dataUnionId,
-    collector
-  }: {
-    dataUnionId: string;
-    collector: string;
-  }): Promise<Array<Data_Union_Subscriber>> {
-    const res = await DataUnionSDK.loadDataUnionSubscriptionsBy({
-      dataUnionId,
-      collector
-    });
     return res;
   }
 
@@ -246,19 +344,170 @@ export class DataUnion {
     return res;
   }
 
-  generateMonetizationProvider({
-    chainId,
-    dataUnionId
+  async getAccessControlConditions({
+    creator,
+    unlockingTimeStamp,
+    monetizationProvider
   }: {
-    chainId?: ChainId;
-    dataUnionId?: string;
-  }): MonetizationProvider {
+    creator: string;
+    unlockingTimeStamp?: number;
+    monetizationProvider: MonetizationProvider;
+  }): Promise<DecryptionConditions> {
+    const conditions = [];
+    const {
+      dependency: { linkedAsset, blockNumber }
+    } = monetizationProvider;
+
+    unlockingTimeStamp &&
+      conditions.push(
+        this.getTimeStampAccessControlConditions(String(unlockingTimeStamp))
+      );
+
+    const unifiedAccessControlConditions = [
+      {
+        conditionType: "evmBasic",
+        contractAddress: "",
+        standardContractType: "",
+        chain: "ethereum",
+        method: "",
+        parameters: [":userAddress"],
+        returnValueTest: {
+          comparator: "=",
+          value: `${creator}`
+        }
+      }
+    ] as (UnifiedAccessControlCondition | BooleanCondition)[];
+
+    if (
+      linkedAsset.assetId &&
+      linkedAsset.assetContract &&
+      linkedAsset.chainId &&
+      blockNumber
+    ) {
+      unifiedAccessControlConditions.push(
+        ...[
+          { operator: "or" },
+          this.getIsDataUnionSubscribedAccessControlConditions({
+            contractAddress: linkedAsset.assetContract,
+            chain: getChainNameFromChainId(linkedAsset.chainId),
+            dataUnionId: linkedAsset.assetId,
+            blockNumber
+          })
+        ]
+      );
+    }
+
+    conditions.push(unifiedAccessControlConditions);
+
+    return conditions;
+  }
+
+  getIsDatatokenCollectedAccessControlConditions({
+    contractAddress,
+    chain
+  }: {
+    contractAddress: string;
+    chain: string;
+  }) {
     return {
-      protocol: DataTokenType.Profileless,
-      chainId,
-      dataUnionId,
-      baseContract: DeployedContracts[ChainId[chainId]].DataUnion.DataUnion,
-      unionContract: DeployedContracts[ChainId[chainId]].DataUnion.LitACL
+      contractAddress,
+      conditionType: "evmContract",
+      functionName: "isCollected",
+      functionParams: [":userAddress"],
+      functionAbi: {
+        inputs: [
+          {
+            internalType: "address",
+            name: "user",
+            type: "address"
+          }
+        ],
+        name: "isCollected",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool"
+          }
+        ],
+        stateMutability: "view",
+        type: "function"
+      },
+      chain,
+      returnValueTest: {
+        key: "",
+        comparator: "=",
+        value: "true"
+      }
+    };
+  }
+
+  getIsDataUnionSubscribedAccessControlConditions({
+    contractAddress,
+    chain,
+    dataUnionId,
+    blockNumber
+  }: {
+    contractAddress: string;
+    chain: string;
+    dataUnionId: string;
+    blockNumber: number;
+  }) {
+    return {
+      contractAddress,
+      conditionType: "evmContract",
+      functionName: "isAccessible",
+      functionParams: [dataUnionId, ":userAddress", String(blockNumber)],
+      functionAbi: {
+        inputs: [
+          {
+            internalType: "bytes32",
+            name: "dataUnionId",
+            type: "bytes32"
+          },
+          {
+            internalType: "address",
+            name: "subscriber",
+            type: "address"
+          },
+          {
+            internalType: "uint256",
+            name: "blockNumber",
+            type: "uint256"
+          }
+        ],
+        name: "isAccessible",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool"
+          }
+        ],
+        stateMutability: "view",
+        type: "function"
+      },
+      chain,
+      returnValueTest: {
+        key: "",
+        comparator: "=",
+        value: "true"
+      }
+    };
+  }
+
+  getTimeStampAccessControlConditions(value: string) {
+    return {
+      conditionType: "evmBasic",
+      contractAddress: "",
+      standardContractType: "timestamp",
+      chain: "ethereum",
+      method: "eth_getBlockByNumber",
+      parameters: ["latest"],
+      returnValueTest: {
+        comparator: ">=",
+        value
+      }
     };
   }
 }

@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@dataverse/contracts-sdk": "^1.0.12",
+    "@dataverse/dataverse-connector": "^1.0.33",
     "@dataverse/utils": "^1.0.10",
     "@lit-protocol/constants": "^2.2.61",
     "@lit-protocol/lit-node-client": "^2.2.61",

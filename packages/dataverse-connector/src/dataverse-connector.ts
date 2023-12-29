@@ -1,15 +1,8 @@
-import { ethers } from "ethers";
 import { getAddress } from "viem";
 import { Communicator } from "@dataverse/communicator";
 import { WalletProvider } from "@dataverse/wallet-provider";
 import { detectDataverseExtension, ExternalWallet } from "@dataverse/utils";
 import { getDapp, getDapps } from "@dataverse/dapp-table-client";
-import {
-  createLensProfile,
-  getLensProfiles,
-  getLensProfileIdByHandle,
-  getHandleByLensProfileId
-} from "@dataverse/contracts-sdk/data-token";
 import {
   RequestType,
   SYSTEM_CALL,
@@ -18,15 +11,10 @@ import {
   WALLET,
   Extension,
   Provider,
-  AuthType,
-  ChainId
+  AuthType
 } from "./types";
-import {
-  getTimestampByBlockNumber as fetchTimestampByBlockNumber,
-  getBlockNumberByTimestamp as fetchBlockNumberByTimestamp
-} from "@dataverse/contracts-sdk";
-import { MonetizationTemplate } from "@dataverse/monetization-template";
-import { LensHandleNamespace } from "./types/constants";
+import { Model } from "./types/app/types";
+import { Dapp } from "@dataverse/dapp-table-client/dist/esm/__generated__/types";
 
 export class DataverseConnector {
   private communicator: Communicator;
@@ -34,7 +22,6 @@ export class DataverseConnector {
   private dataverseProvider?: WalletProvider;
   private externalProvider?: any;
   private externalWallet: ExternalWallet;
-  monetizationTemplate: MonetizationTemplate;
 
   isConnected?: boolean;
   wallet?: WALLET;
@@ -59,7 +46,6 @@ export class DataverseConnector {
       this.communicator = window.dataverseCommunicator;
     }
     this.communicator.onRequestMessage(() => {});
-    this.monetizationTemplate = new MonetizationTemplate();
   }
 
   getProvider(): Provider {
@@ -210,11 +196,6 @@ export class DataverseConnector {
       method !== SYSTEM_CALL.loadFile &&
       method !== SYSTEM_CALL.loadFilesBy &&
       method !== SYSTEM_CALL.getModelBaseInfo &&
-      method !== SYSTEM_CALL.loadDatatokens &&
-      method !== SYSTEM_CALL.isDatatokenCollectedBy &&
-      method !== SYSTEM_CALL.loadDataUnions &&
-      method !== SYSTEM_CALL.isDataUnionCollectedBy &&
-      method !== SYSTEM_CALL.isDataUnionSubscribedBy &&
       !this?.isConnected
     ) {
       throw new Error("Please connect wallet first");
@@ -241,106 +222,28 @@ export class DataverseConnector {
     return getDapp(dappId);
   }
 
+  getLatestStream(model: Model) {
+    return model.streams.find((stream) => stream.latest);
+  }
+
+  getModelIdByAppIdAndModelName({
+    dapp,
+    modelName
+  }: {
+    dapp: Dapp;
+    modelName: string;
+  }): string | undefined {
+    const model = dapp.models.find((model) => model.modelName === modelName);
+    if (model) {
+      return this.getLatestStream(model).modelId;
+    }
+    return undefined;
+  }
+
   getCurrentPkh(): string {
     if (!this.address) {
       throw new Error("Please connect wallet first");
     }
     return `did:pkh:eip155:1:${this.address}`;
-  }
-
-  async createProfile({
-    chainId,
-    handle
-  }: {
-    chainId: ChainId;
-    handle: string;
-  }): Promise<string> {
-    if (!this?.isConnected) {
-      throw new Error("Please connect wallet first");
-    }
-
-    const provider = new ethers.providers.Web3Provider(this.provider, "any");
-    const signer = provider.getSigner();
-
-    const id = await getLensProfileIdByHandle({
-      chainId,
-      handle: `${LensHandleNamespace}/${handle}`
-    });
-
-    if (id && Number.parseInt(id) != 0)
-      throw new Error("Handle is taken, try a new handle.");
-
-    const profile = await createLensProfile({
-      chainId,
-      handle: handle,
-      to: await signer.getAddress()
-    });
-
-    return profile;
-  }
-
-  async getProfiles({
-    chainId,
-    address
-  }: {
-    chainId: ChainId;
-    address: string;
-  }): Promise<{ id: string }[]> {
-    const res = await getLensProfiles({
-      chainId,
-      account: address
-    });
-
-    return res.map((item) => ({ id: item }));
-  }
-
-  async getProfileIdByHandle({
-    chainId,
-    handle
-  }: {
-    chainId: ChainId;
-    handle: string;
-  }): Promise<string> {
-    const res = await getLensProfileIdByHandle({
-      chainId,
-      handle: `${LensHandleNamespace}/${handle}`
-    });
-
-    return res;
-  }
-
-  async getHandleByProfileId({
-    chainId,
-    profileId
-  }: {
-    chainId: ChainId;
-    profileId: string;
-  }): Promise<string> {
-    const res = await getHandleByLensProfileId({
-      chainId,
-      profileId
-    });
-
-    return res;
-  }
-
-  getTimestampByBlockNumber({
-    chainId,
-    blockNumber
-  }: {
-    chainId: ChainId;
-    blockNumber: number;
-  }) {
-    return fetchTimestampByBlockNumber({ chainId, blockNumber });
-  }
-
-  getBlockNumberByTimestamp({
-    chainId,
-    timestamp
-  }: {
-    chainId: ChainId;
-    timestamp: number;
-  }) {
-    return fetchBlockNumberByTimestamp({ chainId, timestamp });
   }
 }

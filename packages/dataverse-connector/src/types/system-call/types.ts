@@ -1,25 +1,17 @@
 import { StorageProvider } from "..";
 import { ValidAppCaps } from "../app";
 import {
-  DataTokenGraphType,
-  DataUnionGraphType,
-  SubscribeDataUnionVars,
-  SubscribeDataUnionOutput
-} from "../data-monetize";
-import {
   Action,
-  ActionType,
-  ContentType,
-  EncryptionProvider,
   FileContent,
   MirrorFile,
   MirrorFileRecord,
   StructuredFolder,
-  StructuredFolderRecord
+  StructuredFolderRecord,
+  Signal
 } from "../fs";
 import { SYSTEM_CALL } from "./constants";
 import { RESOURCE } from "../wallet";
-import { MonetizationProvider } from "../data-monetize/types";
+import { EncryptionProvider, MonetizationProvider } from "../data-monetize";
 
 export interface RequestType {
   getPKP: void;
@@ -54,11 +46,10 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
 
-  publishDataUnion: {
-    dataUnionId: string;
-    contentType?: ContentType;
-    actionType?: ActionType;
+  monetizeFolder: {
+    folderId: string;
     monetizationProvider: MonetizationProvider;
+    signal?: Signal;
   };
   updateDataUnionBaseInfo: {
     dataUnionId: string;
@@ -104,10 +95,7 @@ export interface RequestType {
     fileBase64: string;
     fileName: string;
     encrypted?: boolean;
-    previewed?: boolean;
     storageProvider: StorageProvider;
-    monetizationProvider?: MonetizationProvider;
-    encryptionProvider?: EncryptionProvider;
   };
   updateBareFile: {
     fileId: string;
@@ -144,26 +132,8 @@ export interface RequestType {
     monetizationProvider: MonetizationProvider;
     encryptionProvider?: EncryptionProvider;
   };
-  collectFile: { fileId: string; profileId?: string };
-  collectDataUnion: string;
-  subscribeDataUnion: SubscribeDataUnionVars;
   unlockFile: string;
   isFileUnlocked: string;
-
-  loadDatatokens: Array<string>;
-  isDatatokenCollectedBy: { datatokenId: string; collector: string };
-
-  loadDataUnions: Array<string>;
-  isDataUnionCollectedBy: {
-    dataUnionId: string;
-    collector: string;
-  };
-  isDataUnionSubscribedBy: {
-    dataUnionId: string;
-    subscriber: string;
-    blockNumber?: number;
-    timestamp?: number;
-  };
 }
 
 export interface ReturnType {
@@ -191,7 +161,7 @@ export interface ReturnType {
     allFolders: StructuredFolderRecord;
   }>;
 
-  publishDataUnion: Promise<{
+  monetizeFolder: Promise<{
     newDataUnion: StructuredFolder;
     allDataUnions: StructuredFolderRecord;
   }>;
@@ -212,13 +182,13 @@ export interface ReturnType {
     appId: string;
     modelId: string;
     fileContent: {
-      file: Omit<MirrorFile, "fileKey" | "content" | "external">;
+      file: Omit<MirrorFile, "content" | "external">;
       content: FileContent;
     };
   }>;
   updateIndexFile: Promise<{
     fileContent: {
-      file: Omit<MirrorFile, "fileKey" | "content" | "external">;
+      file: Omit<MirrorFile, "content" | "external">;
       content: FileContent;
     };
   }>;
@@ -259,12 +229,10 @@ export interface ReturnType {
     pkh: string;
     appId: string;
     modelId: string;
-    fileContent:
-      | {
-          file?: Omit<MirrorFile, "fileKey" | "content" | "external">;
-          content?: FileContent;
-        }
-      | FileContent;
+    fileContent: {
+      file?: Omit<MirrorFile, "content" | "external">;
+      content?: FileContent;
+    };
   }>;
   loadFilesBy: Promise<
     Record<
@@ -273,12 +241,10 @@ export interface ReturnType {
         appId: string;
         modelId: string;
         pkh: string;
-        fileContent:
-          | {
-              file?: Omit<MirrorFile, "fileKey" | "content" | "external">;
-              content?: FileContent;
-            }
-          | FileContent;
+        fileContent: {
+          file?: Omit<MirrorFile, "content" | "external">;
+          content?: FileContent;
+        };
       }
     >
   >;
@@ -290,31 +256,17 @@ export interface ReturnType {
 
   monetizeFile: Promise<{
     fileContent: {
-      file: Omit<MirrorFile, "fileKey" | "content" | "external">;
-      content: FileContent | string;
+      file: Omit<MirrorFile, "content" | "external">;
+      content?: FileContent;
     };
   }>;
-  collectFile: Promise<{
-    fileContent: {
-      file: Omit<MirrorFile, "fileKey" | "content" | "external">;
-      content: FileContent | string;
-    };
-  }>;
-  collectDataUnion: Promise<StructuredFolder>;
-  subscribeDataUnion: Promise<SubscribeDataUnionOutput>;
   unlockFile: Promise<{
     fileContent: {
-      file: Omit<MirrorFile, "fileKey" | "content" | "external">;
-      content: FileContent | string;
+      file: Omit<MirrorFile, "content" | "external">;
+      content?: FileContent;
     };
   }>;
   isFileUnlocked: Promise<boolean>;
-
-  loadDatatokens: Promise<Array<DataTokenGraphType>>;
-  isDatatokenCollectedBy: Promise<boolean>;
-  loadDataUnions: Promise<Array<DataUnionGraphType>>;
-  isDataUnionCollectedBy: Promise<boolean>;
-  isDataUnionSubscribedBy: Promise<boolean>;
 }
 
 export interface RequestInputs {

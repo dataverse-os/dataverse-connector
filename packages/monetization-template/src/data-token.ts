@@ -1,16 +1,5 @@
 import { ethers, Signer } from "ethers";
-import {
-  BooleanCondition,
-  CollectDatatokenOutput,
-  CreateDatatokenOutput,
-  DatatokenVars,
-  DecryptionConditions,
-  DecryptionConditionsTypes,
-  EncryptionProtocol,
-  EncryptionProvider,
-  MonetizationProvider,
-  UnifiedAccessControlCondition
-} from "./types";
+import { AssetType, DatatokenVars } from "./types";
 import { nanoid } from "nanoid";
 import { uploadToIPFS } from "@dataverse/utils";
 import {
@@ -19,26 +8,40 @@ import {
   DataToken,
   ChainId,
   GraphType as DataTokenType,
-  DataTokenGraphType,
-  Datatoken_Collector
+  DataTokenGraphType
 } from "@dataverse/contracts-sdk/data-token";
-import { Lit } from "./lit";
-import { getBlockNumberByTimestamp } from "@dataverse/contracts-sdk";
+import {
+  DataverseConnector,
+  SYSTEM_CALL,
+  BooleanCondition,
+  DecryptionConditions,
+  DecryptionConditionsType,
+  EncryptionProtocol,
+  MonetizationProvider,
+  UnifiedAccessControlCondition
+} from "@dataverse/dataverse-connector";
+import { contractCall, getChainNameFromChainId } from "./util";
 
 export class Datatoken {
-  lit: Lit;
+  dataverseConnector: DataverseConnector;
 
-  constructor(lit: Lit) {
-    this.lit = lit;
+  constructor(dataverseConnector: DataverseConnector) {
+    this.dataverseConnector = dataverseConnector;
   }
 
-  async createDatatoken({
-    signer,
-    datatokenVars
+  async getAssetHandler({
+    fileOrFolderId,
+    dataTokenVars,
+    // unionFolderId,
+    // unlockingTimeStamp,
+    signer
   }: {
+    fileOrFolderId?: string;
+    dataTokenVars?: DatatokenVars;
+    // unionFolderId?: string;
+    // unlockingTimeStamp?: number;
     signer: Signer;
-    datatokenVars: DatatokenVars;
-  }): Promise<CreateDatatokenOutput> {
+  }): Promise<string> {
     const DATAVERSE_URL = "https://dataverse-os.com/";
 
     const POST_APP_ID = `dataverse-v0.1.0`;
@@ -46,7 +49,7 @@ export class Datatoken {
     const metadata = {
       version: "2.0.0",
       metadata_id: nanoid(),
-      content: `ceramic://${datatokenVars.streamId}`,
+      content: `ceramic://${fileOrFolderId}`,
       locale: "en",
       mainContentFocus: "TEXT_ONLY",
       external_url: DATAVERSE_URL,
@@ -62,7 +65,8 @@ export class Datatoken {
     let input = {} as CreateDataTokenInput;
     let dataTokenFactory = {} as DataTokenFactory;
 
-    datatokenVars = datatokenVars as DatatokenVars<DataTokenType.Profileless>;
+    dataTokenVars = dataTokenVars as DatatokenVars<DataTokenType.Profileless>;
+
     const {
       chainId,
       type,
@@ -72,11 +76,13 @@ export class Datatoken {
       currency,
       recipient,
       endTimestamp
-    } = datatokenVars;
+    } = dataTokenVars;
+
     dataTokenFactory = new DataTokenFactory({
       chainId: chainId ?? ChainId.PolygonMumbai,
       signer
     });
+
     input = {
       type: type ?? DataTokenType.Profileless,
       contentURI,
@@ -95,107 +101,122 @@ export class Datatoken {
       })
     };
 
-    const { dataToken, ...rest } =
+    const { dataToken: dataTokenId } =
       await dataTokenFactory.createDataToken(input);
 
-    return { datatokenId: dataToken, ...rest };
+    return dataTokenId;
   }
 
-  async collectDatatoken({
-    datatokenId,
+  async applyMonetizerToFile({
+    fileId,
+    creator,
+    dataTokenId,
     chainId,
-    profileId,
+    unlockingTimeStamp
+  }: {
+    fileId: string;
+    creator: string;
+    dataTokenId?: string;
+    chainId?: number;
+    unlockingTimeStamp?: number;
+  }) {
+    if (dataTokenId) {
+      const monetizationProvider = {
+        dataAsset: {
+          assetType: AssetType[AssetType.dataToken],
+          assetId: dataTokenId,
+          assetContract: dataTokenId,
+          chainId
+        }
+      };
+
+      const decryptionConditions = await this.getAccessControlConditions({
+        creator,
+        unlockingTimeStamp,
+        monetizationProvider
+      });
+
+      const encryptionProvider = {
+        protocol: EncryptionProtocol.Lit,
+        decryptionConditions,
+        decryptionConditionsType:
+          DecryptionConditionsType.UnifiedAccessControlCondition,
+        unlockingTimeStamp
+      };
+
+      const res = await this.dataverseConnector.runOS({
+        method: SYSTEM_CALL.monetizeFile,
+        params: {
+          fileId,
+          monetizationProvider,
+          encryptionProvider
+        }
+      });
+
+      return res;
+    }
+  }
+
+  async collectDataToken({
+    contractAddress,
+    abi,
+    method,
+    params,
     signer
   }: {
-    datatokenId: string;
-    chainId: ChainId;
-    profileId?: string;
+    contractAddress: string;
+    abi: any[];
+    method: string;
+    params: any[];
     signer: Signer;
-  }): Promise<CollectDatatokenOutput> {
-    const dataTokenSDK = new DataToken({
-      chainId,
-      dataTokenAddress: datatokenId,
+  }) {
+    const res = await contractCall({
+      contractAddress,
+      abi,
+      method,
+      params,
       signer
     });
 
-    const { dataToken, ...rest } = await dataTokenSDK.collect(profileId);
-
-    return { datatokenId: dataToken, ...rest };
-  }
-
-  async loadDatatokensCreatedBy(
-    creator: string
-  ): Promise<Array<DataTokenGraphType>> {
-    const res = await DataToken.loadDataTokensCreatedBy(creator);
-    return res;
-  }
-
-  async loadDatatokensCollectedBy(
-    collector: string
-  ): Promise<Array<DataTokenGraphType>> {
-    const res = await DataToken.loadDataTokensCollectedBy(collector);
-    return res;
-  }
-
-  async loadDatatoken(datatokenId: string): Promise<DataTokenGraphType> {
-    const res = await DataToken.loadDataToken(datatokenId);
     return res;
   }
 
   async loadDatatokens(
-    datatokenIds: Array<string>
+    dataTokenIds: Array<string>
   ): Promise<Array<DataTokenGraphType>> {
-    const res = await DataToken.loadDataTokens(datatokenIds);
-    return res;
-  }
-
-  async loadDatatokenCollectors(
-    datatokenId: string
-  ): Promise<Datatoken_Collector[]> {
-    const res = await DataToken.loadDataTokenCollectors(datatokenId);
+    const res = await DataToken.loadDataTokens(dataTokenIds);
     return res;
   }
 
   async isDatatokenCollectedBy({
-    datatokenId,
+    dataTokenId,
     collector
   }: {
-    datatokenId: string;
+    dataTokenId: string;
     collector: string;
   }): Promise<boolean> {
     const res = await DataToken.isDataTokenCollectedBy({
-      dataTokenId: datatokenId,
+      dataTokenId: dataTokenId,
       collector
     });
     return res;
   }
 
-  async generateAccessControlConditions({
-    address,
-    datatokenId,
-    dataUnionIds,
-    datatokenChainId,
+  async getAccessControlConditions({
+    creator,
     unlockingTimeStamp,
-    dataUnionChainId,
-    unionContractAddress,
-    blockNumber
+    monetizationProvider
   }: {
-    address: string;
-    datatokenId?: string;
-    dataUnionIds?: string[];
-    datatokenChainId?: number;
-    unlockingTimeStamp?: string;
-    dataUnionChainId?: number;
-    unionContractAddress?: string;
-    blockNumber?: number;
+    creator: string;
+    unlockingTimeStamp?: number;
+    monetizationProvider: MonetizationProvider;
   }): Promise<DecryptionConditions> {
     const conditions = [];
+    const { dataAsset } = monetizationProvider;
 
     unlockingTimeStamp &&
       conditions.push(
-        this.lit.generateTimeStampAccessControlConditions(
-          String(unlockingTimeStamp)
-        )
+        this.getTimeStampAccessControlConditions(String(unlockingTimeStamp))
       );
 
     const unifiedAccessControlConditions = [
@@ -208,93 +229,134 @@ export class Datatoken {
         parameters: [":userAddress"],
         returnValueTest: {
           comparator: "=",
-          value: `${address}`
+          value: `${creator}`
         }
       }
     ] as (UnifiedAccessControlCondition | BooleanCondition)[];
 
-    let datatokenChainName: string;
-    if (datatokenId && datatokenChainId) {
-      datatokenChainName =
-        await this.lit.getChainNameFromChainId(datatokenChainId);
-    }
-
-    datatokenId &&
+    if (dataAsset.assetId && dataAsset.chainId) {
       unifiedAccessControlConditions.push(
         ...[
           { operator: "or" },
-          this.lit.generateIsDatatokenCollectedAccessControlConditions({
-            contractAddress: datatokenId,
-            chain: datatokenChainName
+          this.getIsDatatokenCollectedAccessControlConditions({
+            contractAddress: dataAsset.assetId,
+            chain: getChainNameFromChainId(dataAsset.chainId)
           })
         ]
       );
-
-    let dataUnionChainName: string;
-    if (dataUnionIds && dataUnionChainId) {
-      dataUnionChainName =
-        await this.lit.getChainNameFromChainId(dataUnionChainId);
     }
-
-    dataUnionIds &&
-      unifiedAccessControlConditions.push(
-        ...dataUnionIds
-          .map((dataUnionId) => {
-            return [
-              { operator: "or" },
-              this.lit.generateIsDataUnionSubscribedAccessControlConditions({
-                contractAddress: unionContractAddress,
-                chain: dataUnionChainName,
-                dataUnionId,
-                blockNumber
-              })
-            ];
-          })
-          .flat()
-      );
 
     conditions.push(unifiedAccessControlConditions);
 
     return conditions;
   }
 
-  async generateMonetizationProvider({
-    chainId,
-    datatokenId,
-    dataUnionIds,
-    unlockingTimeStamp
+  getIsDatatokenCollectedAccessControlConditions({
+    contractAddress,
+    chain
   }: {
-    chainId?: ChainId;
-    datatokenId?: string;
-    dataUnionIds?: string[];
-    unlockingTimeStamp?: string;
-  }): Promise<MonetizationProvider> {
+    contractAddress: string;
+    chain: string;
+  }) {
     return {
-      ...(datatokenId && {
-        protocol: DataTokenType.Profileless,
-        chainId,
-        datatokenId
-      }),
-      ...(dataUnionIds &&
-        dataUnionIds.length > 0 && {
-          dataUnionIds,
-          blockNumber: await getBlockNumberByTimestamp({
-            chainId,
-            timestamp: Date.now() / 1000
-          })
-        }),
-      ...(unlockingTimeStamp && { unlockingTimeStamp })
+      contractAddress,
+      conditionType: "evmContract",
+      functionName: "isCollected",
+      functionParams: [":userAddress"],
+      functionAbi: {
+        inputs: [
+          {
+            internalType: "address",
+            name: "user",
+            type: "address"
+          }
+        ],
+        name: "isCollected",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool"
+          }
+        ],
+        stateMutability: "view",
+        type: "function"
+      },
+      chain,
+      returnValueTest: {
+        key: "",
+        comparator: "=",
+        value: "true"
+      }
     };
   }
 
-  generateEncryptionProvider(
-    decryptionConditions?: DecryptionConditions
-  ): EncryptionProvider {
+  getIsDataUnionSubscribedAccessControlConditions({
+    contractAddress,
+    chain,
+    dataUnionId,
+    blockNumber
+  }: {
+    contractAddress: string;
+    chain: string;
+    dataUnionId: string;
+    blockNumber: number;
+  }) {
     return {
-      protocol: EncryptionProtocol.Lit,
-      decryptionConditions,
-      decryptionConditionsType:
-        DecryptionConditionsTypes.UnifiedAccessControlCondition
+      contractAddress,
+      conditionType: "evmContract",
+      functionName: "isAccessible",
+      functionParams: [dataUnionId, ":userAddress", String(blockNumber)],
+      functionAbi: {
+        inputs: [
+          {
+            internalType: "bytes32",
+            name: "dataUnionId",
+            type: "bytes32"
+          },
+          {
+            internalType: "address",
+            name: "subscriber",
+            type: "address"
+          },
+          {
+            internalType: "uint256",
+            name: "blockNumber",
+            type: "uint256"
+          }
+        ],
+        name: "isAccessible",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool"
+          }
+        ],
+        stateMutability: "view",
+        type: "function"
+      },
+      chain,
+      returnValueTest: {
+        key: "",
+        comparator: "=",
+        value: "true"
+      }
+    };
+  }
+
+  getTimeStampAccessControlConditions(value: string) {
+    return {
+      conditionType: "evmBasic",
+      contractAddress: "",
+      standardContractType: "timestamp",
+      chain: "ethereum",
+      method: "eth_getBlockByNumber",
+      parameters: ["latest"],
+      returnValueTest: {
+        comparator: ">=",
+        value
+      }
     };
   }
 }

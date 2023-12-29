@@ -14,21 +14,23 @@ export {
   type DAppTable
 } from "./app";
 export {
-  ChainId,
-  Currency,
-  DatatokenType,
-  DecryptionConditionsTypes,
-  type DatatokenVars,
-  type DataUnionVars,
+  EncryptionProtocol,
+  DecryptionConditionsType,
+  type DataAsset,
+  type Dependency,
+  type MonetizationProvider,
   type DecryptionConditions,
-  type CollectModule
+  type BooleanCondition,
+  type AccessControlCondition,
+  type UnifiedAccessControlCondition,
+  type EncryptionProvider,
+  type AccessControl
 } from "./data-monetize";
 export {
   ActionType,
   FileType,
   FolderType,
   StorageResource,
-  EncryptionProtocol,
   type Action,
   type IndexFile,
   type ActionFileInfo,
@@ -44,8 +46,8 @@ export {
   type StructuredFiles,
   type StructuredFolder,
   type StructuredFolderRecord,
-  type EncryptionProvider,
-  type MonetizationProvider,
-  type AccessControl
+  type FileContent,
+  type ContentType,
+  type Signal
 } from "./fs";
 export { type RequestType, type ReturnType, SYSTEM_CALL } from "./system-call";

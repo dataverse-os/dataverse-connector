@@ -35,7 +35,7 @@ const postModelId =
 //   "kjzl6hvfrbw6c9g4ui7z1jksvbk7y09q6c1ruyqiij0otmvzr7oy3vd0yg43qzw";
 
 const chainId = ChainId.PolygonMumbai;
-const datatokenType: DatatokenType = DatatokenType.Profileless;
+const dataTokenType: DatatokenType = DatatokenType.Profileless;
 
 const postVersion = "0.0.1";
 
@@ -774,9 +774,9 @@ function App() {
     const collectModule =
       "LimitedTimedFeeCollectModule" as CollectModule<DatatokenType.Profileless>;
     const dataUnionVars = {
-      datatokenVars: {
+      dataTokenVars: {
         chainId,
-        type: datatokenType,
+        type: dataTokenType,
         streamId: res.newFolder.folderId,
         collectModule,
         collectLimit: 100,
@@ -1144,14 +1144,14 @@ function App() {
       }
 
       const isDatatoken = false;
-      let datatokenId: string | undefined;
+      let dataTokenId: string | undefined;
 
       if (isDatatoken) {
         const collectModule =
           "LimitedTimedFeeCollectModule" as CollectModule<DatatokenType.Profileless>;
-        const datatokenVars = {
+        const dataTokenVars = {
           chainId,
-          type: datatokenType,
+          type: dataTokenType,
           streamId: fileId ?? indexFileId,
           collectModule,
           collectLimit: 100,
@@ -1167,22 +1167,22 @@ function App() {
           })
         };
 
-        const datatoken =
-          await dataverseConnector.monetizationTemplate.datatoken.createDatatoken(
+        const dataToken =
+          await dataverseConnector.monetizationTemplate.dataToken.createDatatoken(
             {
               signer: new ethers.providers.Web3Provider(provider!).getSigner(),
-              datatokenVars: datatokenVars as DatatokenVars
+              dataTokenVars: dataTokenVars as DatatokenVars
             }
           );
-        datatokenId = datatoken.datatokenId;
+        dataTokenId = dataToken.dataTokenId;
       }
 
-      if (datatokenId || dataUnionId) {
+      if (dataTokenId || dataUnionId) {
         const monetizationProvider =
-          await dataverseConnector.monetizationTemplate.datatoken.generateMonetizationProvider(
+          await dataverseConnector.monetizationTemplate.dataToken.generateMonetizationProvider(
             {
               chainId,
-              datatokenId,
+              dataTokenId,
               dataUnionIds: [dataUnionId]
               // unlockingTimeStamp: String(
               //   Math.floor(Date.now() / 1000) + 5 * 60
@@ -1203,12 +1203,12 @@ function App() {
         }
 
         const decryptionConditions =
-          await dataverseConnector.monetizationTemplate.datatoken.generateAccessControlConditions(
+          await dataverseConnector.monetizationTemplate.dataToken.generateAccessControlConditions(
             {
               address,
-              datatokenId,
+              dataTokenId,
               dataUnionIds: [dataUnionId],
-              datatokenChainId: chainId,
+              dataTokenChainId: chainId,
               unlockingTimeStamp: monetizationProvider.unlockingTimeStamp,
               dataUnionChainId,
               unionContractAddress,
@@ -1217,14 +1217,14 @@ function App() {
           );
 
         const encryptionProvider =
-          dataverseConnector.monetizationTemplate.datatoken.generateEncryptionProvider(
+          dataverseConnector.monetizationTemplate.dataToken.generateEncryptionProvider(
             decryptionConditions
           );
 
         const res = await dataverseConnector.runOS({
           method: SYSTEM_CALL.monetizeFile,
           params: {
-            // actionFile cannot be monetized to a datatoken
+            // actionFile cannot be monetized to a dataToken
             fileId: fileId ?? indexFileId,
             monetizationProvider,
             encryptionProvider
@@ -1253,17 +1253,36 @@ function App() {
   const collectFile = async () => {
     try {
       let profileId;
-      if (datatokenType !== DatatokenType.Profileless) {
+      if (dataTokenType !== DatatokenType.Profileless) {
         profileId = await getOrCreateProfileId({
           pkh: pkh!,
           lensNickName: "handle" + Date.now()
         });
       }
+
+      const loadFileRes = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.loadFile,
+        params: indexFileId
+      });
+
+      const { dataTokenId, chainId } =
+        loadFileRes.fileContent.file.accessControl.monetizationProvider;
+
+      await dataverseConnector.monetizationTemplate.dataToken.collectDatatoken({
+        dataTokenId,
+        chainId,
+        profileId,
+        signer: new ethers.providers.Web3Provider(provider!).getSigner()
+      });
+
       const res = await dataverseConnector.runOS({
-        method: SYSTEM_CALL.collectFile,
+        method: SYSTEM_CALL.createActionFile,
         params: {
-          fileId: indexFileId,
-          profileId
+          action: {
+            actionType: ActionType.COLLECT
+          },
+          relationId: loadFileRes.fileContent.file.fileId,
+          fileName: "collect"
         }
       });
       console.log(res);
@@ -1428,23 +1447,23 @@ function App() {
 
   /*** Query Datatoken ***/
   const loadDatatokens = async () => {
-    const datatokenIds = [
+    const dataTokenIds = [
       "0xd5a9fA9B780a92091B789e57B794c1dd86F3D134",
       "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0",
       "0xee81E5318d2CBEF8d08080dA6a931d9f502208A9"
     ];
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDatatokens,
-      params: datatokenIds
+      params: dataTokenIds
     });
     console.log(res);
   };
 
   const isDatatokenCollectedBy = async () => {
-    const datatokenId = "0x50eD54ae8700f23E24cB6316ddE8869978AB4d5f";
+    const dataTokenId = "0x50eD54ae8700f23E24cB6316ddE8869978AB4d5f";
     const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.isDatatokenCollectedBy,
-      params: { datatokenId, collector: address }
+      params: { dataTokenId, collector: address }
     });
     console.log(res);
   };

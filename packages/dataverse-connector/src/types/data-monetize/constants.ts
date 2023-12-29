@@ -1,15 +1,8 @@
-import { ChainId, GraphType } from "@dataverse/contracts-sdk/data-token";
-
-export enum Currency {
-  USDC = "USDC",
-  DAI = "DAI",
-  WETH = "WETH",
-  WMATIC = "WMATIC",
+export enum EncryptionProtocol {
+  Lit = "Lit"
 }
 
-export enum DecryptionConditionsTypes {
+export enum DecryptionConditionsType {
   AccessControlCondition = "AccessControlCondition",
-  UnifiedAccessControlCondition = "UnifiedAccessControlCondition",
+  UnifiedAccessControlCondition = "UnifiedAccessControlCondition"
 }
-
-export { ChainId, GraphType as DatatokenType };

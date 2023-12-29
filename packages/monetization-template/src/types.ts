@@ -25,35 +25,35 @@ export type DatatokenVars<T extends DataTokenType = DataTokenType> = Omit<
   };
 
 export type CreateDatatokenOutput = Omit<CreateDataTokenOutput, "dataToken"> & {
-  datatokenId: string;
+  dataTokenId: string;
 };
 
 export type CollectDatatokenOutput = Omit<
   CollectDataTokenOutput,
   "dataToken"
 > & {
-  datatokenId: string;
+  dataTokenId: string;
 };
 
 export type DataUnionVars = Omit<
   PublishDataUnionInput,
   "createDataTokenInput"
 > & {
-  datatokenVars: DatatokenVars<DataTokenType.Profileless>;
+  dataTokenVars: DatatokenVars<DataTokenType.Profileless>;
 };
 
 export type CreateDataUnionOutput = Omit<
   PublishDataUnionOutput,
   "dataToken"
 > & {
-  datatokenId: string;
+  dataTokenId: string;
 };
 
 export type CollectDataUnionOutput = Omit<
   CollectDataUnionResult,
   "dataToken"
 > & {
-  datatokenId: string;
+  dataTokenId: string;
 };
 
 export type SubscribeDataUnionOutput = Omit<
@@ -72,95 +72,9 @@ export interface SubscribeDataUnionVars extends SubscribeDataUnionInput {
   collectTokenId: string;
 }
 
-export interface AccessControlCondition {
-  conditionType?: string;
-  contractAddress: string;
-  chain: string;
-  standardContractType: string;
-  method: string;
-  parameters: string[];
-  returnValueTest: ReturnValueTest;
-}
-
-export interface UnifiedAccessControlCondition {
-  contractAddress: string;
-  conditionType: string;
-  standardContractType?: string;
-  method?: string;
-  parameters?: string[];
-  functionName: string;
-  functionParams: (string | number)[];
-  functionAbi: {
-    inputs: { internalType: string; name: string; type: string }[];
-    name: string;
-    outputs: { internalType: string; name: string; type: string }[];
-  };
-  chain: string;
-  returnValueTest: {
-    key: string;
-    comparator: string;
-    value: string;
-  };
-}
-
-export type DecryptionConditions = (
-  | AccessControlCondition
-  | BooleanCondition
-  | (UnifiedAccessControlCondition | BooleanCondition)[]
-)[];
-
-export interface BooleanCondition {
-  operator: "and" | "or" | string;
-}
-
-export interface ReturnValueTest {
-  comparator: string;
-  value: string;
-}
-
-export interface MonetizationProvider {
-  protocol: DataTokenType;
-  chainId: ChainId;
-  baseContract?: string;
-  unionContract?: string;
-  datatokenId?: string;
-  dataUnionId?: string;
-  dataUnionIds?: string[];
-  blockNumber?: number;
-  unlockingTimeStamp?: string;
-}
-
-export enum EncryptionProtocol {
-  Lit = "Lit"
-}
-
-export enum DecryptionConditionsTypes {
-  AccessControlCondition = "AccessControlCondition",
-  UnifiedAccessControlCondition = "UnifiedAccessControlCondition"
-}
-
-export interface EncryptionProvider {
-  protocol: EncryptionProtocol;
-  encryptedSymmetricKey?: string;
-  decryptionConditions: DecryptionConditions;
-  decryptionConditionsType: DecryptionConditionsTypes;
-}
-
-export interface MonetizationProvider {
-  protocol: DataTokenType;
-  chainId: ChainId;
-  baseContract?: string;
-  unionContract?: string;
-  datatokenId?: string;
-  dataUnionId?: string;
-  dataUnionIds?: string[];
-  blockNumber?: number;
-  unlockingTimeStamp?: string;
-}
-
-export interface AccessControl {
-  encryptionProvider?: EncryptionProvider;
-  monetizationProvider?: MonetizationProvider;
+export enum AssetType {
+  dataToken,
+  dataUnion
 }
 
 export type {

@@ -1,5 +1,5 @@
+import { AccessControl } from "../../data-monetize";
 import { FileType } from "../constants";
-import { AccessControl } from "./common";
 
 export interface IndexFile {
   /* The version of file system*/
@@ -52,7 +52,7 @@ export interface FileInfo {
 export enum StorageResource {
   CERAMIC = "CERAMIC",
   WEAVEDB = "WEAVEDB",
-  IPFS = "IPFS",
+  IPFS = "IPFS"
 }
 
 export interface ContentType {

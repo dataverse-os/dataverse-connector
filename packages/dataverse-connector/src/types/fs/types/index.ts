@@ -5,7 +5,8 @@ export type {
   ContentFolderRecord,
   NativeFolder,
   StructuredFolder,
-  StructuredFolderRecord
+  StructuredFolderRecord,
+  Signal
 } from "./folder";
 
 export type {
@@ -36,11 +37,4 @@ export type {
   MirrorFileRecord
 } from "./mirror";
 
-export {
-  EncryptionProtocol,
-  type EncryptionProvider,
-  type MonetizationProvider,
-  type AccessControl,
-  type FileContent,
-  type FileRecord
-} from "./common";
+export type { FileContent, FileRecord } from "./common";
