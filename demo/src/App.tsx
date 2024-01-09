@@ -1184,7 +1184,7 @@ function App() {
               chainId,
               dataTokenId,
               dataUnionIds: [dataUnionId]
-              // unlockingTimeStamp: String(
+              // unlockingTimestamp: String(
               //   Math.floor(Date.now() / 1000) + 5 * 60
               // )
             }
@@ -1209,7 +1209,7 @@ function App() {
               dataTokenId,
               dataUnionIds: [dataUnionId],
               dataTokenChainId: chainId,
-              unlockingTimeStamp: monetizationProvider.unlockingTimeStamp,
+              unlockingTimestamp: monetizationProvider.unlockingTimestamp,
               dataUnionChainId,
               unionContractAddress,
               blockNumber: monetizationProvider.blockNumber

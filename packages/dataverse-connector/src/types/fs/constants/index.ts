@@ -1,12 +1,33 @@
 export enum FolderType {
   PrivateFolderType,
-  UnionFolderType,
+  UnionFolderType
 }
 
 export enum FileType {
   PublicFileType,
   PrivateFileType,
-  PayableFileType,
+  PayableFileType
+}
+
+export enum SignalType {
+  schema,
+  action,
+  asset
+}
+
+export enum StorageResource {
+  CERAMIC = "CERAMIC",
+  WEAVEDB = "WEAVEDB",
+  IPFS = "IPFS"
+}
+
+export enum ActionType {
+  LIKE = "LIKE",
+  COMMENT = "COMMENT",
+  CLICK = "CLICK",
+  COLLECT = "COLLECT",
+  UNLOCK = "UNLOCK",
+  RECEIVE = "RECEIVE"
 }
 
 export const TEMP = "temp";

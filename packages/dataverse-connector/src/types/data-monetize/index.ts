@@ -2,7 +2,8 @@ export { EncryptionProtocol, DecryptionConditionsType } from "./constants";
 
 export type {
   DataAsset,
-  Dependency,
+  Dependencies,
+  Attached,
   MonetizationProvider,
   DecryptionConditions,
   AccessControlCondition,

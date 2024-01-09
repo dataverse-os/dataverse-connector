@@ -56,7 +56,7 @@ export interface EncryptionProvider {
 
 export interface MonetizationProvider {
   dataAsset?: DataAsset;
-  dependency?: Dependency;
+  dependencies?: Dependencies;
 }
 
 export interface DataAsset {
@@ -68,8 +68,14 @@ export interface DataAsset {
 
 export interface Dependency {
   linkedAsset: DataAsset;
-  blockNumber?: number;
+  attached?: Attached;
 }
+
+export type Attached = {
+  blockNumber?: number;
+} & object;
+
+export type Dependencies = Dependency[];
 
 export interface AccessControl {
   encryptionProvider?: EncryptionProvider;

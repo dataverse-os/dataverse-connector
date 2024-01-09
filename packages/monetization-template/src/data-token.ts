@@ -33,13 +33,13 @@ export class Datatoken {
     fileOrFolderId,
     dataTokenVars,
     // unionFolderId,
-    // unlockingTimeStamp,
+    // unlockingTimestamp,
     signer
   }: {
     fileOrFolderId?: string;
     dataTokenVars?: DatatokenVars;
     // unionFolderId?: string;
-    // unlockingTimeStamp?: number;
+    // unlockingTimestamp?: number;
     signer: Signer;
   }): Promise<string> {
     const DATAVERSE_URL = "https://dataverse-os.com/";
@@ -112,13 +112,13 @@ export class Datatoken {
     creator,
     dataTokenId,
     chainId,
-    unlockingTimeStamp
+    unlockingTimestamp
   }: {
     fileId: string;
     creator: string;
     dataTokenId?: string;
     chainId?: number;
-    unlockingTimeStamp?: number;
+    unlockingTimestamp?: number;
   }) {
     if (dataTokenId) {
       const monetizationProvider = {
@@ -132,7 +132,7 @@ export class Datatoken {
 
       const decryptionConditions = await this.getAccessControlConditions({
         creator,
-        unlockingTimeStamp,
+        unlockingTimestamp,
         monetizationProvider
       });
 
@@ -141,7 +141,7 @@ export class Datatoken {
         decryptionConditions,
         decryptionConditionsType:
           DecryptionConditionsType.UnifiedAccessControlCondition,
-        unlockingTimeStamp
+        unlockingTimestamp
       };
 
       const res = await this.dataverseConnector.runOS({
@@ -204,19 +204,19 @@ export class Datatoken {
 
   async getAccessControlConditions({
     creator,
-    unlockingTimeStamp,
+    unlockingTimestamp,
     monetizationProvider
   }: {
     creator: string;
-    unlockingTimeStamp?: number;
+    unlockingTimestamp?: number;
     monetizationProvider: MonetizationProvider;
   }): Promise<DecryptionConditions> {
     const conditions = [];
     const { dataAsset } = monetizationProvider;
 
-    unlockingTimeStamp &&
+    unlockingTimestamp &&
       conditions.push(
-        this.getTimeStampAccessControlConditions(String(unlockingTimeStamp))
+        this.getTimestampAccessControlConditions(String(unlockingTimestamp))
       );
 
     const unifiedAccessControlConditions = [
@@ -345,7 +345,7 @@ export class Datatoken {
     };
   }
 
-  getTimeStampAccessControlConditions(value: string) {
+  getTimestampAccessControlConditions(value: string) {
     return {
       conditionType: "evmBasic",
       contractAddress: "",

@@ -211,7 +211,7 @@ export class DataUnion {
       );
     }
 
-    const unlockingTimeStamp = await getTimestampByBlockNumber({
+    const unlockingTimestamp = await getTimestampByBlockNumber({
       chainId: linkedAsset.chainId,
       blockNumber
     });
@@ -225,7 +225,7 @@ export class DataUnion {
 
     const decryptionConditions = await this.getAccessControlConditions({
       creator,
-      unlockingTimeStamp,
+      unlockingTimestamp,
       monetizationProvider
     });
 
@@ -234,7 +234,7 @@ export class DataUnion {
       decryptionConditions,
       decryptionConditionsType:
         DecryptionConditionsType.UnifiedAccessControlCondition,
-      unlockingTimeStamp
+      unlockingTimestamp
     };
 
     const res = await this.dataverseConnector.runOS({
@@ -346,11 +346,11 @@ export class DataUnion {
 
   async getAccessControlConditions({
     creator,
-    unlockingTimeStamp,
+    unlockingTimestamp,
     monetizationProvider
   }: {
     creator: string;
-    unlockingTimeStamp?: number;
+    unlockingTimestamp?: number;
     monetizationProvider: MonetizationProvider;
   }): Promise<DecryptionConditions> {
     const conditions = [];
@@ -358,9 +358,9 @@ export class DataUnion {
       dependency: { linkedAsset, blockNumber }
     } = monetizationProvider;
 
-    unlockingTimeStamp &&
+    unlockingTimestamp &&
       conditions.push(
-        this.getTimeStampAccessControlConditions(String(unlockingTimeStamp))
+        this.getTimestampAccessControlConditions(String(unlockingTimestamp))
       );
 
     const unifiedAccessControlConditions = [
@@ -496,7 +496,7 @@ export class DataUnion {
     };
   }
 
-  getTimeStampAccessControlConditions(value: string) {
+  getTimestampAccessControlConditions(value: string) {
     return {
       conditionType: "evmBasic",
       contractAddress: "",

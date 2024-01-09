@@ -1,7 +1,5 @@
 import { EncryptionProvider, MonetizationProvider } from "../../data-monetize";
-import { FolderType } from "../constants";
-import { ActionType } from "./action-file";
-import { ContentType } from "./index-file";
+import { FolderType, SignalType } from "../constants";
 import { MirrorRecord } from "./mirror";
 
 export interface IndexFolder {
@@ -73,4 +71,4 @@ export interface FolderOptions {
   signal?: Signal;
 }
 
-export type Signal = ContentType | ActionType;
+export type Signal = { type: SignalType; id: string };

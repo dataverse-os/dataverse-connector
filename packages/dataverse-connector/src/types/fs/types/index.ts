@@ -18,8 +18,6 @@ export type {
   StructuredFiles
 } from "./index-file";
 
-export { StorageResource } from "./index-file";
-
 export type {
   ActionFileInfo,
   ActionFile,
@@ -28,7 +26,7 @@ export type {
   StructuredActionFiles
 } from "./action-file";
 
-export { type Action, ActionType } from "./action-file";
+export { type Action } from "./action-file";
 
 export type {
   Mirror,

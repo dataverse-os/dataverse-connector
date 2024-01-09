@@ -40,7 +40,7 @@ export interface RequestType {
     syncImmediately?: boolean;
   };
   loadFolderTrees: void;
-  loadFolderById: string;
+  loadFoldersBy: { folderIds?: string[]; signal?: Signal };
   deleteFolder: {
     folderId: string;
     syncImmediately?: boolean;
@@ -57,8 +57,6 @@ export interface RequestType {
     dataUnionDescription?: string;
     syncImmediately?: boolean;
   };
-  loadCreatedDataUnions: void;
-  loadCollectedDataUnions: void;
   loadDataUnionById: string;
   deleteDataUnion: {
     dataUnionId: string;
@@ -118,14 +116,13 @@ export interface RequestType {
 
   loadFile: string;
   loadFilesBy: {
-    modelId: string;
+    modelId?: string;
     pkh?: string;
+    fileIds?: string[];
   };
   loadBareFileContent: string;
   loadActionFilesByFileId: string;
   loadActionFilesByDataUnionId: string;
-  loadCreatedDatatokenFiles: void;
-  loadCollectedDatatokenFiles: void;
 
   monetizeFile: {
     fileId: string;
@@ -155,7 +152,7 @@ export interface ReturnType {
     allFolders: StructuredFolderRecord;
   }>;
   loadFolderTrees: Promise<StructuredFolderRecord>;
-  loadFolderById: Promise<StructuredFolder>;
+  loadFoldersBy: Promise<StructuredFolderRecord>;
   deleteFolder: Promise<{
     currentFolder: StructuredFolder;
     allFolders: StructuredFolderRecord;
