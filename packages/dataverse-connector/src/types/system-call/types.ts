@@ -1,3 +1,5 @@
+import { Cacao } from "ceramic-cacao";
+import { DagJWS } from "dids";
 import { StorageProvider } from "..";
 import { ValidAppCaps } from "../app";
 import {
@@ -37,6 +39,9 @@ export interface RequestType {
     appId: string;
     resource?: RESOURCE;
   };
+  getAppSessionKey: void;
+  getAppCacao: void;
+  signWithSessionKey: string | object;
 
   createFolder: {
     folderName: string;
@@ -179,8 +184,11 @@ export interface ReturnType {
   getValidAppCaps: Promise<ValidAppCaps>;
   getModelBaseInfo: Promise<any>;
 
-  createCapability: Promise<string>;
+  createCapability: Promise<{ pkh: string; cacao: Cacao }>;
   checkCapability: Promise<boolean>;
+  getAppSessionKey: Promise<string>;
+  getAppCacao: Promise<Cacao>;
+  signWithSessionKey: Promise<{ jws: DagJWS; cacao: Cacao }>;
 
   createFolder: Promise<{
     newFolder: StructuredFolder;
