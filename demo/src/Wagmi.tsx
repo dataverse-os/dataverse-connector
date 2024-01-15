@@ -23,7 +23,7 @@ import {
   usePrepareSendTransaction,
   useSignMessage,
   useSignTypedData,
-  useConfig,
+  useConfig
 } from "wagmi";
 import { Address, parseEther } from "viem";
 import { mainnet } from "wagmi/chains";
@@ -38,23 +38,23 @@ import {
   domain,
   ensName,
   message,
-  types,
+  types
 } from "./constants";
 import {
   Layout,
-  RenderObjectRecursively,
+  RenderObjectRecursively
 } from "./components/RenderObjectRecursively";
 import "./Wagmi.scss";
 import {
   SYSTEM_CALL,
   WALLET,
-  DataverseConnector as _DataverseConnector,
+  DataverseConnector as _DataverseConnector
 } from "@dataverse/dataverse-connector";
 import { appId } from "./App";
 
 const { chains, publicClient } = configureChains(
   [mainnet, polygonMumbai],
-  [publicProvider()],
+  [publicProvider()]
 );
 
 const dataverseConnector = new DataverseWalletConnector({ chains });
@@ -66,8 +66,8 @@ function Wagmi() {
     createConfig({
       autoConnect: false,
       connectors: [dataverseConnector],
-      publicClient,
-    }),
+      publicClient
+    })
   );
   return (
     <>
@@ -82,7 +82,7 @@ function Wagmi() {
 
 function Profile() {
   const { connectAsync } = useConnect({
-    connector: dataverseConnector,
+    connector: dataverseConnector
   });
   const { connector } = useConfig();
   const { address, isConnected } = useAccount();
@@ -93,7 +93,7 @@ function Profile() {
   const { data: balance, refetch: refetchBalance } = useBalance({
     address,
     chainId: chain?.id,
-    enabled: true,
+    enabled: true
   });
 
   const { data: blockNumber, refetch: refetchBlockNumber } = useBlockNumber();
@@ -104,7 +104,7 @@ function Profile() {
     eventName: "NewOwner",
     listener(log) {
       console.log(log);
-    },
+    }
   });
 
   const { data: contractRead, refetch: refetchContractRead } = useContractReads(
@@ -114,11 +114,11 @@ function Profile() {
           address: contractAddress2,
           abi: abi2 as any[],
           functionName: "value",
-          chainId: polygonMumbai.id,
-        },
+          chainId: polygonMumbai.id
+        }
       ],
-      enabled: false,
-    },
+      enabled: false
+    }
   );
 
   const { config: prepareContractWriteConfig } = usePrepareContractWrite({
@@ -126,58 +126,58 @@ function Profile() {
     abi: abi2,
     args: [12345],
     functionName: "setValue",
-    chainId: polygonMumbai.id,
+    chainId: polygonMumbai.id
   });
 
   const { data: contractWrite, writeAsync } = useContractWrite(
-    prepareContractWriteConfig,
+    prepareContractWriteConfig
   );
 
   const { disconnect } = useDisconnect();
 
   const { data: ensAddress, refetch: refetchEnsAddress } = useEnsAddress({
     name: ensName,
-    chainId: mainnet.id,
+    chainId: mainnet.id
   });
 
   const { data: ensAvatar, refetch: refetchEnsAvatar } = useEnsAvatar({
     name: ensName,
-    chainId: mainnet.id,
+    chainId: mainnet.id
   });
 
   const { data: ensNameData, refetch: refetchEnsName } = useEnsName({
     address: ensAddress as Address,
-    chainId: mainnet.id,
+    chainId: mainnet.id
   });
 
   const { data: ensResolver, refetch: refetchEnsResolver } = useEnsResolver({
     name: ensName,
-    chainId: mainnet.id,
+    chainId: mainnet.id
   });
 
   const { data: feeData, refetch: refetchFeeData } = useFeeData();
 
   const {
     config: prepareSendTransactionConfig,
-    error: prepareSendTransactionError,
+    error: prepareSendTransactionError
   } = usePrepareSendTransaction({
     to: address,
-    value: parseEther("0.0001"),
+    value: parseEther("0.0001")
   });
 
   const { data: sendTransactionData, sendTransaction } = useSendTransaction(
-    prepareSendTransactionConfig,
+    prepareSendTransactionConfig
   );
 
   const { data: signMessageData, signMessage } = useSignMessage({
-    message: "gm wagmi frens",
+    message: "gm wagmi frens"
   });
 
   const { data: signTypedDataData, signTypedData } = useSignTypedData({
     domain,
     message,
     primaryType: "Mail",
-    types,
+    types
   });
 
   useEffect(() => {
@@ -328,14 +328,14 @@ function Profile() {
             const provider = (window as any).ethereum;
             console.log(provider);
             const res = await _dataverseConnector.connectWallet({
-              provider,
+              provider
             });
             console.log(res);
             const pkh = await _dataverseConnector.runOS({
               method: SYSTEM_CALL.createCapability,
               params: {
-                appId,
-              },
+                appId
+              }
             });
             console.log(pkh);
             setPKH(pkh);
@@ -345,14 +345,14 @@ function Profile() {
             const provider = await connector?.getProvider();
             console.log(provider);
             const res = await _dataverseConnector.connectWallet({
-              provider,
+              provider
             });
             console.log(res);
             const pkh = await _dataverseConnector.runOS({
               method: SYSTEM_CALL.createCapability,
               params: {
-                appId,
-              },
+                appId
+              }
             });
             console.log(pkh);
             setPKH(pkh);

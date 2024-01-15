@@ -29,7 +29,7 @@ export declare const AuthTypes: readonly [
   "twitter",
   "microsoft",
   "linkedin",
-  "jwt",
+  "jwt"
 ];
 declare type AuthTypeTuple = typeof AuthTypes;
 export declare type AuthType = AuthTypeTuple[number];

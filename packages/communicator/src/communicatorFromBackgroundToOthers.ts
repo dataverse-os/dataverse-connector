@@ -6,7 +6,7 @@ interface Chrome {
     sendMessage: (tabId: number, message: EventMessage, fn?: Function) => void;
     query: (
       { active, currentWindow }: { active?: boolean; currentWindow?: boolean },
-      fn?: Function,
+      fn?: Function
     ) => void;
   };
 }
@@ -18,14 +18,14 @@ export class CommunicatorFromBackgroundToOthers {
 
   async sendMessageToCurrentTab({
     message,
-    sendMessageTo,
+    sendMessageTo
   }: {
     message: EventMessage;
     sendMessageTo: string;
   }) {
     return new Promise((resolve, reject) => {
       chrome.tabs.query({ active: true }, function (tabs) {
-        const tabId = tabs.find(tab => {
+        const tabId = tabs.find((tab) => {
           const url = new URL(tab.url);
           return url.origin === sendMessageTo;
         }).id;
@@ -42,7 +42,7 @@ export class CommunicatorFromBackgroundToOthers {
 
   async sendMessageToAllTabs(message: EventMessage) {
     const tabIds = await this.getAllTabIds();
-    return tabIds.map(tabId => {
+    return tabIds.map((tabId) => {
       chrome.tabs.sendMessage(tabId || 0, message);
     });
   }
@@ -54,11 +54,11 @@ export class CommunicatorFromBackgroundToOthers {
         chrome.tabs.query(
           {
             active: true,
-            currentWindow: true,
+            currentWindow: true
           },
           (tabs: any) => {
             resolve(tabs[0]?.id);
-          },
+          }
         );
       } catch (error) {
         reject(error);
@@ -71,7 +71,7 @@ export class CommunicatorFromBackgroundToOthers {
     return new Promise((resolve, reject) => {
       try {
         chrome.tabs.query({}, (tabs: any) => {
-          resolve(tabs.map(tab => tab.id));
+          resolve(tabs.map((tab) => tab.id));
         });
       } catch (error) {
         reject(error);

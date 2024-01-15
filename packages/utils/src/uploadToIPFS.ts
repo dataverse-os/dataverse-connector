@@ -3,18 +3,18 @@ import { Web3Storage } from "web3.storage";
 import { NFTStorage } from "nft.storage";
 export async function uploadToIPFS(
   metadata: Record<string, any>,
-  name: string,
+  name: string
 ) {
   try {
     if (!process.env["LIGHTHOUSE_API_KEY"]) {
       throw "Lighthouse API key not provided";
     }
     const file = new File([JSON.stringify(metadata)], name, {
-      type: "text/plain",
+      type: "text/plain"
     });
     const uploadResponse = await lighthouse.upload(
       [file],
-      process.env["LIGHTHOUSE_API_KEY"],
+      process.env["LIGHTHOUSE_API_KEY"]
     );
     const cid = uploadResponse.data.Hash;
     return `ipfs://${cid}`;
@@ -24,10 +24,10 @@ export async function uploadToIPFS(
         throw "Web3Storage token not provided";
       }
       const storage = new Web3Storage({
-        token: process.env["WEB3STORAGE_API_KEY"],
+        token: process.env["WEB3STORAGE_API_KEY"]
       });
       const file = new File([JSON.stringify(metadata)], name, {
-        type: "application/json",
+        type: "application/json"
       });
       const cid = await storage.put([file], { wrapWithDirectory: false });
       return `ipfs://${cid}`;
@@ -39,10 +39,10 @@ export async function uploadToIPFS(
       }
       try {
         const data = new Blob([JSON.stringify(metadata)], {
-          type: "application/json",
+          type: "application/json"
         });
         const client = new NFTStorage({
-          token: process.env["NFTSTORAGE_API_KEY"],
+          token: process.env["NFTSTORAGE_API_KEY"]
         });
         const cid = await client.storeBlob(data);
         return `ipfs://${cid}`;

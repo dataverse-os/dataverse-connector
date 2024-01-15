@@ -14,11 +14,11 @@ export const dataverseWallet = ({ chains }: DataverseWalletOptions): Wallet => {
     downloadUrls: {
       chrome:
         "https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead",
-      browserExtension: "https://dataverse-os.com",
+      browserExtension: "https://dataverse-os.com"
     },
     createConnector: () => ({
       connector: new DataverseWalletConnector({
-        chains,
+        chains
       }),
       extension: {
         instructions: {
@@ -28,17 +28,17 @@ export const dataverseWallet = ({ chains }: DataverseWalletOptions): Wallet => {
               description:
                 "We recommend pinning Dataverse to your taskbar for quicker access to your wallet.",
               step: "install",
-              title: "Install the Dataverse extension",
+              title: "Install the Dataverse extension"
             },
             {
               description:
                 "Once you set up your wallet, click below to refresh the browser and load up the extension.",
               step: "refresh",
-              title: "Refresh your browser",
-            },
-          ],
-        },
-      },
-    }),
+              title: "Refresh your browser"
+            }
+          ]
+        }
+      }
+    })
   };
 };

@@ -3,9 +3,9 @@ export enum WALLET {
   WALLETCONNECT = "WalletConnect",
   COINBASE = "Coinbase",
   PARTICLE = "Particle",
-  EXTERNAL_WALLET = "ExternalWallet",
+  EXTERNAL_WALLET = "ExternalWallet"
 }
 
 export enum RESOURCE {
-  CERAMIC = "CERAMIC",
+  CERAMIC = "CERAMIC"
 }

@@ -18,7 +18,7 @@ export class ExternalWallet {
   }> {
     const provider = new ethers.providers.Web3Provider(
       this.externalProvider,
-      "any",
+      "any"
     );
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
@@ -31,13 +31,13 @@ export class ExternalWallet {
     return {
       address,
       namespace,
-      reference,
+      reference
     };
   }
 
   async sign({
     method,
-    params,
+    params
   }: {
     method: string;
     params: any[];
@@ -48,14 +48,14 @@ export class ExternalWallet {
 
   async ethereumRequest({
     method,
-    params,
+    params
   }: {
     method: string;
     params?: Array<any>;
   }): Promise<any> {
     const res = await this.externalProvider.request({
       method,
-      params,
+      params
     });
     return res;
   }
@@ -64,7 +64,7 @@ export class ExternalWallet {
     contractAddress,
     abi,
     method,
-    params,
+    params
   }: {
     contractAddress: string;
     abi: any[];

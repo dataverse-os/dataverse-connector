@@ -2,12 +2,12 @@ import React, { ReactNode } from "react";
 
 export enum Layout {
   horizontal,
-  verticle,
+  verticle
 }
 
 export function RenderObjectRecursively({
   object,
-  layout = Layout.verticle,
+  layout = Layout.verticle
 }: {
   object: object;
   layout?: Layout;

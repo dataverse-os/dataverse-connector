@@ -3,7 +3,7 @@ import {
   WindowProvider,
   Address,
   ConnectorNotFoundError,
-  type InjectedConnectorOptions,
+  type InjectedConnectorOptions
 } from "@wagmi/core";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { numberToHex } from "viem";
@@ -21,14 +21,14 @@ declare global {
 class DataverseInjectedConnector extends InjectedConnector {
   constructor({
     chains,
-    options,
+    options
   }: {
     chains?: Chain[];
     options?: InjectedConnectorOptions;
   }) {
     super({
       chains,
-      options,
+      options
     });
   }
 
@@ -58,8 +58,8 @@ class DataverseInjectedConnector extends InjectedConnector {
         account: res.address,
         chain: {
           id: res.chain.chainId,
-          unsupported: this.isChainUnsupported(res.chain.chainId),
-        },
+          unsupported: this.isChainUnsupported(res.chain.chainId)
+        }
       };
     }
     this.emit("message", { type: "connecting" });
@@ -73,8 +73,8 @@ class DataverseInjectedConnector extends InjectedConnector {
       account: res.address,
       chain: {
         id: res.chain.chainId,
-        unsupported: this.isChainUnsupported(res.chain.chainId),
-      },
+        unsupported: this.isChainUnsupported(res.chain.chainId)
+      }
     };
   }
 
@@ -84,15 +84,15 @@ class DataverseInjectedConnector extends InjectedConnector {
     const id = numberToHex(chainId);
     await provider.request({
       method: "wallet_switchEthereumChain",
-      params: [{ chainId: id }],
+      params: [{ chainId: id }]
     });
     return (
-      this.chains.find(x => x.id === chainId) ?? {
+      this.chains.find((x) => x.id === chainId) ?? {
         id: chainId,
         name: `Chain ${id}`,
         network: `${id}`,
         nativeCurrency: { name: "Ether", decimals: 18, symbol: "ETH" },
-        rpcUrls: { default: { http: [""] }, public: { http: [""] } },
+        rpcUrls: { default: { http: [""] }, public: { http: [""] } }
       }
     );
   }
@@ -107,7 +107,7 @@ class DataverseInjectedConnector extends InjectedConnector {
           if (typeof chainId === "string")
             return Number.parseInt(
               chainId,
-              chainId.trim().substring(0, 2) === "0x" ? 16 : 10,
+              chainId.trim().substring(0, 2) === "0x" ? 16 : 10
             );
           if (typeof chainId === "bigint") return Number(chainId);
           return chainId;
@@ -138,7 +138,7 @@ export const dataverseWallet = ({
   downloadUrls: {
     chrome:
       "https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead",
-    browserExtension: "https://dataverse-os.com",
+    browserExtension: "https://dataverse-os.com"
   },
   installed:
     typeof window !== "undefined" &&
@@ -156,8 +156,8 @@ export const dataverseWallet = ({
           if (typeof window === "undefined") return;
           return getDataverse(window.dataverse);
         },
-        ...options,
-      },
+        ...options
+      }
     });
     return {
       connector: injectedConnector,
@@ -169,17 +169,17 @@ export const dataverseWallet = ({
               description:
                 "We recommend pinning Dataverse to your taskbar for quicker access to your wallet.",
               step: "install",
-              title: "Install the Dataverse extension",
+              title: "Install the Dataverse extension"
             },
             {
               description:
                 "Once you set up your wallet, click below to refresh the browser and load up the extension.",
               step: "refresh",
-              title: "Refresh your browser",
-            },
-          ],
-        },
-      },
+              title: "Refresh your browser"
+            }
+          ]
+        }
+      }
     };
-  },
+  }
 });
