@@ -11,6 +11,9 @@ export enum SYSTEM_CALL {
   getAppCacao = "getAppCacao",
   signWithSessionKey = "signWithSessionKey",
 
+  generateFileKey = "generateFileKey",
+  encryptContent = "encryptContent",
+
   createFolder = "createFolder",
   updateFolderBaseInfo = "updateFolderBaseInfo",
   loadFolderTrees = "loadFolderTrees",

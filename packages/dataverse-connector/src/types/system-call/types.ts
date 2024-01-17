@@ -43,6 +43,9 @@ export interface RequestType {
   getAppCacao: void;
   signWithSessionKey: string | object;
 
+  generateFileKey: void;
+  encryptContent: { content: object; keyHandler: string };
+
   createFolder: {
     folderName: string;
     folderDescription?: string;
@@ -85,11 +88,15 @@ export interface RequestType {
     modelId: string;
     fileName?: string;
     fileContent: FileContent;
+    encryptedContent?: object;
+    keyHandler?: string;
   };
   updateIndexFile: {
     fileId: string;
     fileName?: string;
     fileContent?: FileContent;
+    encryptedContent?: object;
+    keyHandler?: string;
     syncImmediately?: boolean;
   };
 
@@ -189,6 +196,9 @@ export interface ReturnType {
   getAppSessionKey: Promise<string>;
   getAppCacao: Promise<Cacao>;
   signWithSessionKey: Promise<{ jws: DagJWS; cacao: Cacao }>;
+
+  generateFileKey: Promise<string>;
+  encryptContent: Promise<object>;
 
   createFolder: Promise<{
     newFolder: StructuredFolder;
