@@ -1,3 +1,5 @@
+import { getDapp, getDapps } from "@dataverse/dapp-table-client";
+
 import {
   RequestType,
   SYSTEM_CALL,
@@ -6,10 +8,11 @@ import {
   WALLET,
   Provider,
   AuthType,
-  ChainId,
 } from "./types";
 import { IProvider } from "./provider";
 import { BaseProvider } from "./provider/base-provider";
+import { Model } from "./types/app/types";
+import { Dapp } from "@dataverse/dapp-table-client/dist/esm/__generated__/types";
 
 export class DataverseConnector {
   provider: BaseProvider;
@@ -81,64 +84,28 @@ export class DataverseConnector {
   }
 
   getDAppTable() {
-    return this.provider.getDAppTable();
+    return getDapps();
   }
 
   getDAppInfo(dappId: string) {
-    return this.provider.getDAppInfo(dappId);
+    return getDapp(dappId);
   }
 
-  getCurrentPkh(): string {
-    return this.provider.getCurrentPkh();
+  getLatestStream(model: Model) {
+    return model.streams.find(stream => stream.latest);
   }
 
-  async createProfile({
-    chainId,
-    handle,
+  getModelIdByAppIdAndModelName({
+    dapp,
+    modelName,
   }: {
-    chainId: ChainId;
-    handle: string;
-  }): Promise<string> {
-    return this.provider.createProfile({ chainId, handle });
-  }
-
-  async getProfiles({
-    chainId,
-    address,
-  }: {
-    chainId: ChainId;
-    address: string;
-  }): Promise<{ id: string }[]> {
-    return this.provider.getProfiles({ chainId, address });
-  }
-
-  async getProfileIdByHandle({
-    chainId,
-    handle,
-  }: {
-    chainId: ChainId;
-    handle: string;
-  }): Promise<string> {
-    return this.provider.getProfileIdByHandle({ chainId, handle });
-  }
-
-  async getHandleByProfileId({
-    chainId,
-    profileId,
-  }: {
-    chainId: ChainId;
-    profileId: string;
-  }): Promise<string> {
-    return this.provider.getHandleByProfileId({ chainId, profileId });
-  }
-
-  getTimestampByBlockNumber({
-    chainId,
-    blockNumber,
-  }: {
-    chainId: ChainId;
-    blockNumber: number;
-  }) {
-    return this.provider.getTimestampByBlockNumber({ chainId, blockNumber });
+    dapp: Dapp;
+    modelName: string;
+  }): string | undefined {
+    const model = dapp.models.find(model => model.modelName === modelName);
+    if (model) {
+      return this.getLatestStream(model).modelId;
+    }
+    return undefined;
   }
 }

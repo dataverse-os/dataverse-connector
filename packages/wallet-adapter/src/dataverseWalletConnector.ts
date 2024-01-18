@@ -14,7 +14,7 @@ export class DataverseWalletConnector extends Connector {
   constructor({ chains }: { chains?: Chain[] }) {
     super({
       chains,
-      options: {},
+      options: {}
     });
   }
 
@@ -33,7 +33,7 @@ export class DataverseWalletConnector extends Connector {
     const currentWallet = await provider.getCurrentWallet();
     if (currentWallet) {
       const res = await provider.connectWallet({
-        wallet: currentWallet.wallet,
+        wallet: currentWallet.wallet
       });
       this.storage?.setItem("DataverseConnector_isConnected", true);
 
@@ -44,8 +44,8 @@ export class DataverseWalletConnector extends Connector {
         account: res.address as Address,
         chain: {
           id: res.chain.chainId,
-          unsupported: this.isChainUnsupported(res.chain.chainId),
-        },
+          unsupported: this.isChainUnsupported(res.chain.chainId)
+        }
       };
     }
 
@@ -60,8 +60,8 @@ export class DataverseWalletConnector extends Connector {
       account: res.address as Address,
       chain: {
         id: res.chain.chainId,
-        unsupported: this.isChainUnsupported(res.chain.chainId),
-      },
+        unsupported: this.isChainUnsupported(res.chain.chainId)
+      }
     };
   }
 
@@ -80,32 +80,32 @@ export class DataverseWalletConnector extends Connector {
     const id = numberToHex(chainId);
     await provider.request({
       method: "wallet_switchEthereumChain",
-      params: [{ chainId: id }],
+      params: [{ chainId: id }]
     });
     return (
-      this.chains.find(x => x.id === chainId) ?? {
+      this.chains.find((x) => x.id === chainId) ?? {
         id: chainId,
         name: `Chain ${id}`,
         network: `${id}`,
         nativeCurrency: { name: "Ether", decimals: 18, symbol: "ETH" },
-        rpcUrls: { default: { http: [""] }, public: { http: [""] } },
+        rpcUrls: { default: { http: [""] }, public: { http: [""] } }
       }
     );
   }
 
   async getWalletClient({
-    chainId,
+    chainId
   }: { chainId?: number } = {}): Promise<WalletClient> {
     const [provider, account] = await Promise.all([
       this.getProvider(),
-      this.getAccount(),
+      this.getAccount()
     ]);
-    const chain = this.chains.find(x => x.id === chainId);
+    const chain = this.chains.find((x) => x.id === chainId);
     if (!provider) throw new ConnectorNotFoundError();
     return createWalletClient({
       account,
       chain,
-      transport: custom(provider),
+      transport: custom(provider)
     });
   }
 
@@ -113,7 +113,7 @@ export class DataverseWalletConnector extends Connector {
     const provider = await this.getProvider();
     if (!provider) throw new ConnectorNotFoundError();
     const accounts = await provider.request({
-      method: "eth_accounts",
+      method: "eth_accounts"
     });
     // return checksum address
     return getAddress(accounts[0] as string);

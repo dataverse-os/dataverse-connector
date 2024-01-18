@@ -11,13 +11,11 @@ export enum SYSTEM_CALL {
   createFolder = "createFolder",
   updateFolderBaseInfo = "updateFolderBaseInfo",
   loadFolderTrees = "loadFolderTrees",
-  loadFolderById = "loadFolderById",
+  loadFoldersBy = "loadFoldersBy",
   deleteFolder = "deleteFolder",
 
-  publishDataUnion = "publishDataUnion",
+  monetizeFolder = "monetizeFolder",
   updateDataUnionBaseInfo = "updateDataUnionBaseInfo",
-  loadCreatedDataUnions = "loadCreatedDataUnions",
-  loadCollectedDataUnions = "loadCollectedDataUnions",
   loadDataUnionById = "loadDataUnionById",
   deleteDataUnion = "deleteDataUnion",
 
@@ -35,19 +33,8 @@ export enum SYSTEM_CALL {
   loadBareFileContent = "loadBareFileContent",
   loadActionFilesByFileId = "loadActionFilesByFileId",
   loadActionFilesByDataUnionId = "loadActionFilesByDataUnionId",
-  loadCreatedDatatokenFiles = "loadCreatedDatatokenFiles",
-  loadCollectedDatatokenFiles = "loadCollectedDatatokenFiles",
 
   monetizeFile = "monetizeFile",
-  collectFile = "collectFile",
-  collectDataUnion = "collectDataUnion",
-  subscribeDataUnion = "subscribeDataUnion",
   unlockFile = "unlockFile",
-  isFileUnlocked = "isFileUnlocked",
-
-  loadDatatokens = "loadDatatokens",
-  isDatatokenCollectedBy = "isDatatokenCollectedBy",
-  loadDataUnions = "loadDataUnions",
-  isDataUnionCollectedBy = "isDataUnionCollectedBy",
-  isDataUnionSubscribedBy = "isDataUnionSubscribedBy",
+  isFileUnlocked = "isFileUnlocked"
 }

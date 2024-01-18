@@ -8,44 +8,44 @@ const isWatching = process.argv.includes("--watch");
 const isCssMinified = process.env.MINIFY_CSS === "true";
 const baseBuildConfig = {
   banner: {
-    js: '"use client";', // Required for Next 13 App Router
+    js: '"use client";' // Required for Next 13 App Router
   },
   bundle: true,
   format: "esm",
   loader: {
     ".png": "dataurl",
-    ".svg": "dataurl",
+    ".svg": "dataurl"
   },
   platform: "browser",
   plugins: [
     vanillaExtractPlugin({
       identifiers: isCssMinified ? "short" : "debug",
-      processCss: async css => {
+      processCss: async (css) => {
         const result = await postcss([
           autoprefixer,
-          prefixSelector({ prefix: "[data-rk]" }),
+          prefixSelector({ prefix: "[data-rk]" })
         ]).process(css, {
-          from: undefined, // suppress source map warning
+          from: undefined // suppress source map warning
         });
 
         return result.css;
-      },
+      }
     }),
     {
       name: "make-all-packages-external",
       setup(build) {
         let filter = /^[^./]|^\.[^./]|^\.\.[^/]/; // Must not start with "/" or "./" or "../"
-        build.onResolve({ filter }, args => ({
+        build.onResolve({ filter }, (args) => ({
           external: true,
-          path: args.path,
+          path: args.path
         }));
-      },
-    },
+      }
+    }
   ],
-  splitting: true, // Required for tree shaking
+  splitting: true // Required for tree shaking
 };
 
-const walletsBuild = options =>
+const walletsBuild = (options) =>
   esbuild.build({
     ...baseBuildConfig,
     entryPoints: ["src/index.ts"],
@@ -54,17 +54,17 @@ const walletsBuild = options =>
           onRebuild(error, result) {
             if (error) console.error("wallets build failed:", error);
             else console.log("wallets build succeeded:", result);
-          },
+          }
         }
       : undefined,
-    ...options,
+    ...options
   });
 
 Promise.all([
   (!process.argv[2] || process.argv[2] === "esm") &&
     walletsBuild({ format: "esm", outdir: "dist/esm" }),
   (!process.argv[2] || process.argv[2] === "cjs") &&
-    walletsBuild({ format: "cjs", outdir: "dist/cjs", splitting: false }),
+    walletsBuild({ format: "cjs", outdir: "dist/cjs", splitting: false })
 ])
   .then(() => {
     if (isWatching) {

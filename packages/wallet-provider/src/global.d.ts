@@ -11,7 +11,7 @@ declare global {
               wallet?: string;
               preferredAuthType?: string;
             }
-          | undefined,
+          | undefined
       ) => Promise<{
         address: string;
         chain: { chainId: number; chainName: string };
@@ -25,7 +25,7 @@ declare global {
       }>;
       request: ({
         method,
-        params,
+        params
       }: {
         method: string;
         params?: Array<any>;
@@ -34,7 +34,7 @@ declare global {
       off: (event: string, listener?: Function) => void;
       sign: ({
         method,
-        params,
+        params
       }: {
         method: string;
         params: Array<any>;

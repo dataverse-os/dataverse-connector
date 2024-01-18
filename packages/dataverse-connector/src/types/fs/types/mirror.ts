@@ -1,6 +1,6 @@
+import { EncryptionProvider, MonetizationProvider } from "../../data-monetize";
 import { FileType } from "../constants";
 import { Action } from "./action-file";
-import { EncryptionProvider, MonetizationProvider } from "./common";
 import { ContentType } from "./index-file";
 
 export interface MirrorFile {

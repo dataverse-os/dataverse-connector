@@ -6,6 +6,7 @@ export type {
   NativeFolder,
   StructuredFolder,
   StructuredFolderRecord,
+  Signal
 } from "./folder";
 
 export type {
@@ -14,34 +15,24 @@ export type {
   IndexFile,
   IndexFileRecord,
   StructuredFile,
-  StructuredFiles,
+  StructuredFiles
 } from "./index-file";
-
-export { StorageResource } from "./index-file";
 
 export type {
   ActionFileInfo,
   ActionFile,
   ActionFilesRecord,
   StructuredActionFile,
-  StructuredActionFiles,
+  StructuredActionFiles
 } from "./action-file";
 
-export { type Action, ActionType } from "./action-file";
+export { type Action } from "./action-file";
 
 export type {
   Mirror,
   MirrorRecord,
   MirrorFile,
-  MirrorFileRecord,
+  MirrorFileRecord
 } from "./mirror";
 
-export {
-  EncryptionProtocol,
-  MonetizationProtocol,
-  type EncryptionProvider,
-  type MonetizationProvider,
-  type AccessControl,
-  type FileContent,
-  type FileRecord,
-} from "./common";
+export type { FileContent, FileRecord } from "./common";

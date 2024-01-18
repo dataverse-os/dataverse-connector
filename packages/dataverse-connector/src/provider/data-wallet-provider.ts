@@ -182,12 +182,9 @@ export class DataWalletProvider extends BaseProvider {
       method !== SYSTEM_CALL.checkCapability &&
       method !== SYSTEM_CALL.loadFile &&
       method !== SYSTEM_CALL.loadFilesBy &&
-      method !== SYSTEM_CALL.getModelBaseInfo &&
-      method !== SYSTEM_CALL.loadDatatokens &&
-      method !== SYSTEM_CALL.isDatatokenCollectedBy &&
-      method !== SYSTEM_CALL.loadDataUnions &&
-      method !== SYSTEM_CALL.isDataUnionCollectedBy &&
-      method !== SYSTEM_CALL.isDataUnionSubscribedBy &&
+      (method !== SYSTEM_CALL.loadFilesBy ||
+        (method === SYSTEM_CALL.loadFilesBy &&
+          (params as RequestType[SYSTEM_CALL.loadFilesBy]).fileIds)) &&
       !this?.isConnected
     ) {
       throw new Error("Please connect wallet first");

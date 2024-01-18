@@ -10,7 +10,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@dataverse/communicator.svg)](https://www.npmjs.com/package/@dataverse/communicator)
 ![npm](https://img.shields.io/npm/dw/@dataverse/communicator)
-[![License](https://img.shields.io/npm/l/@dataverse/communicator.svg)](https://github.com/dataverse-os/communicator/blob/main/LICENSE.md)
+[![License](https://img.shields.io/npm/l/@dataverse/communicator.svg)](https://github.com/dataverse-os/dataverse-connector/blob/main/packages/communicator/LICENSE.md)
 
 The cross-domain communication and Google extension internal communication.
 

@@ -1,5 +1,5 @@
-import { FileType } from "../constants";
-import { AccessControl } from "./common";
+import { AccessControl } from "../../data-monetize";
+import { ActionType, FileType } from "../constants";
 
 export interface ActionFile {
   /* The version of file system*/
@@ -52,12 +52,4 @@ export interface Action {
   comment?: string;
   isRelationIdEncrypted?: boolean;
   isCommentEncrypted?: boolean;
-}
-
-export enum ActionType {
-  LIKE = "LIKE",
-  COMMENT = "COMMENT",
-  CLICK = "CLICK",
-  UNLOCK = "UNLOCK",
-  RECEIVE = "RECEIVE",
 }

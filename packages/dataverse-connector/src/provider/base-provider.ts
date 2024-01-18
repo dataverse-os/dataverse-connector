@@ -1,12 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ethers } from "ethers";
-import { getDapp, getDapps } from "@dataverse/dapp-table-client";
-import {
-  createLensProfile,
-  getLensProfiles,
-  getLensProfileIdByHandle,
-  getHandleByLensProfileId,
-} from "@dataverse/contracts-sdk/data-token";
 import {
   RequestType,
   SYSTEM_CALL,
@@ -15,10 +7,7 @@ import {
   WALLET,
   Provider,
   AuthType,
-  ChainId,
 } from "../types";
-import { getTimestampByBlockNumber as fetchTimestampByBlockNumber } from "@dataverse/contracts-sdk";
-import { LensHandleNamespace } from "../types/constants";
 import { EthersProvider, IProvider } from "./types";
 
 export abstract class BaseProvider implements IProvider {
@@ -89,104 +78,10 @@ export abstract class BaseProvider implements IProvider {
     params?: RequestType[T];
   }) => Promise<Awaited<ReturnType[T]>>;
 
-  getDAppTable() {
-    return getDapps();
-  }
-
-  getDAppInfo(dappId: string) {
-    return getDapp(dappId);
-  }
-
   getCurrentPkh(): string {
     if (!this.address) {
       throw new Error("Please connect wallet first");
     }
     return `did:pkh:eip155:1:${this.address}`;
-  }
-
-  async createProfile({
-    chainId,
-    handle,
-  }: {
-    chainId: ChainId;
-    handle: string;
-  }): Promise<string> {
-    if (!this?.isConnected) {
-      throw new Error("Please connect wallet first");
-    }
-
-    const provider = new ethers.providers.Web3Provider(this._provider, "any");
-    const signer = provider.getSigner();
-
-    const id = await getLensProfileIdByHandle({
-      chainId,
-      handle: `${LensHandleNamespace}/${handle}`,
-    });
-
-    if (id && Number.parseInt(id) != 0)
-      throw new Error("Handle is taken, try a new handle.");
-
-    const profile = await createLensProfile({
-      chainId,
-      handle: handle,
-      to: await signer.getAddress(),
-    });
-
-    return profile;
-  }
-
-  async getProfiles({
-    chainId,
-    address,
-  }: {
-    chainId: ChainId;
-    address: string;
-  }): Promise<{ id: string }[]> {
-    const res = await getLensProfiles({
-      chainId,
-      account: address,
-    });
-
-    return res.map(item => ({ id: item }));
-  }
-
-  async getProfileIdByHandle({
-    chainId,
-    handle,
-  }: {
-    chainId: ChainId;
-    handle: string;
-  }): Promise<string> {
-    const res = await getLensProfileIdByHandle({
-      chainId,
-      handle: `${LensHandleNamespace}/${handle}`,
-    });
-
-    return res;
-  }
-
-  async getHandleByProfileId({
-    chainId,
-    profileId,
-  }: {
-    chainId: ChainId;
-    profileId: string;
-  }): Promise<string> {
-    const res = await getHandleByLensProfileId({
-      chainId,
-      profileId,
-    });
-
-    return res;
-  }
-
-  getTimestampByBlockNumber({
-    chainId,
-    blockNumber,
-  }: {
-    chainId: ChainId;
-    blockNumber: number;
-  }) {
-    return fetchTimestampByBlockNumber({ chainId, blockNumber });
   }
 }

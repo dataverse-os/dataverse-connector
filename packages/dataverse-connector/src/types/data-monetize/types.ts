@@ -1,45 +1,4 @@
-import {
-  ChainId,
-  CreateDataTokenInput,
-  DataTokenParams,
-} from "@dataverse/contracts-sdk/data-token";
-
-import {
-  PublishDataUnionInput,
-  SubscribeDataUnionInput,
-  SubscribeDataUnionOutput as SubscribeDataUnionResult,
-} from "@dataverse/contracts-sdk/data-union";
-import { DatatokenType } from "./constants";
-
-export type DatatokenVars<T extends DatatokenType = DatatokenType> = Omit<
-  CreateDataTokenInput<T>,
-  "contentURI"
-> &
-  DataTokenParams[T] & {
-    chainId: ChainId;
-  };
-
-export type DataUnionVars = Omit<
-  PublishDataUnionInput,
-  "createDataTokenInput"
-> & {
-  datatokenVars: DatatokenVars;
-};
-
-export type SubscribeDataUnionOutput = Omit<
-  SubscribeDataUnionResult,
-  "dataUnionId" | "collectTokenId" | "startAt" | "endAt"
-> & {
-  dataUnionId: string;
-  collectTokenId: string;
-  subscribeModule: string;
-  startAt: number;
-  endAt: number;
-};
-
-export interface SubscribeDataUnionVars extends SubscribeDataUnionInput {
-  dataUnionId: string;
-}
+import { DecryptionConditionsType, EncryptionProtocol } from "./constants";
 
 export interface AccessControlCondition {
   conditionType?: string;
@@ -58,7 +17,7 @@ export interface UnifiedAccessControlCondition {
   method?: string;
   parameters?: string[];
   functionName: string;
-  functionParams: string[];
+  functionParams: (string | number)[];
   functionAbi: {
     inputs: { internalType: string; name: string; type: string }[];
     name: string;
@@ -87,18 +46,38 @@ export interface ReturnValueTest {
   value: string;
 }
 
-export interface AdditionalMirrorParams {
-  folderId: string;
-  bucketId: string;
+export interface EncryptionProvider {
+  protocol: EncryptionProtocol;
+  encryptedSymmetricKey?: string;
+  decryptionConditions?: DecryptionConditions;
+  decryptionConditionsType?: DecryptionConditionsType;
+  unlockingTimeStamp?: number;
 }
 
-export type {
-  DataTokenGraphType,
-  Datatoken_Collector,
-  CollectModule,
-} from "@dataverse/contracts-sdk/data-token";
+export interface MonetizationProvider {
+  dataAsset?: DataAsset;
+  dependencies?: Dependencies;
+}
 
-export type {
-  DataUnionGraphType,
-  Data_Union_Subscriber,
-} from "@dataverse/contracts-sdk/data-union";
+export interface DataAsset {
+  assetType: string;
+  assetId: string;
+  assetContract: string;
+  chainId: number;
+}
+
+export interface Dependency {
+  linkedAsset: DataAsset;
+  attached?: Attached;
+}
+
+export type Attached = {
+  blockNumber?: number;
+} & object;
+
+export type Dependencies = Dependency[];
+
+export interface AccessControl {
+  encryptionProvider?: EncryptionProvider;
+  monetizationProvider?: MonetizationProvider;
+}

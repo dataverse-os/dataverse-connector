@@ -11,7 +11,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@dataverse/wallet-adapter.svg)](https://www.npmjs.com/package/@dataverse/wallet-adapter)
 ![npm](https://img.shields.io/npm/dw/@dataverse/wallet-adapter)
-[![License](https://img.shields.io/npm/l/@dataverse/wallet-adapter.svg)](https://github.com/dataverse-os/wallet-adapter/blob/main/LICENSE.md)
+[![License](https://img.shields.io/npm/l/@dataverse/wallet-adapter.svg)](https://github.com/dataverse-os/dataverse-connector/blob/main/packages/wallet-adapter/LICENSE.md)
 
 ## Installation
 

@@ -1,5 +1,5 @@
-import { FolderType } from "../constants";
-import { EncryptionProvider, MonetizationProvider } from "./common";
+import { EncryptionProvider, MonetizationProvider } from "../../data-monetize";
+import { FolderType, SignalType } from "../constants";
 import { MirrorRecord } from "./mirror";
 
 export interface IndexFolder {
@@ -68,4 +68,7 @@ export type StructuredFolderRecordWithEncryptedFileKeys = Record<
 
 export interface FolderOptions {
   folderDescription?: string;
+  signal?: Signal;
 }
+
+export type Signal = { type: SignalType; id: string };

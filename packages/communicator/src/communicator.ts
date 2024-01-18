@@ -3,13 +3,13 @@ import {
   MESSAGE,
   REQUEST,
   RESPONSE,
-  UNKNOWN_CODE,
+  UNKNOWN_CODE
 } from "./constants";
 import {
   RequestInputs,
   ResponseArguments,
   RequestArguments,
-  PostMessageTo,
+  PostMessageTo
 } from "./types";
 import { generateNanoid } from "./utils";
 /**
@@ -31,7 +31,7 @@ export class Communicator {
   constructor({
     source,
     target,
-    methodClass,
+    methodClass
   }: {
     source: Window;
     target: Window;
@@ -52,9 +52,9 @@ export class Communicator {
           type: REQUEST,
           method: args.method,
           params: args.params,
-          postMessageTo: args.postMessageTo,
+          postMessageTo: args.postMessageTo
         },
-        this.allowOrigins,
+        this.allowOrigins
       );
       this.callbackFunctions[this.sequenceId] = (res: any) => {
         if (res.code === CORRECT_CODE) {
@@ -73,9 +73,9 @@ export class Communicator {
       {
         sequenceId: args.sequenceId,
         type: RESPONSE,
-        result: args.result,
+        result: args.result
       },
-      args.origin,
+      args.origin
     );
     this.responseSequenceIds[args.sequenceId] = true;
   }
@@ -124,7 +124,7 @@ export class Communicator {
         result = {
           code: UNKNOWN_CODE,
           error:
-            "Please pass in the methodClass, in order to call methods in the class",
+            "Please pass in the methodClass, in order to call methods in the class"
         };
       } else {
         if (this.methodClass[args.method]) {
@@ -136,7 +136,7 @@ export class Communicator {
             console.log(error);
             result = {
               code: error?.code || UNKNOWN_CODE,
-              error: error?.msg || error?.message,
+              error: error?.msg || error?.message
             };
           }
         }
@@ -147,7 +147,7 @@ export class Communicator {
           sequenceId: args.sequenceId,
           type: RESPONSE,
           result,
-          origin: event.origin,
+          origin: event.origin
         });
       }
     }

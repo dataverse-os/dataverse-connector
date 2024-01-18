@@ -27,7 +27,7 @@ export class CommunicatorWithChromeMessage {
     this.methodClass = methodClass;
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const onmessage = this._onmessage.bind(this);
-      onmessage(message, sender).then(res => {
+      onmessage(message, sender).then((res) => {
         res && sendResponse(res);
       });
       return true;
@@ -45,7 +45,7 @@ export class CommunicatorWithChromeMessage {
         sequenceId: this.sequenceId,
         type: REQUEST,
         method: args.method,
-        params: args.params,
+        params: args.params
       });
       this.callbackFunctions[this.sequenceId] = (res: any) => {
         if (res.code === CORRECT_CODE) {
@@ -63,7 +63,7 @@ export class CommunicatorWithChromeMessage {
     chrome.runtime.sendMessage({
       sequenceId: args.sequenceId,
       type: RESPONSE,
-      result: args.result,
+      result: args.result
     });
     this.responseSequenceIds[args.sequenceId] = true;
   }
@@ -101,19 +101,19 @@ export class CommunicatorWithChromeMessage {
           result = {
             code: UNKNOWN_CODE,
             error:
-              "Please pass in the methodClass, in order to call methods in the class",
+              "Please pass in the methodClass, in order to call methods in the class"
           };
         } else {
           try {
             const res = await this.methodClass[args.method](
               args.params,
-              sender,
+              sender
             );
             result = { code: CORRECT_CODE, result: res };
           } catch (error) {
             result = {
               code: error?.code || UNKNOWN_CODE,
-              error: error?.msg || error?.message,
+              error: error?.msg || error?.message
             };
           }
         }
@@ -122,7 +122,7 @@ export class CommunicatorWithChromeMessage {
           sequenceId: args.sequenceId,
           type: RESPONSE,
           result,
-          origin: message.origin,
+          origin: message.origin
         };
       }
     }

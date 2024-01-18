@@ -5,16 +5,16 @@ import { ethers, Bytes, Contract } from "ethers";
 import { Deferrable } from "ethers/lib/utils";
 import {
   TypedDataDomain,
-  TypedDataField,
+  TypedDataField
 } from "@ethersproject/abstract-signer";
 import {
   TransactionRequest,
-  TransactionResponse,
+  TransactionResponse
 } from "@ethersproject/providers";
 import {
   convertTxData,
   formatSendTransactionData,
-  ExternalWallet,
+  ExternalWallet
 } from "@dataverse/utils";
 
 export class WalletProvider extends EventEmitter<ConnecterEvents> {
@@ -40,7 +40,7 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
       window.dataverseCommunicator = new Communicator({
         source: window,
         target: window.top,
-        methodClass: window.externalWallet,
+        methodClass: window.externalWallet
       });
     }
   }
@@ -77,7 +77,7 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
   async _signTypedData(
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
-    message: Record<string, Array<TypedDataField> | string>,
+    message: Record<string, Array<TypedDataField> | string>
   ): Promise<string> {
     if (!this.signer) {
       await this.connectWallet();
@@ -86,7 +86,7 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
   }
 
   async sendTransaction(
-    transaction: Deferrable<TransactionRequest> | (string | Promise<string>),
+    transaction: Deferrable<TransactionRequest> | (string | Promise<string>)
   ): Promise<TransactionResponse> {
     if (!this.signer) {
       await this.connectWallet();
@@ -96,7 +96,7 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
       if (!transaction?.from) {
         const res = await window.dataverse.request({
           method: "eth_accounts",
-          params: [],
+          params: []
         });
         transaction.from = res[0];
       }
@@ -113,7 +113,7 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
     } else {
       return window.dataverse.request({
         method: "eth_sendTransaction",
-        params: [transaction],
+        params: [transaction]
       });
     }
   }
@@ -122,7 +122,7 @@ export class WalletProvider extends EventEmitter<ConnecterEvents> {
     contractAddress,
     abi,
     method,
-    params,
+    params
   }: {
     contractAddress: string;
     abi: any[];

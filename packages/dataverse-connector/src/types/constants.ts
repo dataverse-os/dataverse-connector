@@ -4,10 +4,10 @@ export const LensHandleNamespace = "test";
 
 export enum StorageProviderName {
   Web3Storage,
-  Lighthouse,
+  Lighthouse
 }
 
 export enum SignMethod {
   signMessage = "signMessage",
-  _signTypedData = "_signTypedData",
+  _signTypedData = "_signTypedData"
 }
