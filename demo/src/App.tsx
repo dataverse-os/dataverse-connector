@@ -15,6 +15,7 @@ import {
   MirrorFile,
   CollectModule,
   // StorageResource,
+  DataWalletProvider,
 } from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
@@ -23,7 +24,7 @@ import { assert } from "chai";
 import { Modal } from "antd";
 import "./App.scss";
 
-const dataverseConnector = new DataverseConnector();
+const dataverseConnector = new DataverseConnector(new DataWalletProvider());
 
 export const appId = "9aaae63f-3445-47d5-8785-c23dd16e4965";
 

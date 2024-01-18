@@ -1,61 +1,48 @@
-import { ethers } from "ethers";
-import { getAddress } from "viem";
-import { Communicator } from "@dataverse/communicator";
-import { WalletProvider } from "@dataverse/wallet-provider";
-import { detectDataverseExtension, ExternalWallet } from "@dataverse/utils";
-import { getDapp, getDapps } from "@dataverse/dapp-table-client";
-import {
-  createLensProfile,
-  getLensProfiles,
-  getLensProfileIdByHandle,
-  getHandleByLensProfileId,
-} from "@dataverse/contracts-sdk/data-token";
 import {
   RequestType,
   SYSTEM_CALL,
   ReturnType,
   Chain,
   WALLET,
-  Extension,
   Provider,
   AuthType,
   ChainId,
 } from "./types";
-import { getTimestampByBlockNumber as fetchTimestampByBlockNumber } from "@dataverse/contracts-sdk";
-import { LensHandleNamespace } from "./types/constants";
+import { IProvider } from "./provider";
+import { BaseProvider } from "./provider/base-provider";
 
 export class DataverseConnector {
-  private communicator: Communicator;
-  private provider?: Provider;
-  private dataverseProvider?: WalletProvider;
-  private externalProvider?: any;
-  private externalWallet: ExternalWallet;
-  isConnected?: boolean;
-  wallet?: WALLET;
-  address?: string;
-  chain?: Chain;
-  appId?: string;
-  userInfo?: any;
+  provider: IProvider & BaseProvider;
 
-  constructor() {
-    if (!window.externalWallet) {
-      window.externalWallet = new ExternalWallet();
-    }
-    this.externalWallet = window.externalWallet;
-    if (!window.dataverseCommunicator) {
-      this.communicator = new Communicator({
-        source: window,
-        target: window.top,
-        methodClass: this.externalWallet,
-      });
-      window.dataverseCommunicator = this.communicator;
-    } else {
-      this.communicator = window.dataverseCommunicator;
-    }
-    this.communicator.onRequestMessage(() => {});
+  constructor(provider: IProvider & BaseProvider) {
+    this.provider = provider;
   }
 
-  getProvider(): Provider {
+  get isConnected() {
+    return this.provider.isConnected;
+  }
+
+  get wallet() {
+    return this.provider.wallet;
+  }
+
+  get address() {
+    return this.provider.address;
+  }
+
+  get chain() {
+    return this.provider.chain;
+  }
+
+  get appId() {
+    return this.provider.appId;
+  }
+
+  get userInfo() {
+    return this.provider.userInfo;
+  }
+
+  getProvider(): IProvider {
     return this.provider;
   }
 
@@ -69,115 +56,7 @@ export class DataverseConnector {
     wallet: WALLET;
     userInfo?: any;
   }> {
-    let wallet: WALLET;
-    let provider: Provider;
-    let preferredAuthType: AuthType;
-    if (params) {
-      wallet = params.wallet;
-      provider = params.provider || window.dataverse;
-      preferredAuthType = params.preferredAuthType;
-    } else {
-      provider = window.dataverse;
-    }
-
-    if (provider.isDataverse) {
-      if (!(await detectDataverseExtension())) {
-        throw "The plugin has not been loaded yet. Please check the plugin status or go to https://chrome.google.com/webstore/detail/dataverse/kcigpjcafekokoclamfendmaapcljead to install plugins";
-      }
-      if (wallet === WALLET.EXTERNAL_WALLET) {
-        throw "Conflict between wallet and provider";
-      }
-
-      this.communicator.onRequestMessage(() => {});
-
-      const dataverseProvider = new WalletProvider();
-      const res = await dataverseProvider.connectWallet({
-        wallet: wallet || provider.wallet,
-        preferredAuthType,
-      });
-
-      if (
-        !this.isConnected ||
-        (this.externalProvider && !this.dataverseProvider)
-      ) {
-        dataverseProvider.on("chainChanged", (chainId: number) => {
-          this.chain.chainId = chainId;
-        });
-        dataverseProvider.on("chainNameChanged", (chainName: string) => {
-          this.chain.chainName = chainName;
-        });
-        dataverseProvider.on("accountsChanged", (accounts: string[]) => {
-          this.address = accounts[0];
-        });
-      }
-
-      this.isConnected = true;
-      this.wallet = res.wallet as WALLET;
-      this.address = res.address;
-      this.chain = res.chain;
-      this.userInfo = res.userInfo;
-      this.provider = dataverseProvider;
-      this.dataverseProvider = dataverseProvider;
-
-      return {
-        wallet: this.wallet,
-        address: this.address,
-        chain: this.chain,
-        userInfo: this.userInfo,
-      };
-    }
-
-    this.externalProvider = provider;
-    window.dataverseExternalProvider = provider;
-    this.externalWallet.setProvider(provider);
-    this.communicator.onRequestMessage(undefined);
-
-    const dataverseProvider = new WalletProvider();
-    const res = await dataverseProvider.connectWallet({
-      wallet: WALLET.EXTERNAL_WALLET,
-    });
-
-    this.externalProvider.removeAllListeners("chainChanged");
-    this.externalProvider.removeAllListeners("accountsChanged");
-    this.externalProvider.on("chainChanged", (networkId: string) => {
-      const chainId = Number(networkId);
-      this.chain.chainId = chainId;
-      this.chain.chainName =
-        chainId === 80001 ? "mumbai" : chainId === 1 ? "ethereum" : "Unknown";
-      window.dataverseCommunicator?.sendRequest({
-        method: "chainChanged",
-        params: {
-          chain: { chainId: Number(networkId), chainName: "Unknown" },
-          wallet: this.wallet,
-        },
-        postMessageTo: "Browser",
-      });
-    });
-    this.externalProvider.on("accountsChanged", (accounts: string[]) => {
-      this.address = getAddress(accounts[0]);
-      window.dataverseCommunicator?.sendRequest({
-        method: "accountsChanged",
-        params: {
-          accounts: accounts.map(account => getAddress(account)),
-          wallet: this.wallet,
-        },
-        postMessageTo: "Browser",
-      });
-    });
-
-    this.isConnected = true;
-    this.wallet = res.wallet as WALLET;
-    this.address = res.address;
-    this.chain = res.chain;
-    this.userInfo = res.userInfo;
-    this.provider = this.externalProvider;
-
-    return {
-      wallet: this.wallet,
-      address: this.address,
-      chain: this.chain,
-      userInfo: this.userInfo,
-    };
+    return this.provider.connectWallet(params);
   }
 
   async getCurrentWallet(): Promise<
@@ -188,7 +67,7 @@ export class DataverseConnector {
       }
     | undefined
   > {
-    return window.dataverse.getCurrentWallet();
+    return this.provider.getCurrentWallet();
   }
 
   async runOS<T extends SYSTEM_CALL>({
@@ -198,47 +77,19 @@ export class DataverseConnector {
     method: T;
     params?: RequestType[T];
   }): Promise<Awaited<ReturnType[T]>> {
-    if (
-      method !== SYSTEM_CALL.checkCapability &&
-      method !== SYSTEM_CALL.loadFile &&
-      method !== SYSTEM_CALL.loadFilesBy &&
-      method !== SYSTEM_CALL.getModelBaseInfo &&
-      method !== SYSTEM_CALL.loadDatatokens &&
-      method !== SYSTEM_CALL.isDatatokenCollectedBy &&
-      method !== SYSTEM_CALL.loadDataUnions &&
-      method !== SYSTEM_CALL.isDataUnionCollectedBy &&
-      method !== SYSTEM_CALL.isDataUnionSubscribedBy &&
-      !this?.isConnected
-    ) {
-      throw new Error("Please connect wallet first");
-    }
-
-    const res = (await this.communicator.sendRequest({
-      method,
-      params,
-      postMessageTo: Extension,
-    })) as ReturnType[SYSTEM_CALL];
-
-    if (method === SYSTEM_CALL.createCapability) {
-      this.appId = (params as RequestType[SYSTEM_CALL.createCapability]).appId;
-    }
-
-    return res;
+    return this.provider.runOS({ method, params });
   }
 
   getDAppTable() {
-    return getDapps();
+    return this.provider.getDAppTable();
   }
 
   getDAppInfo(dappId: string) {
-    return getDapp(dappId);
+    return this.provider.getDAppInfo(dappId);
   }
 
   getCurrentPkh(): string {
-    if (!this.address) {
-      throw new Error("Please connect wallet first");
-    }
-    return `did:pkh:eip155:1:${this.address}`;
+    return this.provider.getCurrentPkh();
   }
 
   async createProfile({
@@ -248,28 +99,7 @@ export class DataverseConnector {
     chainId: ChainId;
     handle: string;
   }): Promise<string> {
-    if (!this?.isConnected) {
-      throw new Error("Please connect wallet first");
-    }
-
-    const provider = new ethers.providers.Web3Provider(this.provider, "any");
-    const signer = provider.getSigner();
-
-    const id = await getLensProfileIdByHandle({
-      chainId,
-      handle: `${LensHandleNamespace}/${handle}`,
-    });
-
-    if (id && Number.parseInt(id) != 0)
-      throw new Error("Handle is taken, try a new handle.");
-
-    const profile = await createLensProfile({
-      chainId,
-      handle: handle,
-      to: await signer.getAddress(),
-    });
-
-    return profile;
+    return this.provider.createProfile({ chainId, handle });
   }
 
   async getProfiles({
@@ -279,12 +109,7 @@ export class DataverseConnector {
     chainId: ChainId;
     address: string;
   }): Promise<{ id: string }[]> {
-    const res = await getLensProfiles({
-      chainId,
-      account: address,
-    });
-
-    return res.map(item => ({ id: item }));
+    return this.provider.getProfiles({ chainId, address });
   }
 
   async getProfileIdByHandle({
@@ -294,12 +119,7 @@ export class DataverseConnector {
     chainId: ChainId;
     handle: string;
   }): Promise<string> {
-    const res = await getLensProfileIdByHandle({
-      chainId,
-      handle: `${LensHandleNamespace}/${handle}`,
-    });
-
-    return res;
+    return this.provider.getProfileIdByHandle({ chainId, handle });
   }
 
   async getHandleByProfileId({
@@ -309,12 +129,7 @@ export class DataverseConnector {
     chainId: ChainId;
     profileId: string;
   }): Promise<string> {
-    const res = await getHandleByLensProfileId({
-      chainId,
-      profileId,
-    });
-
-    return res;
+    return this.provider.getHandleByProfileId({ chainId, profileId });
   }
 
   getTimestampByBlockNumber({
@@ -324,6 +139,6 @@ export class DataverseConnector {
     chainId: ChainId;
     blockNumber: number;
   }) {
-    return fetchTimestampByBlockNumber({ chainId, blockNumber });
+    return this.provider.getTimestampByBlockNumber({ chainId, blockNumber });
   }
 }
