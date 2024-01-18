@@ -19,9 +19,9 @@ import {
 } from "../types";
 import { getTimestampByBlockNumber as fetchTimestampByBlockNumber } from "@dataverse/contracts-sdk";
 import { LensHandleNamespace } from "../types/constants";
-import { EthersProvider } from "./types";
+import { EthersProvider, IProvider } from "./types";
 
-export abstract class BaseProvider implements EthersProvider {
+export abstract class BaseProvider implements IProvider {
   _provider?: EthersProvider;
   isConnected?: boolean;
   wallet?: WALLET;

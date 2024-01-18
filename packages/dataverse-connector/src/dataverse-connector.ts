@@ -12,9 +12,9 @@ import { IProvider } from "./provider";
 import { BaseProvider } from "./provider/base-provider";
 
 export class DataverseConnector {
-  provider: IProvider & BaseProvider;
+  provider: BaseProvider;
 
-  constructor(provider: IProvider & BaseProvider) {
+  constructor(provider: BaseProvider) {
     this.provider = provider;
   }
 

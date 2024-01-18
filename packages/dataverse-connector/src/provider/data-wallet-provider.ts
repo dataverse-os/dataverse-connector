@@ -13,9 +13,8 @@ import {
   AuthType,
 } from "../types";
 import { BaseProvider } from "./base-provider";
-import { IProvider } from "./types";
 
-export class DataWalletProvider extends BaseProvider implements IProvider {
+export class DataWalletProvider extends BaseProvider {
   private communicator: Communicator;
   private dataverseProvider?: WalletProvider;
   private externalProvider?: any;

@@ -7,12 +7,11 @@ import {
   AuthType,
 } from "../types";
 import { BaseProvider } from "./base-provider";
-import { IProvider } from "./types";
 
 export const defaultSnapOrigin =
   process.env.SNAP_ORIGIN ?? `local:http://localhost:8080`;
 
-export class SnapProvider extends BaseProvider implements IProvider {
+export class SnapProvider extends BaseProvider {
   private snapOrigin: string;
 
   constructor(snapOrigin: string = defaultSnapOrigin) {
@@ -51,11 +50,11 @@ export class SnapProvider extends BaseProvider implements IProvider {
     this.chain = res.chain;
     this.userInfo = res.userInfo;
     this._provider = {
-      on: () => {
-        throw "Not supported in Snap-Env for now";
+      on(event, listener) {
+        return (window as any).ethereum.on(event, listener);
       },
-      off: () => {
-        throw "Not supported in Snap-Env for now";
+      off(event, listener) {
+        return (window as any).ethereum.on(event, listener);
       },
       request: async ({ method, params }) => {
         return await (window as any).ethereum.request({
