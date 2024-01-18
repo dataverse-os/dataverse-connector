@@ -6,7 +6,7 @@ import {
   Chain,
   WALLET,
   Provider,
-  AuthType,
+  AuthType
 } from "../types";
 import { EthersProvider, IProvider } from "./types";
 
@@ -35,7 +35,7 @@ export abstract class BaseProvider implements IProvider {
   }
   request({
     method,
-    params,
+    params
   }: {
     method: string;
     params?: any[];
@@ -72,7 +72,7 @@ export abstract class BaseProvider implements IProvider {
 
   abstract runOS: <T extends SYSTEM_CALL>({
     method,
-    params,
+    params
   }: {
     method: T;
     params?: RequestType[T];

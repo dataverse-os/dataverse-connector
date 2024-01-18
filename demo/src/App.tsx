@@ -14,9 +14,9 @@ import {
   DatatokenVars,
   MirrorFile,
   CollectModule,
-  DataUnionVars
+  DataUnionVars,
   // StorageResource,
-  DataWalletProvider,
+  DataWalletProvider
 } from "@dataverse/dataverse-connector";
 import { Contract, ethers } from "ethers";
 import { getAddress } from "viem";
@@ -48,6 +48,9 @@ const storageProvider = {
 let address: string;
 let wallet: WALLET;
 let pkh: string;
+
+let keyHandler: string;
+let encryptedContent: Record<string, any>;
 
 let folders: StructuredFolderRecord;
 let folderId: string;
@@ -655,16 +658,18 @@ function App() {
   /*** Capability ***/
   const createCapability = async () => {
     await connectWalletWithMetamaskProvider();
-    const _pkh = await dataverseConnector.runOS({
+    const res = await dataverseConnector.runOS({
       method: SYSTEM_CALL.createCapability,
       params: {
         appId,
         resource: RESOURCE.CERAMIC
       }
     });
-    pkh = _pkh;
+    pkh = res.pkh;
+    const cacao = res.cacao;
     _setPkh(pkh);
     console.log(pkh);
+    console.log(cacao);
     return pkh;
   };
 
@@ -680,7 +685,54 @@ function App() {
     return isCurrentPkhValid;
   };
 
+  const getAppSessionKey = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.getAppSessionKey
+    });
+    console.log(res);
+  };
+
+  const getAppCacao = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.getAppCacao
+    });
+    console.log(res);
+  };
+
+  const signWithSessionKey = async () => {
+    const res = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.signWithSessionKey,
+      params: "test"
+    });
+    console.log(res);
+  };
+
   /*** Capability ***/
+
+  /*** Encryption ***/
+  const generateFileKey = async () => {
+    keyHandler = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.generateFileKey
+    });
+    console.log(keyHandler);
+  };
+
+  const encryptContent = async () => {
+    encryptedContent = await dataverseConnector.runOS({
+      method: SYSTEM_CALL.encryptContent,
+      params: {
+        content: {
+          text: "hi",
+          images: [
+            "https://gateway.lighthouse.storage/ipfs/QmPrjqTSMCWpsw52XJjqx6TKRMW8HdjNYir2VKC48TAHy8"
+          ]
+        },
+        keyHandler
+      }
+    });
+    console.log(encryptedContent);
+  };
+  /*** Encryption ***/
 
   /*** Folders ***/
   const createFolder = async () => {
@@ -912,7 +964,9 @@ function App() {
           createdAt: date,
           updatedAt: date,
           encrypted
-        }
+        },
+        encryptedContent,
+        keyHandler
       }
     });
 
@@ -944,7 +998,9 @@ function App() {
           createdAt: date,
           updatedAt: date,
           encrypted
-        }
+        },
+        encryptedContent,
+        keyHandler
       }
     });
     console.log(res);
@@ -1603,7 +1659,13 @@ function App() {
       <div className='blackText'>
         {isCurrentPkhValid !== undefined && String(isCurrentPkhValid)}
       </div>
-      <hr />
+      <button onClick={getAppSessionKey}>getAppSessionKey</button>
+      <button onClick={getAppCacao}>getAppCacao</button>
+      <button onClick={signWithSessionKey}>signWithSessionKey</button>
+      <br />
+      <button onClick={generateFileKey}>generateFileKey</button>
+      <button onClick={encryptContent}>encryptContent</button>
+      <br />
       <br />
       <button onClick={createFolder}>createFolder</button>
       <button onClick={updateFolderBaseInfo}>updateFolderBaseInfo</button>

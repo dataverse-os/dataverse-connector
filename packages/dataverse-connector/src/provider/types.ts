@@ -5,7 +5,7 @@ export interface EthersProvider {
   off(event: string, listener?: Function): this;
   request({
     method,
-    params,
+    params
   }: {
     method: string;
     params?: Array<any>;
@@ -15,7 +15,7 @@ export interface EthersProvider {
 export interface DataverseProvider {
   runOS<T extends SYSTEM_CALL>({
     method,
-    params,
+    params
   }: {
     method: T;
     params?: RequestType[T];

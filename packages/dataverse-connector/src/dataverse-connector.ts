@@ -7,7 +7,7 @@ import {
   Chain,
   WALLET,
   Provider,
-  AuthType,
+  AuthType
 } from "./types";
 import { IProvider } from "./provider";
 import { BaseProvider } from "./provider/base-provider";
@@ -75,7 +75,7 @@ export class DataverseConnector {
 
   async runOS<T extends SYSTEM_CALL>({
     method,
-    params,
+    params
   }: {
     method: T;
     params?: RequestType[T];
@@ -92,17 +92,17 @@ export class DataverseConnector {
   }
 
   getLatestStream(model: Model) {
-    return model.streams.find(stream => stream.latest);
+    return model.streams.find((stream) => stream.latest);
   }
 
   getModelIdByAppIdAndModelName({
     dapp,
-    modelName,
+    modelName
   }: {
     dapp: Dapp;
     modelName: string;
   }): string | undefined {
-    const model = dapp.models.find(model => model.modelName === modelName);
+    const model = dapp.models.find((model) => model.modelName === modelName);
     if (model) {
       return this.getLatestStream(model).modelId;
     }

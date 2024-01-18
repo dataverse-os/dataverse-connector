@@ -4,7 +4,7 @@ import {
   ReturnType,
   Chain,
   WALLET,
-  AuthType,
+  AuthType
 } from "../types";
 import { BaseProvider } from "./base-provider";
 
@@ -34,9 +34,9 @@ export class SnapProvider extends BaseProvider {
         snapId: this.snapOrigin,
         request: {
           method: "connectWallet",
-          ...(params ? params : {}),
-        },
-      },
+          ...(params ? params : {})
+        }
+      }
     });
 
     if (res.error) {
@@ -65,18 +65,18 @@ export class SnapProvider extends BaseProvider {
               method: `ETHEREUM_REQUEST_${method}`,
               ...(params instanceof Object
                 ? { params }
-                : { params: { __PARAM__: params } }),
-            },
-          },
+                : { params: { __PARAM__: params } })
+            }
+          }
         });
-      },
+      }
     };
 
     return {
       wallet: this.wallet,
       address: this.address,
       chain: this.chain,
-      userInfo: this.userInfo,
+      userInfo: this.userInfo
     };
   };
 
@@ -91,13 +91,13 @@ export class SnapProvider extends BaseProvider {
     return {
       wallet: this.wallet,
       address: this.address,
-      chain: this.chain,
+      chain: this.chain
     };
   };
 
   runOS = async <T extends SYSTEM_CALL>({
     method,
-    params,
+    params
   }: {
     method: T;
     params?: RequestType[T];
@@ -106,12 +106,9 @@ export class SnapProvider extends BaseProvider {
       method !== SYSTEM_CALL.checkCapability &&
       method !== SYSTEM_CALL.loadFile &&
       method !== SYSTEM_CALL.loadFilesBy &&
-      method !== SYSTEM_CALL.getModelBaseInfo &&
-      method !== SYSTEM_CALL.loadDatatokens &&
-      method !== SYSTEM_CALL.isDatatokenCollectedBy &&
-      method !== SYSTEM_CALL.loadDataUnions &&
-      method !== SYSTEM_CALL.isDataUnionCollectedBy &&
-      method !== SYSTEM_CALL.isDataUnionSubscribedBy &&
+      (method !== SYSTEM_CALL.loadFilesBy ||
+        (method === SYSTEM_CALL.loadFilesBy &&
+          (params as RequestType[SYSTEM_CALL.loadFilesBy]).fileIds)) &&
       !this?.isConnected
     ) {
       throw new Error("Please connect wallet first");
@@ -125,9 +122,9 @@ export class SnapProvider extends BaseProvider {
           method,
           ...(params instanceof Object
             ? { params }
-            : { params: { __PARAM__: params } }),
-        },
-      },
+            : { params: { __PARAM__: params } })
+        }
+      }
     });
 
     if (res.error) {

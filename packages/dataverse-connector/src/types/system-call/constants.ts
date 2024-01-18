@@ -7,6 +7,12 @@ export enum SYSTEM_CALL {
 
   createCapability = "createCapability",
   checkCapability = "checkCapability",
+  getAppSessionKey = "getAppSessionKey",
+  getAppCacao = "getAppCacao",
+  signWithSessionKey = "signWithSessionKey",
+
+  generateFileKey = "generateFileKey",
+  encryptContent = "encryptContent",
 
   createFolder = "createFolder",
   updateFolderBaseInfo = "updateFolderBaseInfo",

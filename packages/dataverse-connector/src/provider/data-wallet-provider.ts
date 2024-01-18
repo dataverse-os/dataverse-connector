@@ -10,7 +10,7 @@ import {
   WALLET,
   Extension,
   Provider,
-  AuthType,
+  AuthType
 } from "../types";
 import { BaseProvider } from "./base-provider";
 
@@ -30,7 +30,7 @@ export class DataWalletProvider extends BaseProvider {
       this.communicator = new Communicator({
         source: window,
         target: window.top,
-        methodClass: this.externalWallet,
+        methodClass: this.externalWallet
       });
       window.dataverseCommunicator = this.communicator;
     } else {
@@ -73,7 +73,7 @@ export class DataWalletProvider extends BaseProvider {
       const dataverseProvider = new WalletProvider();
       const res = await dataverseProvider.connectWallet({
         wallet: wallet || provider.wallet,
-        preferredAuthType,
+        preferredAuthType
       });
 
       if (
@@ -103,7 +103,7 @@ export class DataWalletProvider extends BaseProvider {
         wallet: this.wallet,
         address: this.address,
         chain: this.chain,
-        userInfo: this.userInfo,
+        userInfo: this.userInfo
       };
     }
 
@@ -114,7 +114,7 @@ export class DataWalletProvider extends BaseProvider {
 
     const dataverseProvider = new WalletProvider();
     const res = await dataverseProvider.connectWallet({
-      wallet: WALLET.EXTERNAL_WALLET,
+      wallet: WALLET.EXTERNAL_WALLET
     });
 
     this.externalProvider.removeAllListeners("chainChanged");
@@ -128,9 +128,9 @@ export class DataWalletProvider extends BaseProvider {
         method: "chainChanged",
         params: {
           chain: { chainId: Number(networkId), chainName: "Unknown" },
-          wallet: this.wallet,
+          wallet: this.wallet
         },
-        postMessageTo: "Browser",
+        postMessageTo: "Browser"
       });
     });
     this.externalProvider.on("accountsChanged", (accounts: string[]) => {
@@ -138,10 +138,10 @@ export class DataWalletProvider extends BaseProvider {
       window.dataverseCommunicator?.sendRequest({
         method: "accountsChanged",
         params: {
-          accounts: accounts.map(account => getAddress(account)),
-          wallet: this.wallet,
+          accounts: accounts.map((account) => getAddress(account)),
+          wallet: this.wallet
         },
-        postMessageTo: "Browser",
+        postMessageTo: "Browser"
       });
     });
 
@@ -156,7 +156,7 @@ export class DataWalletProvider extends BaseProvider {
       wallet: this.wallet,
       address: this.address,
       chain: this.chain,
-      userInfo: this.userInfo,
+      userInfo: this.userInfo
     };
   };
 
@@ -173,7 +173,7 @@ export class DataWalletProvider extends BaseProvider {
 
   runOS = async <T extends SYSTEM_CALL>({
     method,
-    params,
+    params
   }: {
     method: T;
     params?: RequestType[T];
@@ -193,7 +193,7 @@ export class DataWalletProvider extends BaseProvider {
     const res = (await this.communicator.sendRequest({
       method,
       params,
-      postMessageTo: Extension,
+      postMessageTo: Extension
     })) as ReturnType[SYSTEM_CALL];
 
     if (method === SYSTEM_CALL.createCapability) {
