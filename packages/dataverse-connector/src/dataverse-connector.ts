@@ -73,6 +73,10 @@ export class DataverseConnector {
     return this.provider.getCurrentWallet();
   }
 
+  getCurrentPkh(): string {
+    return this.provider.getCurrentPkh();
+  }
+
   async runOS<T extends SYSTEM_CALL>({
     method,
     params
