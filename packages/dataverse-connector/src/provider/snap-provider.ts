@@ -19,6 +19,24 @@ export class SnapProvider extends BaseProvider {
     this.snapOrigin = snapOrigin;
   }
 
+  requestSnap = async ({ method, params }) => {
+    console.log("request", { method, params });
+    const res = await (window as any).ethereum.request({
+      method: "wallet_invokeSnap",
+      params: {
+        snapId: this.snapOrigin,
+        request: {
+          method: `ETHEREUM_REQUEST_${method}`,
+          ...(params instanceof Object
+            ? { params }
+            : { params: { __PARAM__: params } })
+        }
+      }
+    });
+    console.log("response", res);
+    return res;
+  };
+
   connectWallet = async (params?: {
     wallet?: WALLET | undefined;
     preferredAuthType?: AuthType;
@@ -28,7 +46,7 @@ export class SnapProvider extends BaseProvider {
     wallet: WALLET;
     userInfo?: any;
   }> => {
-    let res = await (window as any).ethereum.request({
+    let res = await this.requestSnap({
       method: "wallet_invokeSnap",
       params: {
         snapId: this.snapOrigin,
@@ -57,7 +75,7 @@ export class SnapProvider extends BaseProvider {
         return (window as any).ethereum.on(event, listener);
       },
       request: async ({ method, params }) => {
-        return await (window as any).ethereum.request({
+        return await this.requestSnap({
           method: "wallet_invokeSnap",
           params: {
             snapId: this.snapOrigin,
@@ -114,7 +132,7 @@ export class SnapProvider extends BaseProvider {
       throw new Error("Please connect wallet first");
     }
 
-    const res = await (window as any).ethereum.request({
+    const res = await this.requestSnap({
       method: "wallet_invokeSnap",
       params: {
         snapId: this.snapOrigin,
