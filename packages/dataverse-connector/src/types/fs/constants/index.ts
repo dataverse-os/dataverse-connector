@@ -1,4 +1,5 @@
 export enum FolderType {
+  PublicFolderType,
   PrivateFolderType,
   UnionFolderType
 }

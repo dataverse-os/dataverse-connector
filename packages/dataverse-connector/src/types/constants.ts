@@ -2,7 +2,11 @@ export const Browser = "Browser";
 export const Extension = "Extension";
 export const LensHandleNamespace = "test";
 
-export { StorageProviderName } from "@dataverse/dataverse-kernel/kernel/core/constants";
+export enum StorageProviderName {
+  Dataverse,
+  Web3Storage,
+  Lighthouse
+}
 
 export enum SignMethod {
   signMessage = "signMessage",

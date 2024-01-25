@@ -51,7 +51,6 @@ export interface EncryptionProvider {
   encryptedSymmetricKey?: string;
   decryptionConditions?: DecryptionConditions;
   decryptionConditionsType?: DecryptionConditionsType;
-  unlockingTimeStamp?: number;
 }
 
 export interface MonetizationProvider {
@@ -60,7 +59,6 @@ export interface MonetizationProvider {
 }
 
 export interface DataAsset {
-  assetType: string;
   assetId: string;
   assetContract: string;
   chainId: number;
@@ -72,7 +70,7 @@ export interface Dependency {
 }
 
 export type Attached = {
-  blockNumber?: number;
+  timestamp?: number;
 } & object;
 
 export type Dependencies = Dependency[];

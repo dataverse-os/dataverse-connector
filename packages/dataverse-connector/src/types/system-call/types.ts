@@ -9,7 +9,8 @@ import {
   MirrorFileRecord,
   StructuredFolder,
   StructuredFolderRecord,
-  Signal
+  Signal,
+  FolderType
 } from "../fs";
 import { SYSTEM_CALL } from "./constants";
 import { RESOURCE } from "../wallet";
@@ -39,7 +40,9 @@ export interface RequestType {
 
   createFolder: {
     folderName: string;
+    folderType?: FolderType;
     folderDescription?: string;
+    signals?: Signal[];
   };
   updateFolderBaseInfo: {
     folderId: string;
@@ -57,7 +60,6 @@ export interface RequestType {
   monetizeFolder: {
     folderId: string;
     monetizationProvider: MonetizationProvider;
-    signal?: Signal;
   };
   updateDataUnionBaseInfo: {
     dataUnionId: string;
@@ -75,6 +77,7 @@ export interface RequestType {
     modelId: string;
     fileName?: string;
     fileContent: FileContent;
+    folderId?: string;
     encryptedContent?: object;
     keyHandler?: string;
   };
