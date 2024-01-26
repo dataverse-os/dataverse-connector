@@ -5,5 +5,8 @@
     "rootDir": "src",
     "outDir": "dist/esm",
     "jsx": "react-jsx"
+    // "module": "ESNext",
+    // "resolvePackageJsonExports": true,
+    // "moduleResolution": "Bundler"
   }
 }

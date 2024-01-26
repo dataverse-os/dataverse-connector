@@ -46,6 +46,7 @@ import {
 } from "./components/RenderObjectRecursively";
 import "./Wagmi.scss";
 import {
+  DataWalletProvider,
   SYSTEM_CALL,
   WALLET,
   DataverseConnector as _DataverseConnector
@@ -59,7 +60,7 @@ const { chains, publicClient } = configureChains(
 
 const dataverseConnector = new DataverseWalletConnector({ chains });
 
-const _dataverseConnector = new _DataverseConnector();
+const _dataverseConnector = new _DataverseConnector(new DataWalletProvider());
 
 function Wagmi() {
   const ref = useRef<any>(
@@ -331,7 +332,7 @@ function Profile() {
               provider
             });
             console.log(res);
-            const pkh = await _dataverseConnector.runOS({
+            const { pkh } = await _dataverseConnector.runOS({
               method: SYSTEM_CALL.createCapability,
               params: {
                 appId
@@ -348,7 +349,7 @@ function Profile() {
               provider
             });
             console.log(res);
-            const pkh = await _dataverseConnector.runOS({
+            const { pkh } = await _dataverseConnector.runOS({
               method: SYSTEM_CALL.createCapability,
               params: {
                 appId

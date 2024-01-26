@@ -1067,7 +1067,11 @@ function App() {
         </button> */}
       </div>
       <button onClick={() => navigate("/wagmi")}>go to wagmi demo page</button>
-      <button onClick={() => connectWalletWithDataverseProvider()}>
+      <button
+        onClick={() =>
+          connectWalletWithDataverseProvider(WALLET.EXTERNAL_WALLET)
+        }
+      >
         connectWalletWithDataverseProvider
       </button>
       <button onClick={() => connectWalletWithMetamaskProvider()}>
